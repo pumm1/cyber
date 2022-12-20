@@ -7,13 +7,13 @@ def start():
     while game_is_running:
         command = input("> ")
         if command == '/e' or command == '/q':
-            print('exiting cyberpunk game')
+            print('< Disconnect >')
             game_is_running = False
         if command.startswith('/aci'): #aci = advance combat initiative
             advanceCombatSeq()
         if command.startswith('/lci'): #lci = list combat initiative
             listCombatInitiative()
-        if command.startswith('/nci'): #nci = new combat initiative
+        if command.startswith('/nci'): #nci = new combat initiative, add to combat sequence
             match command.split(' '):
                 case [_, character, initiative]:
                     addToCombat(character, int(initiative))
@@ -29,11 +29,11 @@ def start():
                     print('/char <name>')
         if command.startswith('/hit'):
             rollHitLocation()
-        if command.startswith('/st'):
+        if command.startswith('/st'): #TODO:
             match command.split(' '):
-                case ['command']:
+                case [_]:
                     print('Need more values [/st <param>]')
-                case ['command', a]:
+                case [_, a]:
                     print('..better')
                 case _:
                     print('default')
