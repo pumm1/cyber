@@ -1,7 +1,7 @@
 BEGIN;
 
 CREATE TABLE cyberpunk.characters(
-    id BIGSERIAL not null primary key,
+    id BIGSERIAL not null primary key primary key,
     name varchar not null,
     role varchar not null,
     special_ability integer not null,
@@ -36,6 +36,13 @@ create table cyberpunk.combat_session(
     character varchar not null,
     initiative integer not null,
     current boolean not null
+);
+
+create table cyberpunk.skills(
+    id bigserial not null primary key,
+    skill varchar not null,
+    attribute varchar not null,
+    description varchar not null
 );
 
 COMMIT;
