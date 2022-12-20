@@ -58,13 +58,21 @@ def listCombatInitiative():
     print(f"Turn order: \n{info}")
 
 def advanceCombatSeq():
+    def printTurn(character):
+        print(f"{character}'s turn!")
+
     rows = DAO.listCombatInitiative(ascending=True)
     queue = deque(rows)
-    #print(f'type tof rows: {type(rows)} ... type of arrRows: {type(arr_rows)}')
     notInOrder = True
-    print('... testing automated ordering')
+    notStarted = all(v['current'] == False for v in rows)
+    if notStarted:
+        notInOrder = False
+        print('Starting combat sequence!')
+        c = queue.pop()
+        DAO.setNextInOrder(c['character'])
+        printTurn(c['character'])
+
     while notInOrder:
-        print(f'... loop {queue}')
         c = queue.pop()
         if c['current'] == True:
             next = queue.pop()
@@ -74,10 +82,9 @@ def advanceCombatSeq():
 
             DAO.resetCurrentOrder()
             DAO.setNextInOrder(next['character'])
-            print(f"{next['character']}'s turn")
+            printTurn(next['character'])
         else:
             queue.appendleft(c)
-            print(f'{c} is not in turn')
 
 def clearCombat():
     DAO.clearCombat()
