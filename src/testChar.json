@@ -1,0 +1,33 @@
+{
+  "name": "Rex",
+  "role": "Nomad",
+  "attributes": {
+    "INT": 8,
+    "REF": 5,
+    "TECH": 6,
+    "COOL": 7,
+    "ATTR": 6,
+    "MA": 8,
+    "BODY": 9,
+    "LUCK": 6,
+    "EMP": 4
+  },
+  "bodyTypeModifier": "average",
+  "skills": [
+    {
+      "skill": "awareness",
+      "value": 3,
+      "attribute": "INT"
+    },
+    {
+      "skill": "melee",
+      "value": 4,
+      "attribute": "REF"
+    },
+    {
+      "skill": "dodge",
+      "value": 2,
+      "attribute": "REF"
+    }
+  ]
+}
