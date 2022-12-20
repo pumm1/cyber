@@ -61,9 +61,12 @@ def getCharacterByName(name: str):
     conn.commit()
     return character
 
-def listCombatInitiative():
+def listCombatInitiative(ascending: bool):
+    ordering = 'DESC'
+    if ascending:
+        ordering = 'ASC'
     cur.execute(
-        f"""SELECT * FROM {table_combat_session} ORDER BY initiative DESC;"""
+        f"""SELECT * FROM {table_combat_session} ORDER BY initiative {ordering};"""
     )
     rows = cur.fetchall()
     conn.commit()
@@ -76,6 +79,18 @@ def clearCombat():
     )
     conn.commit()
     print('Combat table cleared')
+
+def resetCurrentOrder():
+    cur.execute(
+        f"""UPDATE {table_combat_session} SET current = {False} WHERE current = {True};"""
+    )
+    conn.commit()
+
+def setNextInOrder(character):
+    cur.execute(
+        f"""UPDATE {table_combat_session} SET current = {True} WHERE character = '{character}';"""
+    )
+    conn.commit()
 
 def addCharacterToCombat(character, initiative):
     cur.execute(

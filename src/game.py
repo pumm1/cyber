@@ -1,6 +1,6 @@
-import dice
 import combat
 import cyberdao as DAO
+from collections import deque
 
 def start():
     game_is_running = True
@@ -9,6 +9,8 @@ def start():
         if command == '/e' or command == '/q':
             print('exiting cyberpunk game')
             game_is_running = False
+        if command.startswith('/aci'): #aci = advance combat initiative
+            advanceCombatSeq()
         if command.startswith('/lci'): #lci = list combat initiative
             listCombatInitiative()
         if command.startswith('/nci'): #nci = new combat initiative
@@ -48,13 +50,35 @@ def rollHitLocation():
     print(f'Hit the {location}')
 
 def listCombatInitiative():
-    rows = DAO.listCombatInitiative()
-    cleaned_rows = map(lambda c: (
-        c['character'], {'i': c['initiative'], 'is_next': c['current']}
+    rows = DAO.listCombatInitiative(ascending=False)
+    infoRows = map(lambda c: (
+        f"{c['character']}: initiative: {c['initiative']}, currenet: {c['current']}"
     ), rows)
-    combat_order = dict(cleaned_rows)
+    info = '\n'.join(infoRows)
+    print(f"Turn order: \n{info}")
 
-    print(f'Combat order: \n{combat_order}')
+def advanceCombatSeq():
+    rows = DAO.listCombatInitiative(ascending=True)
+    queue = deque(rows)
+    #print(f'type tof rows: {type(rows)} ... type of arrRows: {type(arr_rows)}')
+    notInOrder = True
+    print('... testing automated ordering')
+    while notInOrder:
+        print(f'... loop {queue}')
+        c = queue.pop()
+        if c['current'] == True:
+            next = queue.pop()
+            queue.appendleft(c)
+            queue.appendleft(next)
+            notInOrder = False
+
+            DAO.resetCurrentOrder()
+            DAO.setNextInOrder(next['character'])
+            print(f"{next['character']}'s turn")
+        else:
+            queue.appendleft(c)
+            print(f'{c} is not in turn')
+
 def clearCombat():
     DAO.clearCombat()
 def addToCombat(character, initiative):
