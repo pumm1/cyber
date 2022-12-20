@@ -57,5 +57,7 @@ roleDict = {
 }
 
 def roleSpecialAbility(role):
-    print(f'role: {role} dict: {roleDict}')
     return roleDict[role][ability]
+
+def roleSpecialAbilityDecription(role):
+    return roleDict[role][abilityDesc]

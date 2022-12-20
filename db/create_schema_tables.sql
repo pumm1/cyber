@@ -32,4 +32,10 @@ alter table cyberpunk.character_skills
 
 select nextval('cyberpunk.characters_id_seq');
 
+create table cyberpunk.combat_session(
+    character varchar not null,
+    initiative integer not null,
+    current boolean not null
+);
+
 COMMIT;

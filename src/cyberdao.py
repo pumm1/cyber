@@ -9,6 +9,7 @@ host = '127.0.0.1'
 schema = 'cyberpunk'
 table_characters = f'{schema}.characters'
 table_skills = f'{schema}.character_skills'
+table_combat_session = f'{schema}.combat_session'
 
 conn = psycopg2.connect(dbname=db, user=user, password=password, host=host)
 cur = conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
@@ -60,3 +61,26 @@ def getCharacterByName(name: str):
     conn.commit()
     return character
 
+def listCombatInitiative():
+    cur.execute(
+        f"""SELECT * FROM {table_combat_session} ORDER BY initiative DESC;"""
+    )
+    rows = cur.fetchall()
+    conn.commit()
+
+    return rows
+
+def clearCombat():
+    cur.execute(
+        f"""DELETE FROM {table_combat_session};"""
+    )
+    conn.commit()
+    print('Combat table cleared')
+
+def addCharacterToCombat(character, initiative):
+    cur.execute(
+        f"""INSERT INTO {table_combat_session} (character, initiative, current)
+        VALUES ('{character}', {initiative}, {False});"""
+    )
+    conn.commit()
+    print(f'{character} added to combat session')
