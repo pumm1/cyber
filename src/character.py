@@ -1,5 +1,6 @@
 import dice
 import json
+from roles import roleSpecialAbility
 
 class Character:
     def __init__(self, file):
@@ -12,12 +13,14 @@ class Character:
         self.attributes = data['attributes']
         self.skills = data['skills']
         self.bodyTypeModifier = data['bodyTypeModifier']
+        self.specialAbility = data['specialAbility']
         self.dmg_taken = 0
 
 #character row e.g.: (2, 'Test', 'Solo', 6, 'average', 9, 9, 8, 8, 7, 8, 7, 5, 4)
     def __init__(self, row, skills):
         self.name = row['name']
         self.role = row['role']
+        self.specialAbility = row['special_ability']
         self.skills = skills
         self.attributes = {
             'INT': row['atr_int'],
@@ -44,7 +47,6 @@ class Character:
 
             return result
 
-
     def findSkill(self, skill):
         for s in self.skills:
             if s["skill"] == skill:
@@ -53,3 +55,11 @@ class Character:
 
     def takeDmg(self, dmg: int):
         self.dmg_taken = self.dmg_taken + dmg
+
+    def info(self):
+        str = f"""************* {self.name} *************
+Role: {self.role}
+Attributes: {self.attributes}
+Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
+"""
+        print(str)
