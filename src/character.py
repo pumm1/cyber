@@ -18,6 +18,7 @@ class Character:
 
 #character row e.g.: (2, 'Test', 'Solo', 6, 'average', 9, 9, 8, 8, 7, 8, 7, 5, 4)
     def __init__(self, row, skills):
+        self.id = row['id']
         self.name = row['name']
         self.role = row['role']
         self.specialAbility = row['special_ability']

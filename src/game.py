@@ -2,6 +2,18 @@ import combat
 import cyberdao as DAO
 from collections import deque
 
+#TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
+#reputation table:
+#1 = anyone who was there knows
+#2 = stories have gottern around to immediate friends
+#3 = all your co-workres and casual acquaintances know
+#4 = stories are all over the local area
+#5 = your name is recognized by others beyond your local area
+#6 = you are known on sight by others beyond your local area
+#7 = a new story or two has been written about your exploits
+#8 = your exploits regularly make the headlines and screamsheets
+#9 = your exploits always make the screamsheets and TV
+#10 = you are known worldwide
 def start():
     game_is_running = True
     while game_is_running:
@@ -9,6 +21,17 @@ def start():
         if command == '/e' or command == '/q':
             print('< Disconnect >')
             game_is_running = False
+        if command.startswith('/explain'):
+            print('TODO: add epxlanations for things')
+        if command.startswith('/add_rep'):
+            match command.split(' '):
+                case [_, character, 'pos']:
+                    addReputation(character, 1)
+                case [_, character, 'neg']:
+                    addReputation(character, -1)
+                case _:
+                    print('/add_rep <character> pos/neg')
+
         if command.startswith('/aci'): #aci = advance combat initiative
             advanceCombatSeq()
         if command.startswith('/lci'): #lci = list combat initiative
@@ -56,6 +79,31 @@ def listCombatInitiative():
     ), rows)
     info = '\n'.join(infoRows)
     print(f"Turn order: \n{info}")
+
+def addReputation(char, rep):
+    character = DAO.getCharacterByName(char)
+    rep_type = 'positive'
+    print(f'... {character}')
+    if rep < 0:
+        rep_type = 'negative'
+    if character is not None:
+        print(f"Add {rep_type} to {character.name}? [y/n]")
+        tries = 0
+        while tries < 3:
+            command = input("> ")
+            if command.lower() == 'y':
+                print(f'What is {character.name} gaining reputation for?')
+                info = input("> ")
+                DAO.addReputation(character.id, info, rep)
+                print(f'Reputation added for {character.name}')
+                break
+            elif command.lower() == 'n':
+                print(f'Cancelling reputation add for {character.name}')
+                break
+            tries = tries + 1
+    else:
+        print(f'Character not found by name {char}')
+
 
 def advanceCombatSeq():
     def printTurn(character):

@@ -45,4 +45,10 @@ create table cyberpunk.skills(
     description varchar not null
 );
 
+create table cyberpunk.character_reputation(
+    character_id bigint not null,
+    known_for varchar not null,
+    reputation_value integer not null
+);
+
 COMMIT;

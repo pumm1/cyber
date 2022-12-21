@@ -10,6 +10,7 @@ schema = 'cyberpunk'
 table_characters = f'{schema}.characters'
 table_skills = f'{schema}.character_skills'
 table_combat_session = f'{schema}.combat_session'
+table_reputation = f'{schema}.character_reputation'
 
 conn = psycopg2.connect(dbname=db, user=user, password=password, host=host)
 cur = conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
@@ -60,6 +61,14 @@ def getCharacterByName(name: str):
 
     conn.commit()
     return character
+
+def addReputation(character_id, info, rep):
+    assert abs(rep) == 1
+    cur.execute(
+        f"""INSERT INTO {table_reputation} (character_id, known_for, reputation_value)
+            VALUES ({character_id}, '{info}', {rep});"""
+    )
+    conn.commit()
 
 def listCombatInitiative(ascending: bool):
     ordering = 'DESC'
