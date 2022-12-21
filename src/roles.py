@@ -40,7 +40,7 @@ roleDict = {
     },
     meditechie: {
         ability: 'Medical tech',
-        abilityDesc: 'Ability to perform surgeries and medical repairs - used also to install chrome. Small bonus to firs aid.'
+        abilityDesc: 'Ability to perform surgeries and medical repairs - used also to install chrome. Small bonus to firs aid. See info on trauma team for more info.'
     },
     corp: {
         ability: 'Resources',

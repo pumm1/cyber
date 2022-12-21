@@ -39,22 +39,31 @@ def getCharactersByName(name: str):
     print(f'rows fetched: {cleaned_rows}')
     conn.commit()
 
-def getCharacterByName(name: str):
+def getCharacterRow(name: str):
     cur.execute(
         f"""{character_q} WHERE c.name = '{name}';"""
     )
     char_row = cur.fetchone()
     conn.commit()
-    character = None
+    return char_row
+
+def getCharacterSkillsById(id):
+    cur.execute(
+        f'SELECT * FROM {table_skills} where character_id = {id};'
+    )
+    skill_rows = cur.fetchall()
+    conn.commit()
+    return skill_rows
+
+
+def getCharacterByName(name: str):
+    char_row = getCharacterRow(name)
     if char_row is not None:
         id = char_row['id']
-        cur.execute(
-            f'SELECT * FROM {table_skills} where character_id = {id};'
-        )
-        skill_rows = cur.fetchall()
-        conn.commit()
-
+        skill_rows = getCharacterSkillsById(id)
         rep_rows = getReputationRows(id)
+        print(f'...rep rows: {rep_rows}')
+        print(f'...{len(rep_rows)}')
         reputation = sum(map(lambda rep:(
             rep['reputation_value']
         ), rep_rows))

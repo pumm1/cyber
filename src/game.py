@@ -1,6 +1,7 @@
 import combat
 import cyberdao as DAO
 from collections import deque
+import dice
 
 #TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
 #reputation table:
@@ -16,10 +17,11 @@ from collections import deque
 #10 = you are known worldwide
 
 split_at = ' '
+inputIndicator = "> "
 def start():
     game_is_running = True
     while game_is_running:
-        command = input("> ")
+        command = input(inputIndicator)
         if command == '/e' or command == '/q':
             print('< Disconnect >')
             game_is_running = False
@@ -29,6 +31,12 @@ def start():
                     characterRoll(character, 'rep')
                 case _:
                     print('That roll is unknown or not supported yet')
+        if command.startswith('/add_char'):
+            match command.split(split_at):
+                case [_, name]:
+                    createCharacter(name)
+                case _:
+                    print('/add_char <name>')
         if command.startswith('/explain'):
             print('TODO: add epxlanations for things')
         if command.startswith('/add_rep'):
@@ -68,6 +76,43 @@ def start():
                     print('..better')
                 case _:
                     print('default')
+
+def safeCastToInt(text):
+    val = 0
+    try:
+        val = int(text)
+    except (ValueError, TypeError):
+        val = 0
+    return val
+def setAttribute(attribute: str) -> int:
+    print(f'<give val> or /roll attribute {attribute} [1-10]')
+    ans = input(inputIndicator)
+    atr = 0
+    if ans.lower() == '/roll':
+        atr = dice.roll(1, 10)
+    else:
+        atr = safeCastToInt(ans)
+        if 0 < atr < 10:
+            atr
+        else:
+            while True:
+                ans = input(inputIndicator)
+                atr = safeCastToInt(ans)
+                if 0 < atr <= 10:
+                    break
+    print(f'{attribute} = {atr}')
+    return atr
+def createCharacter(name: str):
+    atr_int = setAttribute('INT')
+    atr_ref = setAttribute('REF')
+    atr_tech = setAttribute('TECH')
+    atr_tech = setAttribute('COOL')
+    atr_attr = setAttribute('ATTR')
+    atr_luck = setAttribute('LUCK')
+    atr_ma = setAttribute('MA')
+    atr_body = setAttribute('BODY')
+    atr_emp = setAttribute('EMP')
+
 
 def characterRoll(name, roll):
     character = DAO.getCharacterByName(name)
@@ -112,10 +157,10 @@ def addReputation(char, rep):
         else:
             print(f"Add {rep_type} reputation for {character.name}? [y/n]")
             while tries < 3:
-                command = input("> ")
+                command = input(inputIndicator)
                 if command.lower() == 'y':
                     print(f'What is {character.name} gaining reputation for?')
-                    info = input("> ")
+                    info = input(inputIndicator)
                     DAO.addReputation(character.id, info, rep)
                     print(f'Reputation added for {character.name}')
                     break
