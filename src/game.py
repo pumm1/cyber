@@ -14,6 +14,8 @@ from collections import deque
 #8 = your exploits regularly make the headlines and screamsheets
 #9 = your exploits always make the screamsheets and TV
 #10 = you are known worldwide
+
+split_at = ' '
 def start():
     game_is_running = True
     while game_is_running:
@@ -21,10 +23,16 @@ def start():
         if command == '/e' or command == '/q':
             print('< Disconnect >')
             game_is_running = False
+        if command.startswith('/roll'):
+            match command.split(split_at):
+                case [_, 'rep', character]:
+                    characterRoll(character, 'rep')
+                case _:
+                    print('That roll is unknown or not supported yet')
         if command.startswith('/explain'):
             print('TODO: add epxlanations for things')
         if command.startswith('/add_rep'):
-            match command.split(' '):
+            match command.split(split_at):
                 case [_, character, 'pos']:
                     addReputation(character, 1)
                 case [_, character, 'neg']:
@@ -45,7 +53,7 @@ def start():
         if command.startswith('/cc'): #cc = clear combat
             clearCombat()
         if command.startswith('/char'):
-            match command.split(' '):
+            match command.split(split_at):
                 case [_, name]:
                     fetchCharacter(name)
                 case _:
@@ -53,13 +61,24 @@ def start():
         if command.startswith('/hit'):
             rollHitLocation()
         if command.startswith('/st'): #TODO:
-            match command.split(' '):
+            match command.split(split_at):
                 case [_]:
                     print('Need more values [/st <param>]')
                 case [_, a]:
                     print('..better')
                 case _:
                     print('default')
+
+def characterRoll(name, roll):
+    character = DAO.getCharacterByName(name)
+    if character is None:
+        print(f'Character not found by the name of {name}')
+    else:
+        match roll:
+            case 'rep':
+                print(f'{character.name} face off result: {character.rollFaceDown()}')
+            case unknown:
+                print(f'Command {unknown} is not known or not yet supported')
 
 def fetchCharacter(name):
     character = DAO.getCharacterByName(name)
@@ -83,24 +102,27 @@ def listCombatInitiative():
 def addReputation(char, rep):
     character = DAO.getCharacterByName(char)
     rep_type = 'positive'
-    print(f'... {character}')
     if rep < 0:
         rep_type = 'negative'
     if character is not None:
-        print(f"Add {rep_type} to {character.name}? [y/n]")
         tries = 0
-        while tries < 3:
-            command = input("> ")
-            if command.lower() == 'y':
-                print(f'What is {character.name} gaining reputation for?')
-                info = input("> ")
-                DAO.addReputation(character.id, info, rep)
-                print(f'Reputation added for {character.name}')
-                break
-            elif command.lower() == 'n':
-                print(f'Cancelling reputation add for {character.name}')
-                break
-            tries = tries + 1
+        rep_rows = DAO.getReputationRows(character.id)
+        if len(rep_rows) >= 10:
+            print('Max rep of 10 reached already')
+        else:
+            print(f"Add {rep_type} reputation for {character.name}? [y/n]")
+            while tries < 3:
+                command = input("> ")
+                if command.lower() == 'y':
+                    print(f'What is {character.name} gaining reputation for?')
+                    info = input("> ")
+                    DAO.addReputation(character.id, info, rep)
+                    print(f'Reputation added for {character.name}')
+                    break
+                elif command.lower() == 'n':
+                    print(f'Cancelling reputation add for {character.name}')
+                    break
+                tries = tries + 1
     else:
         print(f'Character not found by name {char}')
 

@@ -29,9 +29,10 @@ def getAllCharacters():
     return rows
 
 
+#TODO: some fuzzy character search logic and to character class
 def getCharactersByName(name: str):
     cur.execute(
-        f"""{character_q} WHERE c.name = '{name}';"""
+        f"""{character_q} WHERE c.name like '%{name}%';"""
     )
     rows = cur.fetchall()
     cleaned_rows = clean_fetch_all(rows)
@@ -43,6 +44,7 @@ def getCharacterByName(name: str):
         f"""{character_q} WHERE c.name = '{name}';"""
     )
     char_row = cur.fetchone()
+    conn.commit()
     character = None
     if char_row is not None:
         id = char_row['id']
@@ -50,16 +52,19 @@ def getCharacterByName(name: str):
             f'SELECT * FROM {table_skills} where character_id = {id};'
         )
         skill_rows = cur.fetchall()
+        conn.commit()
 
+        rep_rows = getReputationRows(id)
+        reputation = sum(map(lambda rep:(
+            rep['reputation_value']
+        ), rep_rows))
         skills = map(lambda skill: (
             skill['skill'], {skill['skill_value'], skill['attribute']}
         ), skill_rows)
         cleaned_skills = dict(skills)
-        character = Character(char_row, cleaned_skills)
+        character = Character(char_row, cleaned_skills, reputation)
     else:
         print('No character found')
-
-    conn.commit()
     return character
 
 def addReputation(character_id, info, rep):
@@ -69,6 +74,13 @@ def addReputation(character_id, info, rep):
             VALUES ({character_id}, '{info}', {rep});"""
     )
     conn.commit()
+def getReputationRows(character_id):
+    cur.execute(
+        f'SELECT * FROM {table_reputation} where character_id = {character_id};'
+    )
+    rows = cur.fetchall()
+    conn.commit()
+    return rows
 
 def listCombatInitiative(ascending: bool):
     ordering = 'DESC'

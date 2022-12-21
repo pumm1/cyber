@@ -17,10 +17,11 @@ class Character:
         self.dmg_taken = 0
 
 #character row e.g.: (2, 'Test', 'Solo', 6, 'average', 9, 9, 8, 8, 7, 8, 7, 5, 4)
-    def __init__(self, row, skills):
+    def __init__(self, row, skills, rep):
         self.id = row['id']
         self.name = row['name']
         self.role = row['role']
+        self.reputation = rep
         self.specialAbility = row['special_ability']
         self.skills = skills
         self.attributes = {
@@ -54,6 +55,10 @@ class Character:
                 return s
         return None
 
+    def rollFaceDown(self):
+        roll = dice.roll(1, 10)
+        return roll + self.attributes['COOL'] + self.reputation
+
     def takeDmg(self, dmg: int):
         self.dmg_taken = self.dmg_taken + dmg
 
@@ -62,5 +67,6 @@ class Character:
 Role: {self.role}
 Attributes: {self.attributes}
 Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
+Reputation: {self.reputation}
 """
         print(str)
