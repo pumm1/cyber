@@ -5,6 +5,19 @@ split_at = ' '
 roll_str = '/roll'
 list_str = '/list'
 
+#TODO: use
+INT = 'INT'
+REF = 'REF'
+TECH = 'TECH'
+COOL = 'COOL'
+ATTR = 'ATTR'
+LUCK = 'LUCK'
+MA = 'MA'
+BODY = 'BODY'
+EMP = 'EMP'
+
+
+
 exit_commands = ['/e', '/q', '/exit', '/quit']
 help_commands = ['/help', '/halp', '/h']
 
@@ -14,7 +27,9 @@ hit_str = 'hit'
 roll_help_str = f'{roll_str} <{rep_roll_str}> / <{hit_str}> / <{hit_location_roll_str}>'
 
 add_char_str = '/add_char'
-add_char_help_str = f'{add_char_str} <name>'
+roll_all_str = 'roll_all'
+roll_atr_str = 'roll_atr'
+add_char_help_str = f'{add_char_str} <name> <optional {roll_all_str} / {roll_atr_str}>'
 explain_str = '/explain'
 add_reputation_str = '/add_rep'
 advance_combat_initiative_str = '/aci'

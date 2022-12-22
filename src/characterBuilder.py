@@ -2,7 +2,11 @@ import dice
 import cyberdao as DAO
 import roles
 import bodytypes
-from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str
+from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str, INT, REF, TECH, COOL, ATTR, LUCK, MA, BODY, EMP
+
+def rollAtr():
+    atr = dice.roll(2, 3) + 4
+    return atr
 
 
 def addAttribute(attribute: str) -> int:
@@ -11,7 +15,7 @@ def addAttribute(attribute: str) -> int:
     while True:
         ans = askInput()
         if checkRollCommand(ans):
-            atr = dice.roll(1, 10)
+            atr = rollAtr()
             break
         else:
             atr = safeCastToInt(ans)
@@ -24,6 +28,10 @@ def addAttribute(attribute: str) -> int:
 
 def addRole():
     print(f'<give role> or {roll_str} random role. {list_str} to see info on roles')
+    role = manualRole()
+    return role
+
+def manualRole(allow_roll: bool):
     role = ''
     while True:
         ans = askInput()
@@ -33,12 +41,18 @@ def addRole():
             role = ans
             print(f'Selected {role}')
             break
-        elif checkRollCommand(ans):
+        elif allow_roll and checkRollCommand(ans):
             role = rollRole()
-            print(f'Rolled {role}')
+
             break
     return role
 
+def rollSpecial(role):
+    specialAbility = roles.roleDict[role][roles.ability]
+
+    skill = dice.roll(1, 10)
+    print(f'Rolled {specialAbility} = {skill}')
+    return skill
 
 def addSpecial(role):
     specialAbility = roles.roleDict[role][roles.ability]
@@ -49,8 +63,7 @@ def addSpecial(role):
     while True:
         ans = askInput()
         if checkRollCommand(ans):
-            skill = dice.roll(1, 10)
-            print(f'Rolled {specialAbility} = {skill}')
+            skill = rollSpecial(role)
             break
         else:
             res = safeCastToInt(ans)
@@ -102,8 +115,92 @@ def addBodyType():
     print(f'Body type modifier = {body_type}')
     return body_type
 
+def handleRole(is_random: bool):
+    role = ''
+    if is_random:
+        role = rollRole()
+    else:
+        role = addRole()
+    return role
 
-def createCharacter(name: str):
+
+def createCharacter(name: str, roll_all = False, roll_atr = False):
+    if roll_all:
+        print('Generating random character')
+        createRandomCharacter(name)
+    elif roll_atr:
+        createCharacterWithRandomAtr(name)
+    else:
+        createManualCharacter(name)
+
+def createCharacterWithRandomAtr(name):
+    role = addRole()
+    special = addSpecial(role)
+    body_Type = addBodyType()
+    (atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp) = rollAtributes()
+    DAO.addCharacter(
+        name,
+        role,
+        special,
+        body_Type,
+        atr_int=atr_int,
+        atr_ref=atr_ref,
+        atr_tech=atr_tech,
+        atr_cool=atr_cool,
+        atr_attr=atr_attr,
+        atr_luck=atr_luck,
+        atr_ma=atr_ma,
+        atr_body=atr_body,
+        atr_emp=atr_emp
+    )
+
+def createRandomCharacter(name):
+    role = rollRole()
+    special = rollSpecial(role)
+    body_type = rollBodyType()
+    (atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp) = rollAtributes()
+
+    DAO.addCharacter(
+        name,
+        role,
+        special,
+        body_type,
+        atr_int=atr_int,
+        atr_ref=atr_ref,
+        atr_tech=atr_tech,
+        atr_cool=atr_cool,
+        atr_attr=atr_attr,
+        atr_luck=atr_luck,
+        atr_ma=atr_ma,
+        atr_body=atr_body,
+        atr_emp=atr_emp
+    )
+def rollAtributes():
+    atr_int = rollAtr()
+    atr_ref = rollAtr()
+    atr_tech = rollAtr()
+    atr_cool = rollAtr()
+    atr_attr = rollAtr()
+    atr_luck = rollAtr()
+    atr_ma = rollAtr()
+    atr_body = rollAtr()
+    atr_emp = rollAtr()
+
+    print(f"""Rolled attributes: 
+{INT}: {atr_int}
+{REF}: {atr_ref}
+{TECH}: {atr_tech}
+{COOL}: {atr_cool}
+{ATTR}: {atr_attr}
+{LUCK}: {atr_luck}
+{MA}: {atr_ma}
+{BODY}: {atr_body}
+{EMP}: {atr_emp}
+""")
+
+    return (atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp)
+
+def createManualCharacter(name):
     role = addRole()
     special = addSpecial(role)
     body_Type = addBodyType()
@@ -135,23 +232,27 @@ def createCharacter(name: str):
 
 def rollRole():
     roll = dice.roll(1, 10)
+    role = ''
     if roll == 1:
-        return roles.solo
+        role = roles.solo
     elif roll == 2:
-        return roles.cop
+        role = roles.cop
     elif roll == 3:
-        return roles.corp
+        role = roles.corp
     elif roll == 4:
-        return roles.fixer
+        role = roles.fixer
     elif roll == 5:
-        return roles.nomad
+        role = roles.nomad
     elif roll == 6:
-        return roles.techie
+        role = roles.techie
     elif roll == 7:
-        return roles.netrunner
+        role = roles.netrunner
     elif roll == 8:
-        return roles.meditechie
+        role = roles.meditechie
     elif roll == 9:
-        return roles.rocker
+        role = roles.rocker
     else:
-        return roles.media
+        role = roles.media
+
+    print(f'Rolled {role}')
+    return role
