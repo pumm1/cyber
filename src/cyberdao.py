@@ -58,6 +58,7 @@ def getCharacterSkillsById(id):
 
 def getCharacterByName(name: str):
     char_row = getCharacterRow(name)
+    character = None
     if char_row is not None:
         id = char_row['id']
         skill_rows = getCharacterSkillsById(id)
@@ -72,6 +73,7 @@ def getCharacterByName(name: str):
         character = Character(char_row, cleaned_skills, reputation)
     else:
         print('No character found')
+
     return character
 
 def addReputation(character_id, info, rep):
@@ -120,6 +122,12 @@ def setNextInOrder(character):
     )
     conn.commit()
 
+def dmgCharacter(character, dmg):
+    cur.execute(
+        f"""UPDATE {table_characters} SET dmg_taken = {dmg} WHERE id = {character.id};"""
+    )
+    conn.commit()
+
 def addCharacterToCombat(character, initiative):
     cur.execute(
         f"""INSERT INTO {table_combat_session} (character, initiative, current)
@@ -132,9 +140,9 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
     cur.execute(
         f"""INSERT INTO {table_characters} 
             (name, role, special_ability, body_type_modifier, 
-            atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp)
+            atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken)
             VALUES ('{name}', '{role}', {special_ability}, '{body_type_modifier}', 
-            {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp});"""
+            {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0);"""
     )
     conn.commit()
     print(f'Character {name} ({role}) added to game')

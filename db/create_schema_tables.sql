@@ -14,7 +14,8 @@ CREATE TABLE cyberpunk.characters(
     atr_body integer not null,
     atr_luck integer not null,
     atr_emp integer not null,
-    atr_tech integer not null
+    atr_tech integer not null,
+    dmg_taken integer not null
 );
 
 CREATE TABLE cyberpunk.character_skills(

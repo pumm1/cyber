@@ -1,3 +1,5 @@
+from math import floor
+
 inputIndicator = "> "
 split_at = ' '
 roll_str = '/roll'
@@ -22,12 +24,35 @@ new_combat_initiative_help_str = f'{new_combat_initiative_str} <character_name> 
 clear_combat_str = '/cc'
 character_str = '/char'
 character_helper_str = f'{character_str} <name>'
-stun_check = ''
+stun_check_str = '/sc'
+stun_check_help_str = f'{stun_check_str} <character_name>'
+dmg_str = '/dmg'
+dmg_helper_str = f'{dmg_str} <character_name> <amount>'
 
 
 def askInput() -> str:
     i = input(inputIndicator)
     return i
+
+
+def stunPenalty(dmg: int):
+    return floor(dmg / 4)
+
+
+def woundState(dmg_taken: int):
+    stun_penalty = stunPenalty(dmg_taken)
+    if dmg_taken == 0:
+        return 'At least physically healthy!'
+    elif stun_penalty == 0:
+        return 'Just a scratch'
+    elif stun_penalty == 1:
+        return 'Bleeding a bit'
+    elif stun_penalty == 2:
+        return 'Wounded quite badly'
+    elif dmg_taken <= 40:
+        return 'Start rolling those death saves..'
+    else:
+        return 'Flatlined.'
 
 
 def safeCastToInt(text):

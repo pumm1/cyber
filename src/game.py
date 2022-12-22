@@ -7,7 +7,7 @@ import bodytypes
 from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str, exit_commands, help_commands, \
     explain_str, add_reputation_str, add_char_help_str, advance_combat_initiative_str, list_combat_initiative_str, \
     new_combat_initiative_str, new_combat_initiative_help_str, clear_combat_str, character_str, \
-    character_helper_str, roll_help_str
+    character_helper_str, roll_help_str, stun_check_str, stun_check_help_str, dmg_str, safeCastToInt, dmg_helper_str
 from characterBuilder import createCharacter
 
 
@@ -63,19 +63,32 @@ def start():
         elif command.startswith(list_combat_initiative_str):
             listCombatInitiative()
         elif command.startswith(new_combat_initiative_str):  # nci = new combat initiative, add to combat sequence
-            match command.split(' '):
+            match command.split(split_at):
                 case [_, character, initiative]:
                     addToCombat(character, int(initiative))
                 case _:
                     print(new_combat_initiative_help_str)
         elif command.startswith(clear_combat_str):  # cc = clear combat
             clearCombat()
+        elif command.startswith(stun_check_str):
+            match command.split(split_at):
+                case [_, name]:
+                    stunCheckCharacter(name)
+                case _:
+                    print(stun_check_help_str)
         elif command.startswith(character_str):
             match command.split(split_at):
                 case [_, name]:
                     fetchCharacter(name)
                 case _:
                     print(character_helper_str)
+        elif command.startswith(dmg_str):
+            match command.split(split_at):
+                case [_, name, dmg]:
+                    dmgCharacter(name, dmg)
+                case _:
+                    print(dmg_helper_str)
+
 
 
 def characterRoll(name, roll):
@@ -177,6 +190,15 @@ def clearCombat():
 def addToCombat(character, initiative):
     DAO.addCharacterToCombat(character, initiative)
 
+def dmgCharacter(name, dmg_str):
+    dmg = safeCastToInt(dmg_str)
+    character = DAO.getCharacterByName(name)
+    if character is not None:
+        combat.damageCharacter(character, dmg)
+def stunCheckCharacter(name):
+    character = DAO.getCharacterByName(name)
+    if character is not None:
+        combat.stunCheck(character)
 
 def help():
     list_str = ', '
@@ -195,6 +217,8 @@ def help():
 {explain_str} <term>
 - Add reputation for character:
 {add_reputation_str} <character_name> pos / neg
+- See current stun check for character:
+{stun_check_help_str}
 - Add new character to initiative sequence:
 {new_combat_initiative_help_str}
 - List combat initiative:

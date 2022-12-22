@@ -1,21 +1,10 @@
 import dice
 import json
 from roles import roleSpecialAbility
+from src.gameHelper import woundState
+
 
 class Character:
-    def __init__(self, file):
-        f = open(file)
-        data = json.load(f)
-        print(data)
-        f.close()
-        self.name = data['name']
-        self.role = data['role']
-        self.attributes = data['attributes']
-        self.skills = data['skills']
-        self.bodyTypeModifier = data['bodyTypeModifier']
-        self.specialAbility = data['specialAbility']
-        self.dmg_taken = 0
-
 #character row e.g.: (2, 'Test', 'Solo', 6, 'average', 9, 9, 8, 8, 7, 8, 7, 5, 4)
     def __init__(self, row, skills, rep):
         self.id = row['id']
@@ -24,6 +13,7 @@ class Character:
         self.reputation = rep
         self.specialAbility = row['special_ability']
         self.skills = skills
+        self.bodyTypeModifier = row['body_type_modifier']
         self.attributes = {
             'INT': row['atr_int'],
             'REF': row['atr_ref'],
@@ -35,7 +25,7 @@ class Character:
             'LUCK': row['atr_luck'],
             'EMP': row['atr_emp']
         }
-        self.dmg_taken = 0
+        self.dmg_taken = row['dmg_taken']
 
     def rollSkill(self, skill, bonus = 0):
         s = self.findSkill(skill)
@@ -59,14 +49,12 @@ class Character:
         roll = dice.roll(1, 10)
         return roll + self.attributes['COOL'] + self.reputation
 
-    def takeDmg(self, dmg: int):
-        self.dmg_taken = self.dmg_taken + dmg
-
     def info(self):
         str = f"""************* {self.name} *************
 Role: {self.role}
 Attributes: {self.attributes}
 Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
 Reputation: {self.reputation}
+Health: {self.dmg_taken} ({woundState(self.dmg_taken)})
 """
         print(str)

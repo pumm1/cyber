@@ -2,6 +2,9 @@ import dice
 from character import Character
 from math import floor
 import bodytypes
+import cyberdao as DAO
+from src.gameHelper import stunPenalty
+
 
 def dmgReductionByBodyTypeModifier(bodyTypeModifier):
     reduction = bodytypes.bodyTypeModifiersDict[bodyTypeModifier]
@@ -16,11 +19,9 @@ def damageCharacter(c: Character, dmg):
     totalDmg = dmg - dmgReduction
     if (totalDmg < 0):
         totalDmg = 0
-    c.takeDmg(totalDmg)
+    DAO.dmgCharacter(c, dmg)
     stunCheck(c)
 
-def stunPenalty(dmg: int):
-    return floor(dmg / 4)
 
 def determineHitLocation():
     roll = dice.roll(1, 10)
@@ -37,39 +38,27 @@ def determineHitLocation():
     else:
         return 'l. leg'
 
-def woundState(dmg_taken: int):
-    stun_penalty = stunPenalty(dmg_taken)
-    if dmg_taken == 0:
-        return 'At least physically healthy!'
-    elif stun_penalty == 0:
-        return 'Just a scratch'
-    elif stun_penalty == 1:
-        return 'Bleeding a bit'
-    elif stun_penalty == 2:
-        return 'Very nasty wound'
-    elif dmg_taken <= 40:
-        return 'Start rolling those death saves..'
-    else:
-        return 'Flatlined.'
 
-def rollStunOverActingEffect():
+def rollStunOverActingEffect(name):
+    print(f'{name} gets stunned!')
     roll = dice.roll(1, 6)
     if roll == 1:
-        return 'Screams, windmills arms, falls'
+        return f'{name} screams, windmills arms, falls'
     elif roll == 2:
-        return 'Crumples like a rag doll'
+        return f'{name} crumples like a rag doll'
     elif roll == 3:
-        return 'Spins around in place, falls'
+        return f'{name} spins around in place, falls'
     elif roll == 4:
-        return 'Clutches wound, staggers and falls'
+        return f'{name} clutches wound, staggers and falls'
     elif roll == 5:
-        return 'Stares stupidly at wound, then falls'
+        return f'{name} stares stupidly at wound, then falls'
     else:
-        return 'Slumps into ground, moaning'
+        return f'{name} slumps into ground, moaning'
 
 def stunCheckToBeat(dmg_taken, body):
     penalty = stunPenalty(dmg_taken)
-    print(f'penalty for {dmg_taken} dmg is {penalty}')
+    if penalty > 0:
+        print(f'penalty for {dmg_taken} dmg taken is {penalty}')
     save_against = body - penalty
     if (save_against > 0):
         print(f'To not be stunned/shocked (or to not lose death save), roll {save_against} or lower')
@@ -84,6 +73,6 @@ def stunCheck(c: Character):
     isStunned = roll > save_against
 
     if isStunned:
-        print(rollStunOverActingEffect())
+        print(rollStunOverActingEffect(c.name))
     return isStunned
 
