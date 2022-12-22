@@ -13,6 +13,8 @@ nomad = 'Nomad'
 fixer = 'Fixer'
 corp = 'Corp'
 
+allRoles = [solo, cop, rocker, techie, media, meditechie, netrunner, nomad, fixer, corp]
+
 roleDict = {
     solo: {
         ability: 'Combat sense',

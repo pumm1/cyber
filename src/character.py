@@ -37,7 +37,7 @@ class Character:
         }
         self.dmg_taken = 0
 
-    def rollSkill(self, skill, bonus):
+    def rollSkill(self, skill, bonus = 0):
         s = self.findSkill(skill)
         roll = 0
         if s is not None:
@@ -45,7 +45,7 @@ class Character:
             atr_bonus = self.attributes[atr]
             roll = dice.roll(1, 10)
             skill_bonus = s['value']
-            result = roll + atr_bonus + skill_bonus
+            result = roll + atr_bonus + skill_bonus + bonus
 
             return result
 

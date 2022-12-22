@@ -1,6 +1,7 @@
 import combat
 import cyberdao as DAO
 from collections import deque
+import roles
 import dice
 
 #TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
@@ -84,7 +85,7 @@ def safeCastToInt(text):
     except (ValueError, TypeError):
         val = 0
     return val
-def setAttribute(attribute: str) -> int:
+def addAttribute(attribute: str) -> int:
     print(f'<give val> or /roll attribute {attribute} [1-10]')
     ans = input(inputIndicator)
     atr = 0
@@ -102,16 +103,79 @@ def setAttribute(attribute: str) -> int:
                     break
     print(f'{attribute} = {atr}')
     return atr
+
+def rollRole():
+    roll = dice.roll(1,10)
+    if roll == 1:
+        return roles.solo
+    elif roll == 2:
+        return roles.cop
+    elif roll == 3:
+        return roles.corp
+    elif roll == 4:
+        return roles.fixer
+    elif roll == 5:
+        return roles.nomad
+    elif roll == 6:
+        return roles.techie
+    elif roll == 7:
+        return roles.netrunner
+    elif roll == 8:
+        return roles.meditechie
+    elif roll == 9:
+        return roles.rocker
+    else:
+        return roles.media
+def addRole():
+    print(f'<give role> or /roll random role. /list to see info on roles')
+    role = ''
+    while True:
+        ans = input(inputIndicator)
+        if ans.startswith('/list'):
+            print(*roles.allRoles, sep='\n')
+        elif roles.allRoles.__contains__(ans):
+            role = ans
+            print(f'Selected {role}')
+            break
+        elif ans == '/roll':
+            role = rollRole()
+            print(f'Rolled {role}')
+            break
+    return role
+
+def addSpecial(role):
+    specialAbility = roles.roleDict[role][roles.ability]
+    specialDescr = roles.roleDict[role][roles.abilityDesc]
+    skill = 0
+
+    print(f'<give skill level> or /roll random level for special ability {specialAbility} ({specialDescr})')
+    while True:
+        ans = input(inputIndicator)
+        if ans.startswith('/roll'):
+            skill = dice.roll(1,10)
+            print(f'Rolled {specialAbility} = {skill}')
+            break
+        else:
+            res = safeCastToInt(ans)
+            if 0 < res <= 10:
+                skill = res
+                print(f'Set {specialAbility} = {skill}')
+                break
+    return skill
+
 def createCharacter(name: str):
-    atr_int = setAttribute('INT')
-    atr_ref = setAttribute('REF')
-    atr_tech = setAttribute('TECH')
-    atr_tech = setAttribute('COOL')
-    atr_attr = setAttribute('ATTR')
-    atr_luck = setAttribute('LUCK')
-    atr_ma = setAttribute('MA')
-    atr_body = setAttribute('BODY')
-    atr_emp = setAttribute('EMP')
+    role = addRole()
+    special = addSpecial(role)
+    atr_int = addAttribute('INT')
+    atr_ref = addAttribute('REF')
+    atr_tech = addAttribute('TECH')
+    atr_tech = addAttribute('COOL')
+    atr_attr = addAttribute('ATTR')
+    atr_luck = addAttribute('LUCK')
+    atr_ma = addAttribute('MA')
+    atr_body = addAttribute('BODY')
+    atr_emp = addAttribute('EMP')
+    #TODO: next body type modifier
 
 
 def characterRoll(name, roll):

@@ -129,3 +129,9 @@ def addCharacterToCombat(character, initiative):
     )
     conn.commit()
     print(f'{character} added to combat session')
+
+def addCharacter(name, role, atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp):
+    cur.execute(
+        f"""INSERT INTO {table_characters} (name, role, special_ability, body_type_modifier)
+            VALUES ('{character}', {initiative}, {False});"""
+    )
