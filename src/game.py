@@ -4,6 +4,7 @@ from collections import deque
 import roles
 import dice
 import bodytypes
+from gameInput import askInput
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
 # reputation table:
@@ -19,14 +20,16 @@ import bodytypes
 # 10 = you are known worldwide
 
 split_at = ' '
-inputIndicator = "> "
 roll_str = '/roll'
 list_str = '/list'
 
-
-def askInput():
-    i = input(inputIndicator)
-    return i
+exit_commands = ['/e', '/q', '/exit', '/quit']
+help_commands = ['/help', '/halp', '/h']
+rep_roll_str = 'rep'
+add_char_str = '/add_char'
+add_char_help_str = f'{add_char_str} <name>'
+explain_str = '/explain'
+add_reputation_str = '/add_rep'
 
 
 def checkRollCommand(cmnd: str) -> bool:
@@ -40,25 +43,27 @@ def checkListCommand(cmnd: str) -> bool:
 def start():
     game_is_running = True
     while game_is_running:
-        command = askInput()
-        if command == '/e' or command == '/q':
+        command = askInput().lower()
+        if exit_commands.__contains__(command):
             print('< Disconnect >')
             game_is_running = False
+        if help_commands.__contains__(command):
+            help()
         if command.startswith(roll_str):
             match command.split(split_at):
-                case [_, 'rep', character]:
-                    characterRoll(character, 'rep')
+                case [_, rep_roll_str, character]:
+                    characterRoll(character, rep_roll_str)
                 case _:
                     print('That roll is unknown or not supported yet')
-        if command.startswith('/add_char'):
+        if command.startswith(add_char_str):
             match command.split(split_at):
                 case [_, name]:
                     createCharacter(name)
                 case _:
-                    print('/add_char <name>')
-        if command.startswith('/explain'):
-            print('TODO: add epxlanations for things')
-        if command.startswith('/add_rep'):
+                    print(f'{add_char_str} <name>')
+        if command.startswith(explain_str):
+            print('TODO: add explanations for things')
+        if command.startswith(add_reputation_str):
             match command.split(split_at):
                 case [_, character, 'pos']:
                     addReputation(character, 1)
@@ -358,3 +363,19 @@ def clearCombat():
 
 def addToCombat(character, initiative):
     DAO.addCharacterToCombat(character, initiative)
+
+def help():
+    print('************ list of commands ************')
+    list_str = ', '
+    print('- Help:')
+    print(list_str.join(help_commands))
+    print('- Quit/Exit:')
+    print(list_str.join(exit_commands))
+    print('- Roll for something:')
+    print(f'{roll_str} <{rep_roll_str}>')
+    print('- Add new character:')
+    print(add_char_help_str)
+    print('- Explain something:')
+    print(f'{explain_str} <term>')
+    print('- Add reputation for character:')
+    print(f'{add_reputation_str} <character_name> pos / neg')
