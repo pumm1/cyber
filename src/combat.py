@@ -1,20 +1,15 @@
 import dice
 from character import Character
 from math import floor
+import bodytypes
 
 def dmgReductionByBodyTypeModifier(bodyTypeModifier):
-    if bodyTypeModifier == 'very weak':
+    reduction = bodytypes.bodyTypeModifiersDict[bodyTypeModifier]
+    if reduction is None:
+        print(f'Unknown body type {bodyTypeModifier}')
         return 0
-    elif bodyTypeModifier == 'weak':
-        return 1
-    elif bodyTypeModifier == 'average':
-        return 2
-    elif bodyTypeModifier == 'strong':
-        return 3
-    elif bodyTypeModifier == 'very strong':
-        return 4
     else:
-        return 5
+        return reduction
 
 def damageCharacter(c: Character, dmg):
     dmgReduction = dmgReductionByBodyTypeModifier(c.bodyTypeModifier)

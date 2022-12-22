@@ -3,30 +3,48 @@ import cyberdao as DAO
 from collections import deque
 import roles
 import dice
+import bodytypes
 
-#TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
-#reputation table:
-#1 = anyone who was there knows
-#2 = stories have gottern around to immediate friends
-#3 = all your co-workres and casual acquaintances know
-#4 = stories are all over the local area
-#5 = your name is recognized by others beyond your local area
-#6 = you are known on sight by others beyond your local area
-#7 = a new story or two has been written about your exploits
-#8 = your exploits regularly make the headlines and screamsheets
-#9 = your exploits always make the screamsheets and TV
-#10 = you are known worldwide
+# TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
+# reputation table:
+# 1 = anyone who was there knows
+# 2 = stories have gottern around to immediate friends
+# 3 = all your co-workres and casual acquaintances know
+# 4 = stories are all over the local area
+# 5 = your name is recognized by others beyond your local area
+# 6 = you are known on sight by others beyond your local area
+# 7 = a new story or two has been written about your exploits
+# 8 = your exploits regularly make the headlines and screamsheets
+# 9 = your exploits always make the screamsheets and TV
+# 10 = you are known worldwide
 
 split_at = ' '
 inputIndicator = "> "
+roll_str = '/roll'
+list_str = '/list'
+
+
+def askInput():
+    i = input(inputIndicator)
+    return i
+
+
+def checkRollCommand(cmnd: str) -> bool:
+    return cmnd.lower().startswith(roll_str)
+
+
+def checkListCommand(cmnd: str) -> bool:
+    return cmnd.lower().startswith(list_str)
+
+
 def start():
     game_is_running = True
     while game_is_running:
-        command = input(inputIndicator)
+        command = askInput()
         if command == '/e' or command == '/q':
             print('< Disconnect >')
             game_is_running = False
-        if command.startswith('/roll'):
+        if command.startswith(roll_str):
             match command.split(split_at):
                 case [_, 'rep', character]:
                     characterRoll(character, 'rep')
@@ -49,17 +67,17 @@ def start():
                 case _:
                     print('/add_rep <character> pos/neg')
 
-        if command.startswith('/aci'): #aci = advance combat initiative
+        if command.startswith('/aci'):  # aci = advance combat initiative
             advanceCombatSeq()
-        if command.startswith('/lci'): #lci = list combat initiative
+        if command.startswith('/lci'):  # lci = list combat initiative
             listCombatInitiative()
-        if command.startswith('/nci'): #nci = new combat initiative, add to combat sequence
+        if command.startswith('/nci'):  # nci = new combat initiative, add to combat sequence
             match command.split(' '):
                 case [_, character, initiative]:
                     addToCombat(character, int(initiative))
                 case _:
                     print('/nci <character_name> <initiative>')
-        if command.startswith('/cc'): #cc = clear combat
+        if command.startswith('/cc'):  # cc = clear combat
             clearCombat()
         if command.startswith('/char'):
             match command.split(split_at):
@@ -69,7 +87,7 @@ def start():
                     print('/char <name>')
         if command.startswith('/hit'):
             rollHitLocation()
-        if command.startswith('/st'): #TODO:
+        if command.startswith('/st'):  # TODO:
             match command.split(split_at):
                 case [_]:
                     print('Need more values [/st <param>]')
@@ -78,6 +96,7 @@ def start():
                 case _:
                     print('default')
 
+
 def safeCastToInt(text):
     val = 0
     try:
@@ -85,27 +104,28 @@ def safeCastToInt(text):
     except (ValueError, TypeError):
         val = 0
     return val
+
+
 def addAttribute(attribute: str) -> int:
-    print(f'<give val> or /roll attribute {attribute} [1-10]')
-    ans = input(inputIndicator)
+    print(f'<give val> or {roll_str} attribute {attribute} [1-10]')
     atr = 0
-    if ans.lower() == '/roll':
-        atr = dice.roll(1, 10)
-    else:
-        atr = safeCastToInt(ans)
-        if 0 < atr < 10:
-            atr
+    while True:
+        ans = askInput()
+        if checkRollCommand(ans):
+            atr = dice.roll(1, 10)
+            break
         else:
-            while True:
-                ans = input(inputIndicator)
-                atr = safeCastToInt(ans)
-                if 0 < atr <= 10:
-                    break
+            atr = safeCastToInt(ans)
+            if 0 < atr <= 10:
+                break
+            else:
+                print('Invalid attribute value')
     print(f'{attribute} = {atr}')
     return atr
 
+
 def rollRole():
-    roll = dice.roll(1,10)
+    roll = dice.roll(1, 10)
     if roll == 1:
         return roles.solo
     elif roll == 2:
@@ -126,33 +146,36 @@ def rollRole():
         return roles.rocker
     else:
         return roles.media
+
+
 def addRole():
-    print(f'<give role> or /roll random role. /list to see info on roles')
+    print(f'<give role> or {roll_str} random role. {list_str} to see info on roles')
     role = ''
     while True:
-        ans = input(inputIndicator)
-        if ans.startswith('/list'):
+        ans = askInput()
+        if checkListCommand(ans):
             print(*roles.allRoles, sep='\n')
         elif roles.allRoles.__contains__(ans):
             role = ans
             print(f'Selected {role}')
             break
-        elif ans == '/roll':
+        elif checkRollCommand(ans):
             role = rollRole()
             print(f'Rolled {role}')
             break
     return role
+
 
 def addSpecial(role):
     specialAbility = roles.roleDict[role][roles.ability]
     specialDescr = roles.roleDict[role][roles.abilityDesc]
     skill = 0
 
-    print(f'<give skill level> or /roll random level for special ability {specialAbility} ({specialDescr})')
+    print(f'<give skill level> or {roll_str} random level for special ability {specialAbility} ({specialDescr})')
     while True:
-        ans = input(inputIndicator)
-        if ans.startswith('/roll'):
-            skill = dice.roll(1,10)
+        ans = askInput()
+        if checkRollCommand(ans):
+            skill = dice.roll(1, 10)
             print(f'Rolled {specialAbility} = {skill}')
             break
         else:
@@ -163,19 +186,78 @@ def addSpecial(role):
                 break
     return skill
 
+
+def rollBodyType():
+    body_type = ''
+    roll = dice.roll(1, 6)
+    if roll == 1:
+        body_type = bodytypes.very_weak
+    elif roll == 2:
+        body_type == bodytypes.weak
+    elif roll == 3:
+        body_type = bodytypes.average
+    elif roll == 4:
+        body_type = bodytypes.strong
+    elif roll == 5:
+        body_type = bodytypes.very_strong
+    else:  # superhuman only achievable by cybernetics
+        body_type = rollBodyType()
+    return body_type
+
+
+def addBodyType():
+    print(f'<give body type> or {roll_str} random body type ({list_str} to show all)')
+    body_type = ''
+    while True:
+        ans = askInput()
+        if checkListCommand(ans):
+            bodytypes.listAvailableModifiers()
+        elif checkRollCommand(ans):
+            body_type = rollBodyType()
+            break
+        else:
+            t_bod_type = bodytypes.checkBodyTypeFromStr(ans.lower())
+            if t_bod_type is None:
+                print(f'Invalid body type, see possible ones with {list_str}')
+            elif t_bod_type == bodytypes.superhuman:
+                print(print(f'Body type {bodytypes.superhuman} is only achievable through cybernetics'))
+            else:
+                body_type = t_bod_type
+                break
+
+    print(f'Body type modifier = {body_type}')
+    return body_type
+
+
 def createCharacter(name: str):
     role = addRole()
     special = addSpecial(role)
+    body_Type = addBodyType()
     atr_int = addAttribute('INT')
     atr_ref = addAttribute('REF')
     atr_tech = addAttribute('TECH')
-    atr_tech = addAttribute('COOL')
+    atr_cool = addAttribute('COOL')
     atr_attr = addAttribute('ATTR')
     atr_luck = addAttribute('LUCK')
     atr_ma = addAttribute('MA')
     atr_body = addAttribute('BODY')
     atr_emp = addAttribute('EMP')
-    #TODO: next body type modifier
+    DAO.addCharacter(
+        name,
+        role,
+        special,
+        body_Type,
+        atr_int=atr_int,
+        atr_ref=atr_ref,
+        atr_tech=atr_tech,
+        atr_cool=atr_cool,
+        atr_attr=atr_attr,
+        atr_luck=atr_luck,
+        atr_ma=atr_ma,
+        atr_body=atr_body,
+        atr_emp=atr_emp
+    )
+    # TODO: next body type modifier
 
 
 def characterRoll(name, roll):
@@ -189,6 +271,7 @@ def characterRoll(name, roll):
             case unknown:
                 print(f'Command {unknown} is not known or not yet supported')
 
+
 def fetchCharacter(name):
     character = DAO.getCharacterByName(name)
     if character is None:
@@ -196,9 +279,11 @@ def fetchCharacter(name):
     else:
         character.info()
 
+
 def rollHitLocation():
     location = combat.determineHitLocation()
     print(f'Hit the {location}')
+
 
 def listCombatInitiative():
     rows = DAO.listCombatInitiative(ascending=False)
@@ -207,6 +292,7 @@ def listCombatInitiative():
     ), rows)
     info = '\n'.join(infoRows)
     print(f"Turn order: \n{info}")
+
 
 def addReputation(char, rep):
     character = DAO.getCharacterByName(char)
@@ -221,10 +307,10 @@ def addReputation(char, rep):
         else:
             print(f"Add {rep_type} reputation for {character.name}? [y/n]")
             while tries < 3:
-                command = input(inputIndicator)
+                command = askInput()
                 if command.lower() == 'y':
                     print(f'What is {character.name} gaining reputation for?')
-                    info = input(inputIndicator)
+                    info = askInput()
                     DAO.addReputation(character.id, info, rep)
                     print(f'Reputation added for {character.name}')
                     break
@@ -265,7 +351,10 @@ def advanceCombatSeq():
         else:
             queue.appendleft(c)
 
+
 def clearCombat():
     DAO.clearCombat()
+
+
 def addToCombat(character, initiative):
     DAO.addCharacterToCombat(character, initiative)
