@@ -4,8 +4,12 @@ from collections import deque
 import roles
 import dice
 import bodytypes
-from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str, exit_commands, help_commands, explain_str, add_reputation_str, add_char_help_str
+from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str, exit_commands, help_commands, \
+    explain_str, add_reputation_str, add_char_help_str, advance_combat_initiative_str, list_combat_initiative_str, \
+    new_combat_initiative_str, new_combat_initiative_help_str, clear_combat_str, character_str, \
+    character_helper_str, roll_help_str
 from characterBuilder import createCharacter
+
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
 # reputation table:
@@ -27,23 +31,25 @@ def start():
         if exit_commands.__contains__(command):
             print('< Disconnect >')
             game_is_running = False
-        if help_commands.__contains__(command):
+        elif help_commands.__contains__(command):
             help()
-        if command.startswith(roll_str):
+        elif command.startswith(roll_str):
             match command.split(split_at):
-                case [_, rep_roll_str, character]:
+                case [_, 'rep', character]:
                     characterRoll(character, rep_roll_str)
+                case [_, 'hit_loc']:
+                    rollHitLocation()
                 case _:
-                    print('That roll is unknown or not supported yet')
-        if command.startswith(add_char_str):
+                    print(roll_help_str)
+        elif command.startswith(add_char_str):
             match command.split(split_at):
                 case [_, name]:
                     createCharacter(name)
                 case _:
-                    print(f'{add_char_str} <name>')
-        if command.startswith(explain_str):
+                    print(add_char_help_str)
+        elif command.startswith(explain_str):
             print('TODO: add explanations for things')
-        if command.startswith(add_reputation_str):
+        elif command.startswith(add_reputation_str):
             match command.split(split_at):
                 case [_, character, 'pos']:
                     addReputation(character, 1)
@@ -52,35 +58,24 @@ def start():
                 case _:
                     print('/add_rep <character> pos/neg')
 
-        if command.startswith('/aci'):  # aci = advance combat initiative
+        elif command.startswith(advance_combat_initiative_str):
             advanceCombatSeq()
-        if command.startswith('/lci'):  # lci = list combat initiative
+        elif command.startswith(list_combat_initiative_str):
             listCombatInitiative()
-        if command.startswith('/nci'):  # nci = new combat initiative, add to combat sequence
+        elif command.startswith(new_combat_initiative_str):  # nci = new combat initiative, add to combat sequence
             match command.split(' '):
                 case [_, character, initiative]:
                     addToCombat(character, int(initiative))
                 case _:
-                    print('/nci <character_name> <initiative>')
-        if command.startswith('/cc'):  # cc = clear combat
+                    print(new_combat_initiative_help_str)
+        elif command.startswith(clear_combat_str):  # cc = clear combat
             clearCombat()
-        if command.startswith('/char'):
+        elif command.startswith(character_str):
             match command.split(split_at):
                 case [_, name]:
                     fetchCharacter(name)
                 case _:
-                    print('/char <name>')
-        if command.startswith('/hit'):
-            rollHitLocation()
-        if command.startswith('/st'):  # TODO:
-            match command.split(split_at):
-                case [_]:
-                    print('Need more values [/st <param>]')
-                case [_, a]:
-                    print('..better')
-                case _:
-                    print('default')
-
+                    print(character_helper_str)
 
 
 def characterRoll(name, roll):
@@ -182,18 +177,34 @@ def clearCombat():
 def addToCombat(character, initiative):
     DAO.addCharacterToCombat(character, initiative)
 
+
 def help():
-    print('************ list of commands ************')
     list_str = ', '
-    print('- Help:')
-    print(list_str.join(help_commands))
-    print('- Quit/Exit:')
-    print(list_str.join(exit_commands))
-    print('- Roll for something:')
-    print(f'{roll_str} <{rep_roll_str}>')
-    print('- Add new character:')
-    print(add_char_help_str)
-    print('- Explain something:')
-    print(f'{explain_str} <term>')
-    print('- Add reputation for character:')
-    print(f'{add_reputation_str} <character_name> pos / neg')
+    print(f"""************ list of commands ************
+- Help:
+{list_str.join(help_commands)}
+- Quit/Exit:
+{list_str.join(exit_commands)}
+- Roll for something:
+{roll_help_str}
+- See character info:
+{character_helper_str}
+- Add new character:
+{add_char_help_str}
+- Explain something:
+{explain_str} <term>
+- Add reputation for character:
+{add_reputation_str} <character_name> pos / neg
+- Add new character to initiative sequence:
+{new_combat_initiative_help_str}
+- List combat initiative:
+{list_combat_initiative_str}
+- Advance combat initiative or start combat once initiatives have been added:
+{advance_combat_initiative_str}
+- Clear combat sequence:
+{clear_combat_str}
+
+"""
+          )
+
+

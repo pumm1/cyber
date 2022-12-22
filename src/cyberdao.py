@@ -62,8 +62,6 @@ def getCharacterByName(name: str):
         id = char_row['id']
         skill_rows = getCharacterSkillsById(id)
         rep_rows = getReputationRows(id)
-        print(f'...rep rows: {rep_rows}')
-        print(f'...{len(rep_rows)}')
         reputation = sum(map(lambda rep:(
             rep['reputation_value']
         ), rep_rows))
