@@ -1,5 +1,7 @@
 BEGIN;
 
+create type cyberpunk.weapon_type as enum ('melee', 'semi_auto', 'full_auto');
+
 CREATE TABLE cyberpunk.characters(
     id BIGSERIAL not null primary key primary key,
     name varchar not null,
@@ -51,5 +53,41 @@ create table cyberpunk.character_reputation(
     known_for varchar not null,
     reputation_value integer not null
 );
+
+alter table cyberpunk.character_reputation
+    add constraint character_reputation__character_fk
+        foreign key(character_id)
+        references cyberpunk.characters(id);
+
+
+create table cyberpunk.character_armor(
+    character_id bigint not null,
+    item varchar not null,
+    sp integer not null,
+    body_part varchar not null
+);
+
+alter table cyberpunk.character_armor
+    add constraint character_armor__character_fk
+        foreign key(character_id)
+        references cyberpunk.characters(id);
+
+
+create table cyberpunk.character_weapon(
+    character_id bigint not null,
+    weapon_type cyberpunk.weapon_type not null,
+    item varchar not null,
+    dice_number integer not null,
+    dice_dmg integer not null,
+    dmg_bonus integer not null,
+    range integer not null,
+    rof integer
+);
+
+alter table cyberpunk.character_weapon
+    add constraint character_weapon__character_fk
+        foreign key(character_id)
+        references cyberpunk.characters(id);
+
 
 COMMIT;

@@ -71,7 +71,7 @@ def stunPenalty(dmg: int):
 def woundState(dmg_taken: int):
     stun_penalty = stunPenalty(dmg_taken)
     if dmg_taken == 0:
-        return 'At least physically healthy!'
+        return 'All ok'
     elif stun_penalty == 0:
         return 'Just a scratch'
     elif stun_penalty == 1:

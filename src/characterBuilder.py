@@ -28,7 +28,7 @@ def addAttribute(attribute: str) -> int:
 
 def addRole():
     print(f'<give role> or {roll_str} random role. {list_str} to see info on roles')
-    role = manualRole()
+    role = manualRole(allow_roll=True)
     return role
 
 def manualRole(allow_roll: bool):

@@ -57,7 +57,7 @@ def start():
         elif command.startswith(add_char_str):
             match command_parts:
                 case [_, name]:
-                    createCharacter(name)
+                    createCharacter(name, roll_all=False, roll_atr=False)
                 case [_, name, roll_param]:
                     if roll_param == roll_all_str:
                         createCharacter(name, roll_all=True)

@@ -54,6 +54,6 @@ Role: {self.role}
 Attributes: {self.attributes}
 Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
 Reputation: {self.reputation}
-Health: {self.dmg_taken} ({woundState(self.dmg_taken)})
+Health: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
 """
         print(str)
