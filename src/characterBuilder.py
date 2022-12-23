@@ -1,5 +1,5 @@
 import dice
-import cyberdao as DAO
+from db import cyberdao as DAO
 import roles
 import bodytypes
 from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str, INT, REF, TECH, COOL, ATTR, LUCK, MA, BODY, EMP

@@ -1,4 +1,4 @@
-import cyberdao as DAO
+from db import cyberdao as DAO
 from src import dice
 from src.gameHelper import safeCastToInt
 

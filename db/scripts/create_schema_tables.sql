@@ -59,12 +59,27 @@ alter table cyberpunk.character_reputation
         foreign key(character_id)
         references cyberpunk.characters(id);
 
+create table cyberpunk.character_sp(
+    character_id bigint not null UNIQUE,
+    head integer not null,
+    body integer not null,
+    r_arm integer not null,
+    l_arm integer not null,
+    r_leg integer not null,
+    l_leg integer not null
+);
+
+alter table cyberpunk.character_sp
+    add constraint character_sp__character_fk
+        foreign key(character_id)
+        references cyberpunk.characters(id);
+
 
 create table cyberpunk.character_armor(
     character_id bigint not null,
     item varchar not null,
     sp integer not null,
-    body_part varchar not null
+    body_parts varchar[] not null
 );
 
 alter table cyberpunk.character_armor
@@ -73,7 +88,7 @@ alter table cyberpunk.character_armor
         references cyberpunk.characters(id);
 
 
-create table cyberpunk.character_weapon(
+create table cyberpunk.character_weapons(
     character_id bigint not null,
     weapon_type cyberpunk.weapon_type not null,
     item varchar not null,
@@ -84,7 +99,7 @@ create table cyberpunk.character_weapon(
     rof integer
 );
 
-alter table cyberpunk.character_weapon
+alter table cyberpunk.character_weapons
     add constraint character_weapon__character_fk
         foreign key(character_id)
         references cyberpunk.characters(id);

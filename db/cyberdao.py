@@ -1,18 +1,10 @@
 import psycopg2
 import psycopg2.extras
-from character import Character
-from src.skill import SkillInfo
 
-db = 'cyberpunk'
-user = 'cyber'
-password = 'cyber1'
-host = '127.0.0.1'
-schema = 'cyberpunk'
-table_characters = f'{schema}.characters'
-table_character_skills = f'{schema}.character_skills'
-table_skills = f'{schema}.skills'
-table_combat_session = f'{schema}.combat_session'
-table_reputation = f'{schema}.character_reputation'
+from db.cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
+    table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp
+from src.character import Character
+from src.skill import SkillInfo
 
 conn = psycopg2.connect(dbname=db, user=user, password=password, host=host)
 cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -198,8 +190,6 @@ def skillsByFuzzyLogic(string: str):
     return skills
 
 
-
-
 def getCharacterSkillsById(id) -> list[SkillInfo]:
     cur.execute(
         f'{character_skills_q} where character_id = {id};'
@@ -242,3 +232,30 @@ def listSkills():
 
     skills = skillsFromRows(skill_rows)
     return skills
+
+def addArmor(character_id, item, sp, body_parts):
+    bod_parts = map(lambda bp: (
+        f"'{bp}'"
+    ), body_parts)
+    bod_parts_str = ', '.join(bod_parts)
+    cur.execute(
+        f"""INSERT INTO {table_character_armors} (character_id, item, sp, body_parts)
+            VALUES ({character_id}, '{item}', {sp}, ARRAY[{bod_parts_str}] );"""
+    )
+    conn.commit()
+
+def updateCharacterSp(character_id, body_part, amount):
+    cur.execute(
+        f"""
+        INSERT INTO {table_character_sp} (character_id, head, body, r_arm, l_arm, r_leg, l_leg)
+        VALUES ({character_id}, 0, 0, 0, 0, 0, 0)
+        ON CONFLICT DO NOTHING;
+        """
+    )
+    print(f'.. updating {body_part} SP')
+    cur.execute(
+        f"""UPDATE {table_character_sp} SET {body_part} = {body_part} + {amount}
+        WHERE character_id = {character_id};
+        """
+    )
+    conn.commit()

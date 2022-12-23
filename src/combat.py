@@ -1,9 +1,8 @@
 import dice
 from character import Character
-from math import floor
 import bodytypes
-import cyberdao as DAO
-from src.gameHelper import stunPenalty
+from db import cyberdao as DAO
+from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, body_party_l_arm, body_part_r_leg
 
 
 def dmgReductionByBodyTypeModifier(bodyTypeModifier):
@@ -26,17 +25,17 @@ def damageCharacter(c: Character, dmg):
 def determineHitLocation():
     roll = dice.roll(1, 10)
     if roll == 1:
-        return 'head'
+        return body_part_head
     elif 2 <= roll <= 4:
-        return 'body'
+        return body_part_body
     elif roll == 5:
-        return 'r. arm'
+        return body_part_r_arm
     elif roll == 6:
-        return 'l. arm'
+        return body_party_l_arm
     elif 7 <= roll <= 8:
-        return 'r. leg'
+        return body_part_r_leg
     else:
-        return 'l. leg'
+        return body_part_l_leg
 
 
 def rollStunOverActingEffect(name):

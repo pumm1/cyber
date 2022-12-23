@@ -36,12 +36,31 @@ fumble_help_str = f'{fumble_str} <combat | ref | tech | emp | int>'
 jam_str = '/jam'
 jam_help_str = f'{jam_str} <reliability>'
 
+body_part_head = 'head'
+body_part_body = 'body'
+body_part_r_arm = 'r. arm'
+body_party_l_arm = 'l. arm'
+body_part_r_leg = 'r. leg'
+body_part_l_leg = 'l. leg'
+
+body_parts = [body_part_head, body_part_body, body_part_r_arm, body_party_l_arm, body_part_r_leg, body_part_l_leg]
+
+body_parts_armor_info = f"""1 - {body_part_head}
+2 - {body_part_body}
+3 - {body_part_r_arm}
+4 - {body_party_l_arm}
+5 - {body_part_r_leg}
+6 - {body_part_l_leg}
+"""
+
 add_char_str = '/add_char'
 roll_all_str = 'roll_all'
 roll_atr_str = 'roll_atr'
 add_char_help_str = f'{add_char_str} <name> <optional {roll_all_str} / {roll_atr_str}>'
 add_char_skill_str = '/add_char_skill'
 add_char_skill_help_str = f'{add_char_skill_str} <character_name> <skill_id> <skill_level 1-10> '
+add_armor_str = '/add_armor'
+add_armor_help_str = f'{add_armor_str} <character_name>'
 explain_str = '/explain'
 add_reputation_str = '/add_rep'
 advance_combat_initiative_str = '/aci'
@@ -63,6 +82,13 @@ def askInput() -> str:
     i = input(inputIndicator)
     return i
 
+def uniqueArr(arr):
+    print(f'arr: {arr}')
+    uniq_arr = []
+    for x in arr:
+        if x not in uniq_arr:
+            uniq_arr.append(x)
+    return uniq_arr
 
 def stunPenalty(dmg: int):
     return floor(dmg / 4)

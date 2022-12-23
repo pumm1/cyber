@@ -1,5 +1,5 @@
 import combat
-import cyberdao as DAO
+from db import cyberdao as DAO
 from collections import deque
 import skills
 from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str, exit_commands, help_commands, \
@@ -7,9 +7,9 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str,
     new_combat_initiative_str, new_combat_initiative_help_str, clear_combat_str, character_str, \
     character_helper_str, roll_help_str, stun_check_str, stun_check_help_str, dmg_str, safeCastToInt, dmg_helper_str, \
     roll_all_str, roll_atr_str, list_skills_str, list_skills_helpeer_str, add_char_skill_str, add_char_skill_help_str, \
-    fumble_str, fumble_help_str, jam_str, jam_help_str
+    fumble_str, fumble_help_str, jam_str, jam_help_str, add_armor_str, add_armor_help_str
 from characterBuilder import createCharacter
-from src import fumble
+from src import fumble, armor
 
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
@@ -65,6 +65,12 @@ def start():
                         createCharacter(name, roll_atr=True)
                 case _:
                     print(add_char_help_str)
+        elif command.startswith(add_armor_str):
+            match command_parts:
+                case [_, name]:
+                    armor.addArmorForCharacter(name)
+                case _:
+                    print(f'{add_armor_help_str}')
         elif command.startswith(fumble_str):
             match command_parts:
                 case [_, area]:
@@ -251,6 +257,8 @@ def help():
 {character_helper_str}
 - Add new character:
 {add_char_help_str}
+- Add armor for character:
+{add_armor_help_str}
 - List skills (all | by attribute | by fuzzy logic | by character)
 {list_skills_helpeer_str}
 - Explain something:
