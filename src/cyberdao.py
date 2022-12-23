@@ -206,7 +206,6 @@ def getCharacterSkillsById(id) -> list[SkillInfo]:
     )
     skill_rows = cur.fetchall()
     conn.commit()
-    print(f'... rows: {skill_rows}')
     skills = characterSkillsFromRows(skill_rows)
 
     return skills
@@ -221,6 +220,17 @@ def listSkillsByAttribute(atr: str):
 
     skills = skillsFromRows(skill_rows)
     return skills
+
+def getSkillByName(skill_name):
+    cur.execute(
+        f"""{skills_q} WHERE skill = '{skill_name}';"""
+    )
+    skill_row = cur.fetchone()
+    conn.commit()
+
+    if skill_row is None:
+        print(f'Skill not found by name {skill_name}')
+    return skill_row
 
 
 def listSkills():

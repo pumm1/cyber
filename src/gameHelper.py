@@ -5,7 +5,6 @@ split_at = ' '
 roll_str = '/roll'
 list_str = '/list'
 
-#TODO: use
 INT = 'INT'
 REF = 'REF'
 TECH = 'TECH'
@@ -21,10 +20,21 @@ EMP = 'EMP'
 exit_commands = ['/e', '/q', '/exit', '/quit']
 help_commands = ['/help', '/halp', '/h']
 
+
+
 rep_roll_str = 'rep'
 hit_location_roll_str = 'hit_loc'
 hit_str = 'hit'
-roll_help_str = f'{roll_str} <{rep_roll_str}> / <{hit_str}> / <{hit_location_roll_str}> / char <character_name> <skill>'
+roll_help_str = f'{roll_str} <{rep_roll_str}> / <{hit_str}> / <{hit_location_roll_str}> / char <character_name> <skill> <optional modifier>'
+
+very_reliables = ['very reliable', 'vr', 'VR']
+reliables = ['reliable', 'r', 'R']
+unreliables = ['unreliable', 'ur', 'UR']
+
+fumble_str = '/fumble'
+fumble_help_str = f'{fumble_str} combat | ref | tech | emp | int'
+jam_str = '/jam'
+jam_help_str = f'{jam_str} <reliability>'
 
 add_char_str = '/add_char'
 roll_all_str = 'roll_all'

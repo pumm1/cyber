@@ -1,5 +1,6 @@
 import cyberdao as DAO
 from src import dice
+from src.gameHelper import safeCastToInt
 
 
 def printSkillInfo(skills):
@@ -8,26 +9,36 @@ def printSkillInfo(skills):
         print(f"({s}) {skillInfo['skill']} [{skillInfo['attribute']}]: {skillInfo['description']}")
 
 
-def rollCharacterSkill(name, skill_name):
+def rollCharacterSkill(name, skill_name, modifier):
     character = DAO.getCharacterByName(name)
-    roll = 0
-    skill = [s for s in character.skills if s.skill == skill_name]
-    if len(skill) > 0:
-        char_skill = skill[0]
-        char_skill_lvl = char_skill.lvl
-        skill_atr = char_skill.attribute
-        atr_bonus = character.attributes[skill_atr]
-        roll = dice.rollWithCrit() + char_skill_lvl + atr_bonus
-    else:
-        roll = dice.rollWithCrit()
+    roll_modifier = safeCastToInt(modifier)
+    if character is not None:
+        roll = 0
+        atr_bonus = 0
+        char_skill_lvl = 0
+        die_roll = dice.rollWithCrit()
+        roll = die_roll + roll_modifier
+        skill = [s for s in character.skills if s.skill == skill_name]
+        if len(skill) > 0:
+            char_skill = skill[0]
+            char_skill_lvl = char_skill.lvl
+            skill_atr = char_skill.attribute
+            atr_bonus = character.attributes[skill_atr]
+            roll = roll + char_skill_lvl + atr_bonus
+        else:
+            skill = DAO.getSkillByName(skill_name)
+            if skill is not None:
+                skill_atr = skill['attribute']
+                atr_bonus = character.attributes[skill_atr]
+                roll = roll + atr_bonus
 
-    print(f'{name} rolled {roll} for {skill_name}')
+        print(f"""{name} rolled {roll} for {skill_name}
+(die roll = {die_roll} atr_bonus = {atr_bonus} skill_level = {char_skill_lvl} modifier = {roll_modifier})
+""")
 
 
 def printCharSkillInfo(skills):
-    print(f'... skills : {skills}')
     for s in skills:
-        print(f'... skill: {s}')
         (atr, lvl) = skills[s]
         print(f"{s} ({atr}, {lvl})")
 def listSkillsByAttribute(atr: str):

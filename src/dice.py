@@ -13,6 +13,6 @@ def rollWithCrit():
         print('Critical success roll!')
         res = res + rollWithCrit()
     elif res == 1:
-        print('Fumble!')
+        print('Fumble! For automatic weapons skip fumble table and roll jam')
 
     return res

@@ -6,8 +6,10 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str,
     explain_str, add_reputation_str, add_char_help_str, advance_combat_initiative_str, list_combat_initiative_str, \
     new_combat_initiative_str, new_combat_initiative_help_str, clear_combat_str, character_str, \
     character_helper_str, roll_help_str, stun_check_str, stun_check_help_str, dmg_str, safeCastToInt, dmg_helper_str, \
-    roll_all_str, roll_atr_str, list_skills_str, list_skills_helpeer_str, add_char_skill_str, add_char_skill_help_str
+    roll_all_str, roll_atr_str, list_skills_str, list_skills_helpeer_str, add_char_skill_str, add_char_skill_help_str, \
+    fumble_str, fumble_help_str, jam_str, jam_help_str
 from characterBuilder import createCharacter
+from src import fumble
 
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
@@ -24,6 +26,7 @@ from characterBuilder import createCharacter
 # 10 = you are known worldwide
 
 def start():
+    print('< Connected to the NET >')
     game_is_running = True
     while game_is_running:
         command = askInput().lower()
@@ -35,12 +38,14 @@ def start():
             help()
         elif command.startswith(roll_str):
             match command_parts:
-                case [_, 'rep', character]:
-                    characterRoll(character, rep_roll_str)
+                case [_, 'face_off', character]:
+                    faceOffRoll(character, rep_roll_str)
                 case [_, 'hit_loc']:
                     rollHitLocation()
                 case [_, 'char', name, skill]:
-                    skills.rollCharacterSkill(name, skill)
+                    skills.rollCharacterSkill(name, skill, modifier=0)
+                case [_, 'char', name, skill, modifier]:
+                    skills.rollCharacterSkill(name, skill, modifier=modifier)
                 case _:
                     print(roll_help_str)
         elif command.startswith(add_char_skill_str):
@@ -60,6 +65,18 @@ def start():
                         createCharacter(name, roll_atr=True)
                 case _:
                     print(add_char_help_str)
+        elif command.startswith(fumble_str):
+            match command_parts:
+                case [_, area]:
+                    fumble.rollFumble(area)
+                case _:
+                    print(fumble_help_str)
+        elif command.startswith(jam_str):
+            match command_parts:
+                case [_, reliability]:
+                    fumble.rollWeaponJam(reliability)
+                case _:
+                    print(jam_help_str)
         elif command.startswith(list_skills_str):
             match command_parts:
                 case [_]:
@@ -114,16 +131,12 @@ def start():
 
 
 
-def characterRoll(name, roll):
+def faceOffRoll(name, roll):
     character = DAO.getCharacterByName(name)
     if character is None:
         print(f'Character not found by the name of {name}')
     else:
-        match roll:
-            case 'rep':
-                print(f'{character.name} face off result: {character.rollFaceDown()}')
-            case unknown:
-                print(f'Command {unknown} is not known or not yet supported')
+        print(f'{character.name} face off result: {character.rollFaceDown()}')
 
 
 def fetchCharacter(name):
