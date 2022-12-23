@@ -245,6 +245,8 @@ def help():
 {list_str.join(exit_commands)}
 - Roll for something:
 {roll_help_str}
+-See fumble effect:
+{fumble_help_str}
 - See character info:
 {character_helper_str}
 - Add new character:

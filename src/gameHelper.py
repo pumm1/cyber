@@ -32,7 +32,7 @@ reliables = ['reliable', 'r', 'R']
 unreliables = ['unreliable', 'ur', 'UR']
 
 fumble_str = '/fumble'
-fumble_help_str = f'{fumble_str} combat | ref | tech | emp | int'
+fumble_help_str = f'{fumble_str} <combat | ref | tech | emp | int>'
 jam_str = '/jam'
 jam_help_str = f'{jam_str} <reliability>'
 

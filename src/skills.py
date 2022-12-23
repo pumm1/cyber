@@ -38,9 +38,12 @@ def rollCharacterSkill(name, skill_name, modifier):
 
 
 def printCharSkillInfo(skills):
-    for s in skills:
-        (atr, lvl) = skills[s]
-        print(f"{s} ({atr}, {lvl})")
+    if len(skills) > 0:
+        for s in skills:
+            (atr, lvl) = (s.attribute, s.lvl)
+            print(f"{s.skill} - {lvl} [{atr}]")
+    else:
+        print(f'No skills found')
 def listSkillsByAttribute(atr: str):
     atr_skills = skillsByAttribute(atr)
     printSkillInfo(atr_skills)
@@ -77,7 +80,7 @@ def characterSkills(name):
         skills = DAO.getCharacterSkillsById(character.id)
         return skills
     else:
-        print(f'{character} Not found')
+        print(f'{name} Not found')
         return list()
 
 def allSkills():
