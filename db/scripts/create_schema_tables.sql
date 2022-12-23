@@ -51,7 +51,7 @@ create table cyberpunk.skills(
 create table cyberpunk.character_reputation(
     character_id bigint not null,
     known_for varchar not null,
-    reputation_value integer not null
+    rep_level integer not null
 );
 
 alter table cyberpunk.character_reputation

@@ -56,7 +56,7 @@ def getCharacterByName(name: str):
         skills = getCharacterSkillsById(id)
         rep_rows = getReputationRows(id)
         reputation = sum(map(lambda rep: (
-            rep['reputation_value']
+            rep['rep_level']
         ), rep_rows))
         sp_row = characterSpById(id)
         character = Character(char_row, skills, reputation, sp_row)
@@ -76,11 +76,12 @@ def characterSpById(character_id):
     return sp_row
 
 
-def addReputation(character_id, info, rep):
-    assert abs(rep) == 1
+def addReputation(character_id, info, rep_level):
+    assert 0 < abs(rep_level) <= 10
+
     cur.execute(
-        f"""INSERT INTO {table_reputation} (character_id, known_for, reputation_value)
-            VALUES ({character_id}, '{info}', {rep});"""
+        f"""INSERT INTO {table_reputation} (character_id, known_for, rep_level)
+            VALUES ({character_id}, '{info}', {rep_level});"""
     )
     conn.commit()
 

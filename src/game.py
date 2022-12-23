@@ -7,7 +7,8 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str,
     new_combat_initiative_str, new_combat_initiative_help_str, clear_combat_str, character_str, \
     character_helper_str, roll_help_str, stun_check_str, stun_check_help_str, dmg_str, safeCastToInt, dmg_helper_str, \
     roll_all_str, roll_atr_str, list_skills_str, list_skills_helpeer_str, add_char_skill_str, add_char_skill_help_str, \
-    fumble_str, fumble_help_str, jam_str, jam_help_str, add_armor_str, add_armor_help_str
+    fumble_str, fumble_help_str, jam_str, jam_help_str, add_armor_str, add_armor_help_str, add_reputation_help_str, \
+    list_rep_str, l_rep_help_str
 from characterBuilder import createCharacter
 from src import fumble, armor
 
@@ -29,6 +30,7 @@ def start():
     print('< Connected to the NET >')
     game_is_running = True
     while game_is_running:
+        print('< Main >')
         command = askInput().lower()
         command_parts = command.split(split_at)
         if exit_commands.__contains__(command):
@@ -97,13 +99,16 @@ def start():
             print('TODO: add explanations for things')
         elif command.startswith(add_reputation_str):
             match command_parts:
-                case [_, character, 'pos']:
-                    addReputation(character, 1)
-                case [_, character, 'neg']:
-                    addReputation(character, -1)
+                case [_, character, amount]:
+                    addReputation(character, amount)
                 case _:
-                    print('/add_rep <character> pos/neg')
-
+                    print(f'{add_reputation_help_str}')
+        elif command.startswith(list_rep_str):
+            match command_parts:
+                case [_, name]:
+                    listCharacterRep(name)
+                case _:
+                    print(f'{l_rep_help_str}')
         elif command.startswith(advance_combat_initiative_str):
             advanceCombatSeq()
         elif command.startswith(list_combat_initiative_str):
@@ -167,32 +172,38 @@ def listCombatInitiative():
     print(f"Turn order: \n{info}")
 
 
-def addReputation(char, rep):
+def addReputation(char, rep_amount):
+    rep = safeCastToInt(rep_amount)
     character = DAO.getCharacterByName(char)
     rep_type = 'positive'
     if rep < 0:
         rep_type = 'negative'
     if character is not None:
         tries = 0
-        rep_rows = DAO.getReputationRows(character.id)
-        if len(rep_rows) >= 10:
-            print('Max rep of 10 reached already')
-        else:
-            print(f"Add {rep_type} reputation for {character.name}? [y/n]")
-            while tries < 3:
-                command = askInput()
-                if command.lower() == 'y':
-                    print(f'What is {character.name} gaining reputation for?')
-                    info = askInput()
-                    DAO.addReputation(character.id, info, rep)
-                    print(f'Reputation added for {character.name}')
-                    break
-                elif command.lower() == 'n':
-                    print(f'Cancelling reputation add for {character.name}')
-                    break
-                tries = tries + 1
+        print(f"Add {rep_type} reputation for {character.name}? [y/n]")
+        while tries < 3:
+            command = askInput()
+            if command.lower() == 'y':
+                print(f'What is {character.name} gaining reputation for?')
+                info = askInput()
+                DAO.addReputation(character.id, info, rep)
+                print(f'Reputation added for {character.name}')
+                break
+            elif command.lower() == 'n':
+                print(f'Cancelling reputation add for {character.name}')
+                break
+            tries = tries + 1
     else:
         print(f'Character not found by name {char}')
+
+
+def listCharacterRep(name):
+    c = DAO.getCharacterByName(name)
+    if c is not None:
+        rep_rows = DAO.getReputationRows(c.id)
+        print(f'{c.name} is known for:')
+        for rep in rep_rows:
+            print(f"{rep['known_for']} (level: {rep['rep_level']})")
 
 
 def advanceCombatSeq():
@@ -260,7 +271,9 @@ def help():
 - Explain something:
 {explain_str} <term>
 - Add reputation for character:
-{add_reputation_str} <character_name> pos / neg
+{add_reputation_help_str}
+- List character reputation:
+{l_rep_help_str}
 - See current stun check for character:
 {stun_check_help_str}
 - Add new character to initiative sequence:
