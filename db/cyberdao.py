@@ -58,11 +58,22 @@ def getCharacterByName(name: str):
         reputation = sum(map(lambda rep: (
             rep['reputation_value']
         ), rep_rows))
-        character = Character(char_row, skills, reputation)
+        sp_row = characterSpById(id)
+        character = Character(char_row, skills, reputation, sp_row)
     else:
         print('No character found')
 
     return character
+
+def characterSpById(character_id):
+    cur.execute(
+        f"""SELECT * FROM {table_character_sp} WHERE character_id = {character_id};
+        """
+    )
+    sp_row = cur.fetchone()
+    conn.commit()
+
+    return sp_row
 
 
 def addReputation(character_id, info, rep):
@@ -118,6 +129,14 @@ def setNextInOrder(character):
     conn.commit()
 
 
+def dmgCharacterSP(character_id, body_part, dmg):
+    cur.execute(
+        f"""UPDATE {table_character_sp} SET {body_part} = {body_part} - {dmg}
+            WHERE character_id = {character_id};
+        """
+    )
+    conn.commit()
+
 def dmgCharacter(character, dmg):
     cur.execute(
         f"""UPDATE {table_characters} SET dmg_taken = {dmg} WHERE id = {character.id};"""
@@ -149,7 +168,18 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
             (name, role, special_ability, body_type_modifier, 
             atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken)
             VALUES ('{name}', '{role}', {special_ability}, '{body_type_modifier}', 
-            {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0);"""
+            {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0)
+            RETURNING id;
+        """
+    )
+    new_char = cur.fetchone()
+
+    cur.execute(
+        f"""
+            INSERT INTO {table_character_sp} (character_id, head, body, r_arm, l_arm, r_leg, l_leg)
+            VALUES ({new_char['id']}, 0, 0, 0, 0, 0, 0)
+            ON CONFLICT DO NOTHING;
+            """
     )
     conn.commit()
     print(f'Character {name} ({role}) added to game')
@@ -245,14 +275,6 @@ def addArmor(character_id, item, sp, body_parts):
     conn.commit()
 
 def updateCharacterSp(character_id, body_part, amount):
-    cur.execute(
-        f"""
-        INSERT INTO {table_character_sp} (character_id, head, body, r_arm, l_arm, r_leg, l_leg)
-        VALUES ({character_id}, 0, 0, 0, 0, 0, 0)
-        ON CONFLICT DO NOTHING;
-        """
-    )
-    print(f'.. updating {body_part} SP')
     cur.execute(
         f"""UPDATE {table_character_sp} SET {body_part} = {body_part} + {amount}
         WHERE character_id = {character_id};

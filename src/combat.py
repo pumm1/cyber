@@ -2,7 +2,7 @@ import dice
 from character import Character
 import bodytypes
 from db import cyberdao as DAO
-from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, body_party_l_arm, body_part_r_leg
+from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, body_part_l_arm, body_part_r_leg
 
 
 def dmgReductionByBodyTypeModifier(bodyTypeModifier):
@@ -31,7 +31,7 @@ def determineHitLocation():
     elif roll == 5:
         return body_part_r_arm
     elif roll == 6:
-        return body_party_l_arm
+        return body_part_l_arm
     elif 7 <= roll <= 8:
         return body_part_r_leg
     else:

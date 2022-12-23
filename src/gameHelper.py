@@ -39,16 +39,16 @@ jam_help_str = f'{jam_str} <reliability>'
 body_part_head = 'head'
 body_part_body = 'body'
 body_part_r_arm = 'r. arm'
-body_party_l_arm = 'l. arm'
+body_part_l_arm = 'l. arm'
 body_part_r_leg = 'r. leg'
 body_part_l_leg = 'l. leg'
 
-body_parts = [body_part_head, body_part_body, body_part_r_arm, body_party_l_arm, body_part_r_leg, body_part_l_leg]
+body_parts = [body_part_head, body_part_body, body_part_r_arm, body_part_l_arm, body_part_r_leg, body_part_l_leg]
 
 body_parts_armor_info = f"""1 - {body_part_head}
 2 - {body_part_body}
 3 - {body_part_r_arm}
-4 - {body_party_l_arm}
+4 - {body_part_l_arm}
 5 - {body_part_r_leg}
 6 - {body_part_l_leg}
 """

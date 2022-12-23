@@ -2,7 +2,7 @@ from numpy import unique
 
 import db.cyberdao as DAO
 from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_parts, body_part_head, body_part_body, \
-    body_part_r_leg, body_part_l_leg, body_part_r_arm, body_party_l_arm, uniqueArr
+    body_part_r_leg, body_part_l_leg, body_part_r_arm, body_part_l_arm, uniqueArr
 
 
 def checkBodyPartNum(i):
@@ -15,7 +15,7 @@ def checkBodyPartNum(i):
     elif num == 3:
         body_part = body_part_r_arm
     elif num == 4:
-        body_part = body_party_l_arm
+        body_part = body_part_l_arm
     elif num == 5:
         body_part = body_part_r_leg
     elif num == 6:
