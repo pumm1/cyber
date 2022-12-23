@@ -8,28 +8,34 @@ password = 'cyber1'
 host = '127.0.0.1'
 schema = 'cyberpunk'
 table_characters = f'{schema}.characters'
-table_skills = f'{schema}.character_skills'
+table_character_skills = f'{schema}.character_skills'
+table_skills = f'{schema}.skills'
 table_combat_session = f'{schema}.combat_session'
 table_reputation = f'{schema}.character_reputation'
 
 conn = psycopg2.connect(dbname=db, user=user, password=password, host=host)
-cur = conn.cursor(cursor_factory = psycopg2.extras.RealDictCursor)
+cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
 
 def clean_fetch_all(rows):
     return [i[0] for i in rows]
 
-character_q = f"""SELECT * FROM {table_characters} c """
+
+character_q = f'SELECT * FROM {table_characters} c '
+character_skills_q = f'SELECT * FROM {table_character_skills}'
+skills_q = f'SELECT * FROM {table_skills}'
+
 
 def getAllCharacters():
     cur.execute(character_q)
     rows = cur.fetchall()
-    #cleaned_rows = clean_fetch_all(rows)
+    # cleaned_rows = clean_fetch_all(rows)
     print(f'rows fetched: {rows}')
     conn.commit()
     return rows
 
 
-#TODO: some fuzzy character search logic and to character class
+# TODO: some fuzzy character search logic and to character class
 def getCharactersByName(name: str):
     cur.execute(
         f"""{character_q} WHERE c.name like '%{name}%';"""
@@ -39,6 +45,7 @@ def getCharactersByName(name: str):
     print(f'rows fetched: {cleaned_rows}')
     conn.commit()
 
+
 def getCharacterRow(name: str):
     cur.execute(
         f"""{character_q} WHERE c.name = '{name}';"""
@@ -46,14 +53,6 @@ def getCharacterRow(name: str):
     char_row = cur.fetchone()
     conn.commit()
     return char_row
-
-def getCharacterSkillsById(id):
-    cur.execute(
-        f'SELECT * FROM {table_skills} where character_id = {id};'
-    )
-    skill_rows = cur.fetchall()
-    conn.commit()
-    return skill_rows
 
 
 def getCharacterByName(name: str):
@@ -63,7 +62,7 @@ def getCharacterByName(name: str):
         id = char_row['id']
         skill_rows = getCharacterSkillsById(id)
         rep_rows = getReputationRows(id)
-        reputation = sum(map(lambda rep:(
+        reputation = sum(map(lambda rep: (
             rep['reputation_value']
         ), rep_rows))
         skills = map(lambda skill: (
@@ -76,6 +75,7 @@ def getCharacterByName(name: str):
 
     return character
 
+
 def addReputation(character_id, info, rep):
     assert abs(rep) == 1
     cur.execute(
@@ -83,6 +83,8 @@ def addReputation(character_id, info, rep):
             VALUES ({character_id}, '{info}', {rep});"""
     )
     conn.commit()
+
+
 def getReputationRows(character_id):
     cur.execute(
         f'SELECT * FROM {table_reputation} where character_id = {character_id};'
@@ -90,6 +92,7 @@ def getReputationRows(character_id):
     rows = cur.fetchall()
     conn.commit()
     return rows
+
 
 def listCombatInitiative(ascending: bool):
     ordering = 'DESC'
@@ -103,6 +106,7 @@ def listCombatInitiative(ascending: bool):
 
     return rows
 
+
 def clearCombat():
     cur.execute(
         f"""DELETE FROM {table_combat_session};"""
@@ -110,11 +114,13 @@ def clearCombat():
     conn.commit()
     print('Combat table cleared')
 
+
 def resetCurrentOrder():
     cur.execute(
         f"""UPDATE {table_combat_session} SET current = {False} WHERE current = {True};"""
     )
     conn.commit()
+
 
 def setNextInOrder(character):
     cur.execute(
@@ -122,11 +128,13 @@ def setNextInOrder(character):
     )
     conn.commit()
 
+
 def dmgCharacter(character, dmg):
     cur.execute(
         f"""UPDATE {table_characters} SET dmg_taken = {dmg} WHERE id = {character.id};"""
     )
     conn.commit()
+
 
 def addCharacterToCombat(character, initiative):
     cur.execute(
@@ -136,7 +144,9 @@ def addCharacterToCombat(character, initiative):
     conn.commit()
     print(f'{character} added to combat session')
 
-def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp):
+
+def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr,
+                 atr_luck, atr_ma, atr_body, atr_emp):
     cur.execute(
         f"""INSERT INTO {table_characters} 
             (name, role, special_ability, body_type_modifier, 
@@ -146,3 +156,54 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
     )
     conn.commit()
     print(f'Character {name} ({role}) added to game')
+
+
+def characterSkillsFromRows(skill_rows):
+    skills = map(lambda skill: (
+        skill['skill'], {skill['skill_value'], skill['attribute']}
+    ), skill_rows)
+
+    return skills
+
+
+# TODO: skills.py
+def skillsFromRows(skill_rows):
+    skills = map(lambda skill: (
+        skill['id'], skill
+    ), skill_rows)
+
+    return dict(skills)
+
+
+def getCharacterSkillsById(id):
+    cur.execute(
+        f'{character_skills_q} where character_id = {id};'
+    )
+    skill_rows = cur.fetchall()
+    conn.commit()
+    skills = skill_rows(skill_rows)
+
+    return skills
+
+
+def listSkillsByAttribute(atr: str):
+    cur.execute(
+        f"""{skills_q} WHERE attribute = '{atr.upper()}';"""
+    )
+    skill_rows = cur.fetchall()
+    conn.commit()
+
+    skills = skillsFromRows(skill_rows)
+    print(f'... skills: {skills}')
+    return skills
+
+
+def listSkills():
+    cur.execute(
+        f"""{skills_q};"""
+    )
+    skill_rows = cur.fetchall()
+    conn.commit()
+
+    skills = skillsFromRows(skill_rows)
+    return skills

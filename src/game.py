@@ -1,14 +1,12 @@
 import combat
 import cyberdao as DAO
 from collections import deque
-import roles
-import dice
-import bodytypes
+import skills
 from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str, exit_commands, help_commands, \
     explain_str, add_reputation_str, add_char_help_str, advance_combat_initiative_str, list_combat_initiative_str, \
     new_combat_initiative_str, new_combat_initiative_help_str, clear_combat_str, character_str, \
     character_helper_str, roll_help_str, stun_check_str, stun_check_help_str, dmg_str, safeCastToInt, dmg_helper_str, \
-    roll_all_str, roll_atr_str
+    roll_all_str, roll_atr_str, list_skills_str
 from characterBuilder import createCharacter
 
 
@@ -29,13 +27,14 @@ def start():
     game_is_running = True
     while game_is_running:
         command = askInput().lower()
+        command_parts = command.split(split_at)
         if exit_commands.__contains__(command):
             print('< Disconnect >')
             game_is_running = False
         elif help_commands.__contains__(command):
             help()
         elif command.startswith(roll_str):
-            match command.split(split_at):
+            match command_parts:
                 case [_, 'rep', character]:
                     characterRoll(character, rep_roll_str)
                 case [_, 'hit_loc']:
@@ -43,7 +42,7 @@ def start():
                 case _:
                     print(roll_help_str)
         elif command.startswith(add_char_str):
-            match command.split(split_at):
+            match command_parts:
                 case [_, name]:
                     createCharacter(name)
                 case [_, name, roll_param]:
@@ -53,10 +52,16 @@ def start():
                         createCharacter(name, roll_atr=True)
                 case _:
                     print(add_char_help_str)
+        elif command.startswith(list_skills_str):
+            match command_parts:
+                case [_]:
+                    listAllSkills()
+                case [_, 'attribute', atr]:
+                    listSkillsByAttribute(atr)
         elif command.startswith(explain_str):
             print('TODO: add explanations for things')
         elif command.startswith(add_reputation_str):
-            match command.split(split_at):
+            match command_parts:
                 case [_, character, 'pos']:
                     addReputation(character, 1)
                 case [_, character, 'neg']:
@@ -69,7 +74,7 @@ def start():
         elif command.startswith(list_combat_initiative_str):
             listCombatInitiative()
         elif command.startswith(new_combat_initiative_str):  # nci = new combat initiative, add to combat sequence
-            match command.split(split_at):
+            match command_parts:
                 case [_, character, initiative]:
                     addToCombat(character, int(initiative))
                 case _:
@@ -77,19 +82,19 @@ def start():
         elif command.startswith(clear_combat_str):  # cc = clear combat
             clearCombat()
         elif command.startswith(stun_check_str):
-            match command.split(split_at):
+            match command_parts:
                 case [_, name]:
                     stunCheckCharacter(name)
                 case _:
                     print(stun_check_help_str)
         elif command.startswith(character_str):
-            match command.split(split_at):
+            match command_parts:
                 case [_, name]:
                     fetchCharacter(name)
                 case _:
                     print(character_helper_str)
         elif command.startswith(dmg_str):
-            match command.split(split_at):
+            match command_parts:
                 case [_, name, dmg]:
                     dmgCharacter(name, dmg)
                 case _:
@@ -116,6 +121,20 @@ def fetchCharacter(name):
     else:
         character.info()
 
+#TODO: skills.py
+
+def printSkillInfo(skills):
+    for s in skills:
+        skillInfo = skills[s]
+        print(f"({s}) {skillInfo['skill']} [{skillInfo['attribute']}]: {skillInfo['description']}")
+def listSkillsByAttribute(atr: str):
+    atr_skills = skills.skillsByAttribute(atr)
+    printSkillInfo(atr_skills)
+
+def listAllSkills():
+    all_skills = skills.allSkills()
+    printSkillInfo(all_skills)
+
 
 def rollHitLocation():
     location = combat.determineHitLocation()
@@ -125,7 +144,7 @@ def rollHitLocation():
 def listCombatInitiative():
     rows = DAO.listCombatInitiative(ascending=False)
     infoRows = map(lambda c: (
-        f"{c['character']}: initiative: {c['initiative']}, currenet: {c['current']}"
+        f"{c['character']}: initiative: {c['initiative']}, current: {c['current']}"
     ), rows)
     info = '\n'.join(infoRows)
     print(f"Turn order: \n{info}")
