@@ -137,9 +137,9 @@ def dmgCharacterSP(character_id, body_part, dmg):
     )
     conn.commit()
 
-def dmgCharacter(character, dmg):
+def dmgCharacter(character_id, dmg):
     cur.execute(
-        f"""UPDATE {table_characters} SET dmg_taken = {dmg} WHERE id = {character.id};"""
+        f"""UPDATE {table_characters} SET dmg_taken = dmg_taken + {dmg} WHERE id = {character_id};"""
     )
     conn.commit()
 

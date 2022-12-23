@@ -130,8 +130,8 @@ def start():
                     print(character_helper_str)
         elif command.startswith(dmg_str):
             match command_parts:
-                case [_, name, dmg]:
-                    dmgCharacter(name, dmg)
+                case [_, name, body_part, dmg]:
+                    combat.hitCharacter(name, body_part, dmg)
                 case _:
                     print(dmg_helper_str)
 
@@ -232,11 +232,7 @@ def clearCombat():
 def addToCombat(character, initiative):
     DAO.addCharacterToCombat(character, initiative)
 
-def dmgCharacter(name, dmg_str):
-    dmg = safeCastToInt(dmg_str)
-    character = DAO.getCharacterByName(name)
-    if character is not None:
-        combat.damageCharacter(character, dmg)
+
 def stunCheckCharacter(name):
     character = DAO.getCharacterByName(name)
     if character is not None:

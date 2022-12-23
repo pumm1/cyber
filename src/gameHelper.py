@@ -75,7 +75,7 @@ list_skills_helpeer_str = f"{list_skills_str} | optional 'atr' <attribute> | opt
 stun_check_str = '/sc'
 stun_check_help_str = f'{stun_check_str} <character_name>'
 dmg_str = '/dmg'
-dmg_helper_str = f'{dmg_str} <character_name> <amount>'
+dmg_helper_str = f'{dmg_str} <character_name> <body_part> <amount>'
 
 
 def askInput() -> str:

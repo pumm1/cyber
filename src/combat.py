@@ -2,7 +2,8 @@ import dice
 from character import Character
 import bodytypes
 from db import cyberdao as DAO
-from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, body_part_l_arm, body_part_r_leg
+from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
+    body_part_l_arm, body_part_r_leg, safeCastToInt
 
 
 def dmgReductionByBodyTypeModifier(bodyTypeModifier):
@@ -13,13 +14,34 @@ def dmgReductionByBodyTypeModifier(bodyTypeModifier):
     else:
         return reduction
 
+
+def hitCharacter(name, body_part, dmg_str):
+    dmg = safeCastToInt(dmg_str)
+    character = DAO.getCharacterByName(name)
+    if character is not None:
+        char_sp = character.sp[body_part]
+        sp_left = 0
+        if char_sp > 0:
+            sp_left = char_sp - dmg
+            if sp_left >= 0:
+                print(f'Armor damaged at {body_part}')
+                DAO.dmgCharacterSP(character.id, body_part, dmg)
+            else:
+                print(f'Armor broken at {body_part}')
+                dmg_left = abs(sp_left)
+                DAO.dmgCharacterSP(character.id, body_part, char_sp)
+                damageCharacter(character, dmg_left)
+        else:
+            damageCharacter(character, dmg)
+
+
 def damageCharacter(c: Character, dmg):
     dmgReduction = dmgReductionByBodyTypeModifier(c.bodyTypeModifier)
-    totalDmg = dmg - dmgReduction
-    if (totalDmg < 0):
-        totalDmg = 0
-    DAO.dmgCharacter(c, dmg)
-    stunCheck(c)
+    total_dmg = dmg - dmgReduction
+    if total_dmg > 0:
+        print(f'{c.name} damaged by {dmg}!')
+        DAO.dmgCharacter(c.id, total_dmg)
+        stunCheck(c)
 
 
 def determineHitLocation():
@@ -39,7 +61,7 @@ def determineHitLocation():
 
 
 def rollStunOverActingEffect(name):
-    print(f'{name} gets stunned!')
+    print(f'{name} gets stunned! Rolling stun effect')
     roll = dice.roll(1, 6)
     if roll == 1:
         return f'{name} screams, windmills arms, falls'
@@ -73,5 +95,6 @@ def stunCheck(c: Character):
 
     if isStunned:
         print(rollStunOverActingEffect(c.name))
+
     return isStunned
 

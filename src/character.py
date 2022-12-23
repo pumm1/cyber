@@ -7,7 +7,6 @@ from src.gameHelper import woundState, INT, REF, TECH, COOL, ATTR, MA, BODY, LUC
 class Character:
 #character row e.g.: (2, 'Test', 'Solo', 6, 'average', 9, 9, 8, 8, 7, 8, 7, 5, 4)
     def __init__(self, row, skills, rep, sp_row):
-        print(f'... sp: {sp_row}')
         self.id = row['id']
         self.name = row['name']
         self.role = row['role']
