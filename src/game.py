@@ -6,7 +6,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str,
     explain_str, add_reputation_str, add_char_help_str, advance_combat_initiative_str, list_combat_initiative_str, \
     new_combat_initiative_str, new_combat_initiative_help_str, clear_combat_str, character_str, \
     character_helper_str, roll_help_str, stun_check_str, stun_check_help_str, dmg_str, safeCastToInt, dmg_helper_str, \
-    roll_all_str, roll_atr_str, list_skills_str
+    roll_all_str, roll_atr_str, list_skills_str, list_skills_helpeer_str, add_char_skill_str, add_char_skill_help_str
 from characterBuilder import createCharacter
 
 
@@ -41,6 +41,12 @@ def start():
                     rollHitLocation()
                 case _:
                     print(roll_help_str)
+        elif command.startswith(add_char_skill_str):
+            match command_parts:
+                case [_, name, skill_id, skill_level]:
+                    skills.addCharacterSkill(name, skill_id, skill_level)
+                case _:
+                    print(add_char_skill_help_str)
         elif command.startswith(add_char_str):
             match command_parts:
                 case [_, name]:
@@ -55,9 +61,13 @@ def start():
         elif command.startswith(list_skills_str):
             match command_parts:
                 case [_]:
-                    listAllSkills()
-                case [_, 'attribute', atr]:
-                    listSkillsByAttribute(atr)
+                    skills.listAllSkills()
+                case [_, 'atr', atr]:
+                    skills.listSkillsByAttribute(atr)
+                case [_, 'fuzzy', str]:
+                    skills.findSkillsByString(str)
+                case [_, 'char', name]:
+                    skills.printCharacterSkills(name)
         elif command.startswith(explain_str):
             print('TODO: add explanations for things')
         elif command.startswith(add_reputation_str):
@@ -120,20 +130,6 @@ def fetchCharacter(name):
         print(f'Character not found by the name of {name}')
     else:
         character.info()
-
-#TODO: skills.py
-
-def printSkillInfo(skills):
-    for s in skills:
-        skillInfo = skills[s]
-        print(f"({s}) {skillInfo['skill']} [{skillInfo['attribute']}]: {skillInfo['description']}")
-def listSkillsByAttribute(atr: str):
-    atr_skills = skills.skillsByAttribute(atr)
-    printSkillInfo(atr_skills)
-
-def listAllSkills():
-    all_skills = skills.allSkills()
-    printSkillInfo(all_skills)
 
 
 def rollHitLocation():
@@ -238,6 +234,8 @@ def help():
 {character_helper_str}
 - Add new character:
 {add_char_help_str}
+- List skills (all | by attribute | by fuzzy logic | by character)
+{list_skills_helpeer_str}
 - Explain something:
 {explain_str} <term>
 - Add reputation for character:

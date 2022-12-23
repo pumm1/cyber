@@ -60,14 +60,11 @@ def getCharacterByName(name: str):
     character = None
     if char_row is not None:
         id = char_row['id']
-        skill_rows = getCharacterSkillsById(id)
+        skills = getCharacterSkillsById(id)
         rep_rows = getReputationRows(id)
         reputation = sum(map(lambda rep: (
             rep['reputation_value']
         ), rep_rows))
-        skills = map(lambda skill: (
-            skill['skill'], {skill['skill_value'], skill['attribute']}
-        ), skill_rows)
         cleaned_skills = dict(skills)
         character = Character(char_row, cleaned_skills, reputation)
     else:
@@ -135,6 +132,12 @@ def dmgCharacter(character, dmg):
     )
     conn.commit()
 
+def addCharacterSkill(char_id, skill_row, value):
+    cur.execute(
+        f"""INSERT INTO {table_character_skills} (character_id, skill, skill_value, attribute)
+        VALUES ({char_id}, '{skill_row['skill']}', {value}, '{skill_row['attribute']}');"""
+    )
+    conn.commit()
 
 def addCharacterToCombat(character, initiative):
     cur.execute(
@@ -165,8 +168,14 @@ def characterSkillsFromRows(skill_rows):
 
     return skills
 
+def getSkillById(id):
+    cur.execute(
+        f"{skills_q} WHERE id = {id};"
+    )
+    row = cur.fetchone()
+    conn.commit()
+    return row
 
-# TODO: skills.py
 def skillsFromRows(skill_rows):
     skills = map(lambda skill: (
         skill['id'], skill
@@ -174,6 +183,21 @@ def skillsFromRows(skill_rows):
 
     return dict(skills)
 
+def skillsByFuzzyLogic(string: str):
+    cur.execute(
+        f"{skills_q} WHERE skill LIKE '%{string}%' OR description LIKE '%{string}%';"
+    )
+    rows = cur.fetchall()
+    skills = skillsFromRows(rows)
+    conn.commit()
+    return skills
+
+def characterSkillsFromRows(char_skills):
+    skills = map(lambda skill: (
+        skill['skill'], {skill['skill_value'], skill['attribute']}
+    ), char_skills)
+
+    return dict(skills)
 
 def getCharacterSkillsById(id):
     cur.execute(
@@ -181,7 +205,7 @@ def getCharacterSkillsById(id):
     )
     skill_rows = cur.fetchall()
     conn.commit()
-    skills = skill_rows(skill_rows)
+    skills = characterSkillsFromRows(skill_rows)
 
     return skills
 
