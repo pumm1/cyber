@@ -1,6 +1,7 @@
 import psycopg2
 import psycopg2.extras
 from character import Character
+from src.skill import SkillInfo
 
 db = 'cyberpunk'
 user = 'cyber'
@@ -65,8 +66,7 @@ def getCharacterByName(name: str):
         reputation = sum(map(lambda rep: (
             rep['reputation_value']
         ), rep_rows))
-        cleaned_skills = dict(skills)
-        character = Character(char_row, cleaned_skills, reputation)
+        character = Character(char_row, skills, reputation)
     else:
         print('No character found')
 
@@ -132,12 +132,14 @@ def dmgCharacter(character, dmg):
     )
     conn.commit()
 
+
 def addCharacterSkill(char_id, skill_row, value):
     cur.execute(
         f"""INSERT INTO {table_character_skills} (character_id, skill, skill_value, attribute)
         VALUES ({char_id}, '{skill_row['skill']}', {value}, '{skill_row['attribute']}');"""
     )
     conn.commit()
+
 
 def addCharacterToCombat(character, initiative):
     cur.execute(
@@ -161,12 +163,13 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
     print(f'Character {name} ({role}) added to game')
 
 
-def characterSkillsFromRows(skill_rows):
+def characterSkillsFromRows(skill_rows) -> list[SkillInfo]:
     skills = map(lambda skill: (
-        skill['skill'], {skill['skill_value'], skill['attribute']}
+        SkillInfo(skill['skill'], skill['skill_value'], skill['attribute'])
     ), skill_rows)
 
-    return skills
+    return list(skills)
+
 
 def getSkillById(id):
     cur.execute(
@@ -176,12 +179,14 @@ def getSkillById(id):
     conn.commit()
     return row
 
+
 def skillsFromRows(skill_rows):
     skills = map(lambda skill: (
         skill['id'], skill
     ), skill_rows)
 
     return dict(skills)
+
 
 def skillsByFuzzyLogic(string: str):
     cur.execute(
@@ -192,19 +197,16 @@ def skillsByFuzzyLogic(string: str):
     conn.commit()
     return skills
 
-def characterSkillsFromRows(char_skills):
-    skills = map(lambda skill: (
-        skill['skill'], {skill['skill_value'], skill['attribute']}
-    ), char_skills)
 
-    return dict(skills)
 
-def getCharacterSkillsById(id):
+
+def getCharacterSkillsById(id) -> list[SkillInfo]:
     cur.execute(
         f'{character_skills_q} where character_id = {id};'
     )
     skill_rows = cur.fetchall()
     conn.commit()
+    print(f'... rows: {skill_rows}')
     skills = characterSkillsFromRows(skill_rows)
 
     return skills
@@ -218,7 +220,6 @@ def listSkillsByAttribute(atr: str):
     conn.commit()
 
     skills = skillsFromRows(skill_rows)
-    print(f'... skills: {skills}')
     return skills
 
 

@@ -24,7 +24,7 @@ help_commands = ['/help', '/halp', '/h']
 rep_roll_str = 'rep'
 hit_location_roll_str = 'hit_loc'
 hit_str = 'hit'
-roll_help_str = f'{roll_str} <{rep_roll_str}> / <{hit_str}> / <{hit_location_roll_str}>'
+roll_help_str = f'{roll_str} <{rep_roll_str}> / <{hit_str}> / <{hit_location_roll_str}> / char <character_name> <skill>'
 
 add_char_str = '/add_char'
 roll_all_str = 'roll_all'

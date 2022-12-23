@@ -39,6 +39,8 @@ def start():
                     characterRoll(character, rep_roll_str)
                 case [_, 'hit_loc']:
                     rollHitLocation()
+                case [_, 'char', name, skill]:
+                    skills.rollCharacterSkill(name, skill)
                 case _:
                     print(roll_help_str)
         elif command.startswith(add_char_skill_str):

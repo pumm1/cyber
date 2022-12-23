@@ -1,5 +1,4 @@
 import dice
-import json
 from roles import roleSpecialAbility
 from src.gameHelper import woundState
 
