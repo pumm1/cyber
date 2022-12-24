@@ -7,6 +7,15 @@ def roll(n, d_die):
         res = res + roll
     return res
 
+def diceToStr(n, d_die, bonus) -> str:
+    str = f"{n}D{d_die}"
+    suffix = ''
+    if bonus > 0:
+        suffix = f' + {bonus}'
+    str = str + suffix
+
+    return str
+
 def rollWithCrit():
     res = roll(1, 10)
     if res == 10:

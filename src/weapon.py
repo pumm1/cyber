@@ -1,6 +1,26 @@
 from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handgun, t_smg, t_rifle, t_thrown, BODY, \
-    t_melee
+    t_melee, guns
+import dice
 import db.cyberdao as DAO
+
+class Weapon:
+    def __init__(self, row):
+        self.item = row['item']
+        self.weapon_type = row['weapon_type']
+        self.is_chrome = row['is_chrome']
+        self.dice_num = row['dice_number']
+        self.dice_dmg = row['dice_dmg']
+        self.dmg_bonus = row['dmg_bonus']
+        self.range = row['range']
+        self.rof = row['rof']
+
+    def toStr(self):
+        cybernetic_str = ''
+        if self.is_chrome:
+            cybernetic_str = ' [cybernetic]'
+        str = f'{self.item} ({self.weapon_type}{cybernetic_str}) - {dice.diceToStr(self.dice_num, self.dice_dmg, self.dmg_bonus)} | range {self.range}m | #ROF: {self.rof}'
+        return str
+
 
 def addChracterWeapon(character_name):
     char = DAO.getCharacterByName(character_name)
@@ -11,8 +31,11 @@ def addChracterWeapon(character_name):
         weapon_range = rangeByType(char, weapon_t)
         is_chrome = askForChrome()
         rof = 1
-        if weapon_t is not t_thrown or weapon_t is not t_melee:
+        if guns.__contains__(weapon_t):
             rof = askRof()
+
+        if rof is None:
+            print('NO ROF!')
 
         (dice, die, bonus) = askForDmg()
 
@@ -23,25 +46,29 @@ def addChracterWeapon(character_name):
 
 def askRof() -> int:
     print(f'Weapon ROF: (ROF > 0)')
-    input = askInput()
-    rof = safeCastToInt(input)
-    if rof > 0:
-        return rof
-    else:
-        askRof()
+    rof = 0
+    while True:
+        input = askInput()
+        rof = safeCastToInt(input)
+        if rof > 0:
+            break
+    return rof
+
 
 
 def rangeByType(char, weapon_t) -> int:
     range = 1
-    if weapon_t is t_shotgun or weapon_t is t_handgun:
+    if weapon_t == t_shotgun or weapon_t == t_handgun:
         range = 50
-    elif weapon_t is t_smg:
+    elif weapon_t == t_smg:
         range = 150
-    elif weapon_t is t_rifle:
+    elif weapon_t == t_rifle:
         range = 400
-    elif weapon_t is t_thrown:
+    elif weapon_t == t_thrown:
         body = char.attributes[BODY]
         range = 10 * body
+
+    print(f'{weapon_t} range: {range}m')
 
     return range
 
@@ -53,6 +80,7 @@ def askForDmg() -> (int, int, int):
         case [dice_s, die_s]:
             dice = safeCastToInt(dice_s)
             die = safeCastToInt(die_s)
+            bonus = 0
             return (dice, die, 0)
         case [dice_s, die_s, bonus_s]:
             dice = safeCastToInt(dice_s)

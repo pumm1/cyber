@@ -26,9 +26,10 @@ t_melee = 'melee'
 t_handgun = 'handgun'
 t_smg = 'smg'
 t_rifle = 'rifle'
-t_thrown = 'thrown'
+t_thrown = 'throwing'
 t_shotgun = 'shotgun'
-weapon_types = [t_melee, t_smg, t_handgun, t_shotgun, t_thrown]
+weapon_types = [t_melee, t_smg, t_handgun, t_shotgun, t_thrown, t_rifle]
+guns = [t_handgun, t_smg, t_rifle, t_shotgun]
 
 
 rep_roll_str = 'rep'

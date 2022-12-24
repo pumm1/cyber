@@ -6,6 +6,7 @@ from db.cyberschema import db, user, password, host, table_skills, table_charact
     table_events
 from src.character import Character
 from src.skill import SkillInfo
+from src.weapon import Weapon
 
 conn = psycopg2.connect(dbname=db, user=user, password=password, host=host)
 cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
@@ -18,6 +19,7 @@ insert = 'INSERT INTO'
 
 character_q = f'SELECT * FROM {table_characters} c '
 character_skills_q = f'SELECT * FROM {table_character_skills}'
+character_weapons_q = f'SELECT * FROM {table_character_weapons}'
 skills_q = f'SELECT * FROM {table_skills}'
 
 
@@ -61,7 +63,8 @@ def getCharacterByName(name: str):
             rep['rep_level']
         ), rep_rows))
         sp_row = characterSpById(id)
-        character = Character(char_row, skills, reputation, sp_row)
+        weapon_rows = characterWeapons(id)
+        character = Character(char_row, skills, reputation, sp_row, weapon_rows)
     else:
         print('No character found')
 
@@ -302,3 +305,18 @@ def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg,
         """
     )
     conn.commit()
+
+
+def characterWeapons(character_id) -> list:
+    cur.execute(
+        f"""
+        {character_weapons_q} WHERE character_id = {character_id};
+        """
+    )
+    rows = cur.fetchall()
+    conn.commit()
+
+    weapons = map(lambda w: (
+        Weapon(w)
+    ), rows)
+    return list(weapons)

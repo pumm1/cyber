@@ -6,7 +6,7 @@ from src.gameHelper import woundState, INT, REF, TECH, COOL, ATTR, MA, BODY, LUC
 
 class Character:
 #character row e.g.: (2, 'Test', 'Solo', 6, 'average', 9, 9, 8, 8, 7, 8, 7, 5, 4)
-    def __init__(self, row, skills, rep, sp_row):
+    def __init__(self, row, skills, rep, sp_row, weapons):
         self.id = row['id']
         self.name = row['name']
         self.role = row['role']
@@ -34,6 +34,7 @@ class Character:
             body_part_r_leg: sp_row['r_leg'],
             body_part_l_leg: sp_row['l_leg']
         }
+        self.weapons = weapons
 
     def rollSkill(self, skill, bonus = 0):
         s = self.findSkill(skill)
@@ -58,6 +59,12 @@ class Character:
         return roll + self.attributes['COOL'] + self.reputation
 
     def info(self):
+        weapons_infos = map(lambda w: (
+            w.toStr()
+        ), self.weapons)
+        w_list = list(weapons_infos)
+        w_str = '\n'.join(w_list)
+
         str = f"""************* {self.name} *************
 Role: {self.role}
 Attributes: {self.attributes}
@@ -65,5 +72,6 @@ Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
 Reputation: {self.reputation}
 Health: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
 SP: {self.sp}
+Weapons: {w_str}
 """
         print(str)
