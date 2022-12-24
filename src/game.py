@@ -157,8 +157,6 @@ def start():
                     print(f'{attack_help_str}')
 
 
-
-
 def faceOffRoll(name, roll):
     character = DAO.getCharacterByName(name)
     if character is None:

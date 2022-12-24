@@ -95,6 +95,13 @@ add_weapon_help_str = f'{add_weapon_str} <character_name>'
 attack_str = '/attack'
 attack_help_str = f'{attack_str} <char> <range> <optional roll>'
 
+no_dmg = 'No damage'
+light_dmg = 'Light damage'
+serious_dmg = 'Serious damage'
+critical_dmg = 'Critical damage'
+mortally_wounded = 'Mortally wounded'
+flatlined = 'Flatlined'
+
 def askInput() -> str:
     i = input(inputIndicator)
     return i
@@ -114,17 +121,17 @@ def stunPenalty(dmg: int):
 def woundState(dmg_taken: int):
     stun_penalty = stunPenalty(dmg_taken)
     if dmg_taken == 0:
-        return 'All ok'
+        return no_dmg
     elif stun_penalty == 0:
-        return 'Just a scratch'
+        return light_dmg
     elif stun_penalty == 1:
-        return 'Bleeding a bit'
+        return serious_dmg
     elif stun_penalty == 2:
-        return 'Wounded quite badly'
+        return critical_dmg
     elif dmg_taken < 40:
-        return 'Start rolling those death saves..'
+        return mortally_wounded
     else:
-        return 'Flatlined'
+        return flatlined
 
 
 def safeCastToInt(text):

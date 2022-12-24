@@ -159,6 +159,7 @@ def createRandomCharacter(name):
     special = rollSpecial(role)
     body_type = rollBodyType()
     (atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp) = rollAtributes()
+    humanity=atr_emp * 10
 
     DAO.addCharacter(
         name,
@@ -173,7 +174,8 @@ def createRandomCharacter(name):
         atr_luck=atr_luck,
         atr_ma=atr_ma,
         atr_body=atr_body,
-        atr_emp=atr_emp
+        atr_emp=atr_emp,
+        humanity=humanity
     )
 def rollAtributes():
     atr_int = rollAtr()

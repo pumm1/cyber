@@ -6,6 +6,9 @@ from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_par
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
     t_thrown, roll_str
 
+#TODO: add auto shotguns
+#TODO: add AP rounds (shotgun, rifle?)
+
 
 def characterAttack(name, range_str, given_roll):
     attack_range = safeCastToInt(range_str)

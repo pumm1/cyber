@@ -1,7 +1,46 @@
+import math
+
 import dice
 from roles import roleSpecialAbility
 from src.gameHelper import woundState, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, body_part_head, body_part_body, \
     body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg
+
+def woundEffect(dmg_taken, ref, int, cool):
+    r = ref
+    i = int
+    c = cool
+    def divBy(val, div):
+        return math.ceil(val / div)
+
+    match woundState(dmg_taken):
+        case 'No damage':
+            r = ref
+            i = int
+            c = cool
+        case 'Light damage':
+            r = ref
+            i = int
+            c = cool
+        case 'Serious damage':
+            r = ref - 2
+            if r < 0:
+                r = 0
+            i = int
+            c = cool
+        case 'Critical damage':
+            r = divBy(ref, 2)
+            i = divBy(int, 2)
+            c = divBy(cool, 2)
+        case 'Mortally wounded':
+            r = divBy(ref, 3)
+            i = divBy(int, 3)
+            c = divBy(cool, 3)
+        case _:
+            r = 0
+            i = 0
+            c = 0
+
+    return (r, i, c)
 
 
 class Character:
@@ -14,11 +53,18 @@ class Character:
         self.specialAbility = row['special_ability']
         self.skills = skills
         self.bodyTypeModifier = row['body_type_modifier']
+        self.humanity = row['humanity']
+
+        dmg_taken = row['dmg_taken']
+        self.dmg_taken = dmg_taken
+
+        (ref, int, cool) = woundEffect(dmg_taken, row['atr_ref'], row['atr_int'], row['atr_cool'])
+
         self.attributes = {
-            INT: row['atr_int'],
-            REF: row['atr_ref'],
+            INT: int,
+            REF: ref,
             TECH: row['atr_tech'],
-            COOL: row['atr_cool'],
+            COOL: cool,
             ATTR: row['atr_attr'],
             MA: row['atr_ma'],
             BODY: row['atr_body'],
@@ -64,10 +110,14 @@ class Character:
         ), self.weapons)
         w_list = list(weapons_infos)
         w_str = '\n'.join(w_list)
+        atr_affected = ''
+        wnd_state = woundState(self.dmg_taken)
+        if wnd_state != 'No damage' and wnd_state != 'Light damage':
+            atr_affected = '(Stats affected by dmg)'
 
         str = f"""************* {self.name} *************
 Role: {self.role}
-Attributes: {self.attributes}
+Attributes: {self.attributes} {atr_affected}
 Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
 Reputation: {self.reputation}
 Health: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})

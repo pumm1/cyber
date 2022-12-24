@@ -169,12 +169,12 @@ def addCharacterSkill(char_id, skill_row, value):
 
 
 def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr,
-                 atr_luck, atr_ma, atr_body, atr_emp):
+                 atr_luck, atr_ma, atr_body, atr_emp, humanity):
     cur.execute(
         f"""INSERT INTO {table_characters} 
-            (name, role, special_ability, body_type_modifier, 
+            (name, role, special_ability, body_type_modifier, humanity,
             atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken)
-            VALUES ('{name}', '{role}', {special_ability}, '{body_type_modifier}', 
+            VALUES ('{name}', '{role}', {special_ability}, '{body_type_modifier}', {humanity},
             {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0)
             RETURNING id;
         """
@@ -285,6 +285,15 @@ def updateCharacterSp(character_id, body_part, amount):
     cur.execute(
         f"""UPDATE {table_character_sp} SET {body_part} = {body_part} + {amount}
         WHERE character_id = {character_id};
+        """
+    )
+    conn.commit()
+
+
+def reduceHumanity(character_id, humanity, emp):
+    cur.execute(
+        f"""UPDATE {table_characters} SET humanity = {humanity}, atr_emp = {emp}
+            WHERE id = {character_id};
         """
     )
     conn.commit()
