@@ -58,7 +58,6 @@ def addChracterWeapon(character_name):
                     print(f'Updated humanity and empathy')
                     break
 
-
         print('Weapon added!')
 
 

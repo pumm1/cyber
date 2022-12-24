@@ -54,21 +54,22 @@ def characterAttack(name, range_str, given_roll):
             mid_limit = wep_range / 2
             long_limit = wep_range
             extreme_limit = wep_range * 2
-            if 0 < wep_range <= point_blank_range_limit:
+            print(f'... close: {close_limit} .. mid: {mid_limit} .. long: {long_limit} .. extreme: {extreme_limit}')
+            if 0 < attack_range <= point_blank_range_limit:
                 range_str = f'Point blank ({point_blank_range_limit}m)'
-            elif 1 < wep_range <= close_limit:
+            elif attack_range <= close_limit:
                 range_str = f'Close ({close_limit}m)'
                 roll_to_beat = 15
-            elif 1 < wep_range <= mid_limit:
+            elif attack_range <= mid_limit:
                 range_str = f'Medium ({mid_limit}m)'
                 roll_to_beat = 20
-            elif 1 < wep_range <= long_limit:
+            elif attack_range <= long_limit:
                 range_str = f'Long ({long_limit}m)'
                 roll_to_beat = 25
-            elif 1 < wep_range <= extreme_limit:
+            elif attack_range <= extreme_limit:
                 range_str = f'Extreme ({extreme_limit}m)'
                 roll_to_beat = 30
-            elif wep_range < extreme_limit:
+            elif attack_range < extreme_limit:
                 range_str = 'Impossible'
                 roll_to_beat = 999999
 
