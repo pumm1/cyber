@@ -4,12 +4,12 @@ import bodytypes
 from db import cyberdao as DAO
 from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
-    t_thrown
+    t_thrown, roll_str
 
 
-def characterAttack(name, range, given_roll):
-    ran = safeCastToInt(range)
-    if ran > 0:
+def characterAttack(name, range_str, given_roll):
+    attack_range = safeCastToInt(range_str)
+    if attack_range > 0:
         character = DAO.getCharacterByName(name)
         if character is not None:
             weapons = character.weapons
@@ -41,14 +41,58 @@ def characterAttack(name, range, given_roll):
 
             roll = safeCastToInt(given_roll)
             if roll <= 0:
-                roll = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
+                roll = dice.rollWithCrit()
+
+            roll_to_beat = 10
+            wep_range = wep.range
+            range_str = 'Point blank'
+            close_limit = wep_range / 4
+            mid_limit = wep_range / 2
+            long_limit = wep_range
+            extreme_limit = wep_range * 2
+            if 1 < attack_range <= wep_range / 4:
+                range_str = f'Close ({close_limit}m)'
+                roll_to_beat = 15
+            elif 1 < attack_range <= wep_range / 2:
+                range_str = f'Medium ({mid_limit}m)'
+                roll_to_beat = 20
+            elif 1 < attack_range <= wep_range:
+                range_str = f'Long ({long_limit}m)'
+                roll_to_beat = 25
+            elif 1 < attack_range <= wep_range * 2:
+                range_str = f'Extreme ({extreme_limit}m)'
+                roll_to_beat = 30
+
+            else:
+                range_str = 'Impossible'
+                roll_to_beat = 999999
 
             total = roll + ref_bonus + skill_bonus
-            #TODO: to hit numbers by wpn type and range
             #TODO: add modifiers?
+            hit_res = total >= roll_to_beat
+            end_res = 'successful'
+            dmg = 0
+            if hit_res == False:
+                end_res = 'unsuccessful'
+            else:
+                print(f'Attack successful!')
+                print(f'{roll_str} or give dmg (> 0):')
+                input = askInput()
+                while True:
+                    if input == roll_str:
+                        dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
+                        break
+                    else:
+                        dmg = safeCastToInt(input)
+                        if dmg > 0:
+                            break
+                print(f'DMG done: {dmg}')
 
 
-            print(f'Selected {wep.item} and attack total = {total} (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus})')
+            print(f'{character.name} selected {wep.item} [range = {wep_range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus})')
+            print(f'{range_str} range attack is {end_res} [roll to beat ({roll_to_beat}) vs total ({total})]')
+
+            print(f'')
     else:
         print(f'Range must be bigger than 0')
 
