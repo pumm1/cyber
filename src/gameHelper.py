@@ -22,6 +22,13 @@ EMP = 'EMP'
 exit_commands = ['/e', '/q', '/exit', '/quit']
 help_commands = ['/help', '/halp', '/h']
 
+t_melee = 'melee'
+t_handgun = 'handgun'
+t_smg = 'smg'
+t_rifle = 'rifle'
+t_thrown = 'thrown'
+t_shotgun = 'shotgun'
+weapon_types = [t_melee, t_smg, t_handgun, t_shotgun, t_thrown]
 
 
 rep_roll_str = 'rep'
@@ -81,7 +88,9 @@ stun_check_str = '/sc'
 stun_check_help_str = f'{stun_check_str} <character_name>'
 dmg_str = '/dmg'
 dmg_helper_str = f'{dmg_str} <character_name> <body_part> <amount>'
-
+add_event_str = '/add_event'
+add_weapon_str = '/add_weapon'
+add_weapon_help_str = f'{add_weapon_str} <character_name>'
 
 def askInput() -> str:
     i = input(inputIndicator)
@@ -109,10 +118,10 @@ def woundState(dmg_taken: int):
         return 'Bleeding a bit'
     elif stun_penalty == 2:
         return 'Wounded quite badly'
-    elif dmg_taken <= 40:
+    elif dmg_taken < 40:
         return 'Start rolling those death saves..'
     else:
-        return 'Flatlined.'
+        return 'Flatlined'
 
 
 def safeCastToInt(text):

@@ -2,7 +2,8 @@ import psycopg2
 import psycopg2.extras
 
 from db.cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
-    table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp
+    table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
+    table_events
 from src.character import Character
 from src.skill import SkillInfo
 
@@ -13,6 +14,7 @@ cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 def clean_fetch_all(rows):
     return [i[0] for i in rows]
 
+insert = 'INSERT INTO'
 
 character_q = f'SELECT * FROM {table_characters} c '
 character_skills_q = f'SELECT * FROM {table_character_skills}'
@@ -80,7 +82,7 @@ def addReputation(character_id, info, rep_level):
     assert 0 < abs(rep_level) <= 10
 
     cur.execute(
-        f"""INSERT INTO {table_reputation} (character_id, known_for, rep_level)
+        f"""{insert}{table_reputation} (character_id, known_for, rep_level)
             VALUES ({character_id}, '{info}', {rep_level});"""
     )
     conn.commit()
@@ -147,7 +149,7 @@ def dmgCharacter(character_id, dmg):
 
 def addCharacterSkill(char_id, skill_row, value):
     cur.execute(
-        f"""INSERT INTO {table_character_skills} (character_id, skill, skill_value, attribute)
+        f"""{insert} {table_character_skills} (character_id, skill, skill_value, attribute)
         VALUES ({char_id}, '{skill_row['skill']}', {value}, '{skill_row['attribute']}');"""
     )
     conn.commit()
@@ -155,7 +157,7 @@ def addCharacterSkill(char_id, skill_row, value):
 
 def addCharacterToCombat(character, initiative):
     cur.execute(
-        f"""INSERT INTO {table_combat_session} (character, initiative, current)
+        f"""{insert} {table_combat_session} (character, initiative, current)
         VALUES ('{character}', {initiative}, {False});"""
     )
     conn.commit()
@@ -177,7 +179,7 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
 
     cur.execute(
         f"""
-            INSERT INTO {table_character_sp} (character_id, head, body, r_arm, l_arm, r_leg, l_leg)
+            {insert} {table_character_sp} (character_id, head, body, r_arm, l_arm, r_leg, l_leg)
             VALUES ({new_char['id']}, 0, 0, 0, 0, 0, 0)
             ON CONFLICT DO NOTHING;
             """
@@ -270,7 +272,7 @@ def addArmor(character_id, item, sp, body_parts):
     ), body_parts)
     bod_parts_str = ', '.join(bod_parts)
     cur.execute(
-        f"""INSERT INTO {table_character_armors} (character_id, item, sp, body_parts)
+        f"""{insert} {table_character_armors} (character_id, item, sp, body_parts)
             VALUES ({character_id}, '{item}', {sp}, ARRAY[{bod_parts_str}] );"""
     )
     conn.commit()
@@ -279,6 +281,24 @@ def updateCharacterSp(character_id, body_part, amount):
     cur.execute(
         f"""UPDATE {table_character_sp} SET {body_part} = {body_part} + {amount}
         WHERE character_id = {character_id};
+        """
+    )
+    conn.commit()
+
+
+def addEvent(event):
+    cur.execute(
+        f"""{insert} {table_events} (event) VALUES ('{event}');"""
+    )
+    conn.commit()
+
+
+def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof):
+    cur.execute(
+        f"""{insert} {table_character_weapons} 
+            (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof)
+            VALUES
+            ({character_id}, '{item}', '{weapon_type}', {is_chrome}, {dice_number}, {dice_dmg}, {dmg_bonus}, {range}, {rof});
         """
     )
     conn.commit()

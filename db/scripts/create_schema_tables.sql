@@ -1,7 +1,5 @@
 BEGIN;
 
-create type cyberpunk.weapon_type as enum ('melee', 'semi_auto', 'full_auto');
-
 CREATE TABLE cyberpunk.characters(
     id BIGSERIAL not null primary key primary key,
     name varchar not null,
@@ -88,15 +86,18 @@ alter table cyberpunk.character_armor
         references cyberpunk.characters(id);
 
 
+create type cyberpunk.weapon_type as enum ('melee', 'handgun', 'smg', 'shotgun', 'rifle', 'throwing');
+
 create table cyberpunk.character_weapons(
     character_id bigint not null,
-    weapon_type cyberpunk.weapon_type not null,
     item varchar not null,
+    weapon_type cyberpunk.weapon_type not null,
+    is_chrome boolean not null,
     dice_number integer not null,
     dice_dmg integer not null,
     dmg_bonus integer not null,
     range integer not null,
-    rof integer
+    rof integer not null
 );
 
 alter table cyberpunk.character_weapons
@@ -104,5 +105,10 @@ alter table cyberpunk.character_weapons
         foreign key(character_id)
         references cyberpunk.characters(id);
 
+
+create table cyberpunk.events(
+     id bigserial not null PRIMARY KEY,
+    event varchar not null
+);
 
 COMMIT;
