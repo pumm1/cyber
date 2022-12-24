@@ -3,26 +3,61 @@ from character import Character
 import bodytypes
 from db import cyberdao as DAO
 from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
-    body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput
+    body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
+    t_thrown
 
 
-def characterAttack(name):
-    character = DAO.getCharacterByName(name)
-    if character is not None:
-        weapons = character.weapons
-        selected_weapon = None
-        print(f'Select weapon num: ')
-        idx = 0
-        for w in weapons:
-            i = weapons.index(w)
-            print(f'{i} - {w.item}')
-        while True:
-            input = askInput()
-            idx = safeCastToInt(input)
-            if 0 <= idx < len(weapons):
-                break
-        w = weapons[idx]
-        print(f'Selected {w.item}')
+def characterAttack(name, range, given_roll):
+    ran = safeCastToInt(range)
+    if ran > 0:
+        character = DAO.getCharacterByName(name)
+        if character is not None:
+            weapons = character.weapons
+            print(f'Select weapon num: ')
+            idx = 0
+            for w in weapons:
+                i = weapons.index(w)
+                print(f'{i} - {w.item}')
+            while True:
+                input = askInput()
+                idx = safeCastToInt(input)
+                if 0 <= idx < len(weapons):
+                    break
+            wep = weapons[idx]
+            wep_t = wep.weapon_type
+            ref_bonus = character.attributes[REF]
+            skill_bonus = 0
+            skill = ''
+            skills = character.skills
+            if wep_t == t_melee:
+                skill = 'melee'
+            elif wep_t == t_rifle or wep_t == t_shotgun:
+                skill = 'rifle'
+            elif wep_t == t_handgun:
+                skill = 'handgun'
+            elif wep_t == t_thrown:
+                skill = 'athletics'
+            skill_bonus = skillBonusForSkill(skills, skill)
+
+            roll = safeCastToInt(given_roll)
+            if roll <= 0:
+                roll = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
+
+            total = roll + ref_bonus + skill_bonus
+            #TODO: to hit numbers by wpn type and range
+            #TODO: add modifiers?
+
+
+            print(f'Selected {wep.item} and attack total = {total} (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus})')
+    else:
+        print(f'Range must be bigger than 0')
+
+def skillBonusForSkill(skills, skill):
+    skill_bonus = 0
+    for s in skills:
+        if s.skill == skill:
+            skill_bonus = s.lvl
+    return skill_bonus
 
 def dmgReductionByBodyTypeModifier(bodyTypeModifier):
     reduction = bodytypes.bodyTypeModifiersDict[bodyTypeModifier]

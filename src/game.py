@@ -150,7 +150,9 @@ def start():
         elif command.startswith(attack_str):
             match command_parts:
                 case [_, name, range]:
-                    combat.characterAttack(name)
+                    combat.characterAttack(name, range, given_roll=0)
+                case [_, name, range, roll]:
+                    combat.characterAttack(name, range, given_roll=roll)
                 case _:
                     print(f'{attack_help_str}')
 

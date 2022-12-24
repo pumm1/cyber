@@ -65,8 +65,6 @@ def addCharacterSkill(name, skill_id, skill_level):
             print(f"Skill {skill['skill']} ({skill_level}) added for {name}")
         else:
             print(f'Skill not found by id ({skill_id})')
-    else:
-        print(f'{character} Not found')
 
 
 def printCharacterSkills(name):

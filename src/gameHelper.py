@@ -93,7 +93,7 @@ add_event_str = '/add_event'
 add_weapon_str = '/add_weapon'
 add_weapon_help_str = f'{add_weapon_str} <character_name>'
 attack_str = '/attack'
-attack_help_str = f'{attack_str} <char> <range>'
+attack_help_str = f'{attack_str} <char> <range> <optional roll>'
 
 def askInput() -> str:
     i = input(inputIndicator)
