@@ -115,8 +115,8 @@ def start():
             listCombatInitiative()
         elif command.startswith(new_combat_initiative_str):  # nci = new combat initiative, add to combat sequence
             match command_parts:
-                case [_, character, initiative]:
-                    addToCombat(character, int(initiative))
+                case [_, name, initiative]:
+                    addToCombat(name, int(initiative))
                 case _:
                     print(new_combat_initiative_help_str)
         elif command.startswith(clear_combat_str):  # cc = clear combat
@@ -183,7 +183,7 @@ def rollHitLocation():
 def listCombatInitiative():
     rows = DAO.listCombatInitiative(ascending=False)
     infoRows = map(lambda c: (
-        f"{c['character']}: initiative: {c['initiative']}, current: {c['current']}"
+        f"{c['name']}: initiative: {c['initiative']}, current: {c['current']}"
     ), rows)
     info = '\n'.join(infoRows)
     print(f"Turn order: \n{info}")
@@ -257,9 +257,11 @@ def clearCombat():
     DAO.clearCombat()
 
 
-def addToCombat(character, initiative):
-    DAO.addCharacterToCombat(character, initiative)
-
+def addToCombat(name, initiative):
+    character = DAO.getCharacterByName(name)
+    if character is not None:
+        DAO.addCharacterToCombat(character.id, initiative)
+        print(f'{character.name} added to combat session')
 
 def stunCheckCharacter(name):
     character = DAO.getCharacterByName(name)
@@ -285,6 +287,8 @@ def help():
 {add_armor_help_str}
 - List skills (all | by attribute | by fuzzy logic | by character)
 {list_skills_helpeer_str}
+- Add character skill:
+{add_char_skill_help_str}
 - Explain something:
 {explain_str} <term>
 - Add reputation for character:

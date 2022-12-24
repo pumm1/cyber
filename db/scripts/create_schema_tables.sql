@@ -34,10 +34,16 @@ alter table cyberpunk.character_skills
 select nextval('cyberpunk.characters_id_seq');
 
 create table cyberpunk.combat_session(
-    character varchar not null,
+    character_id bigint not null UNIQUE,
     initiative integer not null,
     current boolean not null
 );
+
+alter table cyberpunk.combat_session
+    add constraint combat_session__character_fk
+        foreign key(character_id)
+        references cyberpunk.characters(id);
+
 
 create table cyberpunk.skills(
     id bigserial not null primary key,

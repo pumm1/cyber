@@ -45,25 +45,27 @@ def characterAttack(name, range_str, given_roll):
 
             roll_to_beat = 10
             wep_range = wep.range
-            range_str = 'Point blank'
+            range_str = ''
+            point_blank_range_limit = 1
             close_limit = wep_range / 4
             mid_limit = wep_range / 2
             long_limit = wep_range
             extreme_limit = wep_range * 2
-            if 1 < attack_range <= wep_range / 4:
+            if 0 < wep_range <= point_blank_range_limit:
+                range_str = f'Point blank ({point_blank_range_limit}m)'
+            elif 1 < wep_range <= close_limit:
                 range_str = f'Close ({close_limit}m)'
                 roll_to_beat = 15
-            elif 1 < attack_range <= wep_range / 2:
+            elif 1 < wep_range <= mid_limit:
                 range_str = f'Medium ({mid_limit}m)'
                 roll_to_beat = 20
-            elif 1 < attack_range <= wep_range:
+            elif 1 < wep_range <= long_limit:
                 range_str = f'Long ({long_limit}m)'
                 roll_to_beat = 25
-            elif 1 < attack_range <= wep_range * 2:
+            elif 1 < wep_range <= extreme_limit:
                 range_str = f'Extreme ({extreme_limit}m)'
                 roll_to_beat = 30
-
-            else:
+            elif wep_range < extreme_limit:
                 range_str = 'Impossible'
                 roll_to_beat = 999999
 
@@ -90,7 +92,7 @@ def characterAttack(name, range_str, given_roll):
 
 
             print(f'{character.name} selected {wep.item} [range = {wep_range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus})')
-            print(f'{range_str} range attack is {end_res} [roll to beat ({roll_to_beat}) vs total ({total})]')
+            print(f'{range_str} range attack ({attack_range}m) is {end_res} [roll to beat ({roll_to_beat}) vs total ({total})]')
 
             print(f'')
     else:

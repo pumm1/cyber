@@ -105,12 +105,22 @@ def listCombatInitiative(ascending: bool):
     if ascending:
         ordering = 'ASC'
     cur.execute(
-        f"""SELECT * FROM {table_combat_session} ORDER BY initiative {ordering};"""
+        f"""SELECT * FROM {table_combat_session} cs 
+        JOIN {table_characters} c ON cs.character_id = c.id
+        ORDER BY cs.initiative {ordering};
+        """
     )
     rows = cur.fetchall()
     conn.commit()
 
     return rows
+
+def addCharacterToCombat(character, initiative):
+    cur.execute(
+        f"""{insert} {table_combat_session} (character_id, initiative, current)
+        VALUES ('{character}', {initiative}, {False});"""
+    )
+    conn.commit()
 
 
 def clearCombat():
@@ -156,15 +166,6 @@ def addCharacterSkill(char_id, skill_row, value):
         VALUES ({char_id}, '{skill_row['skill']}', {value}, '{skill_row['attribute']}');"""
     )
     conn.commit()
-
-
-def addCharacterToCombat(character, initiative):
-    cur.execute(
-        f"""{insert} {table_combat_session} (character, initiative, current)
-        VALUES ('{character}', {initiative}, {False});"""
-    )
-    conn.commit()
-    print(f'{character} added to combat session')
 
 
 def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr,
