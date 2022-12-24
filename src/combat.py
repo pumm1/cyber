@@ -3,8 +3,26 @@ from character import Character
 import bodytypes
 from db import cyberdao as DAO
 from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
-    body_part_l_arm, body_part_r_leg, safeCastToInt, max_health
+    body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput
 
+
+def characterAttack(name):
+    character = DAO.getCharacterByName(name)
+    if character is not None:
+        weapons = character.weapons
+        selected_weapon = None
+        print(f'Select weapon num: ')
+        idx = 0
+        for w in weapons:
+            i = weapons.index(w)
+            print(f'{i} - {w.item}')
+        while True:
+            input = askInput()
+            idx = safeCastToInt(input)
+            if 0 <= idx < len(weapons):
+                break
+        w = weapons[idx]
+        print(f'Selected {w.item}')
 
 def dmgReductionByBodyTypeModifier(bodyTypeModifier):
     reduction = bodytypes.bodyTypeModifiersDict[bodyTypeModifier]

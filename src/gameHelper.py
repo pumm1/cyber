@@ -92,6 +92,8 @@ dmg_helper_str = f'{dmg_str} <character_name> <body_part> <amount>'
 add_event_str = '/add_event'
 add_weapon_str = '/add_weapon'
 add_weapon_help_str = f'{add_weapon_str} <character_name>'
+attack_str = '/attack'
+attack_help_str = f'{attack_str} <char> <range>'
 
 def askInput() -> str:
     i = input(inputIndicator)
