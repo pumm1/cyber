@@ -6,7 +6,8 @@ import bodytypes
 from db import cyberdao as DAO
 from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
-    t_thrown, roll_str, guns, close_range_str, medium_range_str, attack_type_single, attack_type_burst
+    t_thrown, roll_str, guns, close_range_str, medium_range_str, attack_type_single, attack_type_burst, \
+    attack_type_full_auto, point_blank_range_str
 from src.weapon import Weapon
 
 
@@ -40,6 +41,8 @@ def characterAttack(name, attack_type, range_str, given_roll):
                 handleSingleShot(character, wep, attack_range, roll)
             elif attack_type == attack_type_burst:
                 handleBurst(character, wep, attack_range, roll)
+            elif attack_type == attack_type_full_auto:
+                handleFullAuto(character, wep, attack_range, roll)
 
     else:
         print(f'Range must be bigger than 0')
@@ -62,6 +65,63 @@ def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
     return (skill_bonus, skill)
 
 
+def handleFullAuto(character, wep, attack_range, roll):
+    print(f'Trying full auto attack with {wep.item}')
+    shots_left = wep.shots_left
+    weapon_can_attack = True
+    if wep.isGun() and wep.rof > 2:
+        if shots_left <= 1:
+            weapon_can_attack = False
+
+    if weapon_can_attack:
+        print('How many shots fired? (> 1)')
+        num_of_shots = 0
+        while True:
+            input = askInput()
+            num_of_shots = safeCastToInt(input)
+            if num_of_shots > 1:
+                break
+        if num_of_shots > wep.rof:
+            num_of_shots = wep.rof
+        print('How many targets?')
+        num_of_targets = 0
+        #multiple targets = divide shots for each
+        while True:
+            input = askInput()
+            num_of_targets = safeCastToInt(input)
+            if num_of_targets > 0:
+                break
+
+        (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
+        (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
+        ref_bonus = character.attributes[REF]
+        range_bonus = math.ceil(num_of_shots / 10)
+        shots_per_target = math.ceil(num_of_targets / num_of_shots)
+        if not (r == close_range_str or r == point_blank_range_str):
+            range_bonus = -1 * range_bonus
+
+        shots_left_after_firing = wep.shots_left - num_of_shots
+
+        targets_hit = 0
+        for target in range(num_of_targets):
+            target_total_dmg = 0
+            total = roll + ref_bonus + skill_bonus + range_bonus
+            if total > roll_to_beat:
+                targets_hit = targets_hit + 1
+                num_of_hits = total - roll_to_beat
+                if num_of_hits > shots_per_target:
+                    num_of_hits = shots_per_target
+                print(f'Target {target} hit {num_of_hits} times!')
+                for i in range(num_of_hits):
+                    dmg = hitDmg(wep)
+                    target_total_dmg = target_total_dmg + dmg
+                print(f'Total dmg done to target {target}: {target_total_dmg}')
+
+            else:
+                print(f'Full auto missed target {target}!')
+
+            DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
+            print(f'{num_of_shots} shots fired in full auto hitting {num_of_hits} times')
 def handleBurst(character, wep, attack_range, roll):
     print(f'Trying burst attack with {wep.item}')
     shots_left = wep.shots_left
@@ -86,7 +146,7 @@ def handleBurst(character, wep, attack_range, roll):
 
         total = roll + ref_bonus + skill_bonus + range_bonus
         print(f'[roll to beat ({roll_to_beat}) vs total ({total})]')
-        if total > roll_to_beat:
+        if total >= roll_to_beat:
             hits = math.ceil(dice.roll(1, 6) / 2)
             if shots_fired < 3 and hits == 3:
                 hits = shots_left

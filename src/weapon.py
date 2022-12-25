@@ -25,31 +25,26 @@ class Weapon:
     def isPointBlankRange(self, attack_range):
         if 0 < attack_range <= self.pointBlankLimit():
             return True
-        print(f"{attack_range} not point blank range")
         return False
 
     def isCloseRange(self, attack_range):
         if attack_range <= self.closeRangeLimit():
             return True
-        print(f"{attack_range} not close range ({self.closeRangeLimit():})")
         return False
 
     def isMidRange(self, attack_range):
         if attack_range <= self.midRangeLimit():
             return True
-        print(f"{attack_range} not mid range ({self.midRangeLimit()})")
         return False
 
     def isLongRange(self, attack_range):
         if attack_range <= self.longRangeLimit():
             return True
-        print(f"{attack_range} not long range ({self.longRangeLimit()})")
         return False
 
     def isExtremeRange(self, attack_range):
         if attack_range <= self.extremeRangeLimit():
             return True
-        print(f"{attack_range} not extreme range ({self.extremeRangeLimit()})")
         return False
 
     def rollToBeatAndRangeStr(self, attack_range):
