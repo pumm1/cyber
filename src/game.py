@@ -9,7 +9,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str,
     roll_all_str, roll_atr_str, list_skills_str, list_skills_helpeer_str, add_char_skill_str, add_char_skill_help_str, \
     fumble_str, fumble_help_str, jam_str, jam_help_str, add_armor_str, add_armor_help_str, add_reputation_help_str, \
     list_rep_str, l_rep_help_str, add_event_str, add_weapon_str, add_weapon_help_str, attack_str, attack_help_str, \
-    reload_str, reload_help_str
+    reload_str, reload_help_str, attack_type_single, attack_type_burst
 from characterBuilder import createCharacter
 from src import fumble, armor, events, weapon
 
@@ -44,7 +44,8 @@ def start():
                 case [_, 'face_off', character]:
                     faceOffRoll(character, rep_roll_str)
                 case [_, 'hit_loc']:
-                    rollHitLocation()
+                    location = combat.determineHitLocation()
+                    print(f'Hit {location}')
                 case [_, 'char', name, skill]:
                     skills.rollCharacterSkill(name, skill, modifier=0)
                 case [_, 'char', name, skill, modifier]:
@@ -150,10 +151,14 @@ def start():
                     print(add_weapon_help_str)
         elif command.startswith(attack_str):
             match command_parts:
-                case [_, name, range]:
-                    combat.characterAttack(name, range, given_roll=0)
-                case [_, name, range, roll]:
-                    combat.characterAttack(name, range, given_roll=roll)
+                case [_, name, 'burst', range]:
+                    combat.characterAttack(name, attack_type_burst, range, given_roll=0)
+                case [_, name, 'burst', range, roll]:
+                    combat.characterAttack(name, attack_type_burst, range, given_roll=roll)
+                case [_, name, 'single', range]:
+                    combat.characterAttack(name, attack_type_single, range, given_roll=0)
+                case [_, name, 'single', range, roll]:
+                    combat.characterAttack(name, attack_type_single, range, given_roll=roll)
                 case _:
                     print(f'{attack_help_str}')
         elif command.startswith(reload_str):
@@ -178,11 +183,6 @@ def fetchCharacter(name):
         print(f'Character not found by the name of {name}')
     else:
         character.info()
-
-
-def rollHitLocation():
-    location = combat.determineHitLocation()
-    print(f'Hit the {location}')
 
 
 def listCombatInitiative():

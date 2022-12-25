@@ -95,9 +95,9 @@ add_event_str = '/add_event'
 add_weapon_str = '/add_weapon'
 add_weapon_help_str = f'{add_weapon_str} <character_name>'
 attack_str = '/attack'
-attack_help_str = f'{attack_str} <char> <range> <optional roll>'
+attack_help_str = f'{attack_str} <char> <attack_type single | burst> <range> <optional roll>'
 reload_str = '/reload'
-reload_help_str = f'{reload_str} <weapon_id>'
+reload_help_str = f'{reload_str} <weapon_id> <num_of_shots>'
 
 no_dmg = 'No damage'
 light_dmg = 'Light damage'
@@ -105,6 +105,17 @@ serious_dmg = 'Serious damage'
 critical_dmg = 'Critical damage'
 mortally_wounded = 'Mortally wounded'
 flatlined = 'Flatlined'
+
+attack_type_single = 'single'
+attack_type_burst = 'burst'
+attack_type_full_auto = 'full auto'
+
+point_blank_range_str = 'Point blank'
+close_range_str = 'Close'
+medium_range_str = 'Medium'
+long_range_str = 'Long'
+extreme_range_str = 'Extreme'
+impossible_range_str = 'Impossible'
 
 def askInput() -> str:
     i = input(inputIndicator)

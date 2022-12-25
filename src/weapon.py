@@ -1,7 +1,8 @@
 import math
 
 from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handgun, t_smg, t_rifle, t_thrown, BODY, \
-    t_melee, guns, EMP
+    t_melee, guns, EMP, point_blank_range_str, close_range_str, medium_range_str, long_range_str, extreme_range_str, \
+    impossible_range_str
 import dice
 import db.cyberdao as DAO
 
@@ -19,6 +20,81 @@ class Weapon:
         self.rof = row['rof']
         self.clip_size = row['clip_size']
         self.shots_left = row['shots_left']
+
+
+    def isPointBlankRange(self, attack_range):
+        if 0 < attack_range <= self.pointBlankLimit():
+            return True
+        print(f"{attack_range} not point blank range")
+        return False
+
+    def isCloseRange(self, attack_range):
+        if attack_range <= self.closeRangeLimit():
+            return True
+        print(f"{attack_range} not close range ({self.closeRangeLimit():})")
+        return False
+
+    def isMidRange(self, attack_range):
+        if attack_range <= self.midRangeLimit():
+            return True
+        print(f"{attack_range} not mid range ({self.midRangeLimit()})")
+        return False
+
+    def isLongRange(self, attack_range):
+        if attack_range <= self.longRangeLimit():
+            return True
+        print(f"{attack_range} not long range ({self.longRangeLimit()})")
+        return False
+
+    def isExtremeRange(self, attack_range):
+        if attack_range <= self.extremeRangeLimit():
+            return True
+        print(f"{attack_range} not extreme range ({self.extremeRangeLimit()})")
+        return False
+
+    def rollToBeatAndRangeStr(self, attack_range):
+        roll_to_beat = 10
+        range = point_blank_range_str
+        range_str = ''
+        if self.isPointBlankRange(attack_range):
+            range_str = f'Point blank ({self.pointBlankLimit()}m)'
+        elif self.isCloseRange(attack_range):
+            range = close_range_str
+            range_str = f'Close ({self.closeRangeLimit()}m)'
+            roll_to_beat = 15
+        elif self.isMidRange(attack_range):
+            range = medium_range_str
+            range_str = f'Medium ({self.midRangeLimit()}m)'
+            roll_to_beat = 20
+        elif self.isLongRange(attack_range):
+            range = long_range_str
+            range_str = f'Long ({self.longRangeLimit()}m)'
+            roll_to_beat = 25
+        elif self.isExtremeRange(attack_range):
+            range = extreme_range_str
+            range_str = f'Extreme ({self.extremeRangeLimit()}m)'
+            roll_to_beat = 30
+        elif attack_range < self.extremeRangeLimit():
+            range = impossible_range_str
+            range_str = range
+            roll_to_beat = 999999
+
+        return (roll_to_beat, range_str, range)
+
+    def pointBlankLimit(self) -> int:
+        return 1
+
+    def closeRangeLimit(self) -> int:
+        return math.floor(self.range / 4)
+
+    def midRangeLimit(self) -> int:
+        return math.floor(self.range / 2)
+
+    def longRangeLimit(self) -> int:
+        return self.range
+
+    def extremeRangeLimit(self) -> int:
+        return self.range * 2
 
 
     def toStr(self):

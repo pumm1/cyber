@@ -4,6 +4,7 @@ def roll(n, d_die):
     res = 0
     for i in range(n):
         roll = random.randint(1, d_die)
+        #print(f'Rolled {roll} from {diceToStr(1, d_die, 0)}')
         res = res + roll
     return res
 

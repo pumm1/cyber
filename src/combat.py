@@ -1,18 +1,20 @@
+import math
+
 import dice
 from character import Character
 import bodytypes
 from db import cyberdao as DAO
 from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
-    t_thrown, roll_str, guns
+    t_thrown, roll_str, guns, close_range_str, medium_range_str, attack_type_single, attack_type_burst
 from src.weapon import Weapon
 
 
-#TODO: add auto shotguns
-#TODO: add AP rounds (shotgun, rifle?)
+# TODO: add auto shotguns
+# TODO: add AP rounds (shotgun, rifle?)
 
 
-def characterAttack(name, range_str, given_roll):
+def characterAttack(name, attack_type, range_str, given_roll):
     attack_range = safeCastToInt(range_str)
     if attack_range > 0:
         character = DAO.getCharacterByName(name)
@@ -29,14 +31,16 @@ def characterAttack(name, range_str, given_roll):
                 if 0 <= idx < len(weapons):
                     break
             wep: Weapon = weapons[idx]
-            wep_t = wep.weapon_type
 
             roll = safeCastToInt(given_roll)
             if roll <= 0:
                 roll = dice.rollWithCrit()
 
+            if attack_type == attack_type_single:
+                handleSingleShot(character, wep, attack_range, roll)
+            elif attack_type == attack_type_burst:
+                handleBurst(character, wep, attack_range, roll)
 
-            handleSingleShot(character, wep, wep_t, attack_range, roll)
     else:
         print(f'Range must be bigger than 0')
 
@@ -58,41 +62,59 @@ def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
     return (skill_bonus, skill)
 
 
-def handleSingleShot(character, wep, wep_t, attack_range, roll):
+def handleBurst(character, wep, attack_range, roll):
+    print(f'Trying burst attack with {wep.item}')
+    shots_left = wep.shots_left
+    weapon_can_attack = True
+    if wep.isGun() and wep.rof > 2:
+        if shots_left <= 1:
+            weapon_can_attack = False
+
+    if weapon_can_attack:
+        print(f'{wep.item} can do burst [shots left: {wep.shots_left}, rof: {wep.rof}]')
+        (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
+        (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
+        ref_bonus = character.attributes[REF]
+        range_bonus = 0
+        if r == close_range_str or r == medium_range_str:
+            range_bonus = 3
+
+        shots_fired = 3
+        if shots_left < 3:
+            shots_fired = shots_left
+        shots_left_after_firing = wep.shots_left - shots_fired
+
+        total = roll + ref_bonus + skill_bonus + range_bonus
+        print(f'[roll to beat ({roll_to_beat}) vs total ({total})]')
+        if total > roll_to_beat:
+            hits = math.ceil(dice.roll(1, 6) / 2)
+            if shots_fired < 3 and hits == 3:
+                hits = shots_left
+            total_dmg = 0
+            print(f'{hits} hits to target!')
+            for i in range(hits):
+                dmg = hitDmg(wep)
+                total_dmg = total_dmg + dmg
+            print(f'Total dmg done to target: {total_dmg}')
+        else:
+            print(f'Burst attack misses target!')
+        DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
+
+    else:
+        print(f"Unable to do burst attack with {wep.item} ({wep.weapon_type}) [{wep.shots_left} / {wep.clip_size}] ROF: {wep.rof}")
+
+
+
+def handleSingleShot(character, wep, attack_range, roll):
     shots_left = wep.shots_left
     weapon_can_attack = True
     if wep.isGun():
         if shots_left <= 0:
             weapon_can_attack = False
 
-    roll_to_beat = 10
-    wep_range = wep.range
-    range_str = ''
-    point_blank_range_limit = 1
-    close_limit = wep_range / 4
-    mid_limit = wep_range / 2
-    long_limit = wep_range
-    extreme_limit = wep_range * 2
-    print(f'... close: {close_limit} .. mid: {mid_limit} .. long: {long_limit} .. extreme: {extreme_limit}')
-    if 0 < attack_range <= point_blank_range_limit:
-        range_str = f'Point blank ({point_blank_range_limit}m)'
-    elif attack_range <= close_limit:
-        range_str = f'Close ({close_limit}m)'
-        roll_to_beat = 15
-    elif attack_range <= mid_limit:
-        range_str = f'Medium ({mid_limit}m)'
-        roll_to_beat = 20
-    elif attack_range <= long_limit:
-        range_str = f'Long ({long_limit}m)'
-        roll_to_beat = 25
-    elif attack_range <= extreme_limit:
-        range_str = f'Extreme ({extreme_limit}m)'
-        roll_to_beat = 30
-    elif attack_range < extreme_limit:
-        range_str = 'Impossible'
-        roll_to_beat = 999999
+    (roll_to_beat, range_str, _) = wep.rollToBeatAndRangeStr(attack_range)
 
-    (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep_t)
+    (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
     ref_bonus = character.attributes[REF]
     total = roll + ref_bonus + skill_bonus
     # TODO: add modifiers?
@@ -107,25 +129,31 @@ def handleSingleShot(character, wep, wep_t, attack_range, roll):
             end_res = 'unsuccessful'
         else:
             print(f'Attack successful!')
-            print(f'{roll_str} or give dmg (> 0):')
-            input = askInput()
-            while True:
-                if input == roll_str:
-                    dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
-                    break
-                else:
-                    dmg = safeCastToInt(input)
-                    if dmg > 0:
-                        break
+            dmg = hitDmg(wep)
             print(f'DMG done: {dmg}')
 
-        print(
-            f'{character.name} selected {wep.item} [range = {wep_range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus})')
-        print(
-            f'{range_str} range attack ({attack_range}m) is {end_res} [roll to beat ({roll_to_beat}) vs total ({total})]')
+        print(f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus})')
+        print(f'{range_str} range attack ({attack_range}m) is {end_res} [roll to beat ({roll_to_beat}) vs total ({total})]')
     else:
-        print(f'Unable to attack with (id: {wep.weapon_id}) {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]')
+        print(
+            f'Unable to attack with (id: {wep.weapon_id}) {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]')
 
+
+def hitDmg(wep):
+    print(f'{roll_str} or give dmg (> 0):')
+    input = askInput()
+    dmg = 0
+    while True:
+        if input == roll_str:
+            dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
+            break
+        else:
+            dmg = safeCastToInt(input)
+            if dmg > 0:
+                break
+    location = determineHitLocation()
+    print(f'{dmg} DMG to {location}')
+    return dmg
 
 def reloadWeapon(weapon_id, shots):
     id = safeCastToInt(weapon_id)
@@ -143,13 +171,13 @@ def reloadWeapon(weapon_id, shots):
             print(f"{weapon.item} is not a gun, can't reload it")
 
 
-
 def skillBonusForSkill(skills, skill):
     skill_bonus = 0
     for s in skills:
         if s.skill == skill:
             skill_bonus = s.lvl
     return skill_bonus
+
 
 def dmgReductionByBodyTypeModifier(bodyTypeModifier):
     reduction = bodytypes.bodyTypeModifiersDict[bodyTypeModifier]
@@ -193,21 +221,24 @@ def damageCharacter(c: Character, dmg):
             stunCheck(updated_character)
 
 
-def determineHitLocation():
+def determineHitLocation() -> str:
+    print(f'determining hit location')
     roll = dice.roll(1, 10)
+    hit_loc = ''
     if roll == 1:
-        return body_part_head
+        hit_loc = body_part_head
     elif 2 <= roll <= 4:
-        return body_part_body
+        hit_loc = body_part_body
     elif roll == 5:
-        return body_part_r_arm
+        hit_loc = body_part_r_arm
     elif roll == 6:
-        return body_part_l_arm
+        hit_loc = body_part_l_arm
     elif 7 <= roll <= 8:
-        return body_part_r_leg
+        hit_loc = body_part_r_leg
     else:
-        return body_part_l_leg
+        hit_loc = body_part_l_leg
 
+    return hit_loc
 
 def rollStunOverActingEffect(name):
     print(f'{name} gets stunned! Rolling stun effect')
@@ -225,6 +256,7 @@ def rollStunOverActingEffect(name):
     else:
         return f'{name} slumps into ground, moaning'
 
+
 def stunCheckToBeat(dmg_taken, body):
     penalty = stunPenalty(dmg_taken)
     if penalty > 0:
@@ -237,6 +269,7 @@ def stunCheckToBeat(dmg_taken, body):
 
     return save_against
 
+
 def stunCheck(c: Character):
     save_against = stunCheckToBeat(c.dmg_taken, c.attributes['BODY'])
     roll = dice.roll(1, 10)
@@ -246,4 +279,3 @@ def stunCheck(c: Character):
         print(rollStunOverActingEffect(c.name))
 
     return isStunned
-
