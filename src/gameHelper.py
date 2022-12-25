@@ -92,6 +92,8 @@ stun_check_str = '/sc'
 stun_check_help_str = f'{stun_check_str} <character_name>'
 dmg_str = '/dmg'
 dmg_helper_str = f'{dmg_str} <character_name> <body_part> <amount>'
+melee_dmg_str = '/melee_dmg'
+melee_dmg_help_str = f'{melee_dmg_str} <attacker_name> <optional dmg>'
 add_event_str = '/add_event'
 list_event_str = '/l_events'
 add_weapon_str = '/add_weapon'
@@ -99,7 +101,7 @@ add_weapon_help_str = f'{add_weapon_str} <character_name>'
 add_chrome_str = '/add_chrome'
 add_chrome_help_str = f'{add_chrome_str} <character_name>'
 attack_str = '/attack'
-attack_help_str = f'{attack_str} <char> <attack_type single | burst> <range> <optional roll>'
+attack_help_str = f'{attack_str} <char> <attack_type melee | single | burst | fa> <range_for_guns> <optional roll>'
 reload_str = '/reload'
 reload_help_str = f'{reload_str} <weapon_id> <num_of_shots>'
 
@@ -113,6 +115,7 @@ flatlined = 'Flatlined'
 attack_type_single = 'single'
 attack_type_burst = 'burst'
 attack_type_full_auto = 'full auto'
+attack_type_melee = 'melee'
 
 point_blank_range_str = 'Point blank'
 close_range_str = 'Close'
@@ -120,6 +123,9 @@ medium_range_str = 'Medium'
 long_range_str = 'Long'
 extreme_range_str = 'Extreme'
 impossible_range_str = 'Impossible'
+
+unarmed = 'unarmed'
+
 
 def askInput() -> str:
     i = input(inputIndicator)

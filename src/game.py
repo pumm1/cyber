@@ -10,7 +10,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str,
     fumble_str, fumble_help_str, jam_str, jam_help_str, add_armor_str, add_armor_help_str, add_reputation_help_str, \
     list_rep_str, l_rep_help_str, add_event_str, add_weapon_str, add_weapon_help_str, attack_str, attack_help_str, \
     reload_str, reload_help_str, attack_type_single, attack_type_burst, attack_type_full_auto, list_event_str, \
-    add_chrome_str, add_chrome_help_str
+    add_chrome_str, add_chrome_help_str, attack_type_melee, melee_dmg_str, melee_dmg_help_str
 from characterBuilder import createCharacter
 from src import fumble, armor, events, weapon, chrome
 
@@ -144,6 +144,12 @@ def start():
                     combat.hitCharacter(name, body_part, dmg)
                 case _:
                     print(dmg_helper_str)
+        elif command.startswith(melee_dmg_str):
+            match command_parts:
+                case [_, attacker_name]:
+                    combat.handleMeleeDmg(attacker_name)
+                case _:
+                    print(f'{melee_dmg_help_str}')
         elif command.startswith(add_event_str):
             events.addEvent()
         elif command.startswith(list_event_str):
@@ -162,6 +168,9 @@ def start():
                     print(add_chrome_help_str)
         elif command.startswith(attack_str):
             match command_parts:
+                case [_, name, 'melee']:
+                    #TODO
+                    combat.characterAttack(name, attack_type_melee, range_str='1', given_roll=0)
                 case [_, name, 'burst', range]:
                     combat.characterAttack(name, attack_type_burst, range, given_roll=0)
                 case [_, name, 'burst', range, roll]:
@@ -330,7 +339,9 @@ def help():
 {add_chrome_help_str}
 - Reload weapon:
 {reload_help_str}
+- Attack:
+{attack_help_str}
+- See melee damage:
+{melee_dmg_help_str}
 """
           )
-
-

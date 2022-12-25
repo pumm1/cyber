@@ -64,6 +64,7 @@ def getCharacterByName(name: str):
         ), rep_rows))
         sp_row = characterSpById(id)
         weapon_rows = characterWeapons(id)
+
         character = Character(char_row, skills, reputation, sp_row, weapon_rows)
     else:
         print('No character found')
@@ -187,6 +188,14 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
             VALUES ({new_char['id']}, 0, 0, 0, 0, 0, 0)
             ON CONFLICT DO NOTHING;
             """
+    )
+
+    cur.execute(
+        f"""{insert} {table_character_weapons} 
+        (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, shots_left)
+        VALUES
+        ({new_char['id']}, 'unarmed', 'melee', false, 1, 6, 0, 1, 1, 1, 1);
+        """
     )
     conn.commit()
     print(f'Character {name} ({role}) added to game')
@@ -363,7 +372,6 @@ def characterWeapons(character_id) -> list:
     )
     rows = cur.fetchall()
     conn.commit()
-
     weapons = map(lambda w: (
         Weapon(w)
     ), rows)

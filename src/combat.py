@@ -7,12 +7,47 @@ from db import cyberdao as DAO
 from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
     t_thrown, roll_str, guns, close_range_str, medium_range_str, attack_type_single, attack_type_burst, \
-    attack_type_full_auto, point_blank_range_str
+    attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str
 from src.weapon import Weapon
 
 
 # TODO: add auto shotguns
 # TODO: add AP rounds (shotgun, rifle?)
+
+def weaponsByType(attack_type, weapons):
+    weps = []
+    if attack_type == attack_type_melee:
+        for w in weapons:
+            if w.weapon_type == 'melee':
+                weps.append(w)
+    elif attack_type == attack_type_burst or attack_type == attack_type_full_auto:
+        for w in weapons:
+            if w.rof > 2:
+                weps.append(w)
+    elif attack_type == attack_type_single:
+        for w in weapons:
+            if w.weapon_type != 'melee':
+                weps.append(w)
+    return weps
+
+def weaponByAttackType(attack_type, character):
+    weapons = weaponsByType(attack_type, character.weapons)
+    idx = 0
+    if len(weapons) > 0:
+        print(f'Select weapon num: ')
+        for w in weapons:
+            i = weapons.index(w)
+            print(f'{i} - {w.item}')
+        while True:
+            input = askInput()
+            idx = safeCastToInt(input)
+            if 0 <= idx < len(weapons):
+                break
+        wep: Weapon = weapons[idx]
+        return wep
+    else:
+        print(f'No weapons found for {attack_type}')
+        return None
 
 
 def characterAttack(name, attack_type, range_str, given_roll):
@@ -20,28 +55,103 @@ def characterAttack(name, attack_type, range_str, given_roll):
     if attack_range > 0:
         character = DAO.getCharacterByName(name)
         if character is not None:
-            weapons = character.weapons
-            print(f'Select weapon num: ')
+            weapons = weaponsByType(attack_type, character.weapons)
             idx = 0
-            for w in weapons:
-                i = weapons.index(w)
-                print(f'{i} - {w.item}')
-            while True:
-                input = askInput()
-                idx = safeCastToInt(input)
-                if 0 <= idx < len(weapons):
-                    break
-            wep: Weapon = weapons[idx]
-
-            if attack_type == attack_type_single:
-                handleSingleShot(character, wep, attack_range, given_roll)
-            elif attack_type == attack_type_burst:
-                handleBurst(character, wep, attack_range, given_roll)
-            elif attack_type == attack_type_full_auto:
-                handleFullAuto(character, wep)
+            wep = weaponByAttackType(attack_type, character)
+            if wep is not None:
+                if attack_type == attack_type_single:
+                    handleSingleShot(character, wep, attack_range, given_roll)
+                elif attack_type == attack_type_burst:
+                    handleBurst(character, wep, attack_range, given_roll)
+                elif attack_type == attack_type_full_auto:
+                    handleFullAuto(character, wep)
+                elif attack_type == attack_type_melee:
+                    handleMelee(character, wep)
+            else:
+                print(f'{character.name} has no ways of attack for {attack_type}')
 
     else:
         print(f'Range must be bigger than 0')
+
+
+def meleeDamageModifierByStrength(character):
+    dmg_bonus = 0
+    match character.bodyTypeModifier:
+        case 'very weak':
+            dmg_bonus = -2
+        case 'weak':
+            dmg_bonus = -1
+        case 'average':
+            dmg_bonus = 0
+        case 'strong':
+            dmg_bonus = 1
+        case 'very strong':
+            dmg_bonus = 2
+        case _:
+            print('TODO for super human levels')
+    return dmg_bonus
+
+
+melee_attacks = [
+    'weapon',
+    'strike',
+    'kick',
+    'throw',
+    'choke',
+]
+
+def handleMelee(character, wep):
+    ref_bonus = character.attributes[REF]
+    skill_bonus = 0
+    if wep.item == unarmed:
+        print('Give skill for bonus (e.g. brawling, karate, judo...)')
+        skill = askInput()
+        skill_bonus = skillBonusForSkill(skill)
+
+    else:
+        (skill_b, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
+        skill_bonus = skill_b
+
+
+    roll = dice.resolveAutoOrManualRollWithCrit()
+    total = roll + ref_bonus + skill_bonus
+    print(f'{character.name} attacks with {wep.item} (Roll total = {total})')
+    print("Defend against melee attack by rolling opponent's REF + <some appropriate skill> + 1D10")
+    print(f'If attack is successful, {melee_dmg_help_str}')
+
+
+def handleMeleeDmg(name):
+    character = DAO.getCharacterByName(name)
+    if character is not None:
+        dmg_bonus = meleeDamageModifierByStrength(character)
+        different_melee_attacks = ', '.join(melee_attacks)
+        dmg = 0
+        print(f'Give attack method ({different_melee_attacks}):')
+        while True:
+            method = askInput()
+            match method:
+                case 'weapon':
+                    wep = weaponByAttackType(attack_type_melee, character)
+                    if wep is not None:
+                        dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus + dmg_bonus
+                        break
+                case 'strike':
+                    dmg = math.floor(dice.roll(1, 6) / 2) + dmg_bonus
+                    break
+                case 'kick:':
+                    dmg = dice.roll(1, 6) + dmg_bonus
+                    break
+                case 'throw':
+                    dmg = dice.roll(1, 6) + dmg_bonus
+                    break
+                case 'choke':
+                    dmg = dice.roll(1, 6)
+                    break
+        hit_loc = determineHitLocation()
+        print(f'Did {dmg} DMG to {hit_loc}')
+
+
+
 
 
 def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
@@ -255,6 +365,9 @@ def skillBonusForSkill(skills, skill):
     for s in skills:
         if s.skill == skill:
             skill_bonus = s.lvl
+
+    if not skills.__contains__(skill):
+        print(f'{skill} not found in character skills')
     return skill_bonus
 
 

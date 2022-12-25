@@ -177,6 +177,8 @@ def createRandomCharacter(name):
         atr_emp=atr_emp,
         humanity=humanity
     )
+
+
 def rollAtributes():
     atr_int = rollAtr()
     atr_ref = rollAtr()
