@@ -33,16 +33,12 @@ def characterAttack(name, attack_type, range_str, given_roll):
                     break
             wep: Weapon = weapons[idx]
 
-            roll = safeCastToInt(given_roll)
-            if roll <= 0:
-                roll = dice.rollWithCrit()
-
             if attack_type == attack_type_single:
-                handleSingleShot(character, wep, attack_range, roll)
+                handleSingleShot(character, wep, attack_range, given_roll)
             elif attack_type == attack_type_burst:
-                handleBurst(character, wep, attack_range, roll)
+                handleBurst(character, wep, attack_range, given_roll)
             elif attack_type == attack_type_full_auto:
-                handleFullAuto(character, wep, attack_range, roll)
+                handleFullAuto(character, wep)
 
     else:
         print(f'Range must be bigger than 0')
@@ -65,7 +61,7 @@ def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
     return (skill_bonus, skill)
 
 
-def handleFullAuto(character, wep, attack_range, roll):
+def handleFullAuto(character, wep):
     print(f'Trying full auto attack with {wep.item}')
     shots_left = wep.shots_left
     weapon_can_attack = True
@@ -92,38 +88,57 @@ def handleFullAuto(character, wep, attack_range, roll):
             if num_of_targets > 0:
                 break
 
-        (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
         (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
         ref_bonus = character.attributes[REF]
         range_bonus = math.ceil(num_of_shots / 10)
         shots_per_target = math.ceil(num_of_targets / num_of_shots)
-        if not (r == close_range_str or r == point_blank_range_str):
-            range_bonus = -1 * range_bonus
 
         shots_left_after_firing = wep.shots_left - num_of_shots
 
         targets_hit = 0
         for target in range(num_of_targets):
+            t = target + 1
+            print(f'Rolling attack for target {t} / {num_of_targets}')
+            print(f'Give range for target {t}:')
+            attack_range = 0
+            while True:
+                i = askInput()
+                attack_range = safeCastToInt(i)
+                if attack_range > 0:
+                    break
+
             target_total_dmg = 0
+            roll = dice.resolveAutoOrManualRollWithCrit()
             total = roll + ref_bonus + skill_bonus + range_bonus
+
+            (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
+            if not (r == close_range_str or r == point_blank_range_str):
+                range_bonus = -1 * range_bonus
+
             if total > roll_to_beat:
                 targets_hit = targets_hit + 1
                 num_of_hits = total - roll_to_beat
                 if num_of_hits > shots_per_target:
                     num_of_hits = shots_per_target
-                print(f'Target {target} hit {num_of_hits} times!')
+                print(f'Target {t} hit {num_of_hits} times!')
                 for i in range(num_of_hits):
                     dmg = hitDmg(wep)
                     target_total_dmg = target_total_dmg + dmg
-                print(f'Total dmg done to target {target}: {target_total_dmg}')
+                print(f'Total dmg done to target {t}: {target_total_dmg}')
 
             else:
-                print(f'Full auto missed target {target}!')
+                print(f'Full auto missed target {t}!')
 
             DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
             print(f'{num_of_shots} shots fired in full auto hitting {num_of_hits} times')
-def handleBurst(character, wep, attack_range, roll):
+
+
+
+def handleBurst(character, wep, attack_range, given_roll):
     print(f'Trying burst attack with {wep.item}')
+    roll = safeCastToInt(given_roll)
+    if roll <= 0:
+        roll = dice.rollWithCrit()
     shots_left = wep.shots_left
     weapon_can_attack = True
     if wep.isGun() and wep.rof > 2:
@@ -165,7 +180,11 @@ def handleBurst(character, wep, attack_range, roll):
 
 
 
-def handleSingleShot(character, wep, attack_range, roll):
+def handleSingleShot(character, wep, attack_range, given_roll):
+    roll = safeCastToInt(given_roll)
+    if roll <= 0:
+        roll = dice.rollWithCrit()
+
     shots_left = wep.shots_left
     weapon_can_attack = True
     if wep.isGun():
@@ -201,9 +220,9 @@ def handleSingleShot(character, wep, attack_range, roll):
 
 def hitDmg(wep):
     print(f'{roll_str} or give dmg (> 0):')
-    input = askInput()
     dmg = 0
     while True:
+        input = askInput()
         if input == roll_str:
             dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
             break

@@ -159,8 +159,8 @@ def start():
                     combat.characterAttack(name, attack_type_single, range, given_roll=0)
                 case [_, name, 'single', range, roll]:
                     combat.characterAttack(name, attack_type_single, range, given_roll=roll)
-                case [_, name, 'fa', range]:
-                    combat.characterAttack(name, attack_type_full_auto, range, given_roll=0)
+                case [_, name, 'fa']:
+                    combat.characterAttack(name, attack_type_full_auto, range_str='99', given_roll=0)
                 case _:
                     print(f'{attack_help_str}')
         elif command.startswith(reload_str):

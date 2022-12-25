@@ -1,5 +1,8 @@
 import random
 
+from src.gameHelper import safeCastToInt, askInput, roll_str
+
+
 def roll(n, d_die):
     res = 0
     for i in range(n):
@@ -16,6 +19,17 @@ def diceToStr(n, d_die, bonus) -> str:
     str = str + suffix
 
     return str
+
+def resolveAutoOrManualRollWithCrit():
+    print(f'{roll_str} or give roll:')
+    roll = 0
+    while roll <= 0:
+        i = askInput()
+        if i == roll_str:
+            roll = rollWithCrit()
+        else:
+            roll = safeCastToInt(i)
+    return roll
 
 def rollWithCrit():
     res = roll(1, 10)
