@@ -37,7 +37,8 @@ guns = [t_handgun, t_smg, t_rifle, t_shotgun]
 rep_roll_str = 'rep'
 hit_location_roll_str = 'hit_loc'
 hit_str = 'hit'
-roll_help_str = f'{roll_str} <{rep_roll_str}> / <{hit_str}> / <{hit_location_roll_str}> / char <character_name> <skill> <optional modifier>'
+face_off_str = 'face_off'
+roll_help_str = f'{roll_str} <{rep_roll_str}> / <{hit_str}> / <{hit_location_roll_str}> / <{face_off_str}> char <character_name> <skill> <optional modifier>'
 
 very_reliables = ['very reliable', 'vr', 'VR']
 reliables = ['reliable', 'r', 'R']
@@ -92,8 +93,11 @@ stun_check_help_str = f'{stun_check_str} <character_name>'
 dmg_str = '/dmg'
 dmg_helper_str = f'{dmg_str} <character_name> <body_part> <amount>'
 add_event_str = '/add_event'
+list_event_str = '/l_events'
 add_weapon_str = '/add_weapon'
 add_weapon_help_str = f'{add_weapon_str} <character_name>'
+add_chrome_str = '/add_chrome'
+add_chrome_help_str = f'{add_chrome_str} <character_name>'
 attack_str = '/attack'
 attack_help_str = f'{attack_str} <char> <attack_type single | burst> <range> <optional roll>'
 reload_str = '/reload'
@@ -121,6 +125,25 @@ def askInput() -> str:
     i = input(inputIndicator)
     return i
 
+
+def askForDmg() -> (int, int, int):
+    print('Give weapon dmg (e.g. 2D6+1 = 2-6-1, 1D6 = 1-6)')
+    input = askInput()
+    parts = input.split('-')
+    match parts:
+        case [dice_s, die_s]:
+            dice = safeCastToInt(dice_s)
+            die = safeCastToInt(die_s)
+            bonus = 0
+            return (dice, die, 0)
+        case [dice_s, die_s, bonus_s]:
+            dice = safeCastToInt(dice_s)
+            die = safeCastToInt(die_s)
+            bonus = safeCastToInt(bonus_s)
+            return (dice, die, bonus)
+        case _:
+            print('Invalid input')
+            return askForDmg()
 
 def uniqueArr(arr):
     print(f'arr: {arr}')

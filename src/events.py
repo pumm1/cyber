@@ -6,3 +6,8 @@ def addEvent():
     event = askInput()
     DAO.addEvent(event)
 
+def listEvents():
+    events = DAO.listEvents()
+    for row in events:
+        print(f" - {row['event']}")
+

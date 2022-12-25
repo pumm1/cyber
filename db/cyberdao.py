@@ -3,7 +3,7 @@ import psycopg2.extras
 
 from db.cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
-    table_events
+    table_events, table_character_chrome
 from src.character import Character
 from src.skill import SkillInfo
 from src.weapon import Weapon
@@ -305,6 +305,14 @@ def addEvent(event):
     )
     conn.commit()
 
+def listEvents():
+    cur.execute(
+        f"""SELECT * FROM {table_events};"""
+    )
+    rows = cur.fetchall()
+    conn.commit()
+
+    return rows
 
 def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size):
     cur.execute(
@@ -313,6 +321,15 @@ def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg,
             VALUES
             ({character_id}, '{item}', '{weapon_type}', {is_chrome}, {dice_number}, {dice_dmg}, {dmg_bonus}, {range}, 
             {rof}, {clip_size}, {clip_size});
+        """
+    )
+    conn.commit()
+
+def addChrome(character_id, item, humanity_cost, description):
+    cur.execute(
+        f"""
+        {insert} {table_character_chrome} (character_id, item, humanity_cost, description)
+        VALUES ({character_id}, '{item}', {humanity_cost}, '{description}');
         """
     )
     conn.commit()

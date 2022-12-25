@@ -3,7 +3,8 @@ import math
 import dice
 from roles import roleSpecialAbility
 from src.gameHelper import woundState, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, body_part_head, body_part_body, \
-    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg
+    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt
+
 
 def woundEffect(dmg_taken, ref, int, cool):
     r = ref
@@ -100,8 +101,10 @@ class Character:
                 return s
         return None
 
-    def rollFaceDown(self):
-        roll = dice.roll(1, 10)
+    def rollFaceDown(self, r):
+        roll = safeCastToInt(r)
+        if roll <= 0:
+            roll = dice.rollWithCrit()
         return roll + self.attributes['COOL'] + self.reputation
 
     def info(self):

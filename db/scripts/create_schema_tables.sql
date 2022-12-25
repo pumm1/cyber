@@ -115,6 +115,18 @@ alter table cyberpunk.character_weapons
         foreign key(character_id)
         references cyberpunk.characters(id);
 
+create table cyberpunk.character_chrome(
+    id bigserial not null PRIMARY KEY,
+    humanity_cost integer not null,
+    character_id bigint not null,
+    item varchar not null,
+    description varchar not null
+);
+
+alter table cyberpunk.character_chrome
+    add constraint character_weapon__character_fk
+        foreign key(character_id)
+        references cyberpunk.characters(id);
 
 create table cyberpunk.events(
      id bigserial not null PRIMARY KEY,

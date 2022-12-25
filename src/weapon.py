@@ -2,7 +2,7 @@ import math
 
 from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handgun, t_smg, t_rifle, t_thrown, BODY, \
     t_melee, guns, EMP, point_blank_range_str, close_range_str, medium_range_str, long_range_str, extreme_range_str, \
-    impossible_range_str
+    impossible_range_str, askForDmg
 import dice
 import db.cyberdao as DAO
 
@@ -166,25 +166,6 @@ def rangeByType(char, weapon_t) -> int:
     print(f'{weapon_t} range: {range}m')
 
     return range
-
-def askForDmg() -> (int, int, int):
-    print('Give weapon dmg (e.g. 2D6+1 = 2-6-1, 1D6 = 1-6)')
-    input = askInput()
-    parts = input.split('-')
-    match parts:
-        case [dice_s, die_s]:
-            dice = safeCastToInt(dice_s)
-            die = safeCastToInt(die_s)
-            bonus = 0
-            return (dice, die, 0)
-        case [dice_s, die_s, bonus_s]:
-            dice = safeCastToInt(dice_s)
-            die = safeCastToInt(die_s)
-            bonus = safeCastToInt(bonus_s)
-            return (dice, die, bonus)
-        case _:
-            print('Invalid input')
-            return askForDmg()
 
 
 def askForChrome() -> bool:

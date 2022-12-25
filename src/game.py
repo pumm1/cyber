@@ -9,9 +9,10 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str,
     roll_all_str, roll_atr_str, list_skills_str, list_skills_helpeer_str, add_char_skill_str, add_char_skill_help_str, \
     fumble_str, fumble_help_str, jam_str, jam_help_str, add_armor_str, add_armor_help_str, add_reputation_help_str, \
     list_rep_str, l_rep_help_str, add_event_str, add_weapon_str, add_weapon_help_str, attack_str, attack_help_str, \
-    reload_str, reload_help_str, attack_type_single, attack_type_burst, attack_type_full_auto
+    reload_str, reload_help_str, attack_type_single, attack_type_burst, attack_type_full_auto, list_event_str, \
+    add_chrome_str, add_chrome_help_str
 from characterBuilder import createCharacter
-from src import fumble, armor, events, weapon
+from src import fumble, armor, events, weapon, chrome
 
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
@@ -42,7 +43,9 @@ def start():
         elif command.startswith(roll_str):
             match command_parts:
                 case [_, 'face_off', character]:
-                    faceOffRoll(character, rep_roll_str)
+                    faceOffRoll(character, roll=0)
+                case [_, 'face_off', character, roll]:
+                    faceOffRoll(character, roll)
                 case [_, 'hit_loc']:
                     location = combat.determineHitLocation()
                     print(f'Hit {location}')
@@ -143,12 +146,20 @@ def start():
                     print(dmg_helper_str)
         elif command.startswith(add_event_str):
             events.addEvent()
+        elif command.startswith(list_event_str):
+            events.listEvents()
         elif command.startswith(add_weapon_str):
             match command_parts:
                 case [_, name]:
                     weapon.addChracterWeapon(name)
                 case _:
                     print(add_weapon_help_str)
+        elif command.startswith(add_chrome_str):
+            match command_parts:
+                case [_, name]:
+                    chrome.addChrome(name)
+                case _:
+                    print(add_chrome_help_str)
         elif command.startswith(attack_str):
             match command_parts:
                 case [_, name, 'burst', range]:
@@ -173,10 +184,9 @@ def start():
 
 def faceOffRoll(name, roll):
     character = DAO.getCharacterByName(name)
-    if character is None:
-        print(f'Character not found by the name of {name}')
-    else:
-        print(f'{character.name} face off result: {character.rollFaceDown()}')
+    if character is not None:
+        res = character.rollFaceDown(roll)
+        print(f'{character.name} face off result: {res}')
 
 
 def fetchCharacter(name):
@@ -316,6 +326,8 @@ def help():
 {add_event_str}
 - Add weapon for character:
 {add_weapon_help_str}
+- Add chrome (not used as a weapon) for character:
+{add_chrome_help_str}
 - Reload weapon:
 {reload_help_str}
 """
