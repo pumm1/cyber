@@ -4,7 +4,9 @@ import bodytypes
 from db import cyberdao as DAO
 from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
-    t_thrown, roll_str
+    t_thrown, roll_str, guns
+from src.weapon import Weapon
+
 
 #TODO: add auto shotguns
 #TODO: add AP rounds (shotgun, rifle?)
@@ -26,81 +28,104 @@ def characterAttack(name, range_str, given_roll):
                 idx = safeCastToInt(input)
                 if 0 <= idx < len(weapons):
                     break
-            wep = weapons[idx]
+            wep: Weapon = weapons[idx]
             wep_t = wep.weapon_type
-            ref_bonus = character.attributes[REF]
-            skill_bonus = 0
-            skill = ''
-            skills = character.skills
-            if wep_t == t_melee:
-                skill = 'melee'
-            elif wep_t == t_rifle or wep_t == t_shotgun:
-                skill = 'rifle'
-            elif wep_t == t_handgun:
-                skill = 'handgun'
-            elif wep_t == t_thrown:
-                skill = 'athletics'
-            skill_bonus = skillBonusForSkill(skills, skill)
 
             roll = safeCastToInt(given_roll)
             if roll <= 0:
                 roll = dice.rollWithCrit()
 
-            roll_to_beat = 10
-            wep_range = wep.range
-            range_str = ''
-            point_blank_range_limit = 1
-            close_limit = wep_range / 4
-            mid_limit = wep_range / 2
-            long_limit = wep_range
-            extreme_limit = wep_range * 2
-            print(f'... close: {close_limit} .. mid: {mid_limit} .. long: {long_limit} .. extreme: {extreme_limit}')
-            if 0 < attack_range <= point_blank_range_limit:
-                range_str = f'Point blank ({point_blank_range_limit}m)'
-            elif attack_range <= close_limit:
-                range_str = f'Close ({close_limit}m)'
-                roll_to_beat = 15
-            elif attack_range <= mid_limit:
-                range_str = f'Medium ({mid_limit}m)'
-                roll_to_beat = 20
-            elif attack_range <= long_limit:
-                range_str = f'Long ({long_limit}m)'
-                roll_to_beat = 25
-            elif attack_range <= extreme_limit:
-                range_str = f'Extreme ({extreme_limit}m)'
-                roll_to_beat = 30
-            elif attack_range < extreme_limit:
-                range_str = 'Impossible'
-                roll_to_beat = 999999
 
-            total = roll + ref_bonus + skill_bonus
-            #TODO: add modifiers?
-            hit_res = total >= roll_to_beat
-            end_res = 'successful'
-            dmg = 0
-            if hit_res == False:
-                end_res = 'unsuccessful'
-            else:
-                print(f'Attack successful!')
-                print(f'{roll_str} or give dmg (> 0):')
-                input = askInput()
-                while True:
-                    if input == roll_str:
-                        dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
-                        break
-                    else:
-                        dmg = safeCastToInt(input)
-                        if dmg > 0:
-                            break
-                print(f'DMG done: {dmg}')
-
-
-            print(f'{character.name} selected {wep.item} [range = {wep_range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus})')
-            print(f'{range_str} range attack ({attack_range}m) is {end_res} [roll to beat ({roll_to_beat}) vs total ({total})]')
-
-            print(f'')
+            handleSingleShot(character, wep, wep_t, attack_range, roll)
     else:
         print(f'Range must be bigger than 0')
+
+
+def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
+    skill_bonus = 0
+    skill = ''
+    skills = character.skills
+    if wep_t == t_melee:
+        skill = 'melee'
+    elif wep_t == t_rifle or wep_t == t_shotgun:
+        skill = 'rifle'
+    elif wep_t == t_handgun:
+        skill = 'handgun'
+    elif wep_t == t_thrown:
+        skill = 'athletics'
+    skill_bonus = skillBonusForSkill(skills, skill)
+
+    return (skill_bonus, skill)
+
+
+def handleSingleShot(character, wep, wep_t, attack_range, roll):
+    shots_left = wep.shots_left
+    weapon_can_attack = True
+    is_gun = guns.__contains__(wep_t)
+    if is_gun:
+        if shots_left <= 0:
+            weapon_can_attack = False
+
+    roll_to_beat = 10
+    wep_range = wep.range
+    range_str = ''
+    point_blank_range_limit = 1
+    close_limit = wep_range / 4
+    mid_limit = wep_range / 2
+    long_limit = wep_range
+    extreme_limit = wep_range * 2
+    print(f'... close: {close_limit} .. mid: {mid_limit} .. long: {long_limit} .. extreme: {extreme_limit}')
+    if 0 < attack_range <= point_blank_range_limit:
+        range_str = f'Point blank ({point_blank_range_limit}m)'
+    elif attack_range <= close_limit:
+        range_str = f'Close ({close_limit}m)'
+        roll_to_beat = 15
+    elif attack_range <= mid_limit:
+        range_str = f'Medium ({mid_limit}m)'
+        roll_to_beat = 20
+    elif attack_range <= long_limit:
+        range_str = f'Long ({long_limit}m)'
+        roll_to_beat = 25
+    elif attack_range <= extreme_limit:
+        range_str = f'Extreme ({extreme_limit}m)'
+        roll_to_beat = 30
+    elif attack_range < extreme_limit:
+        range_str = 'Impossible'
+        roll_to_beat = 999999
+
+    (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep_t)
+    ref_bonus = character.attributes[REF]
+    total = roll + ref_bonus + skill_bonus
+    # TODO: add modifiers?
+    hit_res = total >= roll_to_beat
+    end_res = 'successful'
+    dmg = 0
+    if weapon_can_attack:
+        if is_gun:
+            print(f'... wep_id: {wep.weapon_id} ... wpn: {wep.item} .. clip: {wep.shots_left} / {wep.clip_size} ')
+            DAO.updateShotsInClip(wep.weapon_id, shots_left - 1)
+        if hit_res == False:
+            end_res = 'unsuccessful'
+        else:
+            print(f'Attack successful!')
+            print(f'{roll_str} or give dmg (> 0):')
+            input = askInput()
+            while True:
+                if input == roll_str:
+                    dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
+                    break
+                else:
+                    dmg = safeCastToInt(input)
+                    if dmg > 0:
+                        break
+            print(f'DMG done: {dmg}')
+
+        print(
+            f'{character.name} selected {wep.item} [range = {wep_range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus})')
+        print(
+            f'{range_str} range attack ({attack_range}m) is {end_res} [roll to beat ({roll_to_beat}) vs total ({total})]')
+    else:
+        print(f'Unable to attack with {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]')
 
 def skillBonusForSkill(skills, skill):
     skill_bonus = 0

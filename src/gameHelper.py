@@ -22,6 +22,8 @@ EMP = 'EMP'
 exit_commands = ['/e', '/q', '/exit', '/quit']
 help_commands = ['/help', '/halp', '/h']
 
+t_taser = 'taser'
+
 t_melee = 'melee'
 t_handgun = 'handgun'
 t_smg = 'smg'
@@ -106,6 +108,7 @@ def askInput() -> str:
     i = input(inputIndicator)
     return i
 
+
 def uniqueArr(arr):
     print(f'arr: {arr}')
     uniq_arr = []
@@ -113,6 +116,7 @@ def uniqueArr(arr):
         if x not in uniq_arr:
             uniq_arr.append(x)
     return uniq_arr
+
 
 def stunPenalty(dmg: int):
     return floor(dmg / 4)

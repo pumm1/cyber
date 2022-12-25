@@ -5,8 +5,10 @@ from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handg
 import dice
 import db.cyberdao as DAO
 
+
 class Weapon:
     def __init__(self, row):
+        self.weapon_id = row['id']
         self.item = row['item']
         self.weapon_type = row['weapon_type']
         self.is_chrome = row['is_chrome']
@@ -15,6 +17,9 @@ class Weapon:
         self.dmg_bonus = row['dmg_bonus']
         self.range = row['range']
         self.rof = row['rof']
+        self.clip_size = row['clip_size']
+        self.shots_left = row['shots_left']
+
 
     def toStr(self):
         cybernetic_str = ''
@@ -29,7 +34,7 @@ def addChracterWeapon(character_name):
     if char is not None:
         print(f'Give weapon name:')
         weapon_name = askInput()
-        weapon_t = askWeaponType()
+        (weapon_t, clip_size) = askWeaponType()
         weapon_range = rangeByType(char, weapon_t)
         is_chrome = askForChrome()
         rof = 1
@@ -41,7 +46,7 @@ def addChracterWeapon(character_name):
 
         (dice, die, bonus) = askForDmg()
 
-        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, bonus, weapon_range, rof)
+        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, bonus, weapon_range, rof, clip_size)
         if is_chrome:
             print('Reduce humanity for chrome:')
             while True:
@@ -128,13 +133,26 @@ def askForChrome() -> bool:
 
 def askWeaponType() -> str:
     weapon_types_str = ', '.join(weapon_types)
+    clip_size = 0
     print(f'Give weapon type ({weapon_types_str}):')
     weapon_type = ''
     while True:
         input = askInput()
         if weapon_types.__contains__(input):
             weapon_type = input
+
             break
         else:
             print('Invalid weapon type')
-    return weapon_type
+
+    if guns.__contains__(weapon_type):
+        while True:
+            print('Give clip size:')
+            input = askInput()
+            cs = safeCastToInt(input)
+            if cs > 0:
+                clip_size = cs
+                break
+
+
+    return (weapon_type, clip_size)

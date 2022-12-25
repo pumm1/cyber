@@ -96,6 +96,7 @@ alter table cyberpunk.character_armor
 create type cyberpunk.weapon_type as enum ('melee', 'handgun', 'smg', 'shotgun', 'rifle', 'throwing');
 
 create table cyberpunk.character_weapons(
+    id bigserial not null PRIMARY KEY,
     character_id bigint not null,
     item varchar not null,
     weapon_type cyberpunk.weapon_type not null,
@@ -104,7 +105,9 @@ create table cyberpunk.character_weapons(
     dice_dmg integer not null,
     dmg_bonus integer not null,
     range integer not null,
-    rof integer not null
+    rof integer not null,
+    clip_size integer not null,
+    shots_left integer not null,
 );
 
 alter table cyberpunk.character_weapons

@@ -306,13 +306,21 @@ def addEvent(event):
     conn.commit()
 
 
-def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof):
+def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size):
     cur.execute(
         f"""{insert} {table_character_weapons} 
-            (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof)
+            (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, shots_left)
             VALUES
-            ({character_id}, '{item}', '{weapon_type}', {is_chrome}, {dice_number}, {dice_dmg}, {dmg_bonus}, {range}, {rof});
+            ({character_id}, '{item}', '{weapon_type}', {is_chrome}, {dice_number}, {dice_dmg}, {dmg_bonus}, {range}, 
+            {rof}, {clip_size}, {clip_size});
         """
+    )
+    conn.commit()
+
+
+def updateShotsInClip(wpn_id, shots_in_clip):
+    cur.execute(
+        f"""UPDATE {table_character_weapons} SET shots_left = {shots_in_clip} WHERE id = {wpn_id};"""
     )
     conn.commit()
 
