@@ -61,8 +61,7 @@ def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
 def handleSingleShot(character, wep, wep_t, attack_range, roll):
     shots_left = wep.shots_left
     weapon_can_attack = True
-    is_gun = guns.__contains__(wep_t)
-    if is_gun:
+    if wep.isGun():
         if shots_left <= 0:
             weapon_can_attack = False
 
@@ -101,7 +100,7 @@ def handleSingleShot(character, wep, wep_t, attack_range, roll):
     end_res = 'successful'
     dmg = 0
     if weapon_can_attack:
-        if is_gun:
+        if wep.isGun():
             print(f'... wep_id: {wep.weapon_id} ... wpn: {wep.item} .. clip: {wep.shots_left} / {wep.clip_size} ')
             DAO.updateShotsInClip(wep.weapon_id, shots_left - 1)
         if hit_res == False:
@@ -125,7 +124,25 @@ def handleSingleShot(character, wep, wep_t, attack_range, roll):
         print(
             f'{range_str} range attack ({attack_range}m) is {end_res} [roll to beat ({roll_to_beat}) vs total ({total})]')
     else:
-        print(f'Unable to attack with {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]')
+        print(f'Unable to attack with (id: {wep.weapon_id}) {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]')
+
+
+def reloadWeapon(weapon_id, shots):
+    id = safeCastToInt(weapon_id)
+    amount = safeCastToInt(shots)
+    weapon = DAO.getWeaponById(id)
+    if weapon is not None and amount > 0:
+        if weapon.isGun():
+            if weapon.clip_size < amount:
+                print(f"Can't hold that many shots for {weapon.item}, clip size = {weapon.clip_size}")
+                amount = weapon.clip_size
+
+            DAO.updateShotsInClip(id, amount)
+            print(f'{weapon.item} reloaded with {amount} shots')
+        else:
+            print(f"{weapon.item} is not a gun, can't reload it")
+
+
 
 def skillBonusForSkill(skills, skill):
     skill_bonus = 0

@@ -25,9 +25,11 @@ class Weapon:
         cybernetic_str = ''
         if self.is_chrome:
             cybernetic_str = ' [cybernetic]'
-        str = f'{self.item} ({self.weapon_type}{cybernetic_str}) - {dice.diceToStr(self.dice_num, self.dice_dmg, self.dmg_bonus)} | range {self.range}m | #ROF: {self.rof}'
+        str = f'(id: {self.weapon_id}) {self.item} ({self.weapon_type}{cybernetic_str}) [{self.shots_left} / {self.clip_size}] - {dice.diceToStr(self.dice_num, self.dice_dmg, self.dmg_bonus)} | range {self.range}m | #ROF: {self.rof}'
         return str
 
+    def isGun(self) -> bool:
+        return guns.__contains__(self.weapon_type)
 
 def addChracterWeapon(character_name):
     char = DAO.getCharacterByName(character_name)

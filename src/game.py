@@ -8,7 +8,8 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str,
     character_helper_str, roll_help_str, stun_check_str, stun_check_help_str, dmg_str, safeCastToInt, dmg_helper_str, \
     roll_all_str, roll_atr_str, list_skills_str, list_skills_helpeer_str, add_char_skill_str, add_char_skill_help_str, \
     fumble_str, fumble_help_str, jam_str, jam_help_str, add_armor_str, add_armor_help_str, add_reputation_help_str, \
-    list_rep_str, l_rep_help_str, add_event_str, add_weapon_str, add_weapon_help_str, attack_str, attack_help_str
+    list_rep_str, l_rep_help_str, add_event_str, add_weapon_str, add_weapon_help_str, attack_str, attack_help_str, \
+    reload_str, reload_help_str
 from characterBuilder import createCharacter
 from src import fumble, armor, events, weapon
 
@@ -155,6 +156,12 @@ def start():
                     combat.characterAttack(name, range, given_roll=roll)
                 case _:
                     print(f'{attack_help_str}')
+        elif command.startswith(reload_str):
+            match command_parts:
+                case [_, weapon_id, shots]:
+                    combat.reloadWeapon(weapon_id, shots)
+                case _:
+                    print(f'{reload_help_str}')
 
 
 def faceOffRoll(name, roll):
@@ -307,7 +314,8 @@ def help():
 {add_event_str}
 - Add weapon for character:
 {add_weapon_help_str}
-
+- Reload weapon:
+{reload_help_str}
 """
           )
 

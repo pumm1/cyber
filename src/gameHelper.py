@@ -96,6 +96,8 @@ add_weapon_str = '/add_weapon'
 add_weapon_help_str = f'{add_weapon_str} <character_name>'
 attack_str = '/attack'
 attack_help_str = f'{attack_str} <char> <range> <optional roll>'
+reload_str = '/reload'
+reload_help_str = f'{reload_str} <weapon_id>'
 
 no_dmg = 'No damage'
 light_dmg = 'Light damage'

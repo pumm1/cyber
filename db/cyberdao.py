@@ -317,6 +317,19 @@ def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg,
     )
     conn.commit()
 
+def getWeaponById(weapon_id):
+    cur.execute(
+        f"""{character_weapons_q} WHERE id = {weapon_id}"""
+    )
+    row = cur.fetchone()
+    conn.commit()
+    weapon = None
+    if row is None:
+        print(f'Weapon not found by id = {weapon_id}')
+    else:
+        weapon = Weapon(row)
+
+    return weapon
 
 def updateShotsInClip(wpn_id, shots_in_clip):
     cur.execute(
