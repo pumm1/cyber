@@ -1,12 +1,11 @@
-import psycopg2
 import psycopg2.extras
 
-from db.cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
+from cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
     table_events, table_character_chrome
-from src.character import Character
-from src.skill import SkillInfo
-from src.weapon import Weapon
+from character import Character
+from skill import SkillInfo
+from weapon import Weapon
 
 conn = psycopg2.connect(dbname=db, user=user, password=password, host=host)
 cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)

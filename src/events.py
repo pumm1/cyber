@@ -1,4 +1,4 @@
-import db.cyberdao as DAO
+import cyberdao as DAO
 from gameHelper import askInput
 
 def addEvent():

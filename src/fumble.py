@@ -1,5 +1,5 @@
-from src import dice
-from src.gameHelper import EMP, very_reliables, reliables, unreliables
+import dice
+from gameHelper import EMP, very_reliables, reliables, unreliables
 
 combat_no_fumble = 'No fumble, you just screw up'
 combat_bad_fumble = 'Oh shit! You manage to wound a member of your own party, or yourself if alone. Roll for location and dmg'

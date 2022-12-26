@@ -1,5 +1,5 @@
 import dice
-from db import cyberdao as DAO
+import cyberdao as DAO
 import roles
 import bodytypes
 from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str, INT, REF, TECH, COOL, ATTR, LUCK, MA, BODY, EMP
@@ -130,6 +130,7 @@ def createCharacterWithRandomAtr(name):
         role,
         special,
         body_Type,
+        humanity=atr_emp * 10,
         atr_int=atr_int,
         atr_ref=atr_ref,
         atr_tech=atr_tech,
@@ -209,6 +210,7 @@ def createManualCharacter(name):
         role,
         special,
         body_Type,
+        humanity=atr_emp * 10,
         atr_int=atr_int,
         atr_ref=atr_ref,
         atr_tech=atr_tech,

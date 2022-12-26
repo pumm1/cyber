@@ -2,8 +2,8 @@ import math
 
 import dice
 from roles import roleSpecialAbility
-from src import bodytypes
-from src.gameHelper import woundState, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, body_part_head, body_part_body, \
+import bodytypes
+from gameHelper import woundState, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, body_part_head, body_part_body, \
     body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt
 
 

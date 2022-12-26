@@ -1,6 +1,5 @@
-from db import cyberdao as DAO
-from src import dice
-from src.gameHelper import safeCastToInt
+import dice, cyberdao as DAO
+from gameHelper import safeCastToInt
 
 
 def printSkillInfo(skills):

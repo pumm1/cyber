@@ -1,6 +1,6 @@
 import random
 
-from src.gameHelper import safeCastToInt, askInput, roll_str
+from gameHelper import safeCastToInt, askInput, roll_str
 
 
 def roll(n, d_die):

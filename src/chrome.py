@@ -1,8 +1,8 @@
 import math
 
-import db.cyberdao as DAO
+import cyberdao as DAO
 from dice import roll
-from src.gameHelper import askInput, roll_str, askForRoll, safeCastToInt, EMP
+from gameHelper import askInput, roll_str, askForRoll, safeCastToInt, EMP
 
 
 def addChrome(name):

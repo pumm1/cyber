@@ -3,12 +3,12 @@ import math
 import dice
 from character import Character
 import bodytypes
-from db import cyberdao as DAO
-from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
+import cyberdao as DAO
+from gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
-    t_thrown, roll_str, guns, close_range_str, medium_range_str, attack_type_single, attack_type_burst, \
+    t_thrown, roll_str, close_range_str, medium_range_str, attack_type_single, attack_type_burst, \
     attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str, skill_athletics
-from src.weapon import Weapon
+from weapon import Weapon
 
 
 # TODO: add auto shotguns

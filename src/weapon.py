@@ -1,10 +1,10 @@
 import math
 
 from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handgun, t_smg, t_rifle, t_thrown, BODY, \
-    t_melee, guns, EMP, point_blank_range_str, close_range_str, medium_range_str, long_range_str, extreme_range_str, \
+    guns, EMP, point_blank_range_str, close_range_str, medium_range_str, long_range_str, extreme_range_str, \
     impossible_range_str, askForRoll
 import dice
-import db.cyberdao as DAO
+import cyberdao as DAO
 
 
 class Weapon:

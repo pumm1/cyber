@@ -1,8 +1,7 @@
 import combat
-from db import cyberdao as DAO
 from collections import deque
 import skills
-from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str, exit_commands, help_commands, \
+from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands, help_commands, \
     explain_str, add_reputation_str, add_char_help_str, advance_combat_initiative_str, list_combat_initiative_str, \
     new_combat_initiative_str, new_combat_initiative_help_str, clear_combat_str, character_str, \
     character_helper_str, roll_help_str, stun_check_str, stun_check_help_str, dmg_str, safeCastToInt, dmg_helper_str, \
@@ -13,7 +12,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str,
     add_chrome_str, add_chrome_help_str, attack_type_melee, melee_dmg_str, melee_dmg_help_str, \
     suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll
 from characterBuilder import createCharacter
-from src import fumble, armor, events, weapon, chrome, dice
+import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
