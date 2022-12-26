@@ -74,6 +74,7 @@ def characterAttack(name, attack_type, range_str, given_roll):
         print(f'Range must be bigger than 0')
 
 
+#TODO: change modifer from string to int for DB
 def meleeDamageModifierByStrength(character):
     dmg_bonus = 0
     match character.bodyTypeModifier:
@@ -149,8 +150,6 @@ def handleMeleeDmg(name):
                     break
         hit_loc = determineHitLocation()
         print(f'Did {dmg} DMG to {hit_loc}')
-
-
 
 
 
