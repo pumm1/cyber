@@ -22,11 +22,30 @@ def checkBodyTypeFromStr(str):
     else:
         return None
 
-bodyTypeModifiersDict = {
-    very_weak: 0,
-    weak: 1,
-    average: 2,
-    strong: 3,
-    very_strong: 4,
-    superhuman: 5
-}
+def meleeDmgBonusByModifier(modifier) -> int:
+    modifier_str = bodyTypeModifiersByValue(modifier)
+    print(f'Determining melee DMG bonus for {modifier_str} ({modifier})')
+    if modifier <= 4:
+        return modifier -2
+    elif 4 < modifier <= 6:
+        return 4
+    elif 6 < modifier <= 8:
+        return  6
+    else:
+        return 8
+
+
+def bodyTypeModifiersByValue(modifier):
+    if modifier == 0:
+        return very_weak
+    elif modifier == 1:
+        return weak
+    elif modifier == 2:
+        return average
+    elif modifier == 3:
+        return strong
+    elif modifier == 4:
+        return very_strong
+    else:
+        return superhuman
+

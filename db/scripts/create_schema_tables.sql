@@ -5,7 +5,7 @@ CREATE TABLE cyberpunk.characters(
     name varchar not null,
     role varchar not null,
     special_ability integer not null,
-    body_type_modifier varchar not null,
+    body_type_modifier integer not null,
     atr_int integer not null,
     atr_ref integer not null,
     atr_cool integer not null,

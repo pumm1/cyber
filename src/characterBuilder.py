@@ -75,26 +75,13 @@ def addSpecial(role):
 
 
 def rollBodyType():
-    body_type = ''
-    roll = dice.roll(1, 6)
-    if roll == 1:
-        body_type = bodytypes.very_weak
-    elif roll == 2:
-        body_type == bodytypes.weak
-    elif roll == 3:
-        body_type = bodytypes.average
-    elif roll == 4:
-        body_type = bodytypes.strong
-    elif roll == 5:
-        body_type = bodytypes.very_strong
-    else:  # superhuman only achievable by cybernetics
-        body_type = rollBodyType()
+    body_type = dice.roll(1, 6) - 1
     return body_type
 
 
 def addBodyType():
     print(f'<give body type> or {roll_str} random body type ({list_str} to show all)')
-    body_type = ''
+    body_type = 0
     while True:
         ans = askInput()
         if checkListCommand(ans):
@@ -112,7 +99,7 @@ def addBodyType():
                 body_type = t_bod_type
                 break
 
-    print(f'Body type modifier = {body_type}')
+    print(f'Body type modifier = {body_type} ({bodytypes.bodyTypeModifiersByValue(body_type)})')
     return body_type
 
 def handleRole(is_random: bool):

@@ -2,6 +2,7 @@ import math
 
 import dice
 from roles import roleSpecialAbility
+from src import bodytypes
 from src.gameHelper import woundState, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, body_part_head, body_part_body, \
     body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt
 
@@ -117,9 +118,11 @@ class Character:
         wnd_state = woundState(self.dmg_taken)
         if wnd_state != 'No damage' and wnd_state != 'Light damage':
             atr_affected = '(Stats affected by dmg)'
+        bodyType = bodytypes.bodyTypeModifiersByValue(self.bodyTypeModifier)
 
         str = f"""************* {self.name} *************
 Role: {self.role}
+Body type: {bodyType} ({self.bodyTypeModifier})
 Attributes: {self.attributes} {atr_affected}
 Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
 Reputation: {self.reputation}

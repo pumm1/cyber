@@ -74,7 +74,6 @@ def characterAttack(name, attack_type, range_str, given_roll):
         print(f'Range must be bigger than 0')
 
 
-#TODO: change modifer from string to int for DB
 def meleeDamageModifierByStrength(character):
     dmg_bonus = 0
     match character.bodyTypeModifier:
@@ -107,7 +106,7 @@ def handleMelee(character, wep):
     if wep.item == unarmed:
         print('Give skill for bonus (e.g. brawling, karate, judo...)')
         skill = askInput()
-        skill_bonus = skillBonusForSkill(skill)
+        skill_bonus = skillBonusForSkill(character.skills, skill)
 
     else:
         (skill_b, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
@@ -124,7 +123,7 @@ def handleMelee(character, wep):
 def handleMeleeDmg(name):
     character = DAO.getCharacterByName(name)
     if character is not None:
-        dmg_bonus = meleeDamageModifierByStrength(character)
+        dmg_bonus = bodytypes.meleeDmgBonusByModifier(character.bodyTypeModifier)
         different_melee_attacks = ', '.join(melee_attacks)
         dmg = 0
         print(f'Give attack method ({different_melee_attacks}):')
@@ -139,7 +138,7 @@ def handleMeleeDmg(name):
                 case 'strike':
                     dmg = math.floor(dice.roll(1, 6) / 2) + dmg_bonus
                     break
-                case 'kick:':
+                case 'kick':
                     dmg = dice.roll(1, 6) + dmg_bonus
                     break
                 case 'throw':
@@ -149,7 +148,7 @@ def handleMeleeDmg(name):
                     dmg = dice.roll(1, 6)
                     break
         hit_loc = determineHitLocation()
-        print(f'Did {dmg} DMG to {hit_loc}')
+        print(f'Did {dmg} DMG to {hit_loc} using {method}')
 
 
 
@@ -371,7 +370,7 @@ def skillBonusForSkill(skills, skill):
 
 
 def dmgReductionByBodyTypeModifier(bodyTypeModifier):
-    reduction = bodytypes.bodyTypeModifiersDict[bodyTypeModifier]
+    reduction = bodyTypeModifier
     if reduction is None:
         print(f'Unknown body type {bodyTypeModifier}')
         return 0
@@ -400,7 +399,7 @@ def hitCharacter(name, body_part, dmg_str):
 
 
 def damageCharacter(c: Character, dmg):
-    dmgReduction = dmgReductionByBodyTypeModifier(c.bodyTypeModifier)
+    dmgReduction = c.bodyTypeModifier
     total_dmg = dmg - dmgReduction
     if total_dmg > 0:
         print(f'{c.name} damaged by {dmg}!')
