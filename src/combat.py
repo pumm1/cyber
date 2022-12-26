@@ -7,7 +7,7 @@ from db import cyberdao as DAO
 from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
     t_thrown, roll_str, guns, close_range_str, medium_range_str, attack_type_single, attack_type_burst, \
-    attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str
+    attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str, skill_athletics
 from src.weapon import Weapon
 
 
@@ -48,6 +48,27 @@ def weaponByAttackType(attack_type, character):
     else:
         print(f'No weapons found for {attack_type}')
         return None
+
+def suppressiveFireDef(name, rounds, area):
+    shots_in_area = safeCastToInt(rounds)
+    area_width = safeCastToInt(area)
+    if shots_in_area > 0 and area_width > 0:
+        character = DAO.getCharacterByName(name)
+        if character is not None:
+            roll = dice.rollWithCrit()
+            athletics_bonus = skillBonusForSkill(character.skills, skill_athletics)
+            ref_bonus = character.attributes[REF]
+            total = roll + athletics_bonus + ref_bonus
+            roll_to_beat = math.floor(shots_in_area / area_width)
+            if total > roll_to_beat:
+                print(f'{character.name} avoided suppressive fire!')
+            else:
+                hits = dice.roll(1, 6)
+                if hits > shots_in_area:
+                    hits = shots_in_area
+                print(f'{character.name} got hit by suppressive fire {hits} times!')
+    else:
+        print(f'Suppressive area needs at least one shot fired into it and valid area width')
 
 
 def characterAttack(name, attack_type, range_str, given_roll):
@@ -163,7 +184,7 @@ def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
     elif wep_t == t_handgun:
         skill = 'handgun'
     elif wep_t == t_thrown:
-        skill = 'athletics'
+        skill = skill_athletics
     skill_bonus = skillBonusForSkill(skills, skill)
 
     return (skill_bonus, skill)

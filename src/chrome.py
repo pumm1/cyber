@@ -2,7 +2,7 @@ import math
 
 import db.cyberdao as DAO
 from dice import roll
-from src.gameHelper import askInput, roll_str, askForDmg, safeCastToInt, EMP
+from src.gameHelper import askInput, roll_str, askForRoll, safeCastToInt, EMP
 
 
 def addChrome(name):
@@ -24,7 +24,7 @@ def handleHumanity(char):
     while True:
         i = askInput()
         if i == roll_str:
-            (dice, die, bonus) = askForDmg()
+            (dice, die, bonus) = askForRoll()
             humanity_cost = roll(dice, die) + bonus
             print(f'Rolled {humanity_cost}')
             break

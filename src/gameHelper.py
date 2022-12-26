@@ -38,7 +38,7 @@ rep_roll_str = 'rep'
 hit_location_roll_str = 'hit_loc'
 hit_str = 'hit'
 face_off_str = 'face_off'
-roll_help_str = f'{roll_str} <{rep_roll_str}> / <{hit_str}> / <{hit_location_roll_str}> / <{face_off_str}> char <character_name> <skill> <optional modifier>'
+roll_help_str = f'{roll_str} <dice> / <{rep_roll_str}> / <{hit_str}> / <{hit_location_roll_str}> / <{face_off_str}> char <character_name> <skill> <optional modifier>'
 
 very_reliables = ['very reliable', 'vr', 'VR']
 reliables = ['reliable', 'r', 'R']
@@ -94,6 +94,8 @@ dmg_str = '/dmg'
 dmg_helper_str = f'{dmg_str} <character_name> <body_part> <amount>'
 melee_dmg_str = '/melee_dmg'
 melee_dmg_help_str = f'{melee_dmg_str} <attacker_name> <optional dmg>'
+suppressive_fire_def_str = '/sup_def'
+suppressive_fire_def_help_str = f'{suppressive_fire_def_str} <character_name> <rounds> <area>'
 add_event_str = '/add_event'
 list_event_str = '/l_events'
 add_weapon_str = '/add_weapon'
@@ -104,6 +106,8 @@ attack_str = '/attack'
 attack_help_str = f'{attack_str} <char> <attack_type melee | single | burst | fa> <range_for_guns> <optional roll>'
 reload_str = '/reload'
 reload_help_str = f'{reload_str} <weapon_id> <num_of_shots>'
+
+skill_athletics = 'athletics'
 
 no_dmg = 'No damage'
 light_dmg = 'Light damage'
@@ -132,8 +136,8 @@ def askInput() -> str:
     return i
 
 
-def askForDmg() -> (int, int, int):
-    print('Give weapon dmg (e.g. 2D6+1 = 2-6-1, 1D6 = 1-6)')
+def askForRoll() -> (int, int, int):
+    print('Give roll (e.g. 2D6+1 = 2-6-1, 1D6 = 1-6)')
     input = askInput()
     parts = input.split('-')
     match parts:
@@ -149,7 +153,7 @@ def askForDmg() -> (int, int, int):
             return (dice, die, bonus)
         case _:
             print('Invalid input')
-            return askForDmg()
+            return askForRoll()
 
 def uniqueArr(arr):
     print(f'arr: {arr}')

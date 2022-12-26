@@ -10,9 +10,10 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, rep_roll_str,
     fumble_str, fumble_help_str, jam_str, jam_help_str, add_armor_str, add_armor_help_str, add_reputation_help_str, \
     list_rep_str, l_rep_help_str, add_event_str, add_weapon_str, add_weapon_help_str, attack_str, attack_help_str, \
     reload_str, reload_help_str, attack_type_single, attack_type_burst, attack_type_full_auto, list_event_str, \
-    add_chrome_str, add_chrome_help_str, attack_type_melee, melee_dmg_str, melee_dmg_help_str
+    add_chrome_str, add_chrome_help_str, attack_type_melee, melee_dmg_str, melee_dmg_help_str, \
+    suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll
 from characterBuilder import createCharacter
-from src import fumble, armor, events, weapon, chrome
+from src import fumble, armor, events, weapon, chrome, dice
 
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
@@ -42,6 +43,11 @@ def start():
             help()
         elif command.startswith(roll_str):
             match command_parts:
+                case [_, 'dice']:
+                    (dice_num, die, bonus) = askForRoll()
+                    res = dice.roll(dice_num, die) + bonus
+
+                    print(f'Rolled {res}')
                 case [_, 'face_off', character]:
                     faceOffRoll(character, roll=0)
                 case [_, 'face_off', character, roll]:
@@ -189,6 +195,12 @@ def start():
                     combat.reloadWeapon(weapon_id, shots)
                 case _:
                     print(f'{reload_help_str}')
+        elif command.startswith(suppressive_fire_def_str):
+            match command_parts:
+                case [_, name, rounds, area]:
+                    combat.suppressiveFireDef(name, rounds, area)
+                case _:
+                    print(suppressive_fire_def_help_str)
 
 
 def faceOffRoll(name, roll):
@@ -341,7 +353,9 @@ def help():
 {reload_help_str}
 - Attack:
 {attack_help_str}
-- See melee damage:
+- Melee damage:
 {melee_dmg_help_str}
+- Suppressive fire defence:
+{suppressive_fire_def_help_str}
 """
           )
