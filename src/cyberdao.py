@@ -169,12 +169,12 @@ def addCharacterSkill(char_id, skill_row, value):
 
 
 def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr,
-                 atr_luck, atr_ma, atr_body, atr_emp, humanity):
+                 atr_luck, atr_ma, atr_body, atr_emp):
     cur.execute(
         f"""INSERT INTO {table_characters} 
             (name, role, special_ability, body_type_modifier, humanity,
             atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken)
-            VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {humanity},
+            VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10},
             {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0)
             RETURNING id;
         """
