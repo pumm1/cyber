@@ -119,6 +119,10 @@ class Character:
         if wnd_state != 'No damage' and wnd_state != 'Light damage':
             atr_affected = '(Stats affected by dmg)'
         bodyType = bodytypes.bodyTypeModifiersByValue(self.bodyTypeModifier)
+        skill_infos = map(lambda skill: (
+            skill.toStr()
+        ), self.skills)
+        skill_info = '\n'.join(skill_infos)
 
         str = f"""************* {self.name} *************
 Role: {self.role}
@@ -129,5 +133,7 @@ Reputation: {self.reputation}
 Health: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
 SP: {self.sp}
 Weapons: {w_str}
+skills: 
+{skill_info}
 """
         print(str)

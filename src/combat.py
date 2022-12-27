@@ -61,7 +61,7 @@ def suppressiveFireDef(name, rounds, area):
             ref_bonus = character.attributes[REF]
             total = roll + athletics_bonus + ref_bonus
             roll_to_beat = math.floor(shots_in_area / area_width)
-            if total > roll_to_beat:
+            if total >= roll_to_beat:
                 print(f'{character.name} avoided suppressive fire!')
             else:
                 hits = dice.roll(1, 6)
@@ -209,6 +209,9 @@ def handleFullAuto(character, wep):
                 break
         if num_of_shots > wep.rof:
             num_of_shots = wep.rof
+        if num_of_shots > shots_left:
+            num_of_shots = shots_left
+        print(f'Num of shots: {num_of_shots}')
         print('How many targets?')
         num_of_targets = 0
         #multiple targets = divide shots for each
@@ -221,7 +224,7 @@ def handleFullAuto(character, wep):
         (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
         ref_bonus = character.attributes[REF]
         range_bonus = math.ceil(num_of_shots / 10)
-        shots_per_target = math.ceil(num_of_targets / num_of_shots)
+        shots_per_target = math.ceil(num_of_shots / num_of_targets)
 
         shots_left_after_firing = wep.shots_left - num_of_shots
 
@@ -240,17 +243,21 @@ def handleFullAuto(character, wep):
 
             target_total_dmg = 0
             roll = dice.resolveAutoOrManualRollWithCrit()
-            total = roll + ref_bonus + skill_bonus + range_bonus
-            num_of_hits = 0
             (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
             if not (r == close_range_str or r == point_blank_range_str):
                 range_bonus = -1 * range_bonus
+            total = roll + ref_bonus + skill_bonus + range_bonus
+            num_of_hits = 0
+            print(f'Roll to beat ({roll_to_beat}) vs roll ({total}) [roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus}, range bonus = {range_bonus}]')
 
-            if total > roll_to_beat:
+            if total >= roll_to_beat:
                 targets_hit = targets_hit + 1
                 num_of_hits = total - roll_to_beat
-                if num_of_hits > shots_per_target:
+                if num_of_hits >= shots_per_target:
                     num_of_hits = shots_per_target
+                if num_of_hits <= 0:
+                    num_of_hits = 1
+
                 total_hits = total_hits + num_of_hits
                 print(f'Target {t} hit {num_of_hits} times!')
                 for i in range(num_of_hits):
@@ -262,8 +269,9 @@ def handleFullAuto(character, wep):
                 print(f'Full auto missed target {t}!')
 
             DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
-        print(f'{num_of_shots} shots fired in full auto hitting {total_hits} times')
-
+        print(f'{num_of_shots} shots fired in full auto with {wep.item} hitting {total_hits} times')
+    else:
+        print(f"Can't attack with {wep.item} [{wep.shots_left} / {wep.clip_size}]")
 
 
 def handleBurst(character, wep, attack_range, given_roll):

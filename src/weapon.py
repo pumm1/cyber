@@ -81,13 +81,13 @@ class Weapon:
 
     def closeRangeLimit(self) -> int:
         if self.weapon_type == t_shotgun:
-            return 3
+            return 5
         else:
             return math.floor(self.range / 4)
 
     def midRangeLimit(self) -> int:
         if self.weapon_type == t_shotgun:
-            return 5
+            return 8
         else:
             return math.floor(self.range / 2)
 
@@ -98,7 +98,10 @@ class Weapon:
             return self.range
 
     def extremeRangeLimit(self) -> int:
-        return self.range * 2
+        if self.weapon_type == t_shotgun:
+            return 15
+        else:
+            return self.range * 2
 
 
     def toStr(self):

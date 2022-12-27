@@ -23,9 +23,10 @@ def skillBonusForSkill(skills, skill):
     skill_bonus = 0
     for s in skills:
         if s.skill == skill:
+            print(f'Skill {skill} found (level = {s.lvl})')
             skill_bonus = s.lvl
 
-    if not skills.__contains__(skill):
+    if skill_bonus == 0:
         print(f'{skill} not found in character skills')
     return skill_bonus
 
