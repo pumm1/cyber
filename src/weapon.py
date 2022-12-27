@@ -28,30 +28,22 @@ class Weapon:
         return False
 
     def isCloseRange(self, attack_range):
-        if self.weapon.type == t_shotgun:
-          return self.isPointBlankRange(attack_range)
-        elif attack_range <= self.closeRangeLimit():
+        if attack_range <= self.closeRangeLimit():
             return True
         return False
 
     def isMidRange(self, attack_range):
-        if self.weapon.type == t_shotgun:
-          return 1 < attack_range <= 2
-        elif attack_range <= self.midRangeLimit():
+        if attack_range <= self.midRangeLimit():
             return True
         return False
 
     def isLongRange(self, attack_range):
-        if self.weapon.type == t_shotgun:
-            return 1 < attack_range <= 3
-        elif attack_range <= self.longRangeLimit():
+        if attack_range <= self.longRangeLimit():
             return True
         return False
 
     def isExtremeRange(self, attack_range):
-        if self.weapon.type == t_shotgun:
-            return self.isLongRange()
-        elif attack_range <= self.extremeRangeLimit():
+        if attack_range <= self.extremeRangeLimit():
             return True
         return False
 
@@ -88,13 +80,22 @@ class Weapon:
         return 1
 
     def closeRangeLimit(self) -> int:
-        return math.floor(self.range / 4)
+        if self.weapon_type == t_shotgun:
+            return 3
+        else:
+            return math.floor(self.range / 4)
 
     def midRangeLimit(self) -> int:
-        return math.floor(self.range / 2)
+        if self.weapon_type == t_shotgun:
+            return 5
+        else:
+            return math.floor(self.range / 2)
 
     def longRangeLimit(self) -> int:
-        return self.range
+        if self.weapon_type == t_shotgun:
+            return 10
+        else:
+            return self.range
 
     def extremeRangeLimit(self) -> int:
         return self.range * 2
@@ -161,7 +162,9 @@ def askRof() -> int:
 
 def rangeByType(char, weapon_t) -> int:
     range = 1
-    if weapon_t == t_shotgun or weapon_t == t_handgun:
+    if weapon_t == t_shotgun:
+        return 10
+    elif weapon_t == t_handgun:
         range = 50
     elif weapon_t == t_smg:
         range = 150

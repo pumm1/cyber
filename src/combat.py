@@ -300,7 +300,7 @@ def handleBurst(character, wep, attack_range, given_roll):
             total_dmg = 0
             print(f'{hits} hits to target!')
             for i in range(hits):
-                dmg = hitDmg(wep)
+                dmg = hitDmg(wep, attack_range)
                 total_dmg = total_dmg + dmg
             print(f'Total dmg done to target: {total_dmg}')
         else:
@@ -340,7 +340,7 @@ def handleSingleShot(character, wep, attack_range, given_roll):
             end_res = 'unsuccessful'
         else:
             print(f'Attack successful!')
-            dmg = hitDmg(wep)
+            dmg = hitDmg(wep, attack_range)
             print(f'DMG done: {dmg}')
 
         print(f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus})')
@@ -351,27 +351,21 @@ def handleSingleShot(character, wep, attack_range, given_roll):
 
 
 def hitDmg(wep, attack_range):
+    dmg = 0
+    if wep.weapon_type == t_shotgun:
+        dmg = handleShotgunDmgAndHit(wep, attack_range)
+    else:
+        dmg = handleWeaponDmgAndHit(wep, attack_range)
+    return dmg
+
+
+def handleWeaponDmgAndHit(wep, attack_range):
     print(f'{roll_str} or give dmg (> 0):')
     dmg = 0
-    shotgun_max_dice = 4
-    shotgun_dmg = 6
     while True:
         input = askInput()
         if input == roll_str:
-            if wep.weapon.type == t_shotgun:
-                if wep.isCloseRange():
-                    print('Damage is for every target within 1m pattern')
-                    dmg = dice.roll(shotgun_max_dice, shotgun_dmg)
-                elif wep.isMidRange():
-                    print('Damage is for every target within 2m pattern')
-                    dmg = dice.roll(shotgun_max_dice - 1, shotgun_dmg)
-                elif wep.isLongRange() or wep.isExtremeRange():
-                    print('Damage is for every target within 3m pattern')
-                    dmg = dice.roll(shotgun_max_dice - 2, shotgun_dmg)
-                else:
-                    dmg = 0
-            else:
-                dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
+            dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
             break
         else:
             dmg = safeCastToInt(input)
@@ -380,6 +374,45 @@ def hitDmg(wep, attack_range):
     location = determineHitLocation()
     print(f'{dmg} DMG to {location}')
     return dmg
+
+def handleShotgunDmgAndHit(wep, attack_range):
+    shotgun_max_dice = 4
+    shotgun_dmg = 6
+    print(
+"""For shotguns, point blank/short range attack is for one spot, mid range hits 2 spots and long/extreme hits 3 places.
+Roll spots for each hit and spread the damage for those (By referee)."""
+    )
+    dmg = 0
+    hit_locations = []
+    if wep.isCloseRange(attack_range):
+        print('Damage is for every target within 1m pattern')
+        dmg = dice.roll(shotgun_max_dice, shotgun_dmg)
+        location = determineHitLocation()
+        hit_locations.append(location)
+    elif wep.isMidRange(attack_range):
+        print('Damage is for every target within 2m pattern')
+        dmg = dice.roll(shotgun_max_dice - 1, shotgun_dmg)
+        hit1 = determineHitLocation()
+        hit2 = determineHitLocation()
+
+        hit_locations.append(hit1)
+        hit_locations.append(hit2)
+    elif wep.isLongRange(attack_range) or wep.isExtremeRange(attack_range):
+        print('Damage is for every target within 3m pattern')
+        dmg = dice.roll(shotgun_max_dice - 2, shotgun_dmg)
+        hit1 = determineHitLocation()
+        hit2 = determineHitLocation()
+        hit3 = determineHitLocation()
+        hit_locations.append(hit1)
+        hit_locations.append(hit2)
+        hit_locations.append(hit3)
+
+    locations_str = ', '.join(hit_locations)
+
+    print(f'{dmg} DMG to {locations_str} (spread randomly)')
+
+    return dmg
+
 
 def reloadWeapon(weapon_id, shots):
     id = safeCastToInt(weapon_id)

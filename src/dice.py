@@ -42,9 +42,7 @@ def rollWithCrit(skip_luck=False):
             if 0 <= t_lck <= 10:
                 added_luck = t_lck
                 break
-
-
-    res = roll(1, 10)
+    res = roll(1, 10) + added_luck
     if res == 10:
         print('Critical success roll!')
         res = res + rollWithCrit(skip_luck=True)
