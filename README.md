@@ -9,9 +9,38 @@ have some quick way to check info on e.g. skills.
 
 ## Features:
 
+- Get character info by name (health, SP, skills, weapons..)
 - Stun checks based on damage
 - Roll stun effect
-- Damage calculation based on body type modifer
+- Damage calculation
+    * First reduce character SP based on hit location
+    * Reduce damage by modifier
 - Determine hit locations
 - Fetch character info from DB
 - Keep track of combat sequence order for one combat session
+- Roll skill checks for character
+- Add reputation for character
+- Add some notable events and list them
+- Medical check rolls
+- Attack rolls (completely automated for guns for the most part)
+  * Single
+  * Burst
+  * Full auto
+  * Suppressive fire save check
+  * Melee
+- Add weapons (can be chrome, included in weapons), gear and chrome
+    * For chrome, reduce humanity and empathy automatically
+  
+## TODO:
+- Add some kind of current status(es) for character (e.g. cyberpsychosis, stun, drugged..)
+
+## secrets.json in src for db config:
+```
+{
+    "DB_HOST": "<host>",
+    "DB_SCHEMA": "<db_schema>,
+    "DB_NAME": "<db_name>",
+    "DB_USER": "<db_user>",
+    "DB_PASSWORD": "<db_user_pw>",
+}
+```

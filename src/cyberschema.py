@@ -1,8 +1,23 @@
-db = 'cyberpunk'
-user = 'cyber'
-password = 'cyber1'
-host = '127.0.0.1'
-schema = 'cyberpunk'
+import os
+import json
+
+def readSecrets() -> dict:
+    filename = os.path.join('src/secrets.json')
+    try:
+        with open(filename, mode='r') as f:
+            res = json.loads(f.read())
+            return dict(res)
+    except FileNotFoundError:
+        print(f'!! Secrets not found !!')
+        return {}
+
+secrets = readSecrets()
+
+db = secrets['DB_NAME']
+user = secrets['DB_USER']
+password = secrets['DB_PASSWORD']
+host = secrets['DB_HOST']
+schema = secrets['DB_SCHEMA']
 
 table_characters = f'{schema}.characters'
 table_character_skills = f'{schema}.character_skills'

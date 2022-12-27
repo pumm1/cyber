@@ -39,7 +39,7 @@ def rollWithCrit(skip_luck=False):
         while True:
             i = askInput()
             t_lck = safeCastToInt(i)
-            if 0 < t_lck <= 10:
+            if 0 <= t_lck <= 10:
                 added_luck = t_lck
                 break
 
