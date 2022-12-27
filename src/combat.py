@@ -254,7 +254,7 @@ def handleFullAuto(character, wep):
                 total_hits = total_hits + num_of_hits
                 print(f'Target {t} hit {num_of_hits} times!')
                 for i in range(num_of_hits):
-                    dmg = hitDmg(wep)
+                    dmg = hitDmg(wep, attack_range)
                     target_total_dmg = target_total_dmg + dmg
                 print(f'Total dmg done to target {t}: {target_total_dmg}')
 
@@ -350,13 +350,28 @@ def handleSingleShot(character, wep, attack_range, given_roll):
             f'Unable to attack with (id: {wep.weapon_id}) {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]')
 
 
-def hitDmg(wep):
+def hitDmg(wep, attack_range):
     print(f'{roll_str} or give dmg (> 0):')
     dmg = 0
+    shotgun_max_dice = 4
+    shotgun_dmg = 6
     while True:
         input = askInput()
         if input == roll_str:
-            dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
+            if wep.weapon.type == t_shotgun:
+                if wep.isCloseRange():
+                    print('Damage is for every target within 1m pattern')
+                    dmg = dice.roll(shotgun_max_dice, shotgun_dmg)
+                elif wep.isMidRange():
+                    print('Damage is for every target within 2m pattern')
+                    dmg = dice.roll(shotgun_max_dice - 1, shotgun_dmg)
+                elif wep.isLongRange() or wep.isExtremeRange():
+                    print('Damage is for every target within 3m pattern')
+                    dmg = dice.roll(shotgun_max_dice - 2, shotgun_dmg)
+                else:
+                    dmg = 0
+            else:
+                dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
             break
         else:
             dmg = safeCastToInt(input)

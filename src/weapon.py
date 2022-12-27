@@ -28,22 +28,30 @@ class Weapon:
         return False
 
     def isCloseRange(self, attack_range):
-        if attack_range <= self.closeRangeLimit():
+        if self.weapon.type == t_shotgun:
+          return self.isPointBlankRange(attack_range)
+        elif attack_range <= self.closeRangeLimit():
             return True
         return False
 
     def isMidRange(self, attack_range):
-        if attack_range <= self.midRangeLimit():
+        if self.weapon.type == t_shotgun:
+          return 1 < attack_range <= 2
+        elif attack_range <= self.midRangeLimit():
             return True
         return False
 
     def isLongRange(self, attack_range):
-        if attack_range <= self.longRangeLimit():
+        if self.weapon.type == t_shotgun:
+            return 1 < attack_range <= 3
+        elif attack_range <= self.longRangeLimit():
             return True
         return False
 
     def isExtremeRange(self, attack_range):
-        if attack_range <= self.extremeRangeLimit():
+        if self.weapon.type == t_shotgun:
+            return self.isLongRange()
+        elif attack_range <= self.extremeRangeLimit():
             return True
         return False
 
