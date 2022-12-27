@@ -1,6 +1,33 @@
 import dice, cyberdao as DAO
 from gameHelper import safeCastToInt
 
+skill_athletics = 'athletics'
+skill_first_aid = 'first aid'
+
+easy_check = 10
+average_check = 15
+difficult_check = 20
+very_difficult_check = 25
+nearly_impossible_check = 30
+
+def difficultyCheckInfo():
+    print(f"""Difficulty checks:
+Easy ({easy_check}+)
+Average ({average_check}+)
+Difficult ({difficult_check}+)
+Very difficult ({very_difficult_check}+)
+Nearly impossible ({nearly_impossible_check}+)
+    """)
+
+def skillBonusForSkill(skills, skill):
+    skill_bonus = 0
+    for s in skills:
+        if s.skill == skill:
+            skill_bonus = s.lvl
+
+    if not skills.__contains__(skill):
+        print(f'{skill} not found in character skills')
+    return skill_bonus
 
 def printSkillInfo(skills):
     for s in skills:

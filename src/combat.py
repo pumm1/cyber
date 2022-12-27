@@ -7,7 +7,8 @@ import cyberdao as DAO
 from gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
     t_thrown, roll_str, close_range_str, medium_range_str, attack_type_single, attack_type_burst, \
-    attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str, skill_athletics
+    attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str
+from skills import skillBonusForSkill, skill_athletics
 from weapon import Weapon
 
 
@@ -377,17 +378,6 @@ def reloadWeapon(weapon_id, shots):
             print(f'{weapon.item} reloaded with {amount} shots')
         else:
             print(f"{weapon.item} is not a gun, can't reload it")
-
-
-def skillBonusForSkill(skills, skill):
-    skill_bonus = 0
-    for s in skills:
-        if s.skill == skill:
-            skill_bonus = s.lvl
-
-    if not skills.__contains__(skill):
-        print(f'{skill} not found in character skills')
-    return skill_bonus
 
 
 def dmgReductionByBodyTypeModifier(bodyTypeModifier):

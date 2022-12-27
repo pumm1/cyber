@@ -35,8 +35,15 @@ def manualRole(allow_roll: bool):
     role = ''
     while True:
         ans = askInput()
+        ans_idx = safeCastToInt(ans)
         if checkListCommand(ans):
-            print(*roles.allRoles, sep='\n')
+            for role in roles.allRoles:
+                idx = roles.allRoles.index(role)
+                print(f'{idx + 1} - {role}')
+        elif 0 < ans_idx <= len(roles.allRoles):
+            role = roles.allRoles[ans_idx - 1]
+            print(f'Selected {role}')
+            break
         elif roles.allRoles.__contains__(ans):
             role = ans
             print(f'Selected {role}')
@@ -75,7 +82,7 @@ def addSpecial(role):
 
 
 def rollBodyType():
-    body_type = dice.roll(1, 6) - 1
+    body_type = dice.roll(1, 5) - 1
     return body_type
 
 

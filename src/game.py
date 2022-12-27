@@ -10,9 +10,10 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     list_rep_str, l_rep_help_str, add_event_str, add_weapon_str, add_weapon_help_str, attack_str, attack_help_str, \
     reload_str, reload_help_str, attack_type_single, attack_type_burst, attack_type_full_auto, list_event_str, \
     add_chrome_str, add_chrome_help_str, attack_type_melee, melee_dmg_str, melee_dmg_help_str, \
-    suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll
+    suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
+import healing
 
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
@@ -54,9 +55,9 @@ def start():
                 case [_, 'hit_loc']:
                     location = combat.determineHitLocation()
                     print(f'Hit {location}')
-                case [_, 'char', name, skill]:
+                case [_, 'skill', name, skill]:
                     skills.rollCharacterSkill(name, skill, modifier=0)
-                case [_, 'char', name, skill, modifier]:
+                case [_, 'skill', name, skill, modifier]:
                     skills.rollCharacterSkill(name, skill, modifier=modifier)
                 case _:
                     print(roll_help_str)
@@ -174,7 +175,6 @@ def start():
         elif command.startswith(attack_str):
             match command_parts:
                 case [_, name, 'melee']:
-                    #TODO
                     combat.characterAttack(name, attack_type_melee, range_str='1', given_roll=0)
                 case [_, name, 'burst', range]:
                     combat.characterAttack(name, attack_type_burst, range, given_roll=0)
@@ -200,6 +200,14 @@ def start():
                     combat.suppressiveFireDef(name, rounds, area)
                 case _:
                     print(suppressive_fire_def_help_str)
+        elif command.startswith(medical_check_str):
+            match command_parts:
+                case [_, name]:
+                    healing.medicalCheck(name, given_roll=0)
+                case [_, name, roll]:
+                    healing.medicalCheck(name, given_roll=roll)
+                case _:
+                    print(medical_check_help_str)
 
 
 def faceOffRoll(name, roll):

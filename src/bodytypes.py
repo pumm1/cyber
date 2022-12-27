@@ -10,11 +10,15 @@ value = 'value'
 
 available_modifiers = [very_weak, weak, average, strong, very_strong]
 all_modifiers = [very_weak, weak, average, strong, very_strong, superhuman]
+
+
 def listAvailableModifiers():
     print(available_modifiers, sep='\n')
 
+
 def listAllModifiers():
     print(all_modifiers, sep='\n')
+
 
 def checkBodyTypeFromStr(str):
     if all_modifiers.__contains__(str):
