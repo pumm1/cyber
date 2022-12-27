@@ -226,6 +226,7 @@ def handleFullAuto(character, wep):
         shots_left_after_firing = wep.shots_left - num_of_shots
 
         targets_hit = 0
+        total_hits = 0
         for target in range(num_of_targets):
             t = target + 1
             print(f'Rolling attack for target {t} / {num_of_targets}')
@@ -240,7 +241,7 @@ def handleFullAuto(character, wep):
             target_total_dmg = 0
             roll = dice.resolveAutoOrManualRollWithCrit()
             total = roll + ref_bonus + skill_bonus + range_bonus
-
+            num_of_hits = 0
             (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
             if not (r == close_range_str or r == point_blank_range_str):
                 range_bonus = -1 * range_bonus
@@ -250,6 +251,7 @@ def handleFullAuto(character, wep):
                 num_of_hits = total - roll_to_beat
                 if num_of_hits > shots_per_target:
                     num_of_hits = shots_per_target
+                total_hits = total_hits + num_of_hits
                 print(f'Target {t} hit {num_of_hits} times!')
                 for i in range(num_of_hits):
                     dmg = hitDmg(wep)
@@ -260,7 +262,7 @@ def handleFullAuto(character, wep):
                 print(f'Full auto missed target {t}!')
 
             DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
-            print(f'{num_of_shots} shots fired in full auto hitting {num_of_hits} times')
+        print(f'{num_of_shots} shots fired in full auto hitting {total_hits} times')
 
 
 
