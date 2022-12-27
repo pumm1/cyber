@@ -31,11 +31,23 @@ def resolveAutoOrManualRollWithCrit():
             roll = safeCastToInt(i)
     return roll
 
-def rollWithCrit():
+
+def rollWithCrit(skip_luck=False):
+    added_luck = 0
+    if skip_luck == False:
+        print('Add luck? [0-10]')
+        while True:
+            i = askInput()
+            t_lck = safeCastToInt(i)
+            if 0 < t_lck <= 10:
+                added_luck = t_lck
+                break
+
+
     res = roll(1, 10)
     if res == 10:
         print('Critical success roll!')
-        res = res + rollWithCrit()
+        res = res + rollWithCrit(skip_luck=True)
     elif res == 1:
         print('Fumble! For automatic weapons skip fumble table and roll jam')
 

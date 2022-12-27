@@ -40,7 +40,7 @@ hit_str = 'hit'
 face_off_str = 'face_off'
 roll_help_str = \
 f"""{roll_str} <dice> / <{rep_roll_str}> / <{hit_str}> / <{hit_location_roll_str}> 
-/ <{face_off_str}> <character_name> / <skill> <character_name> <optional modifier>"""
+/ <{face_off_str}> <character_name> / <skill> <character_name> <skill_num> <optional modifier>"""
 
 very_reliables = ['very reliable', 'vr', 'VR']
 reliables = ['reliable', 'r', 'R']

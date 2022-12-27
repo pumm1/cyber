@@ -35,9 +35,14 @@ def printSkillInfo(skills):
         print(f"({s}) {skillInfo['skill']} [{skillInfo['attribute']}]: {skillInfo['description']}")
 
 
-def rollCharacterSkill(name, skill_name, modifier):
+def rollCharacterSkill(name, skill_num, modifier):
+    skill_name = ''
     character = DAO.getCharacterByName(name)
     roll_modifier = safeCastToInt(modifier)
+    skill_id = safeCastToInt(skill_num)
+    skill = DAO.getSkillById(skill_id)
+    if skill is not None:
+            skill_name = skill['skill']
     if character is not None:
         roll = 0
         atr_bonus = 0
