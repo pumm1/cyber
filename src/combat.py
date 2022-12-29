@@ -82,6 +82,8 @@ def characterAttack(name, attack_type, range_str, given_roll):
             wep = weaponByAttackType(attack_type, character)
 
             if wep is not None:
+                if wep.effect_radius > 0:
+                    print(f'Hit affects radius of {wep.effect_radius} - Check also if hit misses or if there are other targets in the radius!')
                 if wep.weapon_type == t_shotgun:
                     print(
                         """For shotguns, point blank/short range attack is for one spot, mid range hits 2 spots and long/extreme hits 3 places.
@@ -357,12 +359,15 @@ def handleSingleShot(character, wep, attack_range, given_roll):
     hit_res = total >= roll_to_beat
     end_res = 'successful'
     dmg = 0
+
     if weapon_can_attack:
         if wep.isGun():
             print(f'... wep_id: {wep.weapon_id} ... wpn: {wep.item} .. clip: {wep.shots_left} / {wep.clip_size} ')
             DAO.updateShotsInClip(wep.weapon_id, shots_left - 1)
         if hit_res == False:
             end_res = 'unsuccessful'
+            if wep.isThrown():
+                print('Roll 1D10 to see how the throw misses and another 1D10 to see how far! (See grenade table)')
         else:
             print(f'Attack successful!')
             dmg = hitDmg(wep, attack_range)

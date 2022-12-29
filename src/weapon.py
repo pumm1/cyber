@@ -20,6 +20,7 @@ class Weapon:
         self.rof = row['rof']
         self.clip_size = row['clip_size']
         self.shots_left = row['shots_left']
+        self.effect_radius = row['effect_radius']
 
 
     def isPointBlankRange(self, attack_range):
@@ -114,6 +115,8 @@ class Weapon:
     def isGun(self) -> bool:
         return guns.__contains__(self.weapon_type)
 
+    def isThrown(self) -> bool:
+        return self.weapon_type == t_thrown
 def addChracterWeapon(character_name):
     char = DAO.getCharacterByName(character_name)
     if char is not None:
@@ -122,6 +125,9 @@ def addChracterWeapon(character_name):
         (weapon_t, clip_size) = askWeaponType()
         weapon_range = rangeByType(char, weapon_t)
         is_chrome = askForChrome()
+        print('Give effect radius (e.g. explosives)')
+        r = askInput()
+        effect_radius = safeCastToInt(r)
         rof = 1
         if guns.__contains__(weapon_t):
             rof = askRof()
@@ -131,7 +137,7 @@ def addChracterWeapon(character_name):
 
         (dice, die, bonus) = askForRoll()
 
-        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, bonus, weapon_range, rof, clip_size)
+        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, bonus, weapon_range, rof, clip_size, effect_radius)
         if is_chrome:
             print('Reduce humanity for chrome:')
             while True:

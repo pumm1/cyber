@@ -105,6 +105,7 @@ create table cyberpunk.character_weapons(
     dice_dmg integer not null,
     dmg_bonus integer not null,
     range integer not null,
+    effect_radius integer not null,
     rof integer not null,
     clip_size integer not null,
     shots_left integer not null,

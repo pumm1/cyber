@@ -322,13 +322,13 @@ def listEvents():
 
     return rows
 
-def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size):
+def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, effect_radius):
     cur.execute(
         f"""{insert} {table_character_weapons} 
-            (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, shots_left)
+            (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, shots_left, effect_radius)
             VALUES
             ({character_id}, '{item}', '{weapon_type}', {is_chrome}, {dice_number}, {dice_dmg}, {dmg_bonus}, {range}, 
-            {rof}, {clip_size}, {clip_size});
+            {rof}, {clip_size}, {clip_size}, {effect_radius});
         """
     )
     conn.commit()
