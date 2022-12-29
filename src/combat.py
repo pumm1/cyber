@@ -80,7 +80,13 @@ def characterAttack(name, attack_type, range_str, given_roll):
             weapons = weaponsByType(attack_type, character.weapons)
             idx = 0
             wep = weaponByAttackType(attack_type, character)
+
             if wep is not None:
+                if wep.weapon_type == t_shotgun:
+                    print(
+                        """For shotguns, point blank/short range attack is for one spot, mid range hits 2 spots and long/extreme hits 3 places.
+                        Roll spots for each hit and spread the damage for those (By referee)."""
+                    )
                 if attack_type == attack_type_single:
                     handleSingleShot(character, wep, attack_range, given_roll)
                 elif attack_type == attack_type_burst:
@@ -94,6 +100,13 @@ def characterAttack(name, attack_type, range_str, given_roll):
 
     else:
         print(f'Range must be bigger than 0')
+
+def modifiersForTarget(target_num):
+    print(
+        f'Give attack modifier total for target {target_num} (e.g. immobile target, ambush, target size... Full auto/3 round burs is done automatically)')
+    i = askInput()
+    modifiers_total = safeCastToInt(i)
+    return modifiers_total
 
 
 def meleeDamageModifierByStrength(character):
@@ -123,6 +136,7 @@ melee_attacks = [
 ]
 
 def handleMelee(character, wep):
+    modifiers_total = modifiersForTarget(1)
     ref_bonus = character.attributes[REF]
     skill_bonus = 0
     if wep.item == unarmed:
@@ -136,7 +150,7 @@ def handleMelee(character, wep):
 
 
     roll = dice.resolveAutoOrManualRollWithCrit()
-    total = roll + ref_bonus + skill_bonus
+    total = roll + ref_bonus + skill_bonus + modifiers_total
     print(f'{character.name} attacks with {wep.item} (Roll total = {total})')
     print("Defend against melee attack by rolling opponent's REF + <some appropriate skill> + 1D10")
     print(f'If attack is successful, {melee_dmg_help_str}')
@@ -241,12 +255,13 @@ def handleFullAuto(character, wep):
                 if attack_range > 0:
                     break
 
+            modifiers_total = modifiersForTarget(t)
             target_total_dmg = 0
             roll = dice.resolveAutoOrManualRollWithCrit()
             (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
             if not (r == close_range_str or r == point_blank_range_str):
                 range_bonus = -1 * range_bonus
-            total = roll + ref_bonus + skill_bonus + range_bonus
+            total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total
             num_of_hits = 0
             print(f'Roll to beat ({roll_to_beat}) vs roll ({total}) [roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus}, range bonus = {range_bonus}]')
 
@@ -275,6 +290,7 @@ def handleFullAuto(character, wep):
 
 
 def handleBurst(character, wep, attack_range, given_roll):
+    modifiers_total = modifiersForTarget(1)
     print(f'Trying burst attack with {wep.item}')
     roll = safeCastToInt(given_roll)
     if roll <= 0:
@@ -299,7 +315,7 @@ def handleBurst(character, wep, attack_range, given_roll):
             shots_fired = shots_left
         shots_left_after_firing = wep.shots_left - shots_fired
 
-        total = roll + ref_bonus + skill_bonus + range_bonus
+        total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total
         print(f'[roll to beat ({roll_to_beat}) vs total ({total})]')
         if total >= roll_to_beat:
             hits = math.ceil(dice.roll(1, 6) / 2)
@@ -321,6 +337,7 @@ def handleBurst(character, wep, attack_range, given_roll):
 
 
 def handleSingleShot(character, wep, attack_range, given_roll):
+    modifiers_total = modifiersForTarget(1)
     roll = safeCastToInt(given_roll)
     if roll <= 0:
         roll = dice.rollWithCrit()
@@ -335,7 +352,7 @@ def handleSingleShot(character, wep, attack_range, given_roll):
 
     (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
     ref_bonus = character.attributes[REF]
-    total = roll + ref_bonus + skill_bonus
+    total = roll + ref_bonus + skill_bonus + modifiers_total
     # TODO: add modifiers?
     hit_res = total >= roll_to_beat
     end_res = 'successful'
@@ -360,8 +377,19 @@ def handleSingleShot(character, wep, attack_range, given_roll):
 
 def hitDmg(wep, attack_range):
     dmg = 0
+    targets = 0
     if wep.weapon_type == t_shotgun:
-        dmg = handleShotgunDmgAndHit(wep, attack_range)
+        print('Give targets in shotgun spread area:')
+        while True:
+            input = askInput()
+            targets = safeCastToInt(input)
+            if targets > 0:
+                break
+
+        for target in range(targets):
+            print(f'Target {target + 1}:')
+            dmg = dmg + handleShotgunDmgAndHit(wep, attack_range)
+
     else:
         dmg = handleWeaponDmgAndHit(wep, attack_range)
     return dmg
@@ -386,10 +414,6 @@ def handleWeaponDmgAndHit(wep, attack_range):
 def handleShotgunDmgAndHit(wep, attack_range):
     shotgun_max_dice = 4
     shotgun_dmg = 6
-    print(
-"""For shotguns, point blank/short range attack is for one spot, mid range hits 2 spots and long/extreme hits 3 places.
-Roll spots for each hit and spread the damage for those (By referee)."""
-    )
     dmg = 0
     hit_locations = []
     if wep.isCloseRange(attack_range):
