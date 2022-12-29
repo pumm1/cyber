@@ -19,6 +19,13 @@ password = secrets['DB_PASSWORD']
 host = secrets['DB_HOST']
 schema = secrets['DB_SCHEMA']
 
+head_column = 'head'
+body_column = 'body'
+l_arm_column = 'l_arm'
+l_leg_column = 'l_leg'
+r_arm_column = 'r_arm'
+r_leg_column = 'r_leg'
+
 table_characters = f'{schema}.characters'
 table_character_skills = f'{schema}.character_skills'
 table_skills = f'{schema}.skills'

@@ -48,6 +48,4 @@ def addArmorForCharacter(name):
                     covered_parts = uniqueArr(covered_parts)
 
         DAO.addArmor(character.id, item, sp, covered_parts)
-        for body_part in covered_parts:
-            DAO.updateCharacterSp(character.id, body_part, sp)
         print(f'Armor added!')

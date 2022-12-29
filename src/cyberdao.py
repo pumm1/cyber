@@ -163,7 +163,10 @@ def dmgCharacter(character_id, dmg):
 def addCharacterSkill(char_id, skill_row, value):
     cur.execute(
         f"""{insert} {table_character_skills} (character_id, skill, skill_value, attribute)
-        VALUES ({char_id}, '{skill_row['skill']}', {value}, '{skill_row['attribute']}');"""
+        VALUES ({char_id}, '{skill_row['skill']}', {value}, '{skill_row['attribute']}')
+        ON CONFLICT(character_id, skill)
+        DO
+            UPDATE SET skill_value = {value};"""
     )
     conn.commit()
 
@@ -191,9 +194,10 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
 
     cur.execute(
         f"""{insert} {table_character_weapons} 
-        (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, shots_left)
+        (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, 
+        clip_size, shots_left, effect_radius)
         VALUES
-        ({new_char['id']}, 'unarmed', 'melee', false, 1, 6, 0, 1, 1, 1, 1);
+        ({new_char['id']}, 'unarmed', 'melee', false, 1, 6, 0, 1, 1, 1, 1, 0);
         """
     )
     conn.commit()
@@ -288,6 +292,8 @@ def addArmor(character_id, item, sp, body_parts):
             VALUES ({character_id}, '{item}', {sp}, ARRAY[{bod_parts_str}] );"""
     )
     conn.commit()
+    for body_part in body_parts:
+        updateCharacterSp(character_id, body_part, sp)
 
 def updateCharacterSp(character_id, body_part, amount):
     cur.execute(
