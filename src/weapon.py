@@ -2,7 +2,7 @@ import math
 
 from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handgun, t_smg, t_rifle, t_thrown, BODY, \
     guns, EMP, point_blank_range_str, close_range_str, medium_range_str, long_range_str, extreme_range_str, \
-    impossible_range_str, askForRoll
+    impossible_range_str, askForRoll, all_con
 import dice
 import cyberdao as DAO
 
@@ -21,6 +21,8 @@ class Weapon:
         self.clip_size = row['clip_size']
         self.shots_left = row['shots_left']
         self.effect_radius = row['effect_radius']
+        self.wa = row['wa']
+        self.con = row['con']
 
 
     def isPointBlankRange(self, attack_range):
@@ -109,7 +111,7 @@ class Weapon:
         cybernetic_str = ''
         if self.is_chrome:
             cybernetic_str = ' [cybernetic]'
-        str = f'(id: {self.weapon_id}) {self.item} ({self.weapon_type}{cybernetic_str}) [{self.shots_left} / {self.clip_size}] - {dice.diceToStr(self.dice_num, self.dice_dmg, self.dmg_bonus)} | range {self.range}m | #ROF: {self.rof}'
+        str = f'(id: {self.weapon_id}) {self.item} ({self.weapon_type}{cybernetic_str}) [{self.shots_left} / {self.clip_size}] - {dice.diceToStr(self.dice_num, self.dice_dmg, self.dmg_bonus)} | WA: {self.wa} | range {self.range}m | #ROF: {self.rof} | CON: {self.con}'
         return str
 
     def isGun(self) -> bool:
@@ -132,12 +134,24 @@ def addChracterWeapon(character_name):
         if guns.__contains__(weapon_t):
             rof = askRof()
 
-        if rof is None:
-            print('NO ROF!')
+        print('Give WA:')
+        wa = 0
+        i = askInput()
+        wa = safeCastToInt(i)
+
+        con_opt = ', '.join(all_con)
+        print(f'Give con: ({con_opt})')
+        con = ''
+        while True:
+            i = askInput().upper()
+            if all_con.__contains__(i):
+                con = i
+                break
+
 
         (dice, die, bonus) = askForRoll()
 
-        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, bonus, weapon_range, rof, clip_size, effect_radius)
+        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, bonus, weapon_range, rof, clip_size, effect_radius, wa, con)
         if is_chrome:
             print('Reduce humanity for chrome:')
             while True:

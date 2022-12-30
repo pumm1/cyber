@@ -33,6 +33,12 @@ t_shotgun = 'shotgun'
 weapon_types = [t_melee, t_smg, t_handgun, t_shotgun, t_thrown, t_rifle]
 guns = [t_handgun, t_smg, t_rifle, t_shotgun]
 
+con_pocket = 'P'
+con_jacket = 'J'
+con_long_coat = 'L'
+not_hideable = 'N'
+
+all_con = [con_pocket, con_jacket, con_long_coat, not_hideable]
 
 rep_roll_str = 'rep'
 hit_location_roll_str = 'hit_loc'

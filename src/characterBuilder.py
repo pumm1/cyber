@@ -4,7 +4,7 @@ import roles
 import bodytypes
 from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str, INT, REF, TECH, \
     COOL, ATTR, LUCK, MA, BODY, EMP, body_part_l_arm, body_part_body, body_part_head, body_part_r_arm, t_melee, \
-    t_handgun, t_shotgun, t_rifle, t_thrown
+    t_handgun, t_shotgun, t_rifle, t_thrown, t_smg, con_pocket, con_long_coat, con_jacket, not_hideable
 from cyberschema import head_column, body_column, l_arm_column, r_arm_column, l_leg_column, r_leg_column
 
 
@@ -202,6 +202,7 @@ low_q_melee_set = [
      'weapon_type': t_melee,
      'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 3,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
+     'wa': 0, 'con': con_pocket,
      'effect_radius': 0}
 ]
 
@@ -210,11 +211,13 @@ mid_q_melee_set = [
      'weapon_type': t_melee,
      'dice_number': 2, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
+     'wa': 0, 'con': con_pocket,
      'effect_radius': 0},
     {'item': 'Cybersnake',
      'weapon_type': t_melee, 'is_chrome': True,
      'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
+     'wa': 0, 'con': con_long_coat,
      'effect_radius': 0}
 ]
 
@@ -223,16 +226,19 @@ high_q_melee_set = [
      'weapon_type': t_melee,
      'dice_number': 3, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
+     'wa': 0, 'con': con_pocket,
      'effect_radius': 0},
     {'item': 'Cybersnake 1', 'is_chrome': True,
      'weapon_type': t_melee,
      'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
+     'wa': 0, 'con': con_long_coat,
      'effect_radius': 0},
     {'item': 'Cybersnake 2', 'is_chrome': True,
      'weapon_type': t_melee,
      'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
+     'wa': 0, 'con': con_long_coat,
      'effect_radius': 0}
 ]
 
@@ -241,19 +247,31 @@ low_q_gun_set = [
      'weapon_type': t_handgun,
      'dice_number': 2, 'dice_dmg': 6, 'dmg_bonus': 3,
      'range': 50, 'rof': 2, 'clip_size': 6, 'shots_left': 6,
+     'wa': 0, 'con': con_jacket,
      'effect_radius': 0}
 ]
 
-mid_q_gun_set = [
+mid_q_gun_set1 = [
     {'item': 'Double barrel shotgun', 'is_chrome': False,
      'weapon_type': t_shotgun,
      'dice_number': 4, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 50, 'rof': 1, 'clip_size': 2, 'shots_left': 2,
+     'wa': -1, 'con': con_long_coat,
      'effect_radius': 0},
     {'item': 'Molotov cocktail', 'is_chrome': False,
      'weapon_type': t_thrown,
      'dice_number': 2, 'dice_dmg': 10, 'dmg_bonus': 0,
      'range': 30, 'rof': 1, 'clip_size': 1, 'shots_left': 1,
+     'wa': 0, 'con': con_jacket,
+     'effect_radius': 0},
+]
+
+mid_q_gun_set2 = [
+    {'item': 'Uzi', 'is_chrome': False,
+     'weapon_type': t_smg,
+     'dice_number': 2, 'dice_dmg': 6, 'dmg_bonus': 1,
+     'range': 50, 'rof': 35, 'clip_size': 30, 'shots_left': 30,
+     'wa': 0, 'con': con_jacket,
      'effect_radius': 0},
 ]
 
@@ -262,11 +280,13 @@ high_q_gun_set = [
      'weapon_type': t_rifle,
      'dice_number': 5, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 400, 'rof': 35, 'clip_size': 30, 'shots_left': 30,
+     'wa': 1, 'con': not_hideable,
      'effect_radius': 0},
     {'item': 'Frag. Grenade', 'is_chrome': False,
      'weapon_type': t_thrown,
      'dice_number': 3, 'dice_dmg': 10, 'dmg_bonus': 0,
      'range': 30, 'rof': 1, 'clip_size': 1, 'shots_left': 1,
+     'wa': 0, 'con': con_pocket,
      'effect_radius': 5},
 ]
 
@@ -330,7 +350,11 @@ def generateGear(name):
                                 if is_melee:
                                     addWeaponSet(char.id, mid_q_melee_set)
                                 else:
-                                    addWeaponSet(char.id, mid_q_gun_set)
+                                    roll = dice.roll(1, 2)
+                                    if roll == 1:
+                                        addWeaponSet(char.id, mid_q_gun_set1)
+                                    else:
+                                        addWeaponSet(char.id, mid_q_gun_set2)
                             elif q == 3:
                                 if is_melee:
                                     addWeaponSet(char.id, high_q_melee_set)
@@ -352,7 +376,9 @@ def addArmorSet(character_id, armor_set):
 def addWeaponSet(character_id, weapon_set):
     for weapon in weapon_set:
         print(f"Adding {weapon['item']}")
-        DAO.addWeapon(character_id, weapon['item'], weapon['weapon_type'], weapon['is_chrome'], weapon['dice_number'], weapon['dice_dmg'], weapon['dmg_bonus'], weapon['range'], weapon['rof'], weapon['clip_size'], weapon['effect_radius'])
+        DAO.addWeapon(character_id, weapon['item'], weapon['weapon_type'], weapon['is_chrome'], weapon['dice_number'],
+                      weapon['dice_dmg'], weapon['dmg_bonus'], weapon['range'], weapon['rof'], weapon['clip_size'],
+                      weapon['effect_radius'], weapon['wa'], weapon['con'])
 print('Weapon set added')
 
 

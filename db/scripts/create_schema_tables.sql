@@ -95,11 +95,15 @@ alter table cyberpunk.character_armor
 
 create type cyberpunk.weapon_type as enum ('melee', 'handgun', 'smg', 'shotgun', 'rifle', 'throwing');
 
+create type cyberpunk.concealability as enum ('P', 'J', 'L', 'N');
+
 create table cyberpunk.character_weapons(
     id bigserial not null PRIMARY KEY,
     character_id bigint not null,
     item varchar not null,
     weapon_type cyberpunk.weapon_type not null,
+    wa integer not null,
+    con cyberpunk.concealability not null,
     is_chrome boolean not null,
     dice_number integer not null,
     dice_dmg integer not null,

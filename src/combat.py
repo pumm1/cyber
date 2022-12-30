@@ -263,9 +263,9 @@ def handleFullAuto(character, wep):
             (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
             if not (r == close_range_str or r == point_blank_range_str):
                 range_bonus = -1 * range_bonus
-            total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total
+            total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa
             num_of_hits = 0
-            print(f'Roll to beat ({roll_to_beat}) vs roll ({total}) [roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus}, range bonus = {range_bonus}]')
+            print(f'Roll to beat ({roll_to_beat}) vs roll ({total}) [roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus}, range bonus = {range_bonus} WA = {wep.wa}]')
 
             if total >= roll_to_beat:
                 targets_hit = targets_hit + 1
@@ -317,7 +317,7 @@ def handleBurst(character, wep, attack_range, given_roll):
             shots_fired = shots_left
         shots_left_after_firing = wep.shots_left - shots_fired
 
-        total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total
+        total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa
         print(f'[roll to beat ({roll_to_beat}) vs total ({total})]')
         if total >= roll_to_beat:
             hits = math.ceil(dice.roll(1, 6) / 2)
@@ -354,7 +354,7 @@ def handleSingleShot(character, wep, attack_range, given_roll):
 
     (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
     ref_bonus = character.attributes[REF]
-    total = roll + ref_bonus + skill_bonus + modifiers_total
+    total = roll + ref_bonus + skill_bonus + modifiers_total + wep.wa
     # TODO: add modifiers?
     hit_res = total >= roll_to_beat
     end_res = 'successful'
@@ -373,7 +373,7 @@ def handleSingleShot(character, wep, attack_range, given_roll):
             dmg = hitDmg(wep, attack_range)
             print(f'DMG done: {dmg}')
 
-        print(f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus})')
+        print(f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})')
         print(f'{range_str} range attack ({attack_range}m) is {end_res} [roll to beat ({roll_to_beat}) vs total ({total})]')
     else:
         print(

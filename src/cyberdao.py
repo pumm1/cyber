@@ -195,9 +195,9 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
     cur.execute(
         f"""{insert} {table_character_weapons} 
         (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, 
-        clip_size, shots_left, effect_radius)
+        clip_size, shots_left, effect_radius, wa, con)
         VALUES
-        ({new_char['id']}, 'unarmed', 'melee', false, 1, 6, 0, 1, 1, 1, 1, 0);
+        ({new_char['id']}, 'unarmed', 'melee', false, 1, 6, 0, 1, 1, 1, 1, 0, 0, 'P');
         """
     )
     conn.commit()
@@ -328,13 +328,14 @@ def listEvents():
 
     return rows
 
-def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, effect_radius):
+def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, effect_radius, wa, con):
     cur.execute(
         f"""{insert} {table_character_weapons} 
-            (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, shots_left, effect_radius)
+            (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, 
+            shots_left, effect_radius, wa, con)
             VALUES
             ({character_id}, '{item}', '{weapon_type}', {is_chrome}, {dice_number}, {dice_dmg}, {dmg_bonus}, {range}, 
-            {rof}, {clip_size}, {clip_size}, {effect_radius});
+            {rof}, {clip_size}, {clip_size}, {effect_radius}, {wa}, '{con}');
         """
     )
     conn.commit()
