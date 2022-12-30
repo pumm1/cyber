@@ -94,7 +94,7 @@ def rollBodyType():
     return body_type
 
 
-def addBodyType():
+def addBodyType() -> int:
     print(f'<give body type> or {roll_str} random body type ({list_str} to show all)')
     body_type = 0
     while True:
@@ -105,10 +105,8 @@ def addBodyType():
             body_type = rollBodyType()
             break
         else:
-            t_bod_type = bodytypes.checkBodyTypeFromStr(ans.lower())
-            if t_bod_type is None:
-                print(f'Invalid body type, see possible ones with {list_str}')
-            elif t_bod_type == bodytypes.superhuman:
+            t_bod_type = safeCastToInt(ans)
+            if t_bod_type > 4:
                 print(print(f'Body type {bodytypes.superhuman} is only achievable through cybernetics'))
             else:
                 body_type = t_bod_type

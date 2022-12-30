@@ -13,18 +13,15 @@ all_modifiers = [very_weak, weak, average, strong, very_strong, superhuman]
 
 
 def listAvailableModifiers():
-    print(available_modifiers, sep='\n')
+    t_modifiers = map(lambda mod: (
+        f'{mod} ({available_modifiers.index(mod)})'
+    ), available_modifiers)
+    print(list(t_modifiers), sep='\n')
 
 
 def listAllModifiers():
     print(all_modifiers, sep='\n')
 
-
-def checkBodyTypeFromStr(str):
-    if all_modifiers.__contains__(str):
-        return str
-    else:
-        return None
 
 def meleeDmgBonusByModifier(modifier) -> int:
     modifier_str = bodyTypeModifiersByValue(modifier)

@@ -1,5 +1,7 @@
 from math import floor
 
+from cyberschema import r_leg_column, l_leg_column, r_arm_column, l_arm_column
+
 inputIndicator = "> "
 split_at = ' '
 roll_str = '/roll'
@@ -70,7 +72,7 @@ body_part_l_arm = 'l. arm'
 body_part_r_leg = 'r. leg'
 body_part_l_leg = 'l. leg'
 
-body_parts = [body_part_head, body_part_body, body_part_r_arm, body_part_l_arm, body_part_r_leg, body_part_l_leg]
+body_parts = [body_part_head, body_part_body, l_arm_column, r_arm_column, r_leg_column, l_leg_column]
 
 body_parts_armor_info = f"""1 - {body_part_head}
 2 - {body_part_body}

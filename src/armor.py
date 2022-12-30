@@ -1,6 +1,7 @@
 import cyberdao as DAO
 from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_parts, body_part_head, body_part_body, \
     body_part_r_leg, body_part_l_leg, body_part_r_arm, body_part_l_arm, uniqueArr
+from cyberschema import r_leg_column, l_leg_column, r_arm_column, l_arm_column
 
 
 def checkBodyPartNum(i):
@@ -11,13 +12,13 @@ def checkBodyPartNum(i):
     elif num == 2:
         body_part = body_part_body
     elif num == 3:
-        body_part = body_part_r_arm
+        body_part = l_arm_column
     elif num == 4:
-        body_part = body_part_l_arm
+        body_part = r_arm_column
     elif num == 5:
-        body_part = body_part_r_leg
+        body_part = r_leg_column
     elif num == 6:
-        body_part = body_part_l_leg
+        body_part = l_leg_column
     return body_part
 
 def addArmorForCharacter(name):
