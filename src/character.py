@@ -47,7 +47,7 @@ def woundEffect(dmg_taken, ref, int, cool):
 
 class Character:
 #character row e.g.: (2, 'Test', 'Solo', 6, 'average', 9, 9, 8, 8, 7, 8, 7, 5, 4)
-    def __init__(self, row, skills, rep, sp_row, weapons):
+    def __init__(self, row, skills, rep, sp_row, weapons, ev_total):
         self.id = row['id']
         self.name = row['name']
         self.role = row['role']
@@ -64,7 +64,7 @@ class Character:
 
         self.attributes = {
             INT: int,
-            REF: ref,
+            REF: ref - ev_total,
             TECH: row['atr_tech'],
             COOL: cool,
             ATTR: row['atr_attr'],
@@ -83,6 +83,7 @@ class Character:
             body_part_l_leg: sp_row['l_leg']
         }
         self.weapons = weapons
+        self.ev = ev_total
 
     def rollSkill(self, skill, bonus = 0):
         s = self.findSkill(skill)
@@ -128,6 +129,7 @@ class Character:
 Role: {self.role}
 Body type: {bodyType} ({self.bodyTypeModifier})
 Attributes: {self.attributes} {atr_affected}
+Encumbrance (Subracted from REF): {self.ev} 
 Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
 Reputation: {self.reputation}
 Health: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})

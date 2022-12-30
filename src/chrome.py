@@ -12,17 +12,20 @@ def addChrome(name):
         item = askInput()
         print('Give description:')
         descr = askInput()
-        humanity_cost = handleHumanity(character)
-        DAO.addChrome(character.id, item, humanity_cost, descr)
+        addChromeWithHumanityCost(character, item, descr)
         print(f'Chrome added for {character.name}')
 
+
+def addChromeWithHumanityCost(character, item, descr):
+    humanity_cost = handleHumanity(character)
+    DAO.addChrome(character.id, item, humanity_cost, descr)
 
 
 def handleHumanity(char):
     print(f'Reduce humanity for chrome ({roll_str} or <amount>)')
     humanity_cost = 0
     while True:
-        i = askInput()
+        i = askInput().lower()
         if i == roll_str:
             (dice, die, bonus) = askForRoll()
             humanity_cost = roll(dice, die) + bonus
@@ -30,7 +33,7 @@ def handleHumanity(char):
             break
         else:
             cost = safeCastToInt(i)
-            if i > 0:
+            if cost > 0:
                 humanity_cost = cost
                 break
 

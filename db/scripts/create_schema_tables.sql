@@ -84,7 +84,8 @@ create table cyberpunk.character_armor(
     character_id bigint not null,
     item varchar not null,
     sp integer not null,
-    body_parts varchar[] not null
+    body_parts varchar[] not null,
+    ev integer not null,
 );
 
 alter table cyberpunk.character_armor

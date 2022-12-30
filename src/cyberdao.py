@@ -19,6 +19,7 @@ insert = 'INSERT INTO'
 character_q = f'SELECT * FROM {table_characters} c '
 character_skills_q = f'SELECT * FROM {table_character_skills}'
 character_weapons_q = f'SELECT * FROM {table_character_weapons}'
+character_armors_q = f'SELECT * FROM {table_character_armors}'
 skills_q = f'SELECT * FROM {table_skills}'
 
 
@@ -63,8 +64,9 @@ def getCharacterByName(name: str):
         ), rep_rows))
         sp_row = characterSpById(id)
         weapon_rows = characterWeapons(id)
+        ev_total = characterEV(id)
 
-        character = Character(char_row, skills, reputation, sp_row, weapon_rows)
+        character = Character(char_row, skills, reputation, sp_row, weapon_rows, ev_total)
     else:
         print('No character found')
 
@@ -282,14 +284,14 @@ def listSkills():
     skills = skillsFromRows(skill_rows)
     return skills
 
-def addArmor(character_id, item, sp, body_parts):
+def addArmor(character_id, item, sp, body_parts, ev):
     bod_parts = map(lambda bp: (
         f"'{bp}'"
     ), body_parts)
     bod_parts_str = ', '.join(bod_parts)
     cur.execute(
-        f"""{insert} {table_character_armors} (character_id, item, sp, body_parts)
-            VALUES ({character_id}, '{item}', {sp}, ARRAY[{bod_parts_str}] );"""
+        f"""{insert} {table_character_armors} (character_id, item, sp, body_parts, ev)
+            VALUES ({character_id}, '{item}', {sp}, ARRAY[{bod_parts_str}], {ev} );"""
     )
     conn.commit()
     for body_part in body_parts:
@@ -382,3 +384,19 @@ def characterWeapons(character_id) -> list:
         Weapon(w)
     ), rows)
     return list(weapons)
+
+
+def characterEV(character_id) -> int:
+    cur.execute(
+        f"""
+            {character_armors_q} WHERE character_id = {character_id};
+            """
+    )
+    rows = cur.fetchall()
+    conn.commit()
+    evs = map(lambda a: (
+        a['ev']
+    ), rows)
+
+    ev_total = sum(evs)
+    return ev_total

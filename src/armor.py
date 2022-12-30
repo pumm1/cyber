@@ -2,6 +2,7 @@ import cyberdao as DAO
 from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_parts, body_part_head, body_part_body, \
     body_part_r_leg, body_part_l_leg, body_part_r_arm, body_part_l_arm, uniqueArr
 from cyberschema import r_leg_column, l_leg_column, r_arm_column, l_arm_column
+from chrome import addChromeWithHumanityCost
 
 
 def checkBodyPartNum(i):
@@ -26,6 +27,15 @@ def addArmorForCharacter(name):
     if character is not None:
         print(f'Give armor name:')
         item = askInput()
+        print(f'Is chrome? (y/n)')
+        is_chrome = False
+        while True:
+            t_chrome = askInput().lower()
+            if t_chrome == 'y':
+                is_chrome = True
+                break
+            elif t_chrome == 'n':
+                break
         print(f'Give SP:')
         sp = 0
         while True:
@@ -33,6 +43,11 @@ def addArmorForCharacter(name):
             sp = safeCastToInt(sp_i)
             if sp > 0:
                 break;
+        print('Give encumbrance (EV):')
+        ev = -1
+        while ev < 0:
+            i = askInput()
+            ev = safeCastToInt(i)
         print(f'Give covered body parts: (end with -1 if there is at least one body part)')
         print(body_parts_armor_info)
         covered_parts = []
@@ -48,5 +63,7 @@ def addArmorForCharacter(name):
                     covered_parts.append(input)
                     covered_parts = uniqueArr(covered_parts)
 
-        DAO.addArmor(character.id, item, sp, covered_parts)
+        DAO.addArmor(character.id, item, sp, covered_parts, ev)
+        if is_chrome:
+            addChromeWithHumanityCost(character, item, '')
         print(f'Armor added!')
