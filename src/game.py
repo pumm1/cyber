@@ -244,14 +244,14 @@ def addReputation(char, rep_amount):
         tries = 0
         print(f"Add {rep_type} reputation for {character.name}? [y/n]")
         while tries < 3:
-            command = askInput()
-            if command.lower() == 'y':
+            command = askInput().lower()
+            if command == 'y':
                 print(f'What is {character.name} gaining reputation for?')
                 info = askInput()
                 DAO.addReputation(character.id, info, rep)
                 print(f'Reputation added for {character.name}')
                 break
-            elif command.lower() == 'n':
+            elif command == 'n':
                 print(f'Cancelling reputation add for {character.name}')
                 break
             tries = tries + 1

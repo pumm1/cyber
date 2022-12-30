@@ -97,6 +97,8 @@ create type cyberpunk.weapon_type as enum ('melee', 'handgun', 'smg', 'shotgun',
 
 create type cyberpunk.concealability as enum ('P', 'J', 'L', 'N');
 
+create type cyberpunk.reliability as enum ('VR', 'ST', 'UR');
+
 create table cyberpunk.character_weapons(
     id bigserial not null PRIMARY KEY,
     character_id bigint not null,
@@ -113,6 +115,7 @@ create table cyberpunk.character_weapons(
     rof integer not null,
     clip_size integer not null,
     shots_left integer not null,
+    reliability cyberpunk.reliability not null
 );
 
 alter table cyberpunk.character_weapons

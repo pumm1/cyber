@@ -202,7 +202,7 @@ low_q_melee_set = [
      'weapon_type': t_melee,
      'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 3,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
-     'wa': 0, 'con': con_pocket,
+     'wa': 0, 'con': con_pocket,  'reliability': 'ST',
      'effect_radius': 0}
 ]
 
@@ -211,13 +211,13 @@ mid_q_melee_set = [
      'weapon_type': t_melee,
      'dice_number': 2, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
-     'wa': 0, 'con': con_pocket,
+     'wa': 0, 'con': con_pocket,  'reliability': 'ST',
      'effect_radius': 0},
     {'item': 'Cybersnake',
      'weapon_type': t_melee, 'is_chrome': True,
      'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
-     'wa': 0, 'con': con_long_coat,
+     'wa': 0, 'con': con_long_coat,  'reliability': 'ST',
      'effect_radius': 0}
 ]
 
@@ -226,19 +226,19 @@ high_q_melee_set = [
      'weapon_type': t_melee,
      'dice_number': 3, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
-     'wa': 0, 'con': con_pocket,
+     'wa': 0, 'con': con_pocket,  'reliability': 'ST',
      'effect_radius': 0},
     {'item': 'Cybersnake 1', 'is_chrome': True,
      'weapon_type': t_melee,
      'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
-     'wa': 0, 'con': con_long_coat,
+     'wa': 0, 'con': con_long_coat,  'reliability': 'ST',
      'effect_radius': 0},
     {'item': 'Cybersnake 2', 'is_chrome': True,
      'weapon_type': t_melee,
      'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
-     'wa': 0, 'con': con_long_coat,
+     'wa': 0, 'con': con_long_coat,  'reliability': 'ST',
      'effect_radius': 0}
 ]
 
@@ -247,7 +247,7 @@ low_q_gun_set = [
      'weapon_type': t_handgun,
      'dice_number': 2, 'dice_dmg': 6, 'dmg_bonus': 3,
      'range': 50, 'rof': 2, 'clip_size': 6, 'shots_left': 6,
-     'wa': 0, 'con': con_jacket,
+     'wa': 0, 'con': con_jacket,  'reliability': 'ST',
      'effect_radius': 0}
 ]
 
@@ -256,13 +256,13 @@ mid_q_gun_set1 = [
      'weapon_type': t_shotgun,
      'dice_number': 4, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 50, 'rof': 1, 'clip_size': 2, 'shots_left': 2,
-     'wa': -1, 'con': con_long_coat,
+     'wa': -1, 'con': con_long_coat,  'reliability': 'UR',
      'effect_radius': 0},
     {'item': 'Molotov cocktail', 'is_chrome': False,
      'weapon_type': t_thrown,
      'dice_number': 2, 'dice_dmg': 10, 'dmg_bonus': 0,
      'range': 30, 'rof': 1, 'clip_size': 1, 'shots_left': 1,
-     'wa': 0, 'con': con_jacket,
+     'wa': 0, 'con': con_jacket, 'reliability': 'ST',
      'effect_radius': 0},
 ]
 
@@ -271,7 +271,7 @@ mid_q_gun_set2 = [
      'weapon_type': t_smg,
      'dice_number': 2, 'dice_dmg': 6, 'dmg_bonus': 1,
      'range': 50, 'rof': 35, 'clip_size': 30, 'shots_left': 30,
-     'wa': 0, 'con': con_jacket,
+     'wa': 0, 'con': con_jacket,  'reliability': 'VR',
      'effect_radius': 0},
 ]
 
@@ -280,13 +280,13 @@ high_q_gun_set = [
      'weapon_type': t_rifle,
      'dice_number': 5, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 400, 'rof': 35, 'clip_size': 30, 'shots_left': 30,
-     'wa': 1, 'con': not_hideable,
+     'wa': 1, 'con': not_hideable, 'reliability': 'VR',
      'effect_radius': 0},
     {'item': 'Frag. Grenade', 'is_chrome': False,
      'weapon_type': t_thrown,
      'dice_number': 3, 'dice_dmg': 10, 'dmg_bonus': 0,
      'range': 30, 'rof': 1, 'clip_size': 1, 'shots_left': 1,
-     'wa': 0, 'con': con_pocket,
+     'wa': 0, 'con': con_pocket,  'reliability': 'ST',
      'effect_radius': 5},
 ]
 
@@ -296,11 +296,11 @@ def generateGear(name):
     print('Generate gear? [Y/N]')
     gen_gear = False
     while True:
-        i = askInput()
-        if i.lower() == 'y':
+        i = askInput().lower()
+        if i == 'y':
             gen_gear = True
             break
-        elif i.lower() == 'n':
+        elif i == 'n':
             break
     if gen_gear:
         char = DAO.getCharacterByName(name)
@@ -310,11 +310,11 @@ def generateGear(name):
                 print(
                     f'Armor/weapon and quality? [a/w]-[1-3] (e.g. a-1 for low quality armor, w-3 for high quality weapon)')
                 print('Stop adding gear with -1')
-                i = askInput()
-                if i.lower() == '-1':
+                i = askInput().lower()
+                if i == '-1':
                     add_gear = False
                 else:
-                    gear = i.lower().split('-')
+                    gear = i.split('-')
                     q = 0
                     match gear:
                         case ['a', quality]:
@@ -331,11 +331,11 @@ def generateGear(name):
                             print('Melee or gun set? [g/m]')
                             is_melee = False
                             while True:
-                                input = askInput()
-                                if input.lower() == 'g':
+                                input = askInput().lower()
+                                if input == 'g':
                                     is_melee = False
                                     break
-                                elif input.lower() == 'm':
+                                elif input == 'm':
                                     is_melee = True
                                     break
                                 else:
@@ -374,11 +374,11 @@ def addArmorSet(character_id, armor_set):
 
 
 def addWeaponSet(character_id, weapon_set):
-    for weapon in weapon_set:
-        print(f"Adding {weapon['item']}")
-        DAO.addWeapon(character_id, weapon['item'], weapon['weapon_type'], weapon['is_chrome'], weapon['dice_number'],
-                      weapon['dice_dmg'], weapon['dmg_bonus'], weapon['range'], weapon['rof'], weapon['clip_size'],
-                      weapon['effect_radius'], weapon['wa'], weapon['con'])
+    for wep in weapon_set:
+        print(f"Adding {wep['item']}")
+        DAO.addWeapon(character_id, wep['item'], wep['weapon_type'], wep['is_chrome'], wep['dice_number'],
+                      wep['dice_dmg'], wep['dmg_bonus'], wep['range'], wep['rof'], wep['clip_size'],
+                      wep['effect_radius'], wep['wa'], wep['con'], wep['reliability'])
 print('Weapon set added')
 
 

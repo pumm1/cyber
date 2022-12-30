@@ -2,7 +2,7 @@ import math
 
 from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handgun, t_smg, t_rifle, t_thrown, BODY, \
     guns, EMP, point_blank_range_str, close_range_str, medium_range_str, long_range_str, extreme_range_str, \
-    impossible_range_str, askForRoll, all_con
+    impossible_range_str, askForRoll, all_con, wep_all_reliabilities
 import dice
 import cyberdao as DAO
 
@@ -23,6 +23,7 @@ class Weapon:
         self.effect_radius = row['effect_radius']
         self.wa = row['wa']
         self.con = row['con']
+        self.reliability = row['reliability']
 
 
     def isPointBlankRange(self, attack_range):
@@ -111,7 +112,7 @@ class Weapon:
         cybernetic_str = ''
         if self.is_chrome:
             cybernetic_str = ' [cybernetic]'
-        str = f'(id: {self.weapon_id}) {self.item} ({self.weapon_type}{cybernetic_str}) [{self.shots_left} / {self.clip_size}] - {dice.diceToStr(self.dice_num, self.dice_dmg, self.dmg_bonus)} | WA: {self.wa} | range {self.range}m | #ROF: {self.rof} | CON: {self.con}'
+        str = f'(id: {self.weapon_id}) {self.item} ({self.weapon_type}{cybernetic_str}) [{self.shots_left} / {self.clip_size}] - {dice.diceToStr(self.dice_num, self.dice_dmg, self.dmg_bonus)} | WA: {self.wa} | range {self.range}m | #ROF: {self.rof} | REL: {self.reliability} | CON: {self.con}'
         return str
 
     def isGun(self) -> bool:
@@ -134,24 +135,13 @@ def addChracterWeapon(character_name):
         if guns.__contains__(weapon_t):
             rof = askRof()
 
-        print('Give WA:')
-        wa = 0
-        i = askInput()
-        wa = safeCastToInt(i)
-
-        con_opt = ', '.join(all_con)
-        print(f'Give con: ({con_opt})')
-        con = ''
-        while True:
-            i = askInput().upper()
-            if all_con.__contains__(i):
-                con = i
-                break
-
+        wa = askWa()
+        con = askCon()
+        reliability = askReliability()
 
         (dice, die, bonus) = askForRoll()
 
-        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, bonus, weapon_range, rof, clip_size, effect_radius, wa, con)
+        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, bonus, weapon_range, rof, clip_size, effect_radius, wa, con, reliability)
         if is_chrome:
             print('Reduce humanity for chrome:')
             while True:
@@ -206,8 +196,7 @@ def askForChrome() -> bool:
     is_chrome = False
     print('Is the weapon chrome? [y/n]')
     while True:
-        input = askInput()
-        i = input.lower()
+        input = askInput().lower()
         if input == 'y':
             is_chrome = True
             break
@@ -217,6 +206,36 @@ def askForChrome() -> bool:
         else:
             print('Invalid answer')
     return is_chrome
+
+def askCon():
+    con_opt = ', '.join(all_con)
+    print(f'Give con: ({con_opt})')
+    con = ''
+    while True:
+        i = askInput().upper()
+        if all_con.__contains__(i):
+            con = i
+            break
+    return con
+
+def askReliability():
+    rel_opts = ','.join(wep_all_reliabilities)
+    rel = ''
+    print(f'Give reliability: ({rel_opts})')
+    while True:
+        i = askInput().upper()
+        if wep_all_reliabilities.__contains__(i):
+            rel = i
+            break
+    return rel
+
+
+
+def askWa():
+    print('Give WA:')
+    i = askInput()
+    wa = safeCastToInt(i)
+    return wa
 
 
 def askWeaponType() -> str:

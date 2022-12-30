@@ -40,6 +40,12 @@ not_hideable = 'N'
 
 all_con = [con_pocket, con_jacket, con_long_coat, not_hideable]
 
+wep_very_reliable = 'VR'
+wep_standard_reliability = 'ST'
+wep_unreliable = 'UR'
+
+wep_all_reliabilities = [wep_very_reliable, wep_standard_reliability, wep_unreliable]
+
 rep_roll_str = 'rep'
 hit_location_roll_str = 'hit_loc'
 hit_str = 'hit'
