@@ -126,6 +126,8 @@ medical_check_str = '/med_check'
 medical_check_help_str = f'{medical_check_str} {char_name} <optional roll> [for the doctor]'
 heal_str = '/heal'
 heal_help_str = f'{heal_str} {char_name} <amount_healed> [for the patient]'
+repair_sp_str = '/repair_sp'
+repair_sp_help_str = f'{repair_sp_str} <character_name>'
 
 no_dmg = 'No damage'
 light_dmg = 'Light damage'

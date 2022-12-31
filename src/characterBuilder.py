@@ -181,18 +181,18 @@ def createRandomCharacter(name):
 
 
 low_q_armor_set = [
-    {'item': 'vest', 'body_parts': [body_column], 'sp': 10},
-    {'item': 'helmet', 'body_parts': [head_column], 'sp': 10}
+    {'item': 'vest', 'body_parts': [body_column], 'sp': 10, 'ev': 0},
+    {'item': 'helmet', 'body_parts': [head_column], 'sp': 10, 'ev': 0}
 ]
 
 mid_q_armor_set = [
-    {'item': 'flak jacket', 'body_parts': [body_column, l_arm_column, r_arm_column], 'sp': 15},
-    {'item': 'helmet', 'body_parts': [head_column], 'sp': 10}
+    {'item': 'flak jacket', 'body_parts': [body_column, l_arm_column, r_arm_column], 'sp': 15, 'ev': 0},
+    {'item': 'helmet', 'body_parts': [head_column], 'sp': 10, 'ev': 0}
 ]
 
 high_q_armor_set = [
-    {'item': 'combat armor', 'body_parts': [body_column, l_arm_column, r_arm_column, l_leg_column, r_leg_column], 'sp': 20},
-    {'item': 'combat helmet', 'body_parts': [head_column], 'sp': 20}
+    {'item': 'combat armor', 'body_parts': [body_column, l_arm_column, r_arm_column, l_leg_column, r_leg_column], 'sp': 20, 'ev': 1},
+    {'item': 'combat helmet', 'body_parts': [head_column], 'sp': 20, 'ev': 0}
 ]
 
 low_q_melee_set = [
@@ -367,7 +367,7 @@ def generateGear(name):
 def addArmorSet(character_id, armor_set):
     for armor in armor_set:
         print(f"Adding {armor['item']}")
-        DAO.addArmor(character_id, armor['item'], armor['sp'], armor['body_parts'])
+        DAO.addArmor(character_id, armor['item'], armor['sp'], armor['body_parts'], armor['ev'])
     print('Armor set added')
 
 

@@ -67,11 +67,17 @@ alter table cyberpunk.character_reputation
 create table cyberpunk.character_sp(
     character_id bigint not null UNIQUE,
     head integer not null,
+    head_max integer not null,
     body integer not null,
+    body_max integer not null,
     r_arm integer not null,
+    r_arm_max integer not null,
     l_arm integer not null,
+    l_arm_max integer not null,
     r_leg integer not null,
-    l_leg integer not null
+    r_leg_max integer not null,
+    l_leg integer not null,
+    l_leg_max integer not null
 );
 
 alter table cyberpunk.character_sp

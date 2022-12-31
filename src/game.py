@@ -10,7 +10,8 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     list_rep_str, l_rep_help_str, add_event_str, add_weapon_str, add_weapon_help_str, attack_str, attack_help_str, \
     reload_str, reload_help_str, attack_type_single, attack_type_burst, attack_type_full_auto, list_event_str, \
     add_chrome_str, add_chrome_help_str, attack_type_melee, melee_dmg_str, melee_dmg_help_str, \
-    suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str
+    suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str, \
+    repair_sp_str, repair_sp_help_str
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
@@ -208,6 +209,12 @@ def start():
                     healing.medicalCheck(name, given_roll=roll)
                 case _:
                     print(medical_check_help_str)
+        elif command.startswith(repair_sp_str):
+            match command_parts:
+                case [_, name]:
+                    armor.repairSP(name)
+                case _:
+                    print(f'{repair_sp_help_str}')
 
 
 def faceOffRoll(name, roll):
@@ -364,5 +371,7 @@ def help():
 {melee_dmg_help_str}
 - Suppressive fire defence:
 {suppressive_fire_def_help_str}
+- Repair character SP:
+{repair_sp_help_str}
 """
           )

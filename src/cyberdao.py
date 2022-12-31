@@ -188,8 +188,10 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
 
     cur.execute(
         f"""
-            {insert} {table_character_sp} (character_id, head, body, r_arm, l_arm, r_leg, l_leg)
-            VALUES ({new_char['id']}, 0, 0, 0, 0, 0, 0)
+            {insert} {table_character_sp} 
+            (character_id, head, head_max, body, body_max, r_arm, r_arm_max, 
+            l_arm, l_arm_max, r_leg, r_leg_max, l_leg, l_leg_max)
+            VALUES ({new_char['id']}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
             ON CONFLICT DO NOTHING;
             """
     )
@@ -295,11 +297,21 @@ def addArmor(character_id, item, sp, body_parts, ev):
     )
     conn.commit()
     for body_part in body_parts:
-        updateCharacterSp(character_id, body_part, sp)
+        updateCharacterMaxSp(character_id, body_part, sp)
 
-def updateCharacterSp(character_id, body_part, amount):
+def repairCharacterSP(character_id):
     cur.execute(
-        f"""UPDATE {table_character_sp} SET {body_part} = {body_part} + {amount}
+        f"""UPDATE {table_character_sp} SET head = head_max, body = body_max, r_arm = r_arm_max, l_arm = l_arm_max,
+            r_leg = r_leg_max, l_leg = l_leg_max
+            WHERE character_id = {character_id};
+            """
+    )
+    conn.commit()
+
+
+def updateCharacterMaxSp(character_id, body_part, amount):
+    cur.execute(
+        f"""UPDATE {table_character_sp} SET {body_part}_max = {body_part}_max + {amount}, {body_part} = {body_part} + {amount}
         WHERE character_id = {character_id};
         """
     )

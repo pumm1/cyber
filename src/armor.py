@@ -67,3 +67,10 @@ def addArmorForCharacter(name):
         if is_chrome:
             addChromeWithHumanityCost(character, item, '')
         print(f'Armor added!')
+
+
+def repairSP(name):
+    char = DAO.getCharacterByName(name)
+    if char is not None:
+        DAO.repairCharacterSP(char.id)
+        print(f'Armor repaired for {char.name}')
