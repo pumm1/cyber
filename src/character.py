@@ -4,7 +4,7 @@ import dice
 from roles import roleSpecialAbility
 import bodytypes
 from gameHelper import woundState, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, body_part_head, body_part_body, \
-    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt
+    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr
 
 
 def woundEffect(dmg_taken, ref, int, cool):
@@ -115,33 +115,33 @@ class Character:
             w.toStr()
         ), self.weapons)
         w_list = list(weapons_infos)
-        w_str = '\n'.join(w_list)
+        weapon_info = infoStr('Weapons', '\n'.join(w_list))
         atr_affected = ''
         wnd_state = woundState(self.dmg_taken)
         if wnd_state != 'No damage' and wnd_state != 'Light damage':
             atr_affected = '(Stats affected by dmg)'
-        bodyType = bodytypes.bodyTypeModifiersByValue(self.bodyTypeModifier)
+        body_type = bodytypes.bodyTypeModifiersByValue(self.bodyTypeModifier)
         skill_infos = map(lambda skill: (
             skill.toStr()
         ), self.skills)
         armor_infos = map(lambda a: (
             a.toStr()
         ), self.armors)
-        skill_info = '\n'.join(skill_infos)
-        armor_inf = '\n'.join(armor_infos)
+        skill_info = infoStr('Skills', '\n'.join(skill_infos))
+        armor_info = infoStr('Armor gear', '\n'.join(armor_infos))
 
         str = f"""************* {self.name} *************
 Role: {self.role}
-Body type: {bodyType} ({self.bodyTypeModifier})
+Body type: {body_type} ({self.bodyTypeModifier})
 Attributes: {self.attributes} {atr_affected}
 Encumbrance (Subracted from REF): {self.ev} 
 Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
 Reputation: {self.reputation}
 Health: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
 SP: {self.sp}
-Weapons: {w_str}
-Armor gear: {armor_inf}
-skills: 
+
+{weapon_info}
+{armor_info}
 {skill_info}
 """
         print(str)

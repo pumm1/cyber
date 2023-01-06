@@ -78,7 +78,7 @@ def addArmorForCharacter(name):
 
         DAO.addArmor(character.id, item, sp, covered_parts, ev)
         if is_chrome:
-            addChromeWithHumanityCost(character, item, '')
+            addChromeWithHumanityCost(character, item, 'Added with armor')
         print(f'Armor added!')
 
 

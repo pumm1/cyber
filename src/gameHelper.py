@@ -153,6 +153,13 @@ impossible_range_str = 'Impossible'
 unarmed = 'unarmed'
 
 
+def infoStr(label: str, info: str):
+    str = f"""********** {label} **********
+{info}    
+"""
+    return str
+
+
 def askInput() -> str:
     i = input(inputIndicator)
     return i
