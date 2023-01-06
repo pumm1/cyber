@@ -5,6 +5,19 @@ from cyberschema import r_leg_column, l_leg_column, r_arm_column, l_arm_column
 from chrome import addChromeWithHumanityCost
 
 
+class Armor:
+    def __init__(self, row):
+        self.id = row['id']
+        self.item = row['item']
+        self.sp = row['sp']
+        self.body_parts = row['body_parts']
+        self.ev = row['ev']
+        self.character_id = row['character_id']
+
+    def toStr(self) -> str:
+        return f'(id: {self.id}) {self.item} ({self.sp} SP) - {self.body_parts}'
+
+
 def checkBodyPartNum(i):
     num = safeCastToInt(i)
     body_part = None

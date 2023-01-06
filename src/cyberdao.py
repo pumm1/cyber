@@ -5,6 +5,7 @@ from cyberschema import db, user, password, host, table_skills, table_characters
     table_events, table_character_chrome
 from character import Character
 from skill import SkillInfo
+from armor import Armor
 from weapon import Weapon
 
 conn = psycopg2.connect(dbname=db, user=user, password=password, host=host)
@@ -65,8 +66,9 @@ def getCharacterByName(name: str):
         sp_row = characterSpById(id)
         weapon_rows = characterWeapons(id)
         ev_total = characterEV(id)
+        armors = getCharacterArmors(id)
 
-        character = Character(char_row, skills, reputation, sp_row, weapon_rows, ev_total)
+        character = Character(char_row, skills, reputation, sp_row, weapon_rows, ev_total, armors)
     else:
         print('No character found')
 
@@ -298,6 +300,18 @@ def addArmor(character_id, item, sp, body_parts, ev):
     conn.commit()
     for body_part in body_parts:
         updateCharacterMaxSp(character_id, body_part, sp)
+
+def getCharacterArmors(character_id):
+    cur.execute(
+        f"""{character_armors_q} WHERE character_id = '{character_id}';"""
+    )
+    rows = cur.fetchall()
+    conn.commit()
+    armors = []
+    for row in rows:
+        armor = Armor(row)
+        armors.append(armor)
+    return armors
 
 def repairCharacterSP(character_id):
     cur.execute(

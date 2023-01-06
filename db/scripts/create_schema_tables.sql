@@ -87,6 +87,7 @@ alter table cyberpunk.character_sp
 
 
 create table cyberpunk.character_armor(
+    id bigserial not null primary key,
     character_id bigint not null,
     item varchar not null,
     sp integer not null,
