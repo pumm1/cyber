@@ -11,7 +11,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     reload_str, reload_help_str, attack_type_single, attack_type_burst, attack_type_full_auto, list_event_str, \
     add_chrome_str, add_chrome_help_str, attack_type_melee, melee_dmg_str, melee_dmg_help_str, \
     suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str, \
-    repair_sp_str, repair_sp_help_str
+    repair_sp_str, repair_sp_help_str, remove_armor_str, remove_armor_help_str
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
@@ -215,6 +215,12 @@ def start():
                     armor.repairSP(name)
                 case _:
                     print(f'{repair_sp_help_str}')
+        elif command.startswith(remove_armor_str):
+            match command_parts:
+                case [_, name, armor_id]:
+                    armor.removeArmor(name, armor_id)
+                case _:
+                    print(f'{remove_armor_help_str}')
 
 
 def faceOffRoll(name, roll):

@@ -266,6 +266,7 @@ def listSkillsByAttribute(atr: str):
     skills = skillsFromRows(skill_rows)
     return skills
 
+
 def getSkillByName(skill_name):
     cur.execute(
         f"""{skills_q} WHERE skill = '{skill_name}';"""
@@ -288,6 +289,7 @@ def listSkills():
     skills = skillsFromRows(skill_rows)
     return skills
 
+
 def addArmor(character_id, item, sp, body_parts, ev):
     bod_parts = map(lambda bp: (
         f"'{bp}'"
@@ -301,6 +303,7 @@ def addArmor(character_id, item, sp, body_parts, ev):
     for body_part in body_parts:
         updateCharacterMaxSp(character_id, body_part, sp)
 
+
 def getCharacterArmors(character_id):
     cur.execute(
         f"""{character_armors_q} WHERE character_id = '{character_id}';"""
@@ -312,6 +315,7 @@ def getCharacterArmors(character_id):
         armor = Armor(row)
         armors.append(armor)
     return armors
+
 
 def repairCharacterSP(character_id):
     cur.execute(
@@ -347,6 +351,7 @@ def addEvent(event):
     )
     conn.commit()
 
+
 def listEvents():
     cur.execute(
         f"""SELECT * FROM {table_events};"""
@@ -355,6 +360,7 @@ def listEvents():
     conn.commit()
 
     return rows
+
 
 def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, effect_radius, wa, con, reliability):
     cur.execute(
@@ -368,6 +374,7 @@ def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg,
     )
     conn.commit()
 
+
 def addChrome(character_id, item, humanity_cost, description):
     cur.execute(
         f"""
@@ -376,6 +383,7 @@ def addChrome(character_id, item, humanity_cost, description):
         """
     )
     conn.commit()
+
 
 def getWeaponById(weapon_id):
     cur.execute(
@@ -390,6 +398,7 @@ def getWeaponById(weapon_id):
         weapon = Weapon(row)
 
     return weapon
+
 
 def updateShotsInClip(wpn_id, shots_in_clip):
     cur.execute(
@@ -426,3 +435,27 @@ def characterEV(character_id) -> int:
 
     ev_total = sum(evs)
     return ev_total
+
+
+def getArmor(character_id, id):
+    cur.execute(
+        f"""{character_armors_q} WHERE id = {id} AND character_id = {character_id};"""
+    )
+    row = cur.fetchone()
+    conn.commit()
+    if row is None:
+        print(f'Armor not found by id {id} for character {character_id}')
+    return row
+
+
+def deleteCharacterArmor(character_id, armor_id):
+    a_row = getArmor(character_id, armor_id)
+    if a_row is not None:
+        armor = Armor(a_row)
+        for body_part in armor.body_parts:
+            updateCharacterMaxSp(character_id, body_part, -1 * armor.sp)
+        cur.execute(
+            f"""DELETE FROM {table_character_armors} WHERE character_id = {character_id} AND id = {armor_id};"""
+        )
+        conn.commit();
+        print(f'Character armor removed')

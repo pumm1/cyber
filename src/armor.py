@@ -87,3 +87,9 @@ def repairSP(name):
     if char is not None:
         DAO.repairCharacterSP(char.id)
         print(f'Armor repaired for {char.name}')
+
+
+def removeArmor(name, armor_id):
+    char = DAO.getCharacterByName(name)
+    if char is not None:
+        DAO.deleteCharacterArmor(char.id, armor_id)
