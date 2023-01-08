@@ -61,9 +61,27 @@ class Character:
 
         (ref, int, cool) = woundEffect(dmg_taken, row['atr_ref'], row['atr_int'], row['atr_cool'])
 
+        self.weapons = weapons
+        self.armors = armors
+        armor_ref_bonus = 0
+        for armor in armors:
+            armor_ref_bonus += armor.attributes[REF]
+
+        armor_atr_bonuses = {
+            INT: 0,
+            REF: armor_ref_bonus,
+            TECH: 0,
+            COOL: 0,
+            ATTR: 0,
+            MA: 0,
+            BODY: 0,
+            LUCK: 0,
+            EMP: 0
+        }
+
         self.attributes = {
             INT: int,
-            REF: ref - ev_total,
+            REF: ref - ev_total + armor_atr_bonuses[REF],
             TECH: row['atr_tech'],
             COOL: cool,
             ATTR: row['atr_attr'],
@@ -81,8 +99,6 @@ class Character:
             body_part_r_leg: sp_row['r_leg'],
             body_part_l_leg: sp_row['l_leg']
         }
-        self.weapons = weapons
-        self.armors = armors
         self.ev = ev_total
         self.statuses = statuses
 

@@ -93,6 +93,15 @@ create table cyberpunk.character_armor(
     sp integer not null,
     body_parts varchar[] not null,
     ev integer not null,
+    atr_int integer not null DEFAULT 0,
+    atr_ref integer not null DEFAULT 0,
+    atr_cool integer not null DEFAULT 0,
+    atr_ma integer not null DEFAULT 0,
+    atr_attr integer not null DEFAULT 0,
+    atr_body integer not null DEFAULT 0,
+    atr_luck integer not null DEFAULT 0,
+    atr_emp integer not null DEFAULT 0,
+    atr_tech integer not null DEFAULT 0,
 );
 
 alter table cyberpunk.character_armor
@@ -140,7 +149,7 @@ create table cyberpunk.character_chrome(
 );
 
 alter table cyberpunk.character_chrome
-    add constraint character_weapon__character_fk
+    add constraint character_chrome__character_fk
         foreign key(character_id)
         references cyberpunk.characters(id);
 

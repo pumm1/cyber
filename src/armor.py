@@ -1,6 +1,6 @@
 import cyberdao as DAO
 from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_parts, body_part_head, body_part_body, \
-    body_part_r_leg, body_part_l_leg, body_part_r_arm, body_part_l_arm, uniqueArr
+    uniqueArr, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP
 from cyberschema import r_leg_column, l_leg_column, r_arm_column, l_arm_column
 from chrome import addChromeWithHumanityCost
 
@@ -13,6 +13,17 @@ class Armor:
         self.body_parts = row['body_parts']
         self.ev = row['ev']
         self.character_id = row['character_id']
+        self.attributes = {
+            INT: row['atr_int'],
+            REF: row['atr_ref'],
+            TECH: row['atr_tech'],
+            COOL: row['atr_ref'],
+            ATTR: row['atr_attr'],
+            MA: row['atr_ma'],
+            BODY: row['atr_body'],
+            LUCK: row['atr_luck'],
+            EMP: row['atr_emp']
+        }
 
     def toStr(self) -> str:
         return f'(id: {self.id}) {self.item} ({self.sp} SP) - {self.body_parts}'
@@ -58,7 +69,7 @@ def addArmorForCharacter(name):
                 break;
         print('Give encumbrance (EV):')
         ev = -1
-        while ev < 0:
+        while ev < 0    :
             i = askInput()
             ev = safeCastToInt(i)
         print(f'Give covered body parts: (end with -1 if there is at least one body part)')
