@@ -69,7 +69,6 @@ def addArmorForCharacter(name):
             if sp > 0:
                 break;
         bonuses_dict = addAttributeBonuses()
-        print(f'***  WIP TEST: bonuses {bonuses_dict}') #TODO: turn dict for sql
         print('Give encumbrance (EV):')
         ev = -1
         while ev < 0:

@@ -111,7 +111,7 @@ alter table cyberpunk.character_armor
         references cyberpunk.characters(id);
 
 
-create type cyberpunk.weapon_type as enum ('melee', 'handgun', 'smg', 'shotgun', 'rifle', 'throwing');
+create type cyberpunk.weapon_type as enum ('melee', 'handgun', 'smg', 'shotgun', 'rifle', 'throwing', 'heavy');
 
 create type cyberpunk.concealability as enum ('P', 'J', 'L', 'N');
 

@@ -95,7 +95,7 @@ def addReputation(character_id, info, rep_level):
     assert 0 < abs(rep_level) <= 10
 
     cur.execute(
-        f"""{insert}{table_reputation} (character_id, known_for, rep_level)
+        f"""{insert} {table_reputation} (character_id, known_for, rep_level)
             VALUES ({character_id}, '{info}', {rep_level});"""
     )
     conn.commit()
@@ -323,13 +323,10 @@ def updateArmorAtrBonuses(new_id, atr_dict):
         atr_bonuses.append(bonus_q)
 
     atr_bonuses_str = ', '.join(atr_bonuses)
-    update_q = f"""{update} {table_character_armors}
-            SET {atr_bonuses_str} WHERE id = {new_id};
-            """
 
-    print(f'DEBUG...  new armor id: {new_id} .... attr update:\n {update_q} \n')
     cur.execute(
-        update_q
+        f"""{update} {table_character_armors}
+            SET {atr_bonuses_str} WHERE id = {new_id};"""
     )
     conn.commit()
 

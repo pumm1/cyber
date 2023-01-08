@@ -417,8 +417,8 @@ def handleWeaponDmgAndHit(wep, attack_range):
     return dmg
 
 def handleShotgunDmgAndHit(wep, attack_range):
-    shotgun_max_dice = 4
-    shotgun_dmg = 6
+    shotgun_max_dice = wep.dice_num
+    shotgun_dmg = wep.dice_dmg
     dmg = 0
     hit_locations = []
     if wep.isCloseRange(attack_range):

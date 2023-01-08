@@ -34,8 +34,9 @@ t_smg = 'smg'
 t_rifle = 'rifle'
 t_thrown = 'throwing'
 t_shotgun = 'shotgun'
-weapon_types = [t_melee, t_smg, t_handgun, t_shotgun, t_thrown, t_rifle]
-guns = [t_handgun, t_smg, t_rifle, t_shotgun]
+t_heavy_weapon = 'heavy'
+weapon_types = [t_melee, t_smg, t_handgun, t_shotgun, t_thrown, t_rifle, t_heavy_weapon]
+guns = [t_handgun, t_smg, t_rifle, t_shotgun, t_heavy_weapon]
 
 con_pocket = 'P'
 con_jacket = 'J'
