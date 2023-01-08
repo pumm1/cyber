@@ -367,7 +367,7 @@ def generateGear(name):
 def addArmorSet(character_id, armor_set):
     for armor in armor_set:
         print(f"Adding {armor['item']}")
-        DAO.addArmor(character_id, armor['item'], armor['sp'], armor['body_parts'], armor['ev'])
+        DAO.addArmor(character_id, armor['item'], armor['sp'], armor['body_parts'], armor['ev'], {})
     print('Armor set added')
 
 

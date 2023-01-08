@@ -4,7 +4,7 @@ import dice
 from roles import roleSpecialAbility
 import bodytypes
 from gameHelper import woundState, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, body_part_head, body_part_body, \
-    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr
+    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr, BODY_TYPE_MOD
 
 
 def woundEffect(dmg_taken, ref, int, cool):
@@ -45,6 +45,13 @@ def woundEffect(dmg_taken, ref, int, cool):
     return (r, i, c)
 
 
+def calculateModifierBonus(armors, modifier):
+    bonus = 0
+    for armor in armors:
+        bonus += armor.attributes[modifier]
+
+    return bonus
+
 class Character:
     def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses):
         self.id = row['id']
@@ -53,7 +60,6 @@ class Character:
         self.reputation = rep
         self.specialAbility = row['special_ability']
         self.skills = skills
-        self.bodyTypeModifier = row['body_type_modifier']
         self.humanity = row['humanity']
 
         dmg_taken = row['dmg_taken']
@@ -63,11 +69,14 @@ class Character:
 
         self.weapons = weapons
         self.armors = armors
-        armor_ref_bonus = 0
-        for armor in armors:
-            armor_ref_bonus += armor.attributes[REF]
+        armor_ref_bonus = calculateModifierBonus(armors, REF)
+        armor_body_type_bonus = calculateModifierBonus(armors, BODY_TYPE_MOD)
 
-        armor_atr_bonuses = {
+
+        self.bodyTypeModifier = row['body_type_modifier'] + armor_body_type_bonus
+
+
+        armor_modifier_bonuses = {
             INT: 0,
             REF: armor_ref_bonus,
             TECH: 0,
@@ -76,12 +85,12 @@ class Character:
             MA: 0,
             BODY: 0,
             LUCK: 0,
-            EMP: 0
+            EMP: 0,
         }
 
         self.attributes = {
             INT: int,
-            REF: ref - ev_total + armor_atr_bonuses[REF],
+            REF: ref - ev_total + armor_modifier_bonuses[REF],
             TECH: row['atr_tech'],
             COOL: cool,
             ATTR: row['atr_attr'],
@@ -150,7 +159,7 @@ class Character:
         armor_info = infoStr('Armor gear', '\n'.join(armor_infos))
         status_info = infoStr('Statuses', '\n'.join(status_infos))
 
-        str = f"""************* {self.name} *************
+        str = f"""************* {self.name} (id: {self.id}) *************
 Role: {self.role}
 Body type: {body_type} ({self.bodyTypeModifier})
 Attributes: {self.attributes} {atr_affected}

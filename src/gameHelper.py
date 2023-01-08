@@ -19,6 +19,7 @@ MA = 'MA'
 BODY = 'BODY'
 EMP = 'EMP'
 
+BODY_TYPE_MOD = 'BTM'
 
 
 exit_commands = ['/e', '/q', '/exit', '/quit']
@@ -74,6 +75,32 @@ body_part_r_leg = 'r. leg'
 body_part_l_leg = 'l. leg'
 
 body_parts = [body_part_head, body_part_body, l_arm_column, r_arm_column, r_leg_column, l_leg_column]
+
+atr_int = 'atr_int'
+atr_ref = 'atr_ref'
+atr_tech = 'atr_tech'
+atr_cool = 'atr_cool'
+atr_attr = 'atr_attr'
+atr_luck = 'atr_luck'
+atr_ma = 'atr_ma'
+atr_body = 'atr_body'
+atr_emp = 'atr_emp'
+
+body_type_mod = 'body_type_modifier'
+
+#these are for gear, including atr and body type modifiers
+modifier_list = [atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, body_type_mod]
+atr_info = f"""1 - {INT}
+2 - {REF}
+3 - {TECH}
+4 - {COOL}
+5 - {ATTR}
+6 - {LUCK}
+7 - {MA}
+8 - {BODY}
+9 - {EMP}
+10 - {BODY_TYPE_MOD}
+"""
 
 body_parts_armor_info = f"""1 - {body_part_head}
 2 - {body_part_body}

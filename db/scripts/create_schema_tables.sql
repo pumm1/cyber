@@ -102,6 +102,7 @@ create table cyberpunk.character_armor(
     atr_luck integer not null DEFAULT 0,
     atr_emp integer not null DEFAULT 0,
     atr_tech integer not null DEFAULT 0,
+    body_type_modifier integer not null DEFAULT 0
 );
 
 alter table cyberpunk.character_armor

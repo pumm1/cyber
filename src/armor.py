@@ -1,6 +1,6 @@
 import cyberdao as DAO
 from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_parts, body_part_head, body_part_body, \
-    uniqueArr, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP
+    uniqueArr, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, atr_info, modifier_list, BODY_TYPE_MOD
 from cyberschema import r_leg_column, l_leg_column, r_arm_column, l_arm_column
 from chrome import addChromeWithHumanityCost
 
@@ -22,7 +22,8 @@ class Armor:
             MA: row['atr_ma'],
             BODY: row['atr_body'],
             LUCK: row['atr_luck'],
-            EMP: row['atr_emp']
+            EMP: row['atr_emp'],
+            BODY_TYPE_MOD: row['body_type_modifier']
         }
 
     def toStr(self) -> str:
@@ -67,6 +68,8 @@ def addArmorForCharacter(name):
             sp = safeCastToInt(sp_i)
             if sp > 0:
                 break;
+        bonuses_dict = addAttributeBonuses()
+        print(f'***  WIP TEST: bonuses {bonuses_dict}') #TODO: turn dict for sql
         print('Give encumbrance (EV):')
         ev = -1
         while ev < 0:
@@ -87,10 +90,48 @@ def addArmorForCharacter(name):
                     covered_parts.append(input)
                     covered_parts = uniqueArr(covered_parts)
 
-        DAO.addArmor(character.id, item, sp, covered_parts, ev)
+        DAO.addArmor(character.id, item, sp, covered_parts, ev, bonuses_dict)
         if is_chrome:
             addChromeWithHumanityCost(character, item, 'Added with armor')
         print(f'Armor added!')
+
+
+
+def handleAttributeBonuses():
+    print('Modify attributes? [y/n]')
+    i = askInput()
+    bonuses = []
+    while True:
+        if i == 'y':
+            bonuses = addAttributeBonuses()
+            break
+        elif i == 'n':
+            break
+    return bonuses
+
+
+def addAttributeBonuses():
+    bonuses_dict = {}
+    array_limit = len(modifier_list)
+    bonus = 0
+    while True:
+        print(f'Give attributes: (end with -1)')
+        print(atr_info)
+        input = askInput()
+        i = safeCastToInt(input)
+        if len(bonuses_dict) >= array_limit:
+            break
+        elif i == -1:
+            break
+        elif 0 < i <= array_limit:
+            atr = modifier_list[i - 1]
+            print(f'Attribute ({atr}) modified by:')
+            inp = askInput()
+            bonus = safeCastToInt(inp)
+            bonuses_dict.update({atr: bonus})
+        print(f'Current bonuses: {bonuses_dict}')
+    return bonuses_dict
+
 
 
 def repairSP(name):

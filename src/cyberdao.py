@@ -19,6 +19,7 @@ def clean_fetch_all(rows):
 insert = 'INSERT INTO'
 select_from = 'SELECT * FROM'
 delete_from = 'DELETE FROM'
+update = 'UPDATE'
 
 character_q = f'{select_from} {table_characters} c '
 character_skills_q = f'{select_from} {table_character_skills}'
@@ -102,7 +103,7 @@ def addReputation(character_id, info, rep_level):
 
 def getReputationRows(character_id):
     cur.execute(
-        f'SELECT * FROM {table_reputation} where character_id = {character_id};'
+        f'{select_from} {table_reputation} where character_id = {character_id};'
     )
     rows = cur.fetchall()
     conn.commit()
@@ -114,7 +115,7 @@ def listCombatInitiative(ascending: bool):
     if ascending:
         ordering = 'ASC'
     cur.execute(
-        f"""SELECT * FROM {table_combat_session} cs 
+        f"""{select_from} {table_combat_session} cs 
         JOIN {table_characters} c ON cs.character_id = c.id
         ORDER BY cs.initiative {ordering};
         """
@@ -142,21 +143,21 @@ def clearCombat():
 
 def resetCurrentOrder():
     cur.execute(
-        f"""UPDATE {table_combat_session} SET current = {False} WHERE current = {True};"""
+        f"""{update} {table_combat_session} SET current = {False} WHERE current = {True};"""
     )
     conn.commit()
 
 
 def setNextInOrder(character):
     cur.execute(
-        f"""UPDATE {table_combat_session} SET current = {True} WHERE character = '{character}';"""
+        f"""{update} {table_combat_session} SET current = {True} WHERE character = '{character}';"""
     )
     conn.commit()
 
 
 def dmgCharacterSP(character_id, body_part, dmg):
     cur.execute(
-        f"""UPDATE {table_character_sp} SET {body_part} = {body_part} - {dmg}
+        f"""{update} {table_character_sp} SET {body_part} = {body_part} - {dmg}
             WHERE character_id = {character_id};
         """
     )
@@ -164,7 +165,7 @@ def dmgCharacterSP(character_id, body_part, dmg):
 
 def dmgCharacter(character_id, dmg):
     cur.execute(
-        f"""UPDATE {table_characters} SET dmg_taken = dmg_taken + {dmg} WHERE id = {character_id};"""
+        f"""{update} {table_characters} SET dmg_taken = dmg_taken + {dmg} WHERE id = {character_id};"""
     )
     conn.commit()
 
@@ -295,18 +296,42 @@ def listSkills():
     return skills
 
 
-def addArmor(character_id, item, sp, body_parts, ev):
+def addArmor(character_id, item, sp, body_parts, ev, atr_dict):
     bod_parts = map(lambda bp: (
         f"'{bp}'"
     ), body_parts)
     bod_parts_str = ', '.join(bod_parts)
+
     cur.execute(
         f"""{insert} {table_character_armors} (character_id, item, sp, body_parts, ev)
-            VALUES ({character_id}, '{item}', {sp}, ARRAY[{bod_parts_str}], {ev} );"""
+            VALUES ({character_id}, '{item}', {sp}, ARRAY[{bod_parts_str}], {ev})
+            RETURNING id;"""
     )
+    new_id = cur.fetchone()['id']
     conn.commit()
     for body_part in body_parts:
         updateCharacterMaxSp(character_id, body_part, sp)
+    if len(atr_dict) > 0:
+        updateArmorAtrBonuses(new_id, atr_dict)
+
+
+def updateArmorAtrBonuses(new_id, atr_dict):
+    atr_bonuses = []
+    for atr in atr_dict:
+        bonus = atr_dict[atr]
+        bonus_q = f"{atr} = {bonus}"
+        atr_bonuses.append(bonus_q)
+
+    atr_bonuses_str = ', '.join(atr_bonuses)
+    update_q = f"""{update} {table_character_armors}
+            SET {atr_bonuses_str} WHERE id = {new_id};
+            """
+
+    print(f'DEBUG...  new armor id: {new_id} .... attr update:\n {update_q} \n')
+    cur.execute(
+        update_q
+    )
+    conn.commit()
 
 
 def getCharacterArmors(character_id):
@@ -324,7 +349,7 @@ def getCharacterArmors(character_id):
 
 def repairCharacterSP(character_id):
     cur.execute(
-        f"""UPDATE {table_character_sp} SET head = head_max, body = body_max, r_arm = r_arm_max, l_arm = l_arm_max,
+        f"""{update} {table_character_sp} SET head = head_max, body = body_max, r_arm = r_arm_max, l_arm = l_arm_max,
             r_leg = r_leg_max, l_leg = l_leg_max
             WHERE character_id = {character_id};
             """
@@ -334,7 +359,7 @@ def repairCharacterSP(character_id):
 
 def updateCharacterMaxSp(character_id, body_part, amount):
     cur.execute(
-        f"""UPDATE {table_character_sp} SET {body_part}_max = {body_part}_max + {amount}, {body_part} = {body_part} + {amount}
+        f"""{update} {table_character_sp} SET {body_part}_max = {body_part}_max + {amount}, {body_part} = {body_part} + {amount}
         WHERE character_id = {character_id};
         """
     )
@@ -343,7 +368,7 @@ def updateCharacterMaxSp(character_id, body_part, amount):
 
 def reduceHumanity(character_id, humanity, emp):
     cur.execute(
-        f"""UPDATE {table_characters} SET humanity = {humanity}, atr_emp = {emp}
+        f"""{update} {table_characters} SET humanity = {humanity}, atr_emp = {emp}
             WHERE id = {character_id};
         """
     )
@@ -359,7 +384,7 @@ def addEvent(event):
 
 def listEvents():
     cur.execute(
-        f"""SELECT * FROM {table_events};"""
+        f"""{select_from} {table_events};"""
     )
     rows = cur.fetchall()
     conn.commit()
@@ -407,7 +432,7 @@ def getWeaponById(weapon_id):
 
 def updateShotsInClip(wpn_id, shots_in_clip):
     cur.execute(
-        f"""UPDATE {table_character_weapons} SET shots_left = {shots_in_clip} WHERE id = {wpn_id};"""
+        f"""{update} {table_character_weapons} SET shots_left = {shots_in_clip} WHERE id = {wpn_id};"""
     )
     conn.commit()
 
