@@ -69,7 +69,6 @@ class Character:
 
         self.weapons = weapons
         self.armors = armors
-        armor_ref_bonus = calculateModifierBonus(armors, REF)
         armor_body_type_bonus = calculateModifierBonus(armors, BODY_TYPE_MOD)
 
 
@@ -77,15 +76,15 @@ class Character:
 
 
         armor_modifier_bonuses = {
-            INT: 0,
-            REF: armor_ref_bonus,
-            TECH: 0,
-            COOL: 0,
-            ATTR: 0,
-            MA: 0,
-            BODY: 0,
-            LUCK: 0,
-            EMP: 0,
+            INT: calculateModifierBonus(armors, INT),
+            REF: calculateModifierBonus(armors, REF),
+            TECH: calculateModifierBonus(armors, TECH),
+            COOL: calculateModifierBonus(armors, COOL),
+            ATTR: calculateModifierBonus(armors, ATTR),
+            MA: calculateModifierBonus(armors, MA),
+            BODY: calculateModifierBonus(armors, BODY),
+            LUCK: calculateModifierBonus(armors, LUCK),
+            EMP: calculateModifierBonus(armors, EMP),
         }
 
         self.attributes = {
