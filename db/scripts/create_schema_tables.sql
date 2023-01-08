@@ -149,4 +149,11 @@ create table cyberpunk.events(
     event varchar not null
 );
 
+create table cyberpunk.character_statuses(
+    id bigserial not null primary key,
+    character_id bigint not null,
+    status varchar not null,
+    effect varchar not null
+);
+
 COMMIT;

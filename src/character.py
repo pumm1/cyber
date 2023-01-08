@@ -46,8 +46,7 @@ def woundEffect(dmg_taken, ref, int, cool):
 
 
 class Character:
-#character row e.g.: (2, 'Test', 'Solo', 6, 'average', 9, 9, 8, 8, 7, 8, 7, 5, 4)
-    def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors):
+    def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses):
         self.id = row['id']
         self.name = row['name']
         self.role = row['role']
@@ -85,6 +84,7 @@ class Character:
         self.weapons = weapons
         self.armors = armors
         self.ev = ev_total
+        self.statuses = statuses
 
     def rollSkill(self, skill, bonus = 0):
         s = self.findSkill(skill)
@@ -127,14 +127,19 @@ class Character:
         armor_infos = map(lambda a: (
             a.toStr()
         ), self.armors)
+        status_infos = map(lambda s: (
+            s.toStr()
+        ), self.statuses)
         skill_info = infoStr('Skills', '\n'.join(skill_infos))
         armor_info = infoStr('Armor gear', '\n'.join(armor_infos))
+        status_info = infoStr('Statuses', '\n'.join(status_infos))
 
         str = f"""************* {self.name} *************
 Role: {self.role}
 Body type: {body_type} ({self.bodyTypeModifier})
 Attributes: {self.attributes} {atr_affected}
-Encumbrance (Subracted from REF): {self.ev} 
+Humanity: {self.humanity}
+Encumbrance (Subtracted from REF): {self.ev} 
 Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
 Reputation: {self.reputation}
 Health: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
@@ -143,5 +148,6 @@ SP: {self.sp}
 {weapon_info}
 {armor_info}
 {skill_info}
+{status_info}
 """
         print(str)

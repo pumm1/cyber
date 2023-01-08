@@ -2,10 +2,11 @@ import psycopg2.extras
 
 from cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
-    table_events, table_character_chrome
+    table_events, table_character_chrome, table_character_statuses
 from character import Character
 from skill import SkillInfo
 from armor import Armor
+from status import Status
 from weapon import Weapon
 
 conn = psycopg2.connect(dbname=db, user=user, password=password, host=host)
@@ -16,12 +17,15 @@ def clean_fetch_all(rows):
     return [i[0] for i in rows]
 
 insert = 'INSERT INTO'
+select_from = 'SELECT * FROM'
+delete_from = 'DELETE FROM'
 
-character_q = f'SELECT * FROM {table_characters} c '
-character_skills_q = f'SELECT * FROM {table_character_skills}'
-character_weapons_q = f'SELECT * FROM {table_character_weapons}'
-character_armors_q = f'SELECT * FROM {table_character_armors}'
-skills_q = f'SELECT * FROM {table_skills}'
+character_q = f'{select_from} {table_characters} c '
+character_skills_q = f'{select_from} {table_character_skills}'
+character_weapons_q = f'{select_from} {table_character_weapons}'
+character_armors_q = f'{select_from} {table_character_armors}'
+character_statuses_q = f'{select_from} {table_character_statuses}'
+skills_q = f'{select_from} {table_skills}'
 
 
 def getAllCharacters():
@@ -67,8 +71,9 @@ def getCharacterByName(name: str):
         weapon_rows = characterWeapons(id)
         ev_total = characterEV(id)
         armors = getCharacterArmors(id)
+        statuses = getCharacterStatuses(id)
 
-        character = Character(char_row, skills, reputation, sp_row, weapon_rows, ev_total, armors)
+        character = Character(char_row, skills, reputation, sp_row, weapon_rows, ev_total, armors, statuses)
     else:
         print('No character found')
 
@@ -129,7 +134,7 @@ def addCharacterToCombat(character, initiative):
 
 def clearCombat():
     cur.execute(
-        f"""DELETE FROM {table_combat_session};"""
+        f"""{delete_from} {table_combat_session};"""
     )
     conn.commit()
     print('Combat table cleared')
@@ -178,7 +183,7 @@ def addCharacterSkill(char_id, skill_row, value):
 def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr,
                  atr_luck, atr_ma, atr_body, atr_emp):
     cur.execute(
-        f"""INSERT INTO {table_characters} 
+        f"""{insert} {table_characters} 
             (name, role, special_ability, body_type_modifier, humanity,
             atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken)
             VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10},
@@ -455,7 +460,41 @@ def deleteCharacterArmor(character_id, armor_id):
         for body_part in armor.body_parts:
             updateCharacterMaxSp(character_id, body_part, -1 * armor.sp)
         cur.execute(
-            f"""DELETE FROM {table_character_armors} WHERE character_id = {character_id} AND id = {armor_id};"""
+            f"""{delete_from} {table_character_armors} WHERE character_id = {character_id} AND id = {armor_id};"""
         )
         conn.commit();
         print(f'Character armor removed')
+
+
+def addCharacterStatus(character_id, status, effect):
+    cur.execute(
+        f"""{insert} {table_character_statuses} (character_id, status, effect)
+        VALUES ({character_id}, '{status}', '{effect}');"""
+    )
+    conn.commit()
+    print('Status added')
+
+
+def getCharacterStatuses(character_id):
+    cur.execute(
+        f"""{select_from} {table_character_statuses}
+        WHERE character_id = {character_id};"""
+    )
+    rows = cur.fetchall()
+    conn.commit()
+
+    statuses = map(lambda row: (
+        Status(row)
+    ), rows)
+    return statuses
+
+
+def removeStatus(status_id, character_id):
+    cur.execute(
+        f"""{delete_from} {table_character_statuses}
+        WHERE id = {status_id} AND character_id = {character_id};
+        """
+    )
+    conn.commit()
+    print('Status removed')
+

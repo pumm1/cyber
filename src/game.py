@@ -11,10 +11,12 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     reload_str, reload_help_str, attack_type_single, attack_type_burst, attack_type_full_auto, list_event_str, \
     add_chrome_str, add_chrome_help_str, attack_type_melee, melee_dmg_str, melee_dmg_help_str, \
     suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str, \
-    repair_sp_str, repair_sp_help_str, remove_armor_str, remove_armor_help_str
+    repair_sp_str, repair_sp_help_str, remove_armor_str, remove_armor_help_str, add_status_str, add_status_help_str, \
+    help_info
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
+import status
 
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
@@ -40,8 +42,17 @@ def start():
         if exit_commands.__contains__(command):
             print('< Disconnect >')
             game_is_running = False
-        elif help_commands.__contains__(command):
-            help()
+        elif help_commands.__contains__(command_parts[0]):
+            match command_parts:
+                case [_, 'combat']:
+                    help('combat')
+                case [_, 'modify']:
+                    help('modify')
+                case [_, 'info']:
+                    help('info')
+                case _:
+                    help('all')
+
         elif command.startswith(roll_str):
             match command_parts:
                 case [_, 'dice']:
@@ -221,6 +232,13 @@ def start():
                     armor.removeArmor(name, armor_id)
                 case _:
                     print(f'{remove_armor_help_str}')
+        elif command.startswith(add_status_str):
+            match command_parts:
+                case [_, name]:
+                    status.addStatus(name)
+                case _:
+                    print(f'{add_status_help_str}')
+
 
 
 def faceOffRoll(name, roll):
@@ -326,36 +344,22 @@ def stunCheckCharacter(name):
     if character is not None:
         combat.stunCheck(character)
 
-def help():
+
+#param = all/combat/info
+def help(param):
     list_str = ', '
-    print(f"""************ list of commands ************
+
+    help_str: str = f"""************ list of commands ************
 - Help:
 {list_str.join(help_commands)}
+{help_info}
 - Quit/Exit:
 {list_str.join(exit_commands)}
 - Roll for something:
 {roll_help_str}
--See fumble effect:
-{fumble_help_str}
-- See character info:
-{character_helper_str}
-- Add new character:
-{add_char_help_str}
-- Add armor for character:
-{add_armor_help_str}
-- List skills (all | by attribute | by fuzzy logic | by character)
-{list_skills_helpeer_str}
-- Add character skill:
-{add_char_skill_help_str}
-- Explain something:
-{explain_str} <term>
-- Add reputation for character:
-{add_reputation_help_str}
-- List character reputation:
-{l_rep_help_str}
-- See current stun check for character:
-{stun_check_help_str}
-- Add new character to initiative sequence:
+"""
+
+    combat_help = f"""- Add new character to initiative sequence:
 {new_combat_initiative_help_str}
 - List combat initiative:
 {list_combat_initiative_str}
@@ -363,12 +367,6 @@ def help():
 {advance_combat_initiative_str}
 - Clear combat sequence:
 {clear_combat_str}
-- New event log:
-{add_event_str}
-- Add weapon for character:
-{add_weapon_help_str}
-- Add chrome (not used as a weapon) for character:
-{add_chrome_help_str}
 - Reload weapon:
 {reload_help_str}
 - Attack:
@@ -376,8 +374,50 @@ def help():
 - Melee damage:
 {melee_dmg_help_str}
 - Suppressive fire defence:
-{suppressive_fire_def_help_str}
+{suppressive_fire_def_help_str}"""
+
+    info_help = f"""- See character info:
+{character_helper_str}
+- List character reputation:
+{l_rep_help_str}
+- List skills (all | by attribute | by fuzzy logic | by character)
+{list_skills_helpeer_str}
+- See current stun check for character:
+{stun_check_help_str}
+- See fumble effect:
+{fumble_help_str}
+- Explain something:
+{explain_str} <term>"""
+
+    modify_help = f"""- Add new character:
+{add_char_help_str}
+- Add armor for character:
+{add_armor_help_str}
+- Add character skill:
+{add_char_skill_help_str}
+- Add reputation for character:
+{add_reputation_help_str}
+- New event log:
+{add_event_str}
+- Add weapon for character:
+{add_weapon_help_str}
+- Add chrome (not used as a weapon) for character:
+{add_chrome_help_str}
 - Repair character SP:
 {repair_sp_help_str}
-"""
-          )
+- Remove armor:
+{remove_armor_help_str}
+- Add status:
+{add_status_help_str}"""
+
+    if param == 'combat':
+        help_str += combat_help
+    elif param == 'info':
+        help_str += info_help
+    elif param == 'modify':
+        help_str += modify_help
+    else:
+        help_str += info_help + modify_help + combat_help
+
+
+    print(help_str)

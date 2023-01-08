@@ -23,6 +23,7 @@ EMP = 'EMP'
 
 exit_commands = ['/e', '/q', '/exit', '/quit']
 help_commands = ['/help', '/halp', '/h']
+help_info = f"""<help> <optional combat / info / modify>"""
 
 t_taser = 'taser'
 
@@ -130,6 +131,8 @@ repair_sp_str = '/repair_sp'
 repair_sp_help_str = f'{repair_sp_str} <character_name>'
 remove_armor_str = '/remove_armor'
 remove_armor_help_str = f'{remove_armor_str} <character_name> <armor_id>'
+add_status_str = '/add_status'
+add_status_help_str = f'{add_status_str} <character_name>'
 
 no_dmg = 'No damage'
 light_dmg = 'Light damage'
@@ -161,7 +164,7 @@ def infoStr(label: str, info: str):
 
 
 def askInput() -> str:
-    i = input(inputIndicator)
+    i = input(inputIndicator).replace("'", "’")
     return i
 
 
