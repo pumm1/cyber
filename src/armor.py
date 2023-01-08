@@ -69,7 +69,7 @@ def addArmorForCharacter(name):
                 break;
         print('Give encumbrance (EV):')
         ev = -1
-        while ev < 0    :
+        while ev < 0:
             i = askInput()
             ev = safeCastToInt(i)
         print(f'Give covered body parts: (end with -1 if there is at least one body part)')
