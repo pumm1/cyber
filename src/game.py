@@ -12,7 +12,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     add_chrome_str, add_chrome_help_str, attack_type_melee, melee_dmg_str, melee_dmg_help_str, \
     suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str, \
     repair_sp_str, repair_sp_help_str, remove_armor_str, remove_armor_help_str, add_status_str, add_status_help_str, \
-    help_info
+    help_info, heal_help_str, yes_no, heal_str, heal_calc_str, heal_calc_help_str, askInputCaseSensitive
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
@@ -37,7 +37,7 @@ def start():
     game_is_running = True
     while game_is_running:
         print('< Main >')
-        command = askInput().lower()
+        command = askInput()
         command_parts = command.split(split_at)
         if exit_commands.__contains__(command):
             print('< Disconnect >')
@@ -220,6 +220,18 @@ def start():
                     healing.medicalCheck(name, given_roll=roll)
                 case _:
                     print(medical_check_help_str)
+        elif command.startswith(heal_str):
+            match command_parts:
+                case [_, name, amount]:
+                    healing.healCharacter(name, amount)
+                case _:
+                    print(heal_help_str)
+        elif command.startswith(heal_calc_str):
+            match command_parts:
+                case [_, days]:
+                    healing.calculateHealingAmount(days)
+                case _:
+                    print(heal_calc_help_str)
         elif command.startswith(repair_sp_str):
             match command_parts:
                 case [_, name]:
@@ -273,12 +285,12 @@ def addReputation(char, rep_amount):
         rep_type = 'negative'
     if character is not None:
         tries = 0
-        print(f"Add {rep_type} reputation for {character.name}? [y/n]")
+        print(f"Add {rep_type} reputation for {character.name}? {yes_no}")
         while tries < 3:
-            command = askInput().lower()
+            command = askInput()
             if command == 'y':
                 print(f'What is {character.name} gaining reputation for?')
-                info = askInput()
+                info = askInputCaseSensitive()
                 DAO.addReputation(character.id, info, rep)
                 print(f'Reputation added for {character.name}')
                 break
@@ -374,7 +386,13 @@ def help(param):
 - Melee damage:
 {melee_dmg_help_str}
 - Suppressive fire defence:
-{suppressive_fire_def_help_str}"""
+{suppressive_fire_def_help_str}
+- Medical check for doctor:
+{medical_check_help_str}
+- Calculate healing amount for days recovered:
+{heal_calc_help_str}
+- Healing (for patient)
+{heal_help_str}"""
 
     info_help = f"""- See character info:
 {character_helper_str}

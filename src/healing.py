@@ -3,7 +3,7 @@ import math
 import cyberdao as DAO
 import dice
 from skills import skillBonusForSkill, skill_first_aid, difficultyCheckInfo, very_difficult_check, easy_check, average_check, difficult_check, very_difficult_check, nearly_impossible_check
-from gameHelper import TECH, askInput, safeCastToInt, checkListCommand, list_str
+from gameHelper import TECH, askInput, safeCastToInt, checkListCommand, list_str, yes_no
 from roles import meditechie
 
 #values are changed from offial rules a bit, then they would be 0.5 and 1
@@ -22,26 +22,27 @@ def medicalCheck(name, given_roll):
     if character is not None:
         tech_bonus = character.attributes[TECH]
         first_aid_bonus = skillBonusForSkill(character.skills, skill_first_aid)
-        med_tech_bonus = 0
+        med_tech_bonus = 0  # house rule
+        healing_rate = 1
         if character.role == meditechie:
-            print(f'Patient will heal 1hp/day')
+            healing_rate += 1
             med_tech_bonus = math.ceil(character.specialAbility / 2)
-        else:
-            print('Patient will heal')
+
+        print(f'Patient will heal {healing_rate}hp/day')
 
 
-        print(f'House rule by programmer: med tech bonus gives (med_tech / 2) bonus to first aid skill')
+        print(f'House rule by programmer: med tech bonus gives (med_tech / 2) bonus to first aid skill and also +1 to healing rate')
         print(f"""Select difficulty of medical check or {list_str} for roll info:
-0 = Easy
-1 = Average
-2 = Difficult
-3 = Very difficult
-4 = Nearly impossible 
+1 = Easy
+2 = Average
+3 = Difficult
+4 = Very difficult
+5 = Nearly impossible 
 """)
         to_beat = 0
         while True:
             input = askInput()
-            i = safeCastToInt(input)
+            i = safeCastToInt(input) - 1
             if checkListCommand(input):
                 difficultyCheckInfo()
             elif i == 0:
@@ -72,3 +73,30 @@ def medicalCheck(name, given_roll):
             print(f'Medical check successful! {info}')
         else:
             print(f'Medical check unsuccessful! {info}')
+
+
+def calculateHealingAmount(days):
+    print(f'Include medtech bonus? {yes_no}')
+    healing_rate = 1
+    heal_days = safeCastToInt(days)
+    i = askInput()
+    while True:
+        if i == 'y':
+            healing_rate += 1
+            break
+        elif i == 'n':
+            break
+    healing = heal_days * healing_rate
+    print(f'{healing}HP recovered in {heal_days}')
+
+
+def healCharacter(name, amount):
+    char = DAO.getCharacterByName(name)
+    healing = safeCastToInt(amount)
+    if char is not None:
+        dmg_taken = char.dmg_taken
+        dmg_taken -= healing
+        if dmg_taken < 0:
+            dmg_taken = 0
+        DAO.healCharacter(char.id, dmg_taken)
+

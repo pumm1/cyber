@@ -155,6 +155,8 @@ medical_check_str = '/med_check'
 medical_check_help_str = f'{medical_check_str} {char_name} <optional roll> [for the doctor]'
 heal_str = '/heal'
 heal_help_str = f'{heal_str} {char_name} <amount_healed> [for the patient]'
+heal_calc_str = '/heal_calc'
+heal_calc_help_str = f'{heal_calc_str} <days>'
 repair_sp_str = '/repair_sp'
 repair_sp_help_str = f'{repair_sp_str} <character_name>'
 remove_armor_str = '/remove_armor'
@@ -183,6 +185,8 @@ impossible_range_str = 'Impossible'
 
 unarmed = 'unarmed'
 
+yes_no = '[Y/N]'
+
 
 def infoStr(label: str, info: str):
     str = f"""********** {label} **********
@@ -192,6 +196,9 @@ def infoStr(label: str, info: str):
 
 
 def askInput() -> str:
+    return askInputCaseSensitive().lower()
+
+def askInputCaseSensitive() -> str:
     i = input(inputIndicator).replace("'", "’")
     return i
 
@@ -254,8 +261,8 @@ def safeCastToInt(text):
 
 
 def checkListCommand(cmnd: str) -> bool:
-    return cmnd.lower().startswith(list_str)
+    return cmnd.startswith(list_str)
 
 
 def checkRollCommand(cmnd: str) -> bool:
-    return cmnd.lower().startswith(roll_str)
+    return cmnd.startswith(roll_str)

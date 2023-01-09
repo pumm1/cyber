@@ -2,7 +2,7 @@ import math
 
 from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handgun, t_smg, t_rifle, t_thrown, BODY, \
     guns, EMP, point_blank_range_str, close_range_str, medium_range_str, long_range_str, extreme_range_str, \
-    impossible_range_str, askForRoll, all_con, wep_all_reliabilities
+    impossible_range_str, askForRoll, all_con, wep_all_reliabilities, yes_no
 import dice
 import cyberdao as DAO
 
@@ -194,9 +194,9 @@ def rangeByType(char, weapon_t) -> int:
 
 def askForChrome() -> bool:
     is_chrome = False
-    print('Is the weapon chrome? [y/n]')
+    print(f'Is the weapon chrome? {yes_no}')
     while True:
-        input = askInput().lower()
+        input = askInput()
         if input == 'y':
             is_chrome = True
             break

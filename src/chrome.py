@@ -25,7 +25,7 @@ def handleHumanity(char):
     print(f'Reduce humanity for chrome ({roll_str} or <amount>)')
     humanity_cost = 0
     while True:
-        i = askInput().lower()
+        i = askInput()
         if i == roll_str:
             (dice, die, bonus) = askForRoll()
             humanity_cost = roll(dice, die) + bonus

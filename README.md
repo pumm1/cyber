@@ -30,9 +30,10 @@ have some quick way to check info on e.g. skills.
   * Melee
 - Add weapons (can be chrome, included in weapons), gear and chrome
     * For chrome, reduce humanity and empathy automatically
-  
+
 ## TODO:
-- Add some kind of current status(es) for character (e.g. cyberpsychosis, stun, drugged..)
+- Damage effect for AP 
+- Healing logic updates for e.g. drugs and some better healing technologies
 
 ## secrets.json in src for db config:
 ```

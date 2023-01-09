@@ -1,6 +1,6 @@
 import cyberdao as DAO
 from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_parts, body_part_head, body_part_body, \
-    uniqueArr, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, atr_info, modifier_list, BODY_TYPE_MOD
+    uniqueArr, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, atr_info, modifier_list, BODY_TYPE_MOD, yes_no
 from cyberschema import r_leg_column, l_leg_column, r_arm_column, l_arm_column
 from chrome import addChromeWithHumanityCost
 
@@ -52,10 +52,10 @@ def addArmorForCharacter(name):
     if character is not None:
         print(f'Give armor name:')
         item = askInput()
-        print(f'Is chrome? (y/n)')
+        print(f'Is chrome? {yes_no}')
         is_chrome = False
         while True:
-            t_chrome = askInput().lower()
+            t_chrome = askInput()
             if t_chrome == 'y':
                 is_chrome = True
                 break
@@ -97,7 +97,7 @@ def addArmorForCharacter(name):
 
 
 def handleAttributeBonuses():
-    print('Modify attributes? [y/n]')
+    print(f'Modify attributes? {yes_no}')
     i = askInput()
     bonuses = []
     while True:

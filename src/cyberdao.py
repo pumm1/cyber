@@ -80,6 +80,18 @@ def getCharacterByName(name: str):
 
     return character
 
+
+
+def healCharacter(character_id, new_dmg_taken):
+    cur.execute(
+        f"""{update} {table_characters}
+            SET dmg_taken = {new_dmg_taken}
+            WHERE id = {character_id};"""
+    )
+    conn.commit()
+    print('Character healed')
+
+
 def characterSpById(character_id):
     cur.execute(
         f"""SELECT * FROM {table_character_sp} WHERE character_id = {character_id};

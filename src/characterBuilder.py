@@ -4,7 +4,7 @@ import roles
 import bodytypes
 from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str, INT, REF, TECH, \
     COOL, ATTR, LUCK, MA, BODY, EMP, body_part_l_arm, body_part_body, body_part_head, body_part_r_arm, t_melee, \
-    t_handgun, t_shotgun, t_rifle, t_thrown, t_smg, con_pocket, con_long_coat, con_jacket, not_hideable
+    t_handgun, t_shotgun, t_rifle, t_thrown, t_smg, con_pocket, con_long_coat, con_jacket, not_hideable, yes_no
 from cyberschema import head_column, body_column, l_arm_column, r_arm_column, l_leg_column, r_leg_column
 
 
@@ -291,10 +291,10 @@ high_q_gun_set = [
 
 
 def generateGear(name):
-    print('Generate gear? [Y/N]')
+    print(f'Generate gear? {yes_no}')
     gen_gear = False
     while True:
-        i = askInput().lower()
+        i = askInput()
         if i == 'y':
             gen_gear = True
             break
@@ -308,7 +308,7 @@ def generateGear(name):
                 print(
                     f'Armor/weapon and quality? [a/w]-[1-3] (e.g. a-1 for low quality armor, w-3 for high quality weapon)')
                 print('Stop adding gear with -1')
-                i = askInput().lower()
+                i = askInput()
                 if i == '-1':
                     add_gear = False
                 else:
@@ -329,7 +329,7 @@ def generateGear(name):
                             print('Melee or gun set? [g/m]')
                             is_melee = False
                             while True:
-                                input = askInput().lower()
+                                input = askInput()
                                 if input == 'g':
                                     is_melee = False
                                     break
