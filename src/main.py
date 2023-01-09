@@ -1,3 +1,10 @@
-import game
+#import game
+import gui
 
-game.start()
+#game.start()
+
+root = gui.test5()
+
+
+root.mainloop()
+
