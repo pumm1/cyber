@@ -1,5 +1,6 @@
 import TermTk as ttk
 from TermTk import pyTTkSlot
+import dice
 
 
 def test1():
@@ -67,9 +68,25 @@ def test5():
     root = ttk.TTk()
 
     # Create a window with a logviewer
-    logWin = ttk.TTkWindow(parent=root, pos=(10, 2), size=(80, 20), title="LogViewer Window", border=True,
+    logWin = ttk.TTkWindow(parent=root, pos=(10, 0), size=(80, 20), title="The Net", border=True,
                            layout=ttk.TTkVBoxLayout())
     #ttk.TTkLogViewer(parent=logWin)
+
+
+    dice_table = ttk.TTkWindow(parent=root, pos=(80, 15), size=(40, 20), title="Dice", border=True,
+                               layout=ttk.TTkVBoxLayout())
+    dice_btn = ttk.TTkButton(parent=dice_table, text="Roll")
+    dice_history = ttk.TTkTextEdit(text="", parent=dice_table, maxHeight=10)
+
+    @pyTTkSlot()
+    def roll():
+        res = dice.rollWithCrit(skip_luck=True, std=dice_history)
+        res_txt = f"Rolled {res}"
+        dice_history.append(res_txt)
+
+    dice_btn.clicked.connect(roll)
+
+
 
 
 
@@ -96,12 +113,6 @@ def test5():
     btnShow.clicked.connect(logWin.show)
     # Connect the btnHide's "clicked" signal with the window's "hide" slot
     btnHide.clicked.connect(logWin.hide)
-
-    frame = ttk.TTkWindow(parent=root, width=10, height=10, pos=(10,20), border=True, title='Foo')
-    def keypress(e):
-        frame.setTitle(e)
-
-    frame.keyPressEvent(keypress)
 
     #btnClose.clicked.connect(logWin.close)
     return root
