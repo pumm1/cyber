@@ -1,7 +1,5 @@
 from math import floor
 
-from cyberschema import r_leg_column, l_leg_column, r_arm_column, l_arm_column
-
 inputIndicator = "> "
 split_at = ' '
 roll_str = '/roll'
@@ -70,12 +68,12 @@ jam_help_str = f'{jam_str} <reliability>'
 
 body_part_head = 'head'
 body_part_body = 'body'
-body_part_r_arm = 'r. arm'
-body_part_l_arm = 'l. arm'
-body_part_r_leg = 'r. leg'
-body_part_l_leg = 'l. leg'
+body_part_r_arm = 'r_arm'
+body_part_l_arm = 'l_arm'
+body_part_r_leg = 'r_leg'
+body_part_l_leg = 'l_leg'
 
-body_parts = [body_part_head, body_part_body, l_arm_column, r_arm_column, r_leg_column, l_leg_column]
+body_parts = [body_part_head, body_part_body, body_part_l_arm, body_part_r_arm, body_part_r_leg, body_part_l_leg]
 
 atr_int = 'atr_int'
 atr_ref = 'atr_ref'
@@ -136,7 +134,7 @@ list_skills_helpeer_str = f"{list_skills_str} | optional 'atr' <attribute> | opt
 stun_check_str = '/sc'
 stun_check_help_str = f'{stun_check_str} {char_name}'
 dmg_str = '/dmg'
-dmg_helper_str = f'{dmg_str} {char_name} <body_part> <amount>'
+dmg_helper_str = f'{dmg_str} {char_name} <body_part> <amount> <optional ap>'
 melee_dmg_str = '/melee_dmg'
 melee_dmg_help_str = f'{melee_dmg_str} <attacker_name> <optional dmg>'
 suppressive_fire_def_str = '/sup_def'

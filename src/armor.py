@@ -1,7 +1,7 @@
 import cyberdao as DAO
 from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_parts, body_part_head, body_part_body, \
-    uniqueArr, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, atr_info, modifier_list, BODY_TYPE_MOD, yes_no
-from cyberschema import r_leg_column, l_leg_column, r_arm_column, l_arm_column
+    uniqueArr, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, atr_info, modifier_list, BODY_TYPE_MOD, yes_no, \
+    body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg
 from chrome import addChromeWithHumanityCost
 
 
@@ -38,13 +38,13 @@ def checkBodyPartNum(i):
     elif num == 2:
         body_part = body_part_body
     elif num == 3:
-        body_part = l_arm_column
+        body_part = body_part_l_arm
     elif num == 4:
-        body_part = r_arm_column
+        body_part = body_part_r_arm
     elif num == 5:
-        body_part = r_leg_column
+        body_part = body_part_r_leg
     elif num == 6:
-        body_part = l_leg_column
+        body_part = body_part_l_leg
     return body_part
 
 def addArmorForCharacter(name):

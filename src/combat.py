@@ -1,4 +1,5 @@
 import math
+import random
 
 import dice
 from character import Character
@@ -7,7 +8,7 @@ import cyberdao as DAO
 from gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
     t_thrown, roll_str, close_range_str, medium_range_str, attack_type_single, attack_type_burst, \
-    attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str
+    attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str, body_parts
 from skills import skillBonusForSkill, skill_athletics
 from weapon import Weapon
 
@@ -444,11 +445,30 @@ def handleShotgunDmgAndHit(wep, attack_range):
         hit_locations.append(hit2)
         hit_locations.append(hit3)
 
-    locations_str = ', '.join(hit_locations)
+    hit_loc_data = determineHitLocDamages(dmg, hit_locations)
+    locations_str = ', '.join(hit_loc_data)
 
-    print(f'{dmg} DMG to {locations_str} (spread randomly)')
+    print(f'{locations_str}')
 
     return dmg
+
+# | -- x ----- x --- |
+def determineHitLocDamages(dmg, locations):
+    dmg_left = dmg
+    loc_data = []
+    loc_size = len(locations)
+    i = 0
+    dmg_for_part = 0
+    while i < loc_size:
+        if i == loc_size - 1:
+            dmg_for_part = dmg_left
+        else:
+            dmg_for_part = random.randint(0, dmg_left)
+        dmg_left -= dmg_for_part
+        loc_data.append(f'{dmg_for_part} DMG to {locations[i]}')
+        i += 1
+    return loc_data
+
 
 
 def reloadWeapon(weapon_id, shots):
@@ -467,33 +487,43 @@ def reloadWeapon(weapon_id, shots):
             print(f"{weapon.item} is not a gun, can't reload it")
 
 
-def dmgReductionByBodyTypeModifier(bodyTypeModifier):
-    reduction = bodyTypeModifier
-    if reduction is None:
-        print(f'Unknown body type {bodyTypeModifier}')
-        return 0
-    else:
-        return reduction
 
-
-def hitCharacter(name, body_part, dmg_str):
+def hitCharacter(name, body_part, dmg_str, is_ap=False):
     dmg = safeCastToInt(dmg_str)
     character = DAO.getCharacterByName(name)
     if character is not None:
-        char_sp = character.sp[body_part]
-        sp_left = 0
-        if char_sp > 0:
-            sp_left = char_sp - dmg
-            if sp_left >= 0:
-                print(f'Armor damaged at {body_part}')
-                DAO.dmgCharacterSP(character.id, body_part, dmg)
+        if body_parts.__contains__(body_part):
+            if is_ap:
+                handleApHit(character, dmg, body_part)
             else:
-                print(f'Armor broken at {body_part}')
-                dmg_left = abs(sp_left)
-                DAO.dmgCharacterSP(character.id, body_part, char_sp)
-                damageCharacter(character, dmg_left)
+                handleNormalHit(character, dmg, body_part)
         else:
-            damageCharacter(character, dmg)
+            valid_body_parts = ', '.join(body_parts)
+            print(f'Invalid body part {body_part} [{valid_body_parts}]')
+
+def handleNormalHit(character: Character, dmg, body_part):
+    char_sp = character.sp[body_part]
+    sp_left = 0
+    if char_sp > 0:
+        sp_left = char_sp - dmg
+        if sp_left >= 0:
+            print(f'Armor damaged at {body_part}')
+            DAO.dmgCharacterSP(character.id, body_part, dmg)
+        else:
+            print(f'Armor broken at {body_part}')
+            dmg_left = abs(sp_left)
+            DAO.dmgCharacterSP(character.id, body_part, char_sp)
+            damageCharacter(character, dmg_left)
+    else:
+        damageCharacter(character, dmg)
+
+
+def handleApHit(character: Character, dmg, body_part):
+    char_sp = character.sp[body_part]
+    sp_left = math.ceil(char_sp / 2)
+    dmg_done = math.floor((dmg - sp_left) / 2)
+    DAO.dmgCharacterSP(character.id, body_part, dmg)
+    damageCharacter(character, dmg_done)
 
 
 def damageCharacter(c: Character, dmg):
@@ -507,6 +537,8 @@ def damageCharacter(c: Character, dmg):
             print(f'{c.name} has flatlined')
         else:
             stunCheck(updated_character)
+    else:
+        print('The hit did not damage target')
 
 
 def determineHitLocation() -> str:

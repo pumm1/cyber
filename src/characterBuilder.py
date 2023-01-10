@@ -4,8 +4,8 @@ import roles
 import bodytypes
 from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str, INT, REF, TECH, \
     COOL, ATTR, LUCK, MA, BODY, EMP, body_part_l_arm, body_part_body, body_part_head, body_part_r_arm, t_melee, \
-    t_handgun, t_shotgun, t_rifle, t_thrown, t_smg, con_pocket, con_long_coat, con_jacket, not_hideable, yes_no
-from cyberschema import head_column, body_column, l_arm_column, r_arm_column, l_leg_column, r_leg_column
+    t_handgun, t_shotgun, t_rifle, t_thrown, t_smg, con_pocket, con_long_coat, con_jacket, not_hideable, yes_no, \
+    body_part_l_leg, body_part_r_leg
 
 
 def rollAtr():
@@ -181,18 +181,18 @@ def createRandomCharacter(name):
 
 
 low_q_armor_set = [
-    {'item': 'vest', 'body_parts': [body_column], 'sp': 10, 'ev': 0},
-    {'item': 'helmet', 'body_parts': [head_column], 'sp': 10, 'ev': 0}
+    {'item': 'vest', 'body_parts': [body_part_body], 'sp': 10, 'ev': 0},
+    {'item': 'helmet', 'body_parts': [body_part_head], 'sp': 10, 'ev': 0}
 ]
 
 mid_q_armor_set = [
-    {'item': 'flak jacket', 'body_parts': [body_column, l_arm_column, r_arm_column], 'sp': 15, 'ev': 0},
-    {'item': 'helmet', 'body_parts': [head_column], 'sp': 10, 'ev': 0}
+    {'item': 'flak jacket', 'body_parts': [body_part_body, body_part_l_arm, body_part_r_arm], 'sp': 15, 'ev': 0},
+    {'item': 'helmet', 'body_parts': [body_part_head], 'sp': 10, 'ev': 0}
 ]
 
 high_q_armor_set = [
-    {'item': 'combat armor', 'body_parts': [body_column, l_arm_column, r_arm_column, l_leg_column, r_leg_column], 'sp': 20, 'ev': 1},
-    {'item': 'combat helmet', 'body_parts': [head_column], 'sp': 20, 'ev': 0}
+    {'item': 'combat armor', 'body_parts': [body_part_body, body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg], 'sp': 20, 'ev': 1},
+    {'item': 'combat helmet', 'body_parts': [body_part_head], 'sp': 20, 'ev': 0}
 ]
 
 low_q_melee_set = [
