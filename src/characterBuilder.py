@@ -9,7 +9,7 @@ from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToI
 
 
 def rollAtr():
-    atr = dice.roll(2, 3) + 4
+    atr = dice.roll(2, 3) + dice.roll(2,2)
     return atr
 
 

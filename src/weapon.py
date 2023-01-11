@@ -5,6 +5,7 @@ from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handg
     impossible_range_str, askForRoll, all_con, wep_all_reliabilities, yes_no
 import dice
 import cyberdao as DAO
+from chrome import handleHumanity
 
 
 class Weapon:
@@ -143,20 +144,7 @@ def addChracterWeapon(character_name):
 
         DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, bonus, weapon_range, rof, clip_size, effect_radius, wa, con, reliability)
         if is_chrome:
-            print('Reduce humanity for chrome:')
-            while True:
-                i = askInput()
-                hum_cost = safeCastToInt(i)
-                if hum_cost > 0:
-                    curr_hum = char.humanity
-                    print(f'Current humanity {curr_hum}')
-                    t_hum = curr_hum - hum_cost
-                    emp = math.ceil(t_hum / 10)
-                    print(f'Curr emp: {char.attributes[EMP]} - new emp: {emp}')
-
-                    DAO.reduceHumanity(char.id, t_hum, emp)
-                    print(f'Updated humanity and empathy')
-                    break
+            handleHumanity(char)
 
         print('Weapon added!')
 

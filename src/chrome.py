@@ -37,7 +37,6 @@ def handleHumanity(char):
                 humanity_cost = cost
                 break
 
-
     curr_hum = char.humanity
     t_hum = curr_hum - humanity_cost
     emp = math.ceil(t_hum / 10)

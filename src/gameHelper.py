@@ -194,7 +194,7 @@ def infoStr(label: str, info: str):
 
 
 def askInput() -> str:
-    return askInputCaseSensitive().lower()
+    return askInputCaseSensitive().lower().strip()
 
 def askInputCaseSensitive() -> str:
     i = input(inputIndicator).replace("'", "’")
