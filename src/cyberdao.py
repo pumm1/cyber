@@ -473,7 +473,7 @@ def getWeaponById(weapon_id):
     if row is None:
         print(f'Weapon not found by id = {weapon_id}')
     else:
-        weapon = Weapon(row)
+        weapon = Weapon(row, None)
 
     return weapon
 

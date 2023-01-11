@@ -19,3 +19,8 @@ def addStatus(name):
         print("Give brief description on status effect (e.g. can't move, -2 to some attribute etc.)")
         effect = askInput()
         DAO.addCharacterStatus(char.id, status, effect)
+
+def removeStatus(name, status_id):
+    char = DAO.getCharacterByName(name)
+    if char is not None:
+        DAO.removeStatus(status_id, char.id)

@@ -32,7 +32,7 @@ def addAttribute(attribute: str) -> int:
 
 
 def addRole():
-    print(f'<give role> or {roll_str} random role. {list_str} to see info on roles')
+    print(f'<give role num> or {roll_str} random role. {list_str} to see info on roles')
     role = manualRole(allow_roll=True)
     return role
 
@@ -48,10 +48,6 @@ def manualRole(allow_roll: bool):
                 print(f'{idx + 1} - {role}')
         elif 0 < ans_idx <= len(roles.allRoles):
             role = roles.allRoles[ans_idx - 1]
-            print(f'Selected {role}')
-            break
-        elif roles.allRoles.__contains__(ans):
-            role = ans
             print(f'Selected {role}')
             break
         elif allow_roll and checkRollCommand(ans):

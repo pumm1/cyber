@@ -33,6 +33,7 @@ def weaponsByType(attack_type, weapons):
                 weps.append(w)
     return weps
 
+
 def weaponByAttackType(attack_type, character):
     weapons = weaponsByType(attack_type, character.weapons)
     idx = 0
@@ -51,6 +52,7 @@ def weaponByAttackType(attack_type, character):
     else:
         print(f'No weapons found for {attack_type}')
         return None
+
 
 def suppressiveFireDef(name, rounds, area):
     shots_in_area = safeCastToInt(rounds)
@@ -85,11 +87,11 @@ def characterAttack(name, attack_type, range_str, given_roll):
 
             if wep is not None:
                 if wep.effect_radius > 0:
-                    print(f'Hit affects radius of {wep.effect_radius} - Check also if hit misses or if there are other targets in the radius!')
+                    print(
+                        f'Hit affects radius of {wep.effect_radius} - Check also if hit misses or if there are other targets in the radius!')
                 if wep.weapon_type == t_shotgun:
                     print(
-                        """For shotguns, point blank/short range attack is for one spot, mid range hits 2 spots and long/extreme hits 3 places.
-                        Roll spots for each hit and spread the damage for those (By referee)."""
+                        """For shotguns, point blank/short range attack is for one spot, mid range hits 2 spots and long/extreme hits 3 places."""
                     )
                 if attack_type == attack_type_single:
                     handleSingleShot(character, wep, attack_range, given_roll)
@@ -104,6 +106,7 @@ def characterAttack(name, attack_type, range_str, given_roll):
 
     else:
         print(f'Range must be bigger than 0')
+
 
 def modifiersForTarget(target_num):
     print(
@@ -139,6 +142,7 @@ melee_attacks = [
     'choke',
 ]
 
+
 def handleMelee(character, wep):
     modifiers_total = modifiersForTarget(1)
     ref_bonus = character.attributes[REF]
@@ -151,7 +155,6 @@ def handleMelee(character, wep):
     else:
         (skill_b, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
         skill_bonus = skill_b
-
 
     roll = dice.resolveAutoOrManualRollWithCrit()
     total = roll + ref_bonus + skill_bonus + modifiers_total
@@ -189,7 +192,6 @@ def handleMeleeDmg(name):
                     break
         hit_loc = determineHitLocation()
         print(f'Did {dmg} DMG to {hit_loc} using {method}')
-
 
 
 def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
@@ -234,7 +236,7 @@ def handleFullAuto(character, wep):
         print(f'Num of shots: {num_of_shots}')
         print('How many targets?')
         num_of_targets = 0
-        #multiple targets = divide shots for each
+        # multiple targets = divide shots for each
         while True:
             input = askInput()
             num_of_targets = safeCastToInt(input)
@@ -269,7 +271,8 @@ def handleFullAuto(character, wep):
                 range_bonus = -1 * range_bonus
             total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa
             num_of_hits = 0
-            print(f'Roll to beat ({roll_to_beat}) vs roll ({total}) [roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus}, range bonus = {range_bonus} WA = {wep.wa}]')
+            print(
+                f'Roll to beat ({roll_to_beat}) vs roll ({total}) [roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus}, range bonus = {range_bonus} WA = {wep.wa}]')
 
             if total >= roll_to_beat:
                 targets_hit = targets_hit + 1
@@ -338,8 +341,8 @@ def handleBurst(character, wep, attack_range, given_roll):
         DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
 
     else:
-        print(f"Unable to do burst attack with {wep.item} ({wep.weapon_type}) [{wep.shots_left} / {wep.clip_size}] ROF: {wep.rof}")
-
+        print(
+            f"Unable to do burst attack with {wep.item} ({wep.weapon_type}) [{wep.shots_left} / {wep.clip_size}] ROF: {wep.rof}")
 
 
 def handleSingleShot(character, wep, attack_range, given_roll):
@@ -359,7 +362,6 @@ def handleSingleShot(character, wep, attack_range, given_roll):
     (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
     ref_bonus = character.attributes[REF]
     total = roll + ref_bonus + skill_bonus + modifiers_total + wep.wa
-    # TODO: add modifiers?
     hit_res = total >= roll_to_beat
     end_res = 'successful'
     dmg = 0
@@ -381,8 +383,10 @@ def handleSingleShot(character, wep, attack_range, given_roll):
             dmg = hitDmg(wep, attack_range)
             print(f'DMG done: {dmg}')
 
-        print(f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})')
-        print(f'{range_str} range attack ({attack_range}m) is {end_res} [roll to beat ({roll_to_beat}) vs total ({total})]')
+        print(
+            f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})')
+        print(
+            f'{range_str} range attack ({attack_range}m) is {end_res} [roll to beat ({roll_to_beat}) vs total ({total})]')
     else:
         print(
             f'Unable to attack with (id: {wep.weapon_id}) {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]')
@@ -424,6 +428,7 @@ def handleWeaponDmgAndHit(wep, attack_range):
     print(f'{dmg} DMG to {location}')
     return dmg
 
+
 def handleShotgunDmgAndHit(wep, attack_range):
     shotgun_max_dice = wep.dice_num
     shotgun_dmg = wep.dice_dmg
@@ -459,6 +464,7 @@ def handleShotgunDmgAndHit(wep, attack_range):
 
     return dmg
 
+
 # | -- x ----- x --- |
 def determineHitLocDamages(dmg, locations):
     dmg_left = dmg
@@ -477,7 +483,6 @@ def determineHitLocDamages(dmg, locations):
     return loc_data
 
 
-
 def reloadWeapon(weapon_id, shots):
     id = safeCastToInt(weapon_id)
     amount = safeCastToInt(shots)
@@ -494,7 +499,6 @@ def reloadWeapon(weapon_id, shots):
             print(f"{weapon.item} is not a gun, can't reload it")
 
 
-
 def hitCharacter(name, body_part, dmg_str, is_ap=False):
     dmg = safeCastToInt(dmg_str)
     character = DAO.getCharacterByName(name)
@@ -507,6 +511,7 @@ def hitCharacter(name, body_part, dmg_str, is_ap=False):
         else:
             valid_body_parts = ', '.join(body_parts)
             print(f'Invalid body part {body_part} [{valid_body_parts}]')
+
 
 def handleNormalHit(character: Character, dmg, body_part):
     char_sp = character.sp[body_part]
@@ -566,6 +571,7 @@ def determineHitLocation() -> str:
         hit_loc = body_part_l_leg
 
     return hit_loc
+
 
 def rollStunOverActingEffect(name):
     print(f'{name} gets stunned! Rolling stun effect')

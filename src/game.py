@@ -12,7 +12,8 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     add_chrome_str, add_chrome_help_str, attack_type_melee, melee_dmg_str, melee_dmg_help_str, \
     suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str, \
     repair_sp_str, repair_sp_help_str, remove_armor_str, remove_armor_help_str, add_status_str, add_status_help_str, \
-    help_info, heal_help_str, yes_no, heal_str, heal_calc_str, heal_calc_help_str, askInputCaseSensitive
+    help_info, heal_help_str, yes_no, heal_str, heal_calc_str, heal_calc_help_str, askInputCaseSensitive, \
+    remove_status_help_str, remove_status_str
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
@@ -252,6 +253,12 @@ def start():
                     status.addStatus(name)
                 case _:
                     print(f'{add_status_help_str}')
+        elif command.startswith(remove_status_str):
+            match command_parts:
+                case [_, name, status_id]:
+                    status.removeStatus(name, status_id)
+                case _:
+                    print(remove_status_help_str)
 
 
 
@@ -428,7 +435,9 @@ def help(param):
 - Remove armor:
 {remove_armor_help_str}
 - Add status:
-{add_status_help_str}"""
+{add_status_help_str}
+- Remove status:
+{remove_status_help_str}"""
 
     if param == 'combat':
         help_str += combat_help
