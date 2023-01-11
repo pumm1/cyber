@@ -7,53 +7,8 @@ from gameHelper import woundState, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, E
     body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr, BODY_TYPE_MOD
 
 
-def woundEffect(dmg_taken, ref, int, cool):
-    r = ref
-    i = int
-    c = cool
-    def divBy(val, div):
-        return math.ceil(val / div)
-
-    match woundState(dmg_taken):
-        case 'No damage':
-            r = ref
-            i = int
-            c = cool
-        case 'Light damage':
-            r = ref
-            i = int
-            c = cool
-        case 'Serious damage':
-            r = ref - 2
-            if r < 0:
-                r = 0
-            i = int
-            c = cool
-        case 'Critical damage':
-            r = divBy(ref, 2)
-            i = divBy(int, 2)
-            c = divBy(cool, 2)
-        case 'Mortally wounded':
-            r = divBy(ref, 3)
-            i = divBy(int, 3)
-            c = divBy(cool, 3)
-        case _:
-            r = 0
-            i = 0
-            c = 0
-
-    return (r, i, c)
-
-
-def calculateModifierBonus(armors, modifier):
-    bonus = 0
-    for armor in armors:
-        bonus += armor.attributes[modifier]
-
-    return bonus
-
 class Character:
-    def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses):
+    def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses, bodyTypeModifier, attributes):
         self.id = row['id']
         self.name = row['name']
         self.role = row['role']
@@ -65,39 +20,11 @@ class Character:
         dmg_taken = row['dmg_taken']
         self.dmg_taken = dmg_taken
 
-        (ref, int, cool) = woundEffect(dmg_taken, row['atr_ref'], row['atr_int'], row['atr_cool'])
-
         self.weapons = weapons
         self.armors = armors
-        armor_body_type_bonus = calculateModifierBonus(armors, BODY_TYPE_MOD)
+        self.bodyTypeModifier = bodyTypeModifier
 
-
-        self.bodyTypeModifier = row['body_type_modifier'] + armor_body_type_bonus
-
-
-        armor_modifier_bonuses = {
-            INT: calculateModifierBonus(armors, INT),
-            REF: calculateModifierBonus(armors, REF),
-            TECH: calculateModifierBonus(armors, TECH),
-            COOL: calculateModifierBonus(armors, COOL),
-            ATTR: calculateModifierBonus(armors, ATTR),
-            MA: calculateModifierBonus(armors, MA),
-            BODY: calculateModifierBonus(armors, BODY),
-            LUCK: calculateModifierBonus(armors, LUCK),
-            EMP: calculateModifierBonus(armors, EMP),
-        }
-
-        self.attributes = {
-            INT: int,
-            REF: ref - ev_total + armor_modifier_bonuses[REF],
-            TECH: row['atr_tech'],
-            COOL: cool,
-            ATTR: row['atr_attr'],
-            MA: row['atr_ma'],
-            BODY: row['atr_body'],
-            LUCK: row['atr_luck'],
-            EMP: row['atr_emp']
-        }
+        self.attributes = attributes
         self.dmg_taken = row['dmg_taken']
         self.sp = {
             body_part_head: sp_row['head'],
@@ -138,6 +65,7 @@ class Character:
         weapons_infos = map(lambda w: (
             w.toStr()
         ), self.weapons)
+
         w_list = list(weapons_infos)
         weapon_info = infoStr('Weapons', '\n'.join(w_list))
         atr_affected = ''

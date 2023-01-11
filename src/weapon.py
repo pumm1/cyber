@@ -9,7 +9,7 @@ from chrome import handleHumanity
 
 
 class Weapon:
-    def __init__(self, row):
+    def __init__(self, row, custom_range: int | None):
         self.weapon_id = row['id']
         self.item = row['item']
         self.weapon_type = row['weapon_type']
@@ -17,7 +17,11 @@ class Weapon:
         self.dice_num = row['dice_number']
         self.dice_dmg = row['dice_dmg']
         self.dmg_bonus = row['dmg_bonus']
-        self.range = row['range']
+        self.weight = row['weight']
+        if custom_range is None:
+            self.range = row['range']
+        else:
+            self.range = custom_range
         self.rof = row['rof']
         self.clip_size = row['clip_size']
         self.shots_left = row['shots_left']
@@ -139,10 +143,12 @@ def addChracterWeapon(character_name):
         wa = askWa()
         con = askCon()
         reliability = askReliability()
+        weight = askWeight()
 
         (dice, die, bonus) = askForRoll()
 
-        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, bonus, weapon_range, rof, clip_size, effect_radius, wa, con, reliability)
+        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, bonus, weapon_range, rof, clip_size,
+                      effect_radius, wa, con, reliability, weight)
         if is_chrome:
             handleHumanity(char)
 
@@ -205,6 +211,14 @@ def askCon():
             con = i
             break
     return con
+
+
+def askWeight():
+    print('Give weapon weight')
+    i = askInput()
+    weight = safeCastToInt(i)
+    return weight
+
 
 def askReliability():
     rel_opts = ','.join(wep_all_reliabilities)

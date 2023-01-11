@@ -133,7 +133,8 @@ create table cyberpunk.character_weapons(
     rof integer not null,
     clip_size integer not null,
     shots_left integer not null,
-    reliability cyberpunk.reliability not null
+    reliability cyberpunk.reliability not null,
+    weight integer not null default 3
 );
 
 alter table cyberpunk.character_weapons

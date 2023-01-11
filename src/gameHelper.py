@@ -1,3 +1,4 @@
+import math
 from math import floor
 
 inputIndicator = "> "
@@ -191,6 +192,55 @@ def infoStr(label: str, info: str):
 {info}    
 """
     return str
+
+
+def calculateModifierBonus(armors, modifier):
+    bonus = 0
+    for armor in armors:
+        bonus += armor.attributes[modifier]
+
+    return bonus
+
+
+def divBy(val, div):
+    return math.ceil(val / div)
+
+
+def woundEffect(dmg_taken, ref, int, cool):
+    r = ref
+    i = int
+    c = cool
+
+    match woundState(dmg_taken):
+        case 'No damage':
+            r = ref
+            i = int
+            c = cool
+        case 'Light damage':
+            r = ref
+            i = int
+            c = cool
+        case 'Serious damage':
+            r = ref - 2
+            if r < 0:
+                r = 0
+            i = int
+            c = cool
+        case 'Critical damage':
+            r = divBy(ref, 2)
+            i = divBy(int, 2)
+            c = divBy(cool, 2)
+        case 'Mortally wounded':
+            r = divBy(ref, 3)
+            i = divBy(int, 3)
+            c = divBy(cool, 3)
+        case _:
+            r = 0
+            i = 0
+            c = 0
+
+    return (r, i, c)
+
 
 
 def askInput() -> str:

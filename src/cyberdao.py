@@ -6,6 +6,8 @@ from cyberschema import db, user, password, host, table_skills, table_characters
 from character import Character
 from skill import SkillInfo
 from armor import Armor
+from gameHelper import EMP, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, woundEffect, calculateModifierBonus, \
+    BODY_TYPE_MOD, t_thrown
 from status import Status
 from weapon import Weapon
 
@@ -15,6 +17,7 @@ cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
 def clean_fetch_all(rows):
     return [i[0] for i in rows]
+
 
 insert = 'INSERT INTO'
 select_from = 'SELECT * FROM'
@@ -69,17 +72,50 @@ def getCharacterByName(name: str):
             rep['rep_level']
         ), rep_rows))
         sp_row = characterSpById(id)
-        weapon_rows = characterWeapons(id)
         ev_total = characterEV(id)
         armors = getCharacterArmors(id)
         statuses = getCharacterStatuses(id)
 
-        character = Character(char_row, skills, reputation, sp_row, weapon_rows, ev_total, armors, statuses)
+        dmg_taken = char_row['dmg_taken']
+
+        (ref, int, cool) = woundEffect(dmg_taken, char_row['atr_ref'], char_row['atr_int'], char_row['atr_cool'])
+
+        armor_body_type_bonus = calculateModifierBonus(armors, BODY_TYPE_MOD)
+
+        bodyTypeModifier = char_row['body_type_modifier'] + armor_body_type_bonus
+
+        armor_modifier_bonuses = {
+            INT: calculateModifierBonus(armors, INT),
+            REF: calculateModifierBonus(armors, REF),
+            TECH: calculateModifierBonus(armors, TECH),
+            COOL: calculateModifierBonus(armors, COOL),
+            ATTR: calculateModifierBonus(armors, ATTR),
+            MA: calculateModifierBonus(armors, MA),
+            BODY: calculateModifierBonus(armors, BODY),
+            LUCK: calculateModifierBonus(armors, LUCK),
+            EMP: calculateModifierBonus(armors, EMP),
+        }
+
+        attributes = {
+            INT: int,
+            REF: ref - ev_total + armor_modifier_bonuses[REF],
+            TECH: char_row['atr_tech'],
+            COOL: cool,
+            ATTR: char_row['atr_attr'],
+            MA: char_row['atr_ma'],
+            BODY: char_row['atr_body'],
+            LUCK: char_row['atr_luck'],
+            EMP: char_row['atr_emp']
+        }
+
+        weapon_rows = characterWeapons(id, body=attributes[BODY])
+
+        character = Character(char_row, skills, reputation, sp_row, weapon_rows, ev_total, armors, statuses,
+                              bodyTypeModifier, attributes)
     else:
         print('No character found')
 
     return character
-
 
 
 def healCharacter(character_id, new_dmg_taken):
@@ -137,6 +173,7 @@ def listCombatInitiative(ascending: bool):
 
     return rows
 
+
 def addCharacterToCombat(character, initiative):
     cur.execute(
         f"""{insert} {table_combat_session} (character_id, initiative, current)
@@ -174,6 +211,7 @@ def dmgCharacterSP(character_id, body_part, dmg):
         """
     )
     conn.commit()
+
 
 def dmgCharacter(character_id, dmg):
     cur.execute(
@@ -219,9 +257,9 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
     cur.execute(
         f"""{insert} {table_character_weapons} 
         (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, 
-        clip_size, shots_left, effect_radius, wa, con, reliability)
+        clip_size, shots_left, effect_radius, wa, con, reliability, weight)
         VALUES
-        ({new_char['id']}, 'unarmed', 'melee', false, 1, 6, 0, 1, 1, 1, 1, 0, 0, 'P', 'ST');
+        ({new_char['id']}, 'unarmed', 'melee', false, 1, 6, 0, 1, 1, 1, 1, 0, 0, 'P', 'ST', 0);
         """
     )
     conn.commit()
@@ -401,14 +439,15 @@ def listEvents():
     return rows
 
 
-def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, effect_radius, wa, con, reliability):
+def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size,
+              effect_radius, wa, con, reliability, weight):
     cur.execute(
         f"""{insert} {table_character_weapons} 
             (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, 
-            shots_left, effect_radius, wa, con, reliability)
+            shots_left, effect_radius, wa, con, reliability, weight)
             VALUES
             ({character_id}, '{item}', '{weapon_type}', {is_chrome}, {dice_number}, {dice_dmg}, {dmg_bonus}, {range}, 
-            {rof}, {clip_size}, {clip_size}, {effect_radius}, {wa}, '{con}', '{reliability}');
+            {rof}, {clip_size}, {clip_size}, {effect_radius}, {wa}, '{con}', '{reliability}', {weight});
         """
     )
     conn.commit()
@@ -446,7 +485,14 @@ def updateShotsInClip(wpn_id, shots_in_clip):
     conn.commit()
 
 
-def characterWeapons(character_id) -> list:
+def deleteThrown(wpn_id):
+    cur.execute(
+        f"""{delete_from} {table_character_weapons} WHERE id = {wpn_id};"""
+    )
+    conn.commit()
+
+
+def characterWeapons(character_id, body: int) -> list:
     cur.execute(
         f"""
         {character_weapons_q} WHERE character_id = {character_id};
@@ -454,9 +500,25 @@ def characterWeapons(character_id) -> list:
     )
     rows = cur.fetchall()
     conn.commit()
+
+    def weaponMapFn(w):
+        if w['weapon_type'] == t_thrown:
+            weight = w['weight'] - 1
+            if weight < 0:
+                weight = 0
+            range = body*3
+            reduce_range = weight * 10
+            range = range - reduce_range
+            if range < 0:
+                range = 0
+            return Weapon(w, custom_range=range)
+        else:
+            return Weapon(w, None)
+
     weapons = map(lambda w: (
-        Weapon(w)
+        weaponMapFn(w)
     ), rows)
+
     return list(weapons)
 
 
@@ -531,4 +593,3 @@ def removeStatus(status_id, character_id):
     )
     conn.commit()
     print('Status removed')
-

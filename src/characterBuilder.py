@@ -201,7 +201,7 @@ low_q_melee_set = [
      'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 3,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
      'wa': 0, 'con': con_pocket,  'reliability': 'ST',
-     'effect_radius': 0}
+     'effect_radius': 0, 'weight': 1}
 ]
 
 mid_q_melee_set = [
@@ -210,13 +210,13 @@ mid_q_melee_set = [
      'dice_number': 2, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
      'wa': 0, 'con': con_pocket,  'reliability': 'ST',
-     'effect_radius': 0},
+     'effect_radius': 0, 'weight': 1},
     {'item': 'Cybersnake',
      'weapon_type': t_melee, 'is_chrome': True,
      'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
      'wa': 0, 'con': con_long_coat,  'reliability': 'ST',
-     'effect_radius': 0}
+     'effect_radius': 0, 'weight': 1}
 ]
 
 high_q_melee_set = [
@@ -225,19 +225,19 @@ high_q_melee_set = [
      'dice_number': 3, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
      'wa': 0, 'con': con_pocket,  'reliability': 'ST',
-     'effect_radius': 0},
+     'effect_radius': 0, 'weight': 1},
     {'item': 'Cybersnake 1', 'is_chrome': True,
      'weapon_type': t_melee,
      'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
      'wa': 0, 'con': con_long_coat,  'reliability': 'ST',
-     'effect_radius': 0},
+     'effect_radius': 0, 'weight': 1},
     {'item': 'Cybersnake 2', 'is_chrome': True,
      'weapon_type': t_melee,
      'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
      'wa': 0, 'con': con_long_coat,  'reliability': 'ST',
-     'effect_radius': 0}
+     'effect_radius': 0, 'weight': 1}
 ]
 
 low_q_gun_set = [
@@ -246,7 +246,7 @@ low_q_gun_set = [
      'dice_number': 2, 'dice_dmg': 6, 'dmg_bonus': 3,
      'range': 50, 'rof': 2, 'clip_size': 6, 'shots_left': 6,
      'wa': 0, 'con': con_jacket,  'reliability': 'ST',
-     'effect_radius': 0}
+     'effect_radius': 0, 'weight': 1}
 ]
 
 mid_q_gun_set1 = [
@@ -255,13 +255,13 @@ mid_q_gun_set1 = [
      'dice_number': 4, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 50, 'rof': 1, 'clip_size': 2, 'shots_left': 2,
      'wa': -1, 'con': con_long_coat,  'reliability': 'UR',
-     'effect_radius': 0},
+     'effect_radius': 0, 'weight': 1},
     {'item': 'Molotov cocktail', 'is_chrome': False,
      'weapon_type': t_thrown,
      'dice_number': 2, 'dice_dmg': 10, 'dmg_bonus': 0,
      'range': 30, 'rof': 1, 'clip_size': 1, 'shots_left': 1,
      'wa': 0, 'con': con_jacket, 'reliability': 'ST',
-     'effect_radius': 0},
+     'effect_radius': 0, 'weight': 1},
 ]
 
 mid_q_gun_set2 = [
@@ -270,7 +270,7 @@ mid_q_gun_set2 = [
      'dice_number': 2, 'dice_dmg': 6, 'dmg_bonus': 1,
      'range': 50, 'rof': 35, 'clip_size': 30, 'shots_left': 30,
      'wa': 0, 'con': con_jacket,  'reliability': 'VR',
-     'effect_radius': 0},
+     'effect_radius': 0, 'weight': 1},
 ]
 
 high_q_gun_set = [
@@ -279,13 +279,13 @@ high_q_gun_set = [
      'dice_number': 5, 'dice_dmg': 6, 'dmg_bonus': 0,
      'range': 400, 'rof': 35, 'clip_size': 30, 'shots_left': 30,
      'wa': 1, 'con': not_hideable, 'reliability': 'VR',
-     'effect_radius': 0},
+     'effect_radius': 0, 'weight': 1},
     {'item': 'Frag. Grenade', 'is_chrome': False,
      'weapon_type': t_thrown,
      'dice_number': 3, 'dice_dmg': 10, 'dmg_bonus': 0,
      'range': 30, 'rof': 1, 'clip_size': 1, 'shots_left': 1,
      'wa': 0, 'con': con_pocket,  'reliability': 'ST',
-     'effect_radius': 5},
+     'effect_radius': 5, 'weight': 2},
 ]
 
 
@@ -376,7 +376,7 @@ def addWeaponSet(character_id, weapon_set):
         print(f"Adding {wep['item']}")
         DAO.addWeapon(character_id, wep['item'], wep['weapon_type'], wep['is_chrome'], wep['dice_number'],
                       wep['dice_dmg'], wep['dmg_bonus'], wep['range'], wep['rof'], wep['clip_size'],
-                      wep['effect_radius'], wep['wa'], wep['con'], wep['reliability'])
+                      wep['effect_radius'], wep['wa'], wep['con'], wep['reliability'], wep['weight'])
 print('Weapon set added')
 
 

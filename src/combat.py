@@ -368,6 +368,10 @@ def handleSingleShot(character, wep, attack_range, given_roll):
         if wep.isGun():
             print(f'... wep_id: {wep.weapon_id} ... wpn: {wep.item} .. clip: {wep.shots_left} / {wep.clip_size} ')
             DAO.updateShotsInClip(wep.weapon_id, shots_left - 1)
+        elif wep.weapon_type == t_thrown:
+            DAO.deleteThrown(wep.weapon_id)
+            print(f'Thrown weapon gone')
+
         if hit_res == False:
             end_res = 'unsuccessful'
             if wep.isThrown():
