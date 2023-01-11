@@ -8,7 +8,8 @@ import cyberdao as DAO
 from gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_leg, body_part_r_arm, \
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
     t_thrown, roll_str, close_range_str, medium_range_str, attack_type_single, attack_type_burst, \
-    attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str, body_parts
+    attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str, body_parts, \
+    t_heavy_weapon
 from skills import skillBonusForSkill, skill_athletics
 from weapon import Weapon
 
@@ -203,6 +204,8 @@ def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
         skill = 'handgun'
     elif wep_t == t_thrown:
         skill = skill_athletics
+    elif wep_t == t_heavy_weapon:
+        skill = 'heavy weapons'
     skill_bonus = skillBonusForSkill(skills, skill)
 
     return (skill_bonus, skill)
