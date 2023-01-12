@@ -3,12 +3,12 @@ import math
 import dice
 from roles import roleSpecialAbility
 import bodytypes
-from gameHelper import woundState, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, body_part_head, body_part_body, \
-    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr, BODY_TYPE_MOD
+from gameHelper import woundState, body_part_head, body_part_body, \
+    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr
 
 
 class Character:
-    def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses, bodyTypeModifier, attributes):
+    def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses, bodyTypeModifier, attributes, cybernetics):
         self.id = row['id']
         self.name = row['name']
         self.role = row['role']
@@ -19,6 +19,7 @@ class Character:
 
         dmg_taken = row['dmg_taken']
         self.dmg_taken = dmg_taken
+        self.cybernetics = cybernetics
 
         self.weapons = weapons
         self.armors = armors
@@ -82,8 +83,12 @@ class Character:
         status_infos = map(lambda s: (
             s.toStr()
         ), self.statuses)
+        chrome_infos = map(lambda c: (
+            c.toStr()
+        ), self.cybernetics)
         skill_info = infoStr('Skills', '\n'.join(skill_infos))
         armor_info = infoStr('Armor gear', '\n'.join(armor_infos))
+        chrome_info = infoStr('Chrome', '\n'.join(chrome_infos))
         status_info = infoStr('Statuses', '\n'.join(status_infos))
 
         str = f"""************* {self.name} (id: {self.id}) *************
@@ -99,6 +104,7 @@ SP: {self.sp}
 
 {weapon_info}
 {armor_info}
+{chrome_info}
 {skill_info}
 {status_info}
 """

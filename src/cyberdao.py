@@ -8,6 +8,7 @@ from skill import SkillInfo
 from armor import Armor
 from gameHelper import EMP, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, woundEffect, calculateModifierBonus, \
     BODY_TYPE_MOD, t_thrown
+from chrome import Chrome
 from status import Status
 from weapon import Weapon
 
@@ -28,6 +29,7 @@ character_q = f'{select_from} {table_characters} c '
 character_skills_q = f'{select_from} {table_character_skills}'
 character_weapons_q = f'{select_from} {table_character_weapons}'
 character_armors_q = f'{select_from} {table_character_armors}'
+character_chrome_q = f'{select_from} {table_character_chrome}'
 character_statuses_q = f'{select_from} {table_character_statuses}'
 skills_q = f'{select_from} {table_skills}'
 
@@ -76,6 +78,8 @@ def getCharacterByName(name: str):
         armors = getCharacterArmors(id)
         statuses = getCharacterStatuses(id)
 
+        cybernetics = getCharacterChrome(id)
+
         dmg_taken = char_row['dmg_taken']
 
         (ref, int, cool) = woundEffect(dmg_taken, char_row['atr_ref'], char_row['atr_int'], char_row['atr_cool'])
@@ -111,7 +115,7 @@ def getCharacterByName(name: str):
         weapon_rows = characterWeapons(id, body=attributes[BODY])
 
         character = Character(char_row, skills, reputation, sp_row, weapon_rows, ev_total, armors, statuses,
-                              bodyTypeModifier, attributes)
+                              bodyTypeModifier, attributes, cybernetics)
     else:
         print('No character found')
 
@@ -383,7 +387,7 @@ def updateArmorAtrBonuses(new_id, atr_dict):
 
 def getCharacterArmors(character_id):
     cur.execute(
-        f"""{character_armors_q} WHERE character_id = '{character_id}';"""
+        f"""{character_armors_q} WHERE character_id = {character_id};"""
     )
     rows = cur.fetchall()
     conn.commit()
@@ -392,6 +396,19 @@ def getCharacterArmors(character_id):
         armor = Armor(row)
         armors.append(armor)
     return armors
+
+
+def getCharacterChrome(character_id):
+    cur.execute(
+        f"""{character_chrome_q} where character_id = {character_id};"""
+    )
+    rows = cur.fetchall()
+    cybernetics = []
+    conn.commit()
+    for row in rows:
+        chrome = Chrome(row)
+        cybernetics.append(chrome)
+    return cybernetics
 
 
 def repairCharacterSP(character_id):

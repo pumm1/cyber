@@ -5,6 +5,14 @@ from dice import roll
 from gameHelper import askInput, roll_str, askForRoll, safeCastToInt, EMP
 
 
+class Chrome:
+    def __init__(self, row):
+        self.item = row['item']
+        self.description = row['description']
+
+    def toStr(self):
+        return f"{self.item} ({self.description})"
+
 def addChrome(name):
     character = DAO.getCharacterByName(name)
     if character is not None:
