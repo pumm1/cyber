@@ -159,6 +159,8 @@ def start():
                     print(character_helper_str)
         elif command.startswith(dmg_str):
             match command_parts:
+                case[_, name, dmg, 'fire']:
+                    combat.hitCharacter(name, body_part='body', dmg_str=dmg, pass_sp=True)
                 case [_, name, body_part, dmg]:
                     combat.hitCharacter(name, body_part, dmg)
                 case [_, name, body_part, dmg, 'ap']:

@@ -499,11 +499,13 @@ def reloadWeapon(weapon_id, shots):
             print(f"{weapon.item} is not a gun, can't reload it")
 
 
-def hitCharacter(name, body_part, dmg_str, is_ap=False):
+def hitCharacter(name, body_part, dmg_str, is_ap=False, pass_sp=False):
     dmg = safeCastToInt(dmg_str)
     character = DAO.getCharacterByName(name)
     if character is not None:
-        if body_parts.__contains__(body_part):
+        if pass_sp == True:
+            damageCharacter(character, dmg)
+        elif body_parts.__contains__(body_part):
             if is_ap:
                 handleApHit(character, dmg, body_part)
             else:
@@ -542,7 +544,7 @@ def damageCharacter(c: Character, dmg):
     dmgReduction = c.bodyTypeModifier
     total_dmg = dmg - dmgReduction
     if total_dmg > 0:
-        print(f'{c.name} damaged by {dmg}!')
+        print(f'{c.name} damaged by {total_dmg}! (DMG reduced by {dmgReduction})')
         DAO.dmgCharacter(c.id, total_dmg)
         updated_character = DAO.getCharacterByName(c.name)
         if (updated_character.dmg_taken >= max_health):
@@ -610,5 +612,7 @@ def stunCheck(c: Character):
 
     if isStunned:
         print(rollStunOverActingEffect(c.name))
+    else:
+        print(f"{c.name} wasn't stunned by DMG")
 
     return isStunned
