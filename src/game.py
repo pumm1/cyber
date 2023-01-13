@@ -328,14 +328,20 @@ def advanceCombatSeq():
 
     rows = DAO.listCombatInitiative(ascending=True)
     queue = deque(rows)
+    characters_in_combat = len(rows)
+    enough_in_combat = characters_in_combat > 1
+
     notInOrder = True
     notStarted = all(v['current'] == False for v in rows)
-    if notStarted:
+    if not enough_in_combat:
+        print(f'Not enough characters in combat: {characters_in_combat}')
+        notInOrder = False
+    elif notStarted:
         notInOrder = False
         print('Starting combat sequence!')
         c = queue.pop()
-        DAO.setNextInOrder(c['character'])
-        printTurn(c['character'])
+        DAO.setNextInOrder(c['character_id'])
+        printTurn(c['name'])
 
     while notInOrder:
         c = queue.pop()
@@ -346,8 +352,8 @@ def advanceCombatSeq():
             notInOrder = False
 
             DAO.resetCurrentOrder()
-            DAO.setNextInOrder(next['character'])
-            printTurn(next['character'])
+            DAO.setNextInOrder(next['character_id'])
+            printTurn(next['name'])
         else:
             queue.appendleft(c)
 

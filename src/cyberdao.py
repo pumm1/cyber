@@ -201,9 +201,9 @@ def resetCurrentOrder():
     conn.commit()
 
 
-def setNextInOrder(character):
+def setNextInOrder(character_id):
     cur.execute(
-        f"""{update} {table_combat_session} SET current = {True} WHERE character = '{character}';"""
+        f"""{update} {table_combat_session} SET current = {True} WHERE character_id = '{character_id}';"""
     )
     conn.commit()
 
