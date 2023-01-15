@@ -224,15 +224,22 @@ def dmgCharacter(character_id, dmg):
     conn.commit()
 
 
-def addCharacterSkill(char_id, skill_row, value):
+def updateCharSkill(char_id, skill_row, value):
     cur.execute(
         f"""{insert} {table_character_skills} (character_id, skill, skill_value, attribute)
         VALUES ({char_id}, '{skill_row['skill']}', {value}, '{skill_row['attribute']}')
         ON CONFLICT(character_id, skill)
         DO
-            UPDATE SET skill_value = {value};"""
+            UPDATE SET skill_value = cyberpunk.character_skills.skill_value + {value};"""
     )
     conn.commit()
+
+
+def updateCharSpecial(char_id, value):
+    cur.execute(
+        f"""{update} {table_characters} SET special_ability = special_ability + {value}
+        WHERE id = {char_id};"""
+    )
 
 
 def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr,

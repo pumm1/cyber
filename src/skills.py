@@ -88,17 +88,21 @@ def listAllSkills():
     all_skills = allSkills()
     printSkillInfo(all_skills)
 
-def addCharacterSkill(name, skill_id, skill_level):
+def updateCharSkill(name, skill_id, lvl_up_amount):
     t_skill = safeCastToInt(skill_id)
-    if t_skill > 0:
+    if t_skill >= 0:
         character = DAO.getCharacterByName(name)
         if character is not None:
-            skill = DAO.getSkillById(skill_id)
-            if skill is not None:
-                DAO.addCharacterSkill(character.id, skill, skill_level)
-                print(f"Skill {skill['skill']} ({skill_level}) added for {name}")
+            if t_skill == 0:
+                DAO.updateCharSpecial(character.id, lvl_up_amount)
+                print(f'{character.name} special updated (+{lvl_up_amount})')
             else:
-                print(f'Skill not found by id ({skill_id})')
+                skill = DAO.getSkillById(skill_id)
+                if skill is not None:
+                    DAO.updateCharSkill(character.id, skill, lvl_up_amount)
+                    print(f"Skill {skill['skill']} (+{lvl_up_amount}) updated for {name}")
+                else:
+                    print(f'Skill not found by id ({skill_id})')
     else:
         print(f"'{skill_id}' not a valid skill id")
 

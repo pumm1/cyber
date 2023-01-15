@@ -101,7 +101,6 @@ Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
 Reputation: {self.reputation}
 Health: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
 SP: {self.sp}
-
 {weapon_info}
 {armor_info}
 {chrome_info}
