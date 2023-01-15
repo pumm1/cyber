@@ -3,7 +3,7 @@ import math
 import cyberdao as DAO
 import dice
 from skills import skillBonusForSkill, skill_first_aid, difficultyCheckInfo, very_difficult_check, easy_check, average_check, difficult_check, very_difficult_check, nearly_impossible_check
-from gameHelper import TECH, askInput, safeCastToInt, checkListCommand, list_str, yes_no
+from gameHelper import TECH, askInput, safeCastToInt, checkListCommand, list_str, yes_no, printGreenLine, printRedLine
 from roles import meditechie
 
 #values are changed from offial rules a bit, then they would be 0.5 and 1
@@ -70,9 +70,9 @@ def medicalCheck(name, given_roll):
 
         info = f'Roll total ({total}) vs {to_beat} [roll = {roll}, first aid bonus = {first_aid_bonus}, medtech bonus = {med_tech_bonus}, tech_bonus = {tech_bonus}]'
         if total >= to_beat:
-            print(f'Medical check successful! {info}')
+            printGreenLine(f'Medical check successful! {info}')
         else:
-            print(f'Medical check unsuccessful! {info}')
+            printRedLine(f'Medical check unsuccessful! {info}')
 
 
 def calculateHealingAmount(days):
@@ -87,7 +87,7 @@ def calculateHealingAmount(days):
         elif i == 'n':
             break
     healing = heal_days * healing_rate
-    print(f'{healing}HP recovered in {heal_days}')
+    printGreenLine(f'{healing}HP recovered in {heal_days}')
 
 
 def healCharacter(name, amount):

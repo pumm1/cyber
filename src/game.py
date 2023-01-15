@@ -13,7 +13,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str, \
     repair_sp_str, repair_sp_help_str, remove_armor_str, remove_armor_help_str, add_status_str, add_status_help_str, \
     help_info, heal_help_str, yes_no, heal_str, heal_calc_str, heal_calc_help_str, askInputCaseSensitive, \
-    remove_status_help_str, remove_status_str
+    remove_status_help_str, remove_status_str, printGreenLine
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
@@ -305,7 +305,7 @@ def addReputation(char, rep_amount):
                 print(f'What is {character.name} gaining reputation for?')
                 info = askInputCaseSensitive()
                 DAO.addReputation(character.id, info, rep)
-                print(f'Reputation added for {character.name}')
+                printGreenLine(f'Reputation added for {character.name}')
                 break
             elif command == 'n':
                 print(f'Cancelling reputation add for {character.name}')

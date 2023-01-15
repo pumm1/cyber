@@ -14,9 +14,6 @@ from skills import skillBonusForSkill, skill_athletics
 from weapon import Weapon
 from colorama import Fore, Style
 
-# TODO: add auto shotguns
-# TODO: add AP rounds (shotgun, rifle?)
-
 def weaponsByType(attack_type, weapons):
     weps = []
     if attack_type == attack_type_melee:
@@ -50,7 +47,7 @@ def weaponByAttackType(attack_type, character):
         wep: Weapon = weapons[idx]
         return wep
     else:
-        print(f'No weapons found for {attack_type}')
+        printRedLine(f'No weapons found for {attack_type}')
         return None
 
 
@@ -66,12 +63,12 @@ def suppressiveFireDef(name, rounds, area):
             total = roll + athletics_bonus + ref_bonus
             roll_to_beat = math.floor(shots_in_area / area_width)
             if total >= roll_to_beat:
-                print(f'{character.name} avoided suppressive fire!')
+                printGreenLine(f'{character.name} avoided suppressive fire!')
             else:
                 hits = dice.roll(1, 6)
                 if hits > shots_in_area:
                     hits = shots_in_area
-                print(f'{character.name} got hit by suppressive fire {hits} times!')
+                printRedLine(f'{character.name} got hit by suppressive fire {hits} times!')
     else:
         print(f'Suppressive area needs at least one shot fired into it and valid area width')
 
@@ -175,6 +172,7 @@ def handleMeleeDmg(name):
                     wep = weaponByAttackType(attack_type_melee, character)
                     if wep is not None:
                         dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus + dmg_bonus
+                        method = wep.item
                         break
                 case 'strike':
                     dmg = math.floor(dice.roll(1, 6) / 2) + dmg_bonus
@@ -189,7 +187,7 @@ def handleMeleeDmg(name):
                     dmg = dice.roll(1, 6)
                     break
         hit_loc = determineHitLocation()
-        print(f'Did {dmg} DMG to {hit_loc} using {method}')
+        printGreenLine(f'{character.name} did {dmg} DMG to {hit_loc} using {method}')
 
 
 def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
@@ -335,17 +333,17 @@ def handleBurst(character, wep, attack_range, given_roll):
             if shots_fired < 3 and hits == 3:
                 hits = shots_left
             total_dmg = 0
-            print(f'{hits} hits to target!')
+            printGreenLine(f'{hits} hits to target!')
             for i in range(hits):
                 dmg = hitDmg(wep, attack_range)
                 total_dmg = total_dmg + dmg
-            print(f'Total dmg done to target: {total_dmg}')
+            printGreenLine(f'Total dmg done to target: {total_dmg}')
         else:
-            print(f'Burst attack misses target!')
+            printRedLine(f'Burst attack misses target!')
         DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
 
     else:
-        print(
+        printRedLine(
             f"Unable to do burst attack with {wep.item} ({wep.weapon_type}) [{wep.shots_left} / {wep.clip_size}] ROF: {wep.rof}")
 
 
@@ -393,7 +391,7 @@ def handleSingleShot(character, wep, attack_range, given_roll):
             f'{range_str} range attack ({attack_range}m) is {end_res} {rollToBeatStr(roll_to_beat, total)}'
         )
     else:
-        print(
+        printRedLine(
             f'Unable to attack with (id: {wep.weapon_id}) {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]'
         )
 
@@ -439,7 +437,7 @@ def handleWeaponDmgAndHit(wep, attack_range):
             if dmg > 0:
                 break
     location = determineHitLocation()
-    print(f'{dmg} DMG to {location}')
+    printRedLine(f'{dmg} DMG to {location}')
     return dmg
 
 
@@ -609,12 +607,12 @@ def rollStunOverActingEffect(name):
 def stunCheckToBeat(dmg_taken, body):
     penalty = stunPenalty(dmg_taken)
     if penalty > 0:
-        print(f'penalty for {dmg_taken} dmg taken is {penalty}')
+        printRedLine(f'penalty for {dmg_taken} DMG taken is {penalty}')
     save_against = body - penalty
     if (save_against > 0):
         print(f'To not be stunned/shocked (or to not lose death save), roll {save_against} or lower')
     else:
-        print(f'Stun/shock saves cannot help anymore, character needs to be stabilized fast')
+        printRedLine(f'Stun/shock saves cannot help anymore, character needs to be stabilized fast')
 
     return save_against
 
