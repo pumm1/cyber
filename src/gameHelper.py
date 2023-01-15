@@ -1,5 +1,6 @@
 import math
 from math import floor
+from colorama import Fore, Style
 
 inputIndicator = "> "
 split_at = ' '
@@ -208,6 +209,24 @@ def divBy(val, div):
     return math.ceil(val / div)
 
 
+def printRedLine(text):
+    printColorLine(text, 'red')
+
+def printGreenLine(text):
+    printColorLine(text, 'green')
+
+def printColorLine(text: str, color=''):
+    t_color = Fore.WHITE
+    if color == 'red':
+        t_color = Fore.RED
+    elif color == 'green':
+        t_color = Fore.GREEN
+    else:
+        t_color = Fore.WHITE
+    text = text + f'{Style.RESET_ALL}'
+    print(t_color, text)
+
+
 def woundEffect(dmg_taken, ref, int, cool):
     r = ref
     i = int
@@ -288,15 +307,15 @@ def stunPenalty(dmg: int):
 def woundState(dmg_taken: int):
     stun_penalty = stunPenalty(dmg_taken)
     if dmg_taken == 0:
-        return no_dmg
+        return f"{Fore.GREEN}{no_dmg}{Style.RESET_ALL}"
     elif stun_penalty == 0:
-        return light_dmg
+        return f"{Fore.YELLOW}{light_dmg}{Style.RESET_ALL}"
     elif stun_penalty == 1:
-        return serious_dmg
+        return f"{Fore.LIGHTRED_EX}{serious_dmg}{Style.RESET_ALL}"
     elif stun_penalty == 2:
-        return critical_dmg
+        return f"{Fore.RED}{critical_dmg}{Style.RESET_ALL}"
     elif dmg_taken < 40:
-        return mortally_wounded
+        return f"{Fore.RED}{mortally_wounded}{Style.RESET_ALL}"
     else:
         return flatlined
 

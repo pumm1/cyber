@@ -9,10 +9,10 @@ from gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
     t_thrown, roll_str, close_range_str, medium_range_str, attack_type_single, attack_type_burst, \
     attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str, body_parts, \
-    t_heavy_weapon
+    t_heavy_weapon, printColorLine, printRedLine, printGreenLine
 from skills import skillBonusForSkill, skill_athletics
 from weapon import Weapon
-
+from colorama import Fore, Style
 
 # TODO: add auto shotguns
 # TODO: add AP rounds (shotgun, rifle?)
@@ -81,8 +81,6 @@ def characterAttack(name, attack_type, range_str, given_roll):
     if attack_range > 0:
         character = DAO.getCharacterByName(name)
         if character is not None:
-            weapons = weaponsByType(attack_type, character.weapons)
-            idx = 0
             wep = weaponByAttackType(attack_type, character)
 
             if wep is not None:
@@ -158,8 +156,8 @@ def handleMelee(character, wep):
 
     roll = dice.resolveAutoOrManualRollWithCrit()
     total = roll + ref_bonus + skill_bonus + modifiers_total
-    print(f'{character.name} attacks with {wep.item} (Roll total = {total})')
-    print("Defend against melee attack by rolling opponent's REF + <some appropriate skill> + 1D10")
+    printGreenLine(f'{character.name} attacks with {wep.item} (Roll total = {total})')
+    printRedLine("Defend against melee attack by rolling opponent's REF + <some appropriate skill> + 1D10")
     print(f'If attack is successful, {melee_dmg_help_str}')
 
 
@@ -272,7 +270,7 @@ def handleFullAuto(character, wep):
             total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa
             num_of_hits = 0
             print(
-                f'Roll to beat ({roll_to_beat}) vs roll ({total}) [roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus}, range bonus = {range_bonus} WA = {wep.wa}]')
+                f'{rollToBeatStr(roll_to_beat, total)} [roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus}, range bonus = {range_bonus} WA = {wep.wa}]')
 
             if total >= roll_to_beat:
                 targets_hit = targets_hit + 1
@@ -283,19 +281,25 @@ def handleFullAuto(character, wep):
                     num_of_hits = 1
 
                 total_hits = total_hits + num_of_hits
-                print(f'Target {t} hit {num_of_hits} times!')
+
+                printGreenLine(f'Target {t} hit {num_of_hits} times!')
+
                 for i in range(num_of_hits):
                     dmg = hitDmg(wep, attack_range)
                     target_total_dmg = target_total_dmg + dmg
-                print(f'Total dmg done to target {t}: {target_total_dmg}')
+                printGreenLine(f'Total dmg done to target [{t}]: {target_total_dmg}')
 
             else:
-                print(f'Full auto missed target {t}!')
+                printRedLine(f'Full auto missed target {t}!')
 
             DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
-        print(f'{num_of_shots} shots fired in full auto with {wep.item} hitting {total_hits} times')
+        printGreenLine(f'{num_of_shots} shots fired in full auto with {wep.item} hitting {total_hits} times')
     else:
-        print(f"Can't attack with {wep.item} [{wep.shots_left} / {wep.clip_size}]")
+        printRedLine(f"Can't attack with {wep.item} [{wep.shots_left} / {wep.clip_size}]")
+
+
+def rollToBeatStr(to_beat, total):
+    return f'[{Fore.RED}roll to beat ({to_beat}){Style.RESET_ALL} vs {Fore.GREEN}total ({total}){Style.RESET_ALL}]'
 
 
 def handleBurst(character, wep, attack_range, given_roll):
@@ -325,7 +329,7 @@ def handleBurst(character, wep, attack_range, given_roll):
         shots_left_after_firing = wep.shots_left - shots_fired
 
         total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa
-        print(f'[roll to beat ({roll_to_beat}) vs total ({total})]')
+        print(rollToBeatStr(roll_to_beat, total))
         if total >= roll_to_beat:
             hits = math.ceil(dice.roll(1, 6) / 2)
             if shots_fired < 3 and hits == 3:
@@ -368,35 +372,37 @@ def handleSingleShot(character, wep, attack_range, given_roll):
 
     if weapon_can_attack:
         if wep.isGun():
-            print(f'... wep_id: {wep.weapon_id} ... wpn: {wep.item} .. clip: {wep.shots_left} / {wep.clip_size} ')
             DAO.updateShotsInClip(wep.weapon_id, shots_left - 1)
         elif wep.weapon_type == t_thrown:
             DAO.deleteThrown(wep.weapon_id)
-            print(f'Thrown weapon gone')
+            printRedLine(f'Thrown weapon gone')
 
         if hit_res == False:
             end_res = 'unsuccessful'
             if wep.isThrown():
                 print('Roll 1D10 to see how the throw misses and another 1D10 to see how far! (See grenade table)')
         else:
-            print(f'Attack successful!')
+            printGreenLine(f'Attack successful!')
             dmg = hitDmg(wep, attack_range)
-            print(f'DMG done: {dmg}')
+            printGreenLine(f'DMG done: {dmg}')
 
         print(
-            f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})')
+            f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})'
+        )
         print(
-            f'{range_str} range attack ({attack_range}m) is {end_res} [roll to beat ({roll_to_beat}) vs total ({total})]')
+            f'{range_str} range attack ({attack_range}m) is {end_res} {rollToBeatStr(roll_to_beat, total)}'
+        )
     else:
         print(
-            f'Unable to attack with (id: {wep.weapon_id}) {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]')
+            f'Unable to attack with (id: {wep.weapon_id}) {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]'
+        )
 
 
 def hitDmg(wep, attack_range):
     dmg = 0
     targets = 0
     if wep.weapon_type == t_shotgun:
-        print('Give targets in shotgun spread area:')
+        print('Give targets in shotgun spread area (At least main target is hit, others have 50/50 a chance of not being hit):')
         while True:
             input = askInput()
             targets = safeCastToInt(input)
@@ -404,8 +410,16 @@ def hitDmg(wep, attack_range):
                 break
 
         for target in range(targets):
+            t_dmg = 0
             print(f'Target {target + 1}:')
-            dmg = dmg + handleShotgunDmgAndHit(wep, attack_range)
+            if target > 1:
+                hit = dice.roll(1, 2)
+                if hit > 1:
+                    t_dmg = handleShotgunDmgAndHit(wep, attack_range)
+            else:
+                t_dmg = handleShotgunDmgAndHit(wep, attack_range)
+
+            dmg += t_dmg
 
     else:
         dmg = handleWeaponDmgAndHit(wep, attack_range)
@@ -435,12 +449,12 @@ def handleShotgunDmgAndHit(wep, attack_range):
     dmg = 0
     hit_locations = []
     if wep.isCloseRange(attack_range):
-        print('Damage is for every target within 1m pattern')
+        print('Damage is for 1m pattern')
         dmg = dice.roll(shotgun_max_dice, shotgun_dmg)
         location = determineHitLocation()
         hit_locations.append(location)
     elif wep.isMidRange(attack_range):
-        print('Damage is for every target within 2m pattern')
+        print('Damage is for 2m pattern')
         dmg = dice.roll(shotgun_max_dice - 1, shotgun_dmg)
         hit1 = determineHitLocation()
         hit2 = determineHitLocation()
@@ -448,7 +462,7 @@ def handleShotgunDmgAndHit(wep, attack_range):
         hit_locations.append(hit1)
         hit_locations.append(hit2)
     elif wep.isLongRange(attack_range) or wep.isExtremeRange(attack_range):
-        print('Damage is for every target within 3m pattern')
+        print('Damage is for 3m pattern')
         dmg = dice.roll(shotgun_max_dice - 2, shotgun_dmg)
         hit1 = determineHitLocation()
         hit2 = determineHitLocation()
@@ -460,7 +474,7 @@ def handleShotgunDmgAndHit(wep, attack_range):
     hit_loc_data = determineHitLocDamages(dmg, hit_locations)
     locations_str = ', '.join(hit_loc_data)
 
-    print(f'{locations_str}')
+    printRedLine(f'{locations_str}')
 
     return dmg
 
@@ -494,7 +508,7 @@ def reloadWeapon(weapon_id, shots):
                 amount = weapon.clip_size
 
             DAO.updateShotsInClip(id, amount)
-            print(f'{weapon.item} reloaded with {amount} shots')
+            printGreenLine(f'{weapon.item} reloaded with {amount} shots')
         else:
             print(f"{weapon.item} is not a gun, can't reload it")
 
@@ -521,10 +535,10 @@ def handleNormalHit(character: Character, dmg, body_part):
     if char_sp > 0:
         sp_left = char_sp - dmg
         if sp_left >= 0:
-            print(f'Armor damaged at {body_part}')
+            printRedLine(f'Armor damaged at {body_part}')
             DAO.dmgCharacterSP(character.id, body_part, dmg)
         else:
-            print(f'Armor broken at {body_part}')
+            printRedLine(f'Armor broken at {body_part}')
             dmg_left = abs(sp_left)
             DAO.dmgCharacterSP(character.id, body_part, char_sp)
             damageCharacter(character, dmg_left)
@@ -544,11 +558,11 @@ def damageCharacter(c: Character, dmg):
     dmgReduction = c.bodyTypeModifier
     total_dmg = dmg - dmgReduction
     if total_dmg > 0:
-        print(f'{c.name} damaged by {total_dmg}! (DMG reduced by {dmgReduction})')
+        printRedLine(f'{c.name} damaged by {total_dmg}! (DMG reduced by {dmgReduction})')
         DAO.dmgCharacter(c.id, total_dmg)
         updated_character = DAO.getCharacterByName(c.name)
         if (updated_character.dmg_taken >= max_health):
-            print(f'{c.name} has flatlined')
+            printRedLine(f'{c.name} has flatlined')
         else:
             stunCheck(updated_character)
     else:
@@ -611,8 +625,8 @@ def stunCheck(c: Character):
     isStunned = roll > save_against
 
     if isStunned:
-        print(rollStunOverActingEffect(c.name))
+        printRedLine(rollStunOverActingEffect(c.name))
     else:
-        print(f"{c.name} wasn't stunned by DMG")
+        printGreenLine(f"{c.name} wasn't stunned by DMG")
 
     return isStunned

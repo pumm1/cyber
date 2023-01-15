@@ -1,11 +1,9 @@
-import math
-
 import dice
 from roles import roleSpecialAbility
 import bodytypes
 from gameHelper import woundState, body_part_head, body_part_body, \
     body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr
-
+from colorama import Fore, Style
 
 class Character:
     def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses, bodyTypeModifier, attributes, cybernetics):
@@ -68,7 +66,7 @@ class Character:
         ), self.weapons)
 
         w_list = list(weapons_infos)
-        weapon_info = infoStr('Weapons', '\n'.join(w_list))
+        weapon_info = infoStr(f'Weapons', '\n'.join(w_list))
         atr_affected = ''
         wnd_state = woundState(self.dmg_taken)
         if wnd_state != 'No damage' and wnd_state != 'Light damage':
@@ -86,17 +84,17 @@ class Character:
         chrome_infos = map(lambda c: (
             c.toStr()
         ), self.cybernetics)
-        skill_info = infoStr('Skills', '\n'.join(skill_infos))
-        armor_info = infoStr('Armor gear', '\n'.join(armor_infos))
-        chrome_info = infoStr('Chrome', '\n'.join(chrome_infos))
-        status_info = infoStr('Statuses', '\n'.join(status_infos))
+        skill_info = infoStr(f'Skills', '\n'.join(skill_infos))
+        armor_info = infoStr(f'Armor gear', '\n'.join(armor_infos))
+        chrome_info = infoStr(f'Chrome', '\n'.join(chrome_infos))
+        status_info = infoStr(f'Statuses', '\n'.join(status_infos))
 
         str = f"""************* {self.name} (id: {self.id}) *************
 Role: {self.role}
 Body type: {body_type} ({self.bodyTypeModifier})
 Attributes: {self.attributes} {atr_affected}
 Humanity: {self.humanity}
-Encumbrance (Subtracted from REF): {self.ev} 
+Encumbrance (Subtracted from REF): {Fore.RED}{self.ev}{Style.RESET_ALL} 
 Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
 Reputation: {self.reputation}
 Health: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
