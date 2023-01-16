@@ -193,12 +193,12 @@ remove_status_help_str = f'{remove_status_str} {char_name} <status_id>'
 
 difficulty_check_str = '/diff'
 
-no_dmg = 'No damage'
-light_dmg = 'Light damage'
-serious_dmg = 'Serious damage'
-critical_dmg = 'Critical damage'
-mortally_wounded = 'Mortally wounded'
-flatlined = 'Flatlined'
+no_dmg = coloredText(Fore.GREEN, 'No damage')
+light_dmg = coloredText(Fore.WHITE, 'Light damage')
+serious_dmg = coloredText(Fore.YELLOW, 'Serious damage')
+critical_dmg = coloredText(Fore.LIGHTRED_EX, 'Critical damage')
+mortally_wounded = coloredText(Fore.RED, 'Mortally wounded')
+flatlined = coloredText(Fore.RED, 'Flatlined')
 
 attack_type_single = 'single'
 attack_type_burst = 'burst'
@@ -245,29 +245,29 @@ def woundEffect(dmg_taken, ref, int, cool):
     i = int
     c = cool
 
-    match woundState(dmg_taken):
-        case 'No damage':
-            r = ref
-            i = int
-            c = cool
-        case 'Light damage':
-            r = ref
-            i = int
-            c = cool
-        case 'Serious damage':
-            r = ref - 2
-            if r < 0:
-                r = 0
-            i = int
-            c = cool
-        case 'Critical damage':
-            r = divBy(ref, 2)
-            i = divBy(int, 2)
-            c = divBy(cool, 2)
-        case _:
-            r = divBy(ref, 3)
-            i = divBy(int, 3)
-            c = divBy(cool, 3)
+    wnd_state = woundState(dmg_taken)
+    if wnd_state == no_dmg:
+        r = ref
+        i = int
+        c = cool
+    elif wnd_state == light_dmg:
+        r = ref
+        i = int
+        c = cool
+    elif wnd_state == serious_dmg:
+        r = ref - 2
+        if r <= 0:
+            r = 1
+        i = int
+        c = cool
+    elif wnd_state == critical_dmg:
+        r = divBy(ref, 2)
+        i = divBy(int, 2)
+        c = divBy(cool, 2)
+    else:
+        r = divBy(ref, 3)
+        i = divBy(int, 3)
+        c = divBy(cool, 3)
 
     return (r, i, c)
 
@@ -316,17 +316,17 @@ def stunPenalty(dmg: int):
 def woundState(dmg_taken: int):
     stun_penalty = stunPenalty(dmg_taken)
     if dmg_taken == 0:
-        return coloredText(Fore.GREEN, no_dmg)
+        return no_dmg
     elif stun_penalty == 0:
-        return coloredText(Fore.WHITE, light_dmg)
+        return light_dmg
     elif stun_penalty == 1:
-        return coloredText(Fore.YELLOW, serious_dmg)
+        return serious_dmg
     elif stun_penalty == 2:
-        return coloredText(Fore.LIGHTRED_EX, critical_dmg)
+        return critical_dmg
     elif dmg_taken < 40:
-        return coloredText(Fore.RED, mortally_wounded)
+        return mortally_wounded
     else:
-        return coloredText(Fore.RED, flatlined)
+        return flatlined
 
 
 def safeCastToInt(text):

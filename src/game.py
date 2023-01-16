@@ -1,3 +1,5 @@
+from colorama import Fore
+
 import combat
 from collections import deque
 import skills
@@ -13,7 +15,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str, \
     repair_sp_str, repair_sp_help_str, remove_armor_str, remove_armor_help_str, add_status_str, add_status_help_str, \
     help_info, heal_help_str, yes_no, heal_str, heal_calc_str, heal_calc_help_str, askInputCaseSensitive, \
-    remove_status_help_str, remove_status_str, printGreenLine, fieldName, difficulty_check_str
+    remove_status_help_str, remove_status_str, printGreenLine, fieldName, difficulty_check_str, coloredText
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
@@ -34,7 +36,7 @@ import status
 # 10 = you are known worldwide
 
 def start():
-    print('< Connected to the NET >')
+    printGreenLine('< Connected to the NET >')
     game_is_running = True
     while game_is_running:
         print('< Main >')
@@ -199,6 +201,8 @@ def start():
             match command_parts:
                 case [_, name, 'melee']:
                     combat.characterAttack(name, attack_type_melee, range_str='1', given_roll=0)
+                case [_, name, 'melee', roll]:
+                    combat.characterAttack(name, attack_type_melee, range_str='1', given_roll=roll)
                 case [_, name, 'burst', range]:
                     combat.characterAttack(name, attack_type_burst, range, given_roll=0)
                 case [_, name, 'burst', range, roll]:
@@ -384,7 +388,7 @@ def stunCheckCharacter(name):
 def help(param):
     list_str = ', '
 
-    help_str: str = f"""************ list of commands ************
+    help_str: str = f"""************ {coloredText(Fore.GREEN, 'list of commands')} ************
 - {fieldName('Help')}:
 {list_str.join(help_commands)}
 {help_info}
@@ -412,11 +416,11 @@ def help(param):
 {melee_dmg_help_str}
 - {fieldName('Suppressive fire defence')}
 {suppressive_fire_def_help_str}
-- {fieldName('Medical check for doctor')}
+- {fieldName('Medical check (for doctor)')}
 {medical_check_help_str}
 - {fieldName('Calculate healing amount for days recovered')}
 {heal_calc_help_str}
-- {fieldName('Healing(for patient)')}
+- {fieldName('Healing (for patient)')}
 {heal_help_str}"""
 
     info_help = f"""- See character info:

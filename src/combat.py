@@ -95,7 +95,7 @@ def characterAttack(name, attack_type, range_str, given_roll):
                 elif attack_type == attack_type_full_auto:
                     handleFullAuto(character, wep)
                 elif attack_type == attack_type_melee:
-                    handleMelee(character, wep)
+                    handleMelee(character, wep, given_roll)
             else:
                 print(f'{character.name} has no ways of attack for {attack_type}')
 
@@ -105,7 +105,7 @@ def characterAttack(name, attack_type, range_str, given_roll):
 
 def modifiersForTarget(target_num):
     print(
-        f'Give attack modifier total for target {target_num} (e.g. immobile target, ambush, target size... Full auto/3 round burs is done automatically)')
+        f'Give attack modifier total for target {target_num} (e.g. immobile target, ambush, target size... Full auto/3 round burst is done automatically)')
     i = askInput()
     modifiers_total = safeCastToInt(i)
     return modifiers_total
@@ -138,7 +138,7 @@ melee_attacks = [
 ]
 
 
-def handleMelee(character, wep):
+def handleMelee(character, wep, given_roll):
     modifiers_total = modifiersForTarget(1)
     ref_bonus = character.attributes[REF]
     skill_bonus = 0
@@ -150,10 +150,15 @@ def handleMelee(character, wep):
     else:
         (skill_b, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
         skill_bonus = skill_b
-
-    roll = dice.resolveAutoOrManualRollWithCrit()
+    t_roll = safeCastToInt(given_roll)
+    roll = 0
+    if t_roll > 0:
+        roll = t_roll
+    else:
+        roll = dice.rollWithCrit()
     total = roll + ref_bonus + skill_bonus + modifiers_total
     printGreenLine(f'{character.name} attacks with {wep.item} (Roll total = {total})')
+    print(f'(dice roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus}, modifiers = {modifiers_total})')
     printRedLine("Defend against melee attack by rolling opponent's REF + <some appropriate skill> + 1D10")
     print(f'If attack is successful, {melee_dmg_help_str}')
 
@@ -365,7 +370,9 @@ def handleSingleShot(character, wep, attack_range, given_roll):
     ref_bonus = character.attributes[REF]
     total = roll + ref_bonus + skill_bonus + modifiers_total + wep.wa
     hit_res = total >= roll_to_beat
-    end_res = 'successful'
+    success = coloredText(Fore.GREEN, 'successful')
+    failure = coloredText(Fore.RED, 'unsuccessful')
+    end_res = success
     dmg = 0
 
     if weapon_can_attack:
@@ -376,7 +383,7 @@ def handleSingleShot(character, wep, attack_range, given_roll):
             printRedLine(f'Thrown weapon gone')
 
         if hit_res == False:
-            end_res = 'unsuccessful'
+            end_res = failure
             if wep.isThrown():
                 print('Roll 1D10 to see how the throw misses and another 1D10 to see how far! (See grenade table)')
         else:

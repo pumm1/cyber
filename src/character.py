@@ -2,7 +2,8 @@ import dice
 from roles import roleSpecialAbility
 import bodytypes
 from gameHelper import woundState, body_part_head, body_part_body, \
-    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr, fieldName, coloredText
+    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr, fieldName, coloredText, \
+    no_dmg, light_dmg
 from colorama import Fore, Style
 
 class Character:
@@ -71,7 +72,7 @@ class Character:
         weapon_info = infoStr(f'{fieldName("Weapons")}', '\n'.join(w_list))
         atr_affected = ''
         wnd_state = woundState(self.dmg_taken)
-        if wnd_state != 'No damage' and wnd_state != 'Light damage':
+        if wnd_state != no_dmg and wnd_state != light_dmg:
             atr_affected = f'{coloredText(Fore.RED, "(Stats affected by dmg)")}'
         body_type = bodytypes.bodyTypeModifiersByValue(self.bodyTypeModifier)
         skill_infos = map(lambda skill: (
@@ -99,7 +100,7 @@ class Character:
 {fieldName('Encumbrance(Subtracted from REF)')}: {coloredText(Fore.RED, f"{self.ev}")} 
 {fieldName('Special ability')}({roleSpecialAbility(self.role)}): {self.specialAbility}
 {fieldName('Reputation')}: {self.reputation}
-{fieldName('Health')}: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
+{fieldName('Health')}: 40 / {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
 {fieldName('SP')}: {self.sp}
 {weapon_info}
 {armor_info}
