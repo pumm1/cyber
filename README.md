@@ -2,10 +2,17 @@
 
 ## In progress
 
-Basic idea for this project is to have some kind of tool for
-the referee of Cyberpunk 2020 game to keep track of things
-in easier way, roll results/effects quickly and
-have some quick way to check info on e.g. skills.
+The goal of this project is to have a tool for the referee of Cyberpunk 2020 game
+that helps to keep track of things in a better way than just pen and paper.
+Different helpful things are e.g. quick rolls for characters 
+(especially NPC characters and keeping track of them), 
+keeping track of character statuses and equipment. This project also contains
+some changes to the game logic from the original rules.
+
+This is not a replacement for the original game's source books.
+
+Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
+
 
 ## Features:
 
@@ -15,7 +22,8 @@ have some quick way to check info on e.g. skills.
 - Damage calculation
     * First reduce character SP based on hit location
     * Reduce damage by modifier
-- Determine hit locations
+    * Calculate AP attack effects in some manner
+- Determine random hit locations
 - Fetch character info from DB
 - Keep track of combat sequence order for one combat session
 - Roll skill checks for character
@@ -31,11 +39,12 @@ have some quick way to check info on e.g. skills.
 - Add weapons (can be chrome, included in weapons), gear and chrome
     * For chrome, reduce humanity and empathy automatically
 
-## TODO:
-- Damage effect for AP 
-- Healing logic updates for e.g. drugs and some better healing technologies
 
-## secrets.json in src for db config:
+## TODO:
+- Use some common attribute-table for weapons, armor, chrome and statuses
+(now it's very clumsy when doing bigger changes)
+
+## secrets.json in /src for (PSQL) db config:
 ```
 {
     "DB_HOST": "<host>",
@@ -45,3 +54,8 @@ have some quick way to check info on e.g. skills.
     "DB_PASSWORD": "<db_user_pw>",
 }
 ```
+
+After setting up the PSQL database, run the following migration scripts:
+  * `init.sql`
+  * `create_schema_tables.sql`
+  * `add_basic_skills.sql`
