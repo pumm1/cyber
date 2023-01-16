@@ -2,7 +2,33 @@ import math
 from math import floor
 from colorama import Fore, Style
 
-inputIndicator = f"{Fore.LIGHTMAGENTA_EX}> {Style.RESET_ALL}"
+
+def coloredText(color, text):
+    return f"""{color}{text}{Style.RESET_ALL}"""
+
+
+def printRedLine(text):
+    printColorLine(text, 'red')
+
+
+def printGreenLine(text):
+    printColorLine(text, 'green')
+
+
+def printColorLine(text: str, color=''):
+    t_color = Fore.WHITE
+    if color == 'red':
+        t_color = Fore.RED
+    elif color == 'green':
+        t_color = Fore.GREEN
+    else:
+        t_color = Fore.WHITE
+    text = text + f'{Style.RESET_ALL}'
+    print(t_color, text)
+
+
+
+inputIndicator = coloredText(Fore.LIGHTMAGENTA_EX, "> ")
 split_at = ' '
 roll_str = '/roll'
 list_str = '/list'
@@ -53,11 +79,10 @@ wep_all_reliabilities = [wep_very_reliable, wep_standard_reliability, wep_unreli
 
 rep_roll_str = 'rep'
 hit_location_roll_str = 'hit_loc'
-hit_str = 'hit'
 face_off_str = 'face_off'
 roll_help_str = \
-f"""{roll_str} <dice> / <{rep_roll_str}> / <{hit_str}> / <{hit_location_roll_str}> 
-/ <{face_off_str}> <character_name> / <skill> <character_name> <skill_num> <optional modifier>"""
+f"""{roll_str} <dice> / <{rep_roll_str}> / <{hit_location_roll_str}> 
+/ <{face_off_str}> <character_name> / <skill> <character_name> <skill_num> <optional roll> <optional modifier>"""
 
 very_reliables = ['very reliable', 'vr', 'VR']
 reliables = ['reliable', 'r', 'R']
@@ -148,7 +173,7 @@ add_weapon_help_str = f'{add_weapon_str} {char_name}'
 add_chrome_str = '/add_chrome'
 add_chrome_help_str = f'{add_chrome_str} {char_name}'
 attack_str = '/attack'
-attack_help_str = f'{attack_str} <char> <attack_type melee | single | burst | fa> <range_for_guns> <optional roll>'
+attack_help_str = f'{attack_str} <char> <attack_type melee | single | burst | fa> <range_for_guns except for full auto (fa)> <optional roll except for full auto (fa)>'
 reload_str = '/reload'
 reload_help_str = f'{reload_str} <weapon_id> <num_of_shots>'
 medical_check_str = '/med_check'
@@ -165,6 +190,8 @@ add_status_str = '/add_status'
 add_status_help_str = f'{add_status_str} {char_name}'
 remove_status_str = '/rmv_status'
 remove_status_help_str = f'{remove_status_str} {char_name} <status_id>'
+
+difficulty_check_str = '/diff'
 
 no_dmg = 'No damage'
 light_dmg = 'Light damage'
@@ -198,7 +225,7 @@ def infoStr(label: str, info: str):
 
 
 def fieldName(field):
-    return f"{Fore.LIGHTMAGENTA_EX}{field}{Style.RESET_ALL}"
+    return coloredText(Fore.LIGHTMAGENTA_EX, field)
 
 
 def calculateModifierBonus(armors, modifier):
@@ -211,24 +238,6 @@ def calculateModifierBonus(armors, modifier):
 
 def divBy(val, div):
     return math.ceil(val / div)
-
-
-def printRedLine(text):
-    printColorLine(text, 'red')
-
-def printGreenLine(text):
-    printColorLine(text, 'green')
-
-def printColorLine(text: str, color=''):
-    t_color = Fore.WHITE
-    if color == 'red':
-        t_color = Fore.RED
-    elif color == 'green':
-        t_color = Fore.GREEN
-    else:
-        t_color = Fore.WHITE
-    text = text + f'{Style.RESET_ALL}'
-    print(t_color, text)
 
 
 def woundEffect(dmg_taken, ref, int, cool):
@@ -307,17 +316,17 @@ def stunPenalty(dmg: int):
 def woundState(dmg_taken: int):
     stun_penalty = stunPenalty(dmg_taken)
     if dmg_taken == 0:
-        return f"{Fore.GREEN}{no_dmg}{Style.RESET_ALL}"
+        return coloredText(Fore.GREEN, no_dmg)
     elif stun_penalty == 0:
-        return f"{Fore.YELLOW}{light_dmg}{Style.RESET_ALL}"
+        return coloredText(Fore.WHITE, light_dmg)
     elif stun_penalty == 1:
-        return f"{Fore.LIGHTRED_EX}{serious_dmg}{Style.RESET_ALL}"
+        return coloredText(Fore.YELLOW, serious_dmg)
     elif stun_penalty == 2:
-        return f"{Fore.RED}{critical_dmg}{Style.RESET_ALL}"
+        return coloredText(Fore.LIGHTRED_EX, critical_dmg)
     elif dmg_taken < 40:
-        return f"{Fore.RED}{mortally_wounded}{Style.RESET_ALL}"
+        return coloredText(Fore.RED, mortally_wounded)
     else:
-        return flatlined
+        return coloredText(Fore.RED, flatlined)
 
 
 def safeCastToInt(text):

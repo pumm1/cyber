@@ -1,6 +1,6 @@
 import random
 
-from gameHelper import safeCastToInt, askInput, roll_str
+from gameHelper import safeCastToInt, askInput, roll_str, printGreenLine, printRedLine
 
 
 def roll(n, d_die):
@@ -44,9 +44,9 @@ def rollWithCrit(skip_luck=False):
                 break
     res = roll(1, 10) + added_luck
     if res == 10:
-        print('Critical success roll!')
+        printGreenLine('Critical success roll!')
         res = res + rollWithCrit(skip_luck=True)
     elif res == 1:
-        print('Fumble! For automatic weapons skip fumble table and roll jam')
+        printRedLine('Fumble! For automatic weapons skip fumble table and roll jam')
 
     return res

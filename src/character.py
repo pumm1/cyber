@@ -2,7 +2,7 @@ import dice
 from roles import roleSpecialAbility
 import bodytypes
 from gameHelper import woundState, body_part_head, body_part_body, \
-    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr, fieldName
+    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr, fieldName, coloredText
 from colorama import Fore, Style
 
 class Character:
@@ -72,7 +72,7 @@ class Character:
         atr_affected = ''
         wnd_state = woundState(self.dmg_taken)
         if wnd_state != 'No damage' and wnd_state != 'Light damage':
-            atr_affected = f'{Fore.RED}(Stats affected by dmg){Style.RESET_ALL}'
+            atr_affected = f'{coloredText(Fore.RED, "(Stats affected by dmg)")}'
         body_type = bodytypes.bodyTypeModifiersByValue(self.bodyTypeModifier)
         skill_infos = map(lambda skill: (
             skill.toStr()
@@ -91,12 +91,12 @@ class Character:
         chrome_info = infoStr(f'{fieldName("Chrome")}', '\n'.join(chrome_infos))
         status_info = infoStr(f'{fieldName("Statuses")}', '\n'.join(status_infos))
 
-        str = f"""************* {Fore.CYAN}{self.name}{Style.RESET_ALL} (id: {self.id}) *************
+        str = f"""************* {coloredText(Fore.GREEN, self.name)} (id: {self.id}) *************
 {fieldName('Role')}: {self.role}
 {fieldName('Body type')}: {body_type} ({self.bodyTypeModifier})
 {fieldName('Attributes')}: {self.attributes} {atr_affected}
 {fieldName('Humanity')}: {self.humanity}
-{fieldName('Encumbrance(Subtracted from REF)')}: {Fore.RED}{self.ev}{Style.RESET_ALL} 
+{fieldName('Encumbrance(Subtracted from REF)')}: {coloredText(Fore.RED, f"{self.ev}")} 
 {fieldName('Special ability')}({roleSpecialAbility(self.role)}): {self.specialAbility}
 {fieldName('Reputation')}: {self.reputation}
 {fieldName('Health')}: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})

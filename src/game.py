@@ -13,7 +13,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str, \
     repair_sp_str, repair_sp_help_str, remove_armor_str, remove_armor_help_str, add_status_str, add_status_help_str, \
     help_info, heal_help_str, yes_no, heal_str, heal_calc_str, heal_calc_help_str, askInputCaseSensitive, \
-    remove_status_help_str, remove_status_str, printGreenLine, fieldName
+    remove_status_help_str, remove_status_str, printGreenLine, fieldName, difficulty_check_str
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
@@ -69,11 +69,15 @@ def start():
                     location = combat.determineHitLocation()
                     print(f'Hit {location}')
                 case [_, 'skill', name, skill]:
-                    skills.rollCharacterSkill(name, skill, modifier=0)
-                case [_, 'skill', name, skill, modifier]:
-                    skills.rollCharacterSkill(name, skill, modifier=modifier)
+                    skills.rollCharacterSkill(name, skill, roll=0, modifier=0)
+                case [_, 'skill', name, skill, roll]:
+                    skills.rollCharacterSkill(name, skill, roll=roll, modifier=0)
+                case[_, 'skill', name, skill, roll, modifier]:
+                    skills.rollCharacterSkill(name, skill, roll=roll, modifier=modifier)
                 case _:
                     print(roll_help_str)
+        elif command.startswith(difficulty_check_str):
+            print(skills.difficultyCheckInfo())
         elif command.startswith(lvl_up_skill_str):
             match command_parts:
                 case [_, name, skill_id, update_amount]:

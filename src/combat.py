@@ -9,7 +9,7 @@ from gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
     t_thrown, roll_str, close_range_str, medium_range_str, attack_type_single, attack_type_burst, \
     attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str, body_parts, \
-    t_heavy_weapon, printColorLine, printRedLine, printGreenLine
+    t_heavy_weapon, printColorLine, printRedLine, printGreenLine, coloredText
 from skills import skillBonusForSkill, skill_athletics
 from weapon import Weapon
 from colorama import Fore, Style
@@ -297,7 +297,7 @@ def handleFullAuto(character, wep):
 
 
 def rollToBeatStr(to_beat, total):
-    return f'[{Fore.RED}roll to beat ({to_beat}){Style.RESET_ALL} vs {Fore.GREEN}total ({total}){Style.RESET_ALL}]'
+    return f'[{coloredText(Fore.RED, f"roll to beat ({to_beat})")} vs {coloredText(Fore.GREEN, f"total ({total})")}]'
 
 
 def handleBurst(character, wep, attack_range, given_roll):

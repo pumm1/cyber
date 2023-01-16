@@ -1,5 +1,7 @@
+from colorama import Fore, Style
+
 import dice, cyberdao as DAO
-from gameHelper import safeCastToInt, printGreenLine
+from gameHelper import safeCastToInt, printGreenLine, coloredText
 
 skill_athletics = 'athletics'
 skill_first_aid = 'first aid'
@@ -12,12 +14,12 @@ nearly_impossible_check = 30
 
 def difficultyCheckInfo():
     print(f"""Difficulty checks:
-Easy ({easy_check}+)
+{coloredText(Fore.GREEN, "Easy")} ({easy_check}+)
 Average ({average_check}+)
-Difficult ({difficult_check}+)
-Very difficult ({very_difficult_check}+)
-Nearly impossible ({nearly_impossible_check}+)
-    """)
+{coloredText(Fore.YELLOW, "Difficult")} ({difficult_check}+)
+{coloredText(Fore.LIGHTRED_EX, "Very difficult")} ({very_difficult_check}+)
+{coloredText(Fore.RED, "Nearly impossible")} ({nearly_impossible_check}+)""")
+
 
 def skillBonusForSkill(skills, skill):
     skill_bonus = 0
@@ -36,7 +38,7 @@ def printSkillInfo(skills):
         print(f"({s}) {skillInfo['skill']} [{skillInfo['attribute']}]: {skillInfo['description']}")
 
 
-def rollCharacterSkill(name, skill_num, modifier):
+def rollCharacterSkill(name, skill_num, roll, modifier):
     skill_name = ''
     character = DAO.getCharacterByName(name)
     roll_modifier = safeCastToInt(modifier)
@@ -45,28 +47,30 @@ def rollCharacterSkill(name, skill_num, modifier):
     if skill is not None:
             skill_name = skill['skill']
     if character is not None:
-        roll = 0
+        t_roll = safeCastToInt(roll)
         atr_bonus = 0
         char_skill_lvl = 0
-        die_roll = dice.rollWithCrit()
-        roll = die_roll + roll_modifier
+        die_roll = 0
+        if t_roll <= 0:
+            die_roll = dice.rollWithCrit() + roll_modifier
+        else:
+            die_roll = t_roll + roll_modifier
         skill = [s for s in character.skills if s.skill == skill_name]
         if len(skill) > 0:
             char_skill = skill[0]
             char_skill_lvl = char_skill.lvl
             skill_atr = char_skill.attribute
             atr_bonus = character.attributes[skill_atr]
-            roll = roll + char_skill_lvl + atr_bonus
+            roll = die_roll + char_skill_lvl + atr_bonus
         else:
             skill = DAO.getSkillByName(skill_name)
             if skill is not None:
                 skill_atr = skill['attribute']
                 atr_bonus = character.attributes[skill_atr]
-                roll = roll + atr_bonus
+                roll = die_roll + atr_bonus
 
-        print(f"""{name} rolled {roll} for {skill_name}
-(die roll = {die_roll} atr_bonus = {atr_bonus} skill_level = {char_skill_lvl} modifier = {roll_modifier})
-""")
+        printGreenLine(f"""{name} rolled {roll} for {skill_name}""")
+        print(f"""(die roll = {die_roll} atr_bonus = {atr_bonus} skill_level = {char_skill_lvl} modifier = {roll_modifier})""")
 
 
 def printCharSkillInfo(skills):
@@ -76,17 +80,22 @@ def printCharSkillInfo(skills):
             print(f"{s.skill} - {lvl} [{atr}]")
     else:
         print(f'No skills found')
+
+
 def listSkillsByAttribute(atr: str):
     atr_skills = skillsByAttribute(atr)
     printSkillInfo(atr_skills)
+
 
 def findSkillsByString(string: str):
     skills = DAO.skillsByFuzzyLogic(string)
     printSkillInfo(skills)
 
+
 def listAllSkills():
     all_skills = allSkills()
     printSkillInfo(all_skills)
+
 
 def updateCharSkill(name, skill_id, lvl_up_amount):
     t_skill = safeCastToInt(skill_id)
@@ -121,9 +130,11 @@ def characterSkills(name):
         print(f'{name} Not found')
         return list()
 
+
 def allSkills():
     skills = DAO.listSkills()
     return skills
+
 
 def skillsByAttribute(atr):
     skills = DAO.listSkillsByAttribute(atr)
