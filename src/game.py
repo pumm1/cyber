@@ -13,7 +13,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str, \
     repair_sp_str, repair_sp_help_str, remove_armor_str, remove_armor_help_str, add_status_str, add_status_help_str, \
     help_info, heal_help_str, yes_no, heal_str, heal_calc_str, heal_calc_help_str, askInputCaseSensitive, \
-    remove_status_help_str, remove_status_str, printGreenLine
+    remove_status_help_str, remove_status_str, printGreenLine, fieldName
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
@@ -227,18 +227,18 @@ def start():
                     healing.medicalCheck(name, given_roll=roll)
                 case _:
                     print(medical_check_help_str)
-        elif command.startswith(heal_str):
-            match command_parts:
-                case [_, name, amount]:
-                    healing.healCharacter(name, amount)
-                case _:
-                    print(heal_help_str)
         elif command.startswith(heal_calc_str):
             match command_parts:
                 case [_, days]:
                     healing.calculateHealingAmount(days)
                 case _:
                     print(heal_calc_help_str)
+        elif command.startswith(heal_str):
+            match command_parts:
+                case [_, name, amount]:
+                    healing.healCharacter(name, amount)
+                case _:
+                    print(heal_help_str)
         elif command.startswith(repair_sp_str):
             match command_parts:
                 case [_, name]:
@@ -381,72 +381,74 @@ def help(param):
     list_str = ', '
 
     help_str: str = f"""************ list of commands ************
-- Help:
+- {fieldName('Help')}:
 {list_str.join(help_commands)}
 {help_info}
-- Quit/Exit:
+- {fieldName('Quit / Exit')}
 {list_str.join(exit_commands)}
-- Roll for something:
+- {fieldName('Roll for something')}
 {roll_help_str}
+
 """
 
-    combat_help = f"""- Add new character to initiative sequence:
+    combat_help = f"""
+- {fieldName('Add new character to initiative sequence')}
 {new_combat_initiative_help_str}
-- List combat initiative:
+- {fieldName('List combat initiative')}
 {list_combat_initiative_str}
-- Advance combat initiative or start combat once initiatives have been added:
+- {fieldName('Advance combat initiative or start combat once initiatives have been added')}
 {advance_combat_initiative_str}
-- Clear combat sequence:
+- {fieldName('Clear combat sequence')}
 {clear_combat_str}
-- Reload weapon:
+- {fieldName('Reload weapon')}
 {reload_help_str}
-- Attack:
+- {fieldName('Attack')}
 {attack_help_str}
-- Melee damage:
+- {fieldName('Melee damage')}
 {melee_dmg_help_str}
-- Suppressive fire defence:
+- {fieldName('Suppressive fire defence')}
 {suppressive_fire_def_help_str}
-- Medical check for doctor:
+- {fieldName('Medical check for doctor')}
 {medical_check_help_str}
-- Calculate healing amount for days recovered:
+- {fieldName('Calculate healing amount for days recovered')}
 {heal_calc_help_str}
-- Healing (for patient)
+- {fieldName('Healing(for patient)')}
 {heal_help_str}"""
 
     info_help = f"""- See character info:
 {character_helper_str}
-- List character reputation:
+- {fieldName('List character reputation')}
 {l_rep_help_str}
-- List skills (all | by attribute | by fuzzy logic | by character)
+- {fieldName('List skills (all | by attribute | by fuzzy logic | by character)')}
 {list_skills_helpeer_str}
-- See current stun check for character:
+- {fieldName('See current stun check for character')}:
 {stun_check_help_str}
-- See fumble effect:
+- {fieldName('See fumble effect')}:
 {fumble_help_str}
-- Explain something:
+- {fieldName('Explain something')}:
 {explain_str} <term>"""
 
     modify_help = f"""- Add new character:
 {add_char_help_str}
-- Add armor for character:
+- {fieldName('Add armor for character')}:
 {add_armor_help_str}
-- Add character skill:
+- {fieldName('Add character skill')}:
 {lvl_up_skill_help_str}
-- Add reputation for character:
+- {fieldName('Add reputation for character')}:
 {add_reputation_help_str}
-- New event log:
+- {fieldName('New event log')}:
 {add_event_str}
-- Add weapon for character:
+- {fieldName('Add weapon for character')}:
 {add_weapon_help_str}
-- Add chrome (not used as a weapon) for character:
+- {fieldName('Add chrome (not used as a weapon) for character')}:
 {add_chrome_help_str}
-- Repair character SP:
+- {fieldName('Repair character SP')}:
 {repair_sp_help_str}
-- Remove armor:
+- {fieldName('Remove armor')}:
 {remove_armor_help_str}
-- Add status:
+- {fieldName('Add status')}:
 {add_status_help_str}
-- Remove status:
+- {fieldName('Remove status')}:
 {remove_status_help_str}"""
 
     if param == 'combat':

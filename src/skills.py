@@ -1,5 +1,5 @@
 import dice, cyberdao as DAO
-from gameHelper import safeCastToInt
+from gameHelper import safeCastToInt, printGreenLine
 
 skill_athletics = 'athletics'
 skill_first_aid = 'first aid'
@@ -95,12 +95,12 @@ def updateCharSkill(name, skill_id, lvl_up_amount):
         if character is not None:
             if t_skill == 0:
                 DAO.updateCharSpecial(character.id, lvl_up_amount)
-                print(f'{character.name} special updated (+{lvl_up_amount})')
+                printGreenLine(f'{character.name} special updated (+{lvl_up_amount})')
             else:
                 skill = DAO.getSkillById(skill_id)
                 if skill is not None:
                     DAO.updateCharSkill(character.id, skill, lvl_up_amount)
-                    print(f"Skill {skill['skill']} (+{lvl_up_amount}) updated for {name}")
+                    printGreenLine(f"Skill {skill['skill']} (+{lvl_up_amount}) updated for {name}")
                 else:
                     print(f'Skill not found by id ({skill_id})')
     else:

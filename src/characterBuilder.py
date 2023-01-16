@@ -5,7 +5,7 @@ import bodytypes
 from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str, INT, REF, TECH, \
     COOL, ATTR, LUCK, MA, BODY, EMP, body_part_l_arm, body_part_body, body_part_head, body_part_r_arm, t_melee, \
     t_handgun, t_shotgun, t_rifle, t_thrown, t_smg, con_pocket, con_long_coat, con_jacket, not_hideable, yes_no, \
-    body_part_l_leg, body_part_r_leg
+    body_part_l_leg, body_part_r_leg, printGreenLine
 
 
 def rollAtr():
@@ -364,7 +364,7 @@ def addArmorSet(character_id, armor_set):
     for armor in armor_set:
         print(f"Adding {armor['item']}")
         DAO.addArmor(character_id, armor['item'], armor['sp'], armor['body_parts'], armor['ev'], {})
-    print('Armor set added')
+    printGreenLine('Armor set added')
 
 
 def addWeaponSet(character_id, weapon_set):
@@ -373,7 +373,7 @@ def addWeaponSet(character_id, weapon_set):
         DAO.addWeapon(character_id, wep['item'], wep['weapon_type'], wep['is_chrome'], wep['dice_number'],
                       wep['dice_dmg'], wep['dmg_bonus'], wep['range'], wep['rof'], wep['clip_size'],
                       wep['effect_radius'], wep['wa'], wep['con'], wep['reliability'], wep['weight'])
-print('Weapon set added')
+        printGreenLine('Weapon set added')
 
 
 def rollAtributes():

@@ -75,6 +75,7 @@ def medicalCheck(name, given_roll):
             printRedLine(f'Medical check unsuccessful! {info}')
 
 
+#TODO: add other bonuses, e.g. nanomachines
 def calculateHealingAmount(days):
     print(f'Include medtech bonus? {yes_no}')
     healing_rate = 1
@@ -87,7 +88,7 @@ def calculateHealingAmount(days):
         elif i == 'n':
             break
     healing = heal_days * healing_rate
-    printGreenLine(f'{healing}HP recovered in {heal_days}')
+    printGreenLine(f'{healing}HP recovered in {heal_days} days')
 
 
 def healCharacter(name, amount):

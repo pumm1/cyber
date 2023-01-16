@@ -2,7 +2,7 @@ import math
 from math import floor
 from colorama import Fore, Style
 
-inputIndicator = "> "
+inputIndicator = f"{Fore.LIGHTMAGENTA_EX}> {Style.RESET_ALL}"
 split_at = ' '
 roll_str = '/roll'
 list_str = '/list'
@@ -197,6 +197,10 @@ def infoStr(label: str, info: str):
     return str
 
 
+def fieldName(field):
+    return f"{Fore.LIGHTMAGENTA_EX}{field}{Style.RESET_ALL}"
+
+
 def calculateModifierBonus(armors, modifier):
     bonus = 0
     for armor in armors:
@@ -251,14 +255,10 @@ def woundEffect(dmg_taken, ref, int, cool):
             r = divBy(ref, 2)
             i = divBy(int, 2)
             c = divBy(cool, 2)
-        case 'Mortally wounded':
+        case _:
             r = divBy(ref, 3)
             i = divBy(int, 3)
             c = divBy(cool, 3)
-        case _:
-            r = 0
-            i = 0
-            c = 0
 
     return (r, i, c)
 

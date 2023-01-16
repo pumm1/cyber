@@ -31,7 +31,7 @@ def meleeDmgBonusByModifier(modifier) -> int:
     elif 4 < modifier <= 6:
         return 4
     elif 6 < modifier <= 8:
-        return  6
+        return 6
     else:
         return 8
 

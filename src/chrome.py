@@ -2,7 +2,7 @@ import math
 
 import cyberdao as DAO
 from dice import roll
-from gameHelper import askInput, roll_str, askForRoll, safeCastToInt, EMP
+from gameHelper import askInput, roll_str, askForRoll, safeCastToInt, EMP, printGreenLine, printRedLine
 
 
 class Chrome:
@@ -21,7 +21,7 @@ def addChrome(name):
         print('Give description:')
         descr = askInput()
         addChromeWithHumanityCost(character, item, descr)
-        print(f'Chrome added for {character.name}')
+        printGreenLine(f'Chrome added for {character.name}')
 
 
 def addChromeWithHumanityCost(character, item, descr):
@@ -49,7 +49,7 @@ def handleHumanity(char):
     t_hum = curr_hum - humanity_cost
     emp = math.ceil(t_hum / 10)
     print(f'Curr emp: {char.attributes[EMP]} - new emp: {emp}')
-    print(f'Current humanity: {curr_hum} - new humanity: {t_hum}')
+    printRedLine(f'Current humanity: {curr_hum} - new humanity: {t_hum}')
     DAO.reduceHumanity(char.id, t_hum, emp)
     print(f'Updated humanity and empathy')
     return humanity_cost

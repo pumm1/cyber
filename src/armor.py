@@ -1,7 +1,7 @@
 import cyberdao as DAO
 from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_parts, body_part_head, body_part_body, \
     uniqueArr, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, atr_info, modifier_list, BODY_TYPE_MOD, yes_no, \
-    body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg
+    body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg, printGreenLine
 from chrome import addChromeWithHumanityCost
 
 
@@ -92,7 +92,7 @@ def addArmorForCharacter(name):
         DAO.addArmor(character.id, item, sp, covered_parts, ev, bonuses_dict)
         if is_chrome:
             addChromeWithHumanityCost(character, item, 'Added with armor')
-        print(f'Armor added!')
+        printGreenLine(f'Armor added!')
 
 
 
@@ -137,7 +137,7 @@ def repairSP(name):
     char = DAO.getCharacterByName(name)
     if char is not None:
         DAO.repairCharacterSP(char.id)
-        print(f'Armor repaired for {char.name}')
+        printGreenLine(f'Armor repaired for {char.name}')
 
 
 def removeArmor(name, armor_id):

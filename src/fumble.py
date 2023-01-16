@@ -1,5 +1,5 @@
 import dice
-from gameHelper import EMP, very_reliables, reliables, unreliables
+from gameHelper import EMP, very_reliables, reliables, unreliables, printRedLine
 
 combat_no_fumble = 'No fumble, you just screw up'
 combat_bad_fumble = 'Oh shit! You manage to wound a member of your own party, or yourself if alone. Roll for location and dmg'
@@ -121,6 +121,6 @@ def rollWeaponJam(reliability):
     if roll > roll_to_beat:
         print('Phew, weapon does not jam')
     else:
-        print('Shit, weapon jams!')
+        printRedLine('Shit, weapon jams!')
         turns_to_unjam = dice.roll(1, 6)
-        print(f'It takes {turns_to_unjam} turn to unjam the weapon')
+        print(f'It takes {turns_to_unjam} turn(s) to unjam the weapon')

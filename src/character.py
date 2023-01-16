@@ -2,7 +2,7 @@ import dice
 from roles import roleSpecialAbility
 import bodytypes
 from gameHelper import woundState, body_part_head, body_part_body, \
-    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr
+    body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr, fieldName
 from colorama import Fore, Style
 
 class Character:
@@ -60,17 +60,19 @@ class Character:
             roll = dice.rollWithCrit()
         return roll + self.attributes['COOL'] + self.reputation
 
+
+
     def info(self):
         weapons_infos = map(lambda w: (
             w.toStr()
         ), self.weapons)
 
         w_list = list(weapons_infos)
-        weapon_info = infoStr(f'Weapons', '\n'.join(w_list))
+        weapon_info = infoStr(f'{fieldName("Weapons")}', '\n'.join(w_list))
         atr_affected = ''
         wnd_state = woundState(self.dmg_taken)
         if wnd_state != 'No damage' and wnd_state != 'Light damage':
-            atr_affected = '(Stats affected by dmg)'
+            atr_affected = f'{Fore.RED}(Stats affected by dmg){Style.RESET_ALL}'
         body_type = bodytypes.bodyTypeModifiersByValue(self.bodyTypeModifier)
         skill_infos = map(lambda skill: (
             skill.toStr()
@@ -84,21 +86,21 @@ class Character:
         chrome_infos = map(lambda c: (
             c.toStr()
         ), self.cybernetics)
-        skill_info = infoStr(f'Skills', '\n'.join(skill_infos))
-        armor_info = infoStr(f'Armor gear', '\n'.join(armor_infos))
-        chrome_info = infoStr(f'Chrome', '\n'.join(chrome_infos))
-        status_info = infoStr(f'Statuses', '\n'.join(status_infos))
+        skill_info = infoStr(f'{fieldName("Skills")}', '\n'.join(skill_infos))
+        armor_info = infoStr(f'{fieldName("Armor gear")}', '\n'.join(armor_infos))
+        chrome_info = infoStr(f'{fieldName("Chrome")}', '\n'.join(chrome_infos))
+        status_info = infoStr(f'{fieldName("Statuses")}', '\n'.join(status_infos))
 
-        str = f"""************* {self.name} (id: {self.id}) *************
-Role: {self.role}
-Body type: {body_type} ({self.bodyTypeModifier})
-Attributes: {self.attributes} {atr_affected}
-Humanity: {self.humanity}
-Encumbrance (Subtracted from REF): {Fore.RED}{self.ev}{Style.RESET_ALL} 
-Special ability ({roleSpecialAbility(self.role)}): {self.specialAbility}
-Reputation: {self.reputation}
-Health: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
-SP: {self.sp}
+        str = f"""************* {Fore.CYAN}{self.name}{Style.RESET_ALL} (id: {self.id}) *************
+{fieldName('Role')}: {self.role}
+{fieldName('Body type')}: {body_type} ({self.bodyTypeModifier})
+{fieldName('Attributes')}: {self.attributes} {atr_affected}
+{fieldName('Humanity')}: {self.humanity}
+{fieldName('Encumbrance(Subtracted from REF)')}: {Fore.RED}{self.ev}{Style.RESET_ALL} 
+{fieldName('Special ability')}({roleSpecialAbility(self.role)}): {self.specialAbility}
+{fieldName('Reputation')}: {self.reputation}
+{fieldName('Health')}: {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
+{fieldName('SP')}: {self.sp}
 {weapon_info}
 {armor_info}
 {chrome_info}
