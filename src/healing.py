@@ -1,9 +1,12 @@
 import math
 
+from colorama import Fore
+
 import cyberdao as DAO
 import dice
 from skills import skillBonusForSkill, skill_first_aid, difficultyCheckInfo, very_difficult_check, easy_check, average_check, difficult_check, very_difficult_check, nearly_impossible_check
-from gameHelper import TECH, askInput, safeCastToInt, checkListCommand, list_str, yes_no, printGreenLine, printRedLine
+from gameHelper import TECH, askInput, safeCastToInt, checkListCommand, list_str, yes_no, printGreenLine, printRedLine, \
+    coloredText
 from roles import meditechie
 
 #values are changed from offial rules a bit, then they would be 0.5 and 1
@@ -100,4 +103,4 @@ def healCharacter(name, amount):
         if dmg_taken < 0:
             dmg_taken = 0
         DAO.healCharacter(char.id, dmg_taken)
-
+        print(f"{char.name} {coloredText(Fore.GREEN, f'healed by {healing}')}")

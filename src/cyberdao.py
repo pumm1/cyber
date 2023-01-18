@@ -63,7 +63,7 @@ def getCharacterRowByName(name: str):
     conn.commit()
     return char_row
 
-#TODO: extract logic from getCharacterByName so can be used for by id too
+
 def getCharcaterRowById(id):
     cur.execute(
         f"""{character_q} WHERE c.id = {id};"""
@@ -74,7 +74,7 @@ def getCharcaterRowById(id):
     return char_row
 
 
-def getCharacter(char_row):
+def getCharacter(char_row) -> Character | None:
     character = None
     if char_row is not None:
         id = char_row['id']
@@ -134,11 +134,15 @@ def getCharacter(char_row):
 
 def getCharacterById(id):
     char_row = getCharcaterRowById(id)
-    return getCharacter(char_row)
+    char = getCharacter(char_row)
+
+    return char
 
 def getCharacterByName(name: str):
     char_row = getCharacterRowByName(name)
-    return getCharacter(char_row)
+    char = getCharacter(char_row)
+
+    return char
 
 
 def healCharacter(character_id, new_dmg_taken):
@@ -148,8 +152,6 @@ def healCharacter(character_id, new_dmg_taken):
             WHERE id = {character_id};"""
     )
     conn.commit()
-    print('Character healed')
-
 
 def characterSpById(character_id):
     cur.execute(

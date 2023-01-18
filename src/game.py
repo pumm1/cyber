@@ -172,7 +172,7 @@ def start():
         elif command.startswith(stun_check_str):
             match command_parts:
                 case [_, name]:
-                    stunCheckCharacter(name)
+                    combat.stunCheck(name)
                 case _:
                     print(stun_check_help_str)
         elif command.startswith(character_str):
@@ -393,11 +393,6 @@ def addToCombat(name, initiative):
     if character is not None:
         DAO.addCharacterToCombat(character.id, initiative)
         print(f'{character.name} added to combat session')
-
-def stunCheckCharacter(name):
-    character = DAO.getCharacterByName(name)
-    if character is not None:
-        combat.stunCheck(character)
 
 
 #param = all/combat/info

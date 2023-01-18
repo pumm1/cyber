@@ -176,4 +176,20 @@ alter table cyberpunk.character_notice_quick_checks
         foreign key(character_id)
         references cyberpunk.characters(id);
 
+--TODO: use later for weapons/chrome/armor
+--then have foreign key to here from where ever
+create table cyberpunk.item_atr_changes(
+    id bigserial not null primary key,
+    atr_int integer not null DEFAULT 0,
+    atr_ref integer not null DEFAULT 0,
+    atr_cool integer not null DEFAULT 0,
+    atr_ma integer not null DEFAULT 0,
+    atr_attr integer not null DEFAULT 0,
+    atr_body integer not null DEFAULT 0,
+    atr_luck integer not null DEFAULT 0,
+    atr_emp integer not null DEFAULT 0,
+    atr_tech integer not null DEFAULT 0,
+    body_type_modifier integer not null DEFAULT 0
+);
+
 COMMIT;

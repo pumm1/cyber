@@ -565,11 +565,12 @@ def damageCharacter(c: Character, dmg):
     if total_dmg > 0:
         printRedLine(f'{c.name} damaged by {total_dmg}! (DMG reduced by {dmgReduction})')
         DAO.dmgCharacter(c.id, total_dmg)
-        updated_character = DAO.getCharacterByName(c.name)
-        if (updated_character.dmg_taken >= max_health):
+        updated_character = DAO.getCharacterById(c.id)
+
+        if updated_character.dmg_taken >= max_health:
             printRedLine(f'{c.name} has flatlined')
         else:
-            stunCheck(updated_character)
+            stunCheck(updated_character.name)
     else:
         print('The hit did not damage target')
 
@@ -624,14 +625,18 @@ def stunCheckToBeat(dmg_taken, body):
     return save_against
 
 
-def stunCheck(c: Character):
-    save_against = stunCheckToBeat(c.dmg_taken, c.attributes['BODY'])
-    roll = dice.roll(1, 10)
-    isStunned = roll > save_against
 
-    if isStunned:
-        printRedLine(rollStunOverActingEffect(c.name))
-    else:
-        printGreenLine(f"{c.name} wasn't stunned by DMG")
+def stunCheck(name):
+    c = DAO.getCharacterByName(name)
+    if c is not None:
+        save_against = stunCheckToBeat(c.dmg_taken, c.attributes['BODY'])
+        roll = dice.roll(1, 10)
+        isStunned = roll > save_against
 
-    return isStunned
+        if isStunned:
+            printRedLine(rollStunOverActingEffect(c.name))
+        else:
+            printGreenLine(f"{c.name} wasn't stunned!")
+        print(f'[Save against = {save_against} vs roll = {roll}]')
+
+        return isStunned
