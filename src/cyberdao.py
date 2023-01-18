@@ -1,13 +1,14 @@
 import psycopg2.extras
+from colorama import Fore
 
 from cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
-    table_events, table_character_chrome, table_character_statuses
+    table_events, table_character_chrome, table_character_statuses, table_character_quick_notice
 from character import Character
 from skill import SkillInfo
 from armor import Armor
 from gameHelper import EMP, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, woundEffect, calculateModifierBonus, \
-    BODY_TYPE_MOD, t_thrown
+    BODY_TYPE_MOD, t_thrown, coloredText
 from chrome import Chrome
 from status import Status
 from weapon import Weapon
@@ -54,7 +55,7 @@ def getCharactersByName(name: str):
     conn.commit()
 
 
-def getCharacterRow(name: str):
+def getCharacterRowByName(name: str):
     cur.execute(
         f"""{character_q} WHERE c.name = '{name}';"""
     )
@@ -62,9 +63,18 @@ def getCharacterRow(name: str):
     conn.commit()
     return char_row
 
+#TODO: extract logic from getCharacterByName so can be used for by id too
+def getCharcaterRowById(id):
+    cur.execute(
+        f"""{character_q} WHERE c.id = {id};"""
+    )
+    char_row = cur.fetchone()
+    conn.commit()
 
-def getCharacterByName(name: str):
-    char_row = getCharacterRow(name)
+    return char_row
+
+
+def getCharacter(char_row):
     character = None
     if char_row is not None:
         id = char_row['id']
@@ -120,6 +130,15 @@ def getCharacterByName(name: str):
         print('No character found')
 
     return character
+
+
+def getCharacterById(id):
+    char_row = getCharcaterRowById(id)
+    return getCharacter(char_row)
+
+def getCharacterByName(name: str):
+    char_row = getCharacterRowByName(name)
+    return getCharacter(char_row)
 
 
 def healCharacter(character_id, new_dmg_taken):
@@ -310,6 +329,16 @@ def skillsByFuzzyLogic(string: str):
     skills = skillsFromRows(rows)
     conn.commit()
     return skills
+
+
+def skillByName(s_name: str):
+    cur.execute(
+        f"{skills_q} WHERE skill = '{s_name}';"
+    )
+    skill = cur.fetchone()
+
+    conn.commit()
+    return skill
 
 
 def getCharacterSkillsById(id) -> list[SkillInfo]:
@@ -617,3 +646,33 @@ def removeStatus(status_id, character_id):
     )
     conn.commit()
     print('Status removed')
+
+
+def addCharacterForQuickNoticeCheck(character_id, name):
+    cur.execute(
+        f"""{insert} {table_character_quick_notice} (character_id)
+        VALUES ({character_id});"""
+    )
+    conn.commit()
+    print(f'{coloredText(Fore.GREEN, name)} added to quick notice check')
+
+def charactersForQuickNoticeCheck():
+    cur.execute(
+        f"""{select_from} {table_character_quick_notice};"""
+    )
+    rows = cur.fetchall()
+    conn.commit()
+
+    characters = []
+    for row in rows:
+        c = getCharacterById(row['character_id'])
+        characters.append(c)
+    return characters
+
+
+def clearQuickNoticeCheck():
+    cur.execute(
+        f"""{delete_from} {table_character_quick_notice};"""
+    )
+    conn.commit()
+    print(f'Quick notice checks cleared')

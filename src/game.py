@@ -15,11 +15,14 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str, \
     repair_sp_str, repair_sp_help_str, remove_armor_str, remove_armor_help_str, add_status_str, add_status_help_str, \
     help_info, heal_help_str, yes_no, heal_str, heal_calc_str, heal_calc_help_str, askInputCaseSensitive, \
-    remove_status_help_str, remove_status_str, printGreenLine, fieldName, difficulty_check_str, coloredText
+    remove_status_help_str, remove_status_str, printGreenLine, fieldName, difficulty_check_str, coloredText, \
+    notice_roll_str, notice_roll_help_str, add_character_for_notice_str, add_character_for_notice_help_str, \
+    clear_notice_str
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
 import status
+import notice
 
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
@@ -61,7 +64,6 @@ def start():
                 case [_, 'dice']:
                     (dice_num, die, bonus) = askForRoll()
                     res = dice.roll(dice_num, die) + bonus
-
                     print(f'Rolled {res}')
                 case [_, 'face_off', character]:
                     faceOffRoll(character, roll=0)
@@ -78,6 +80,20 @@ def start():
                     skills.rollCharacterSkill(name, skill, roll=roll, modifier=modifier)
                 case _:
                     print(roll_help_str)
+        elif command.startswith(notice_roll_str):
+            match command_parts:
+                case [_, roll_to_beat]:
+                    notice.quickNoticeCheckForCharacters(roll_to_beat)
+                case _:
+                    print(notice_roll_help_str)
+        elif command.startswith(add_character_for_notice_str):
+            match command_parts:
+                case [_, name]:
+                    notice.addCharacterToQuickNotice(name)
+                case _:
+                    print(add_character_for_notice_help_str)
+        elif command.startswith(clear_notice_str):
+            notice.clearQuickNotices()
         elif command.startswith(difficulty_check_str):
             print(skills.difficultyCheckInfo())
         elif command.startswith(lvl_up_skill_str):
@@ -423,7 +439,7 @@ def help(param):
 - {fieldName('Healing (for patient)')}
 {heal_help_str}"""
 
-    info_help = f"""- See character info:
+    info_help = f"""- {fieldName('See character info')}:
 {character_helper_str}
 - {fieldName('List character reputation')}
 {l_rep_help_str}
@@ -434,9 +450,16 @@ def help(param):
 - {fieldName('See fumble effect')}:
 {fumble_help_str}
 - {fieldName('Explain something')}:
-{explain_str} <term>"""
+{explain_str} <term>
+- {fieldName('Add characters to quick notice check table')}
+{add_character_for_notice_help_str}
+- {fieldName('Roll quick notice check for all characters in the quick notice check table')}
+{notice_roll_help_str}
+- {fieldName('Clear quick notice check table')}
+{clear_notice_str}
+"""
 
-    modify_help = f"""- Add new character:
+    modify_help = f"""- {fieldName('Add new character')}:
 {add_char_help_str}
 - {fieldName('Add armor for character')}:
 {add_armor_help_str}

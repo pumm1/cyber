@@ -92,6 +92,10 @@ def findSkillsByString(string: str):
     printSkillInfo(skills)
 
 
+def awarenessSkill():
+    return DAO.skillByName('awareness')
+
+
 def listAllSkills():
     all_skills = allSkills()
     printSkillInfo(all_skills)

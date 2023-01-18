@@ -51,6 +51,7 @@ BODY_TYPE_MOD = 'BTM'
 exit_commands = ['/e', '/q', '/exit', '/quit']
 help_commands = ['/help', '/halp', '/h']
 help_info = f"""<help> <optional combat / info / modify>"""
+char_name = '<character_name>'
 
 t_taser = 'taser'
 
@@ -77,11 +78,16 @@ wep_unreliable = 'UR'
 
 wep_all_reliabilities = [wep_very_reliable, wep_standard_reliability, wep_unreliable]
 
+#TODO: make a clearable table for characters to run notice checks automatically with one call
+notice_roll_str = '/notice'
+notice_roll_help_str = f'{notice_roll_str} <roll_to_beat>'
+add_character_for_notice_str = '/add_notice'
+add_character_for_notice_help_str = f'{add_character_for_notice_str} {char_name}'
+clear_notice_str = '/clear_notice'
 rep_roll_str = 'rep'
 hit_location_roll_str = 'hit_loc'
 face_off_str = 'face_off'
-roll_help_str = \
-f"""{roll_str} <dice> / <{rep_roll_str}> / <{hit_location_roll_str}> 
+roll_help_str = f"""{roll_str} <dice> / <{rep_roll_str}> / <{hit_location_roll_str}> 
 / <{face_off_str}> <character_name> / <skill> <character_name> <skill_num> <optional roll> <optional modifier>"""
 
 very_reliables = ['very reliable', 'vr', 'VR']
@@ -135,7 +141,6 @@ body_parts_armor_info = f"""1 - {body_part_head}
 5 - {body_part_r_leg}
 6 - {body_part_l_leg}
 """
-char_name = '<character_name>'
 add_char_str = '/add_char'
 roll_all_str = 'roll_all'
 roll_atr_str = 'roll_atr'

@@ -167,4 +167,13 @@ create table cyberpunk.character_statuses(
     effect varchar not null
 );
 
+create table cyberpunk.character_notice_quick_checks(
+    character_id bigint not null
+);
+
+alter table cyberpunk.character_notice_quick_checks
+    add constraint character_notice__character_fk
+        foreign key(character_id)
+        references cyberpunk.characters(id);
+
 COMMIT;

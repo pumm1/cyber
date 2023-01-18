@@ -14,7 +14,7 @@ This is not a replacement for the original game's source books.
 Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 
 
-## Features:
+## Feature examples:
 
 - Get character info by name (health, SP, skills, weapons..)
 - Stun checks based on damage
@@ -30,7 +30,10 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 - Add reputation for character
 - Add some notable events and list them
 - Medical check rolls
-- Attack rolls (completely automated for guns for the most part)
+- Quick notice checks
+  * Add characters to quick notice check table
+  * With one command, see if they clear some awareness check
+- Attack rolls (completely automated for guns for the most part or give manual rolls)
   * Single
   * Burst
   * Full auto
