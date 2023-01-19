@@ -1,8 +1,10 @@
 import math
 
+from colorama import Fore
+
 import cyberdao as DAO
 from dice import roll
-from gameHelper import askInput, roll_str, askForRoll, safeCastToInt, EMP, printGreenLine, printRedLine
+from gameHelper import askInput, roll_str, askForRoll, safeCastToInt, EMP, printGreenLine, printRedLine, coloredText
 
 
 class Chrome:
@@ -11,7 +13,7 @@ class Chrome:
         self.description = row['description']
 
     def toStr(self):
-        return f"{self.item} ({self.description})"
+        return f"{coloredText(Fore.LIGHTCYAN_EX, self.item)} ({self.description})"
 
 def addChrome(name):
     character = DAO.getCharacterByName(name)

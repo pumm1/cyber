@@ -97,8 +97,8 @@ class Character:
 {fieldName('Body type')}: {body_type} ({self.bodyTypeModifier})
 {fieldName('Attributes')}: {self.attributes} {atr_affected}
 {fieldName('Humanity')}: {self.humanity}
-{fieldName('Encumbrance(Subtracted from REF)')}: {coloredText(Fore.RED, f"{self.ev}")} 
-{fieldName('Special ability')}({roleSpecialAbility(self.role)}): {self.specialAbility}
+{fieldName('Encumbrance (Subtracted from REF)')}: {coloredText(Fore.RED, f"{self.ev}")} 
+{fieldName('Special ability')} ({roleSpecialAbility(self.role)}): {self.specialAbility}
 {fieldName('Reputation')}: {self.reputation}
 {fieldName('Health')}: 40 / {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
 {fieldName('SP')}: {self.sp}

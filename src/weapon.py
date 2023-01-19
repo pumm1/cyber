@@ -1,8 +1,10 @@
 import math
 
+from colorama import Fore
+
 from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handgun, t_smg, t_rifle, t_thrown, BODY, \
     guns, EMP, point_blank_range_str, close_range_str, medium_range_str, long_range_str, extreme_range_str, \
-    impossible_range_str, askForRoll, all_con, wep_all_reliabilities, yes_no
+    impossible_range_str, askForRoll, all_con, wep_all_reliabilities, yes_no, coloredText
 import dice
 import cyberdao as DAO
 from chrome import handleHumanity
@@ -117,7 +119,7 @@ class Weapon:
         cybernetic_str = ''
         if self.is_chrome:
             cybernetic_str = ' [cybernetic]'
-        str = f'(id: {self.weapon_id}) {self.item} ({self.weapon_type}{cybernetic_str}) [{self.shots_left} / {self.clip_size}] - {dice.diceToStr(self.dice_num, self.dice_dmg, self.dmg_bonus)} | WA: {self.wa} | range {self.range}m | #ROF: {self.rof} | REL: {self.reliability} | CON: {self.con}'
+        str = f'(id: {self.weapon_id}) {coloredText(Fore.LIGHTCYAN_EX ,self.item)} ({self.weapon_type}{cybernetic_str}) [{self.shots_left} / {self.clip_size}] - {dice.diceToStr(self.dice_num, self.dice_dmg, self.dmg_bonus)} | WA: {self.wa} | range {self.range}m | #ROF: {self.rof} | REL: {self.reliability} | CON: {self.con}'
         return str
 
     def isGun(self) -> bool:

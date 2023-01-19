@@ -1,3 +1,5 @@
+from gameHelper import coloredText
+from colorama import Fore
 class SkillInfo:
     def __init__(self, skill, level, attribute):
         self.skill = skill
@@ -6,4 +8,4 @@ class SkillInfo:
 
 
     def toStr(self):
-        return f'{self.skill} {self.lvl} [{self.attribute}]'
+        return f'{coloredText(Fore.LIGHTCYAN_EX, self.skill)} {self.lvl} [{self.attribute}]'

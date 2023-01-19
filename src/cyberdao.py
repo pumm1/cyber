@@ -113,13 +113,13 @@ def getCharacter(char_row) -> Character | None:
         attributes = {
             INT: int,
             REF: ref - ev_total + armor_modifier_bonuses[REF],
-            TECH: char_row['atr_tech'],
-            COOL: cool,
-            ATTR: char_row['atr_attr'],
-            MA: char_row['atr_ma'],
-            BODY: char_row['atr_body'],
-            LUCK: char_row['atr_luck'],
-            EMP: char_row['atr_emp']
+            TECH: char_row['atr_tech'] + armor_modifier_bonuses[TECH],
+            COOL: cool + armor_modifier_bonuses[TECH],
+            ATTR: char_row['atr_attr'] + armor_modifier_bonuses[ATTR],
+            MA: char_row['atr_ma'] + armor_modifier_bonuses[MA],
+            BODY: char_row['atr_body'] + armor_modifier_bonuses[BODY],
+            LUCK: char_row['atr_luck'] + armor_modifier_bonuses[LUCK],
+            EMP: char_row['atr_emp'] + armor_modifier_bonuses[EMP]
         }
 
         weapon_rows = characterWeapons(id, body=attributes[BODY])
