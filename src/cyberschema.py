@@ -1,8 +1,18 @@
 import os
 import json
+from pathlib import Path, PureWindowsPath
+
 
 def readSecrets() -> dict:
-    filename = os.path.join('src/secrets.json')
+    secrets = 'secrets.json'
+    filename = ''
+    path = ''
+    if os.name == 'nt':
+        path = PureWindowsPath(secrets)
+    else:
+        path = Path(f'src/{secrets}')
+
+    filename = os.path.join(path)
     try:
         with open(filename, mode='r') as f:
             res = json.loads(f.read())
@@ -10,6 +20,7 @@ def readSecrets() -> dict:
     except FileNotFoundError:
         print(f'!! Secrets not found !!')
         return {}
+
 
 secrets = readSecrets()
 

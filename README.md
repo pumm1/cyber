@@ -47,6 +47,12 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 - Use some common attribute-table for weapons, armor, chrome and statuses
 (now it's very clumsy when doing bigger changes)
 
+# Setup
+
+* Install python3.10
+  * Install colorama
+  * Install psycopg2
+
 ## secrets.json in /src for (PSQL) db config:
 ```
 {
