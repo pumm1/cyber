@@ -51,10 +51,10 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 ```
 {
     "DB_HOST": "<host>",
-    "DB_SCHEMA": "<db_schema>,
+    "DB_SCHEMA": "<db_schema>",
     "DB_NAME": "<db_name>",
     "DB_USER": "<db_user>",
-    "DB_PASSWORD": "<db_user_pw>",
+    "DB_PASSWORD": "<db_user_pw>"
 }
 ```
 
@@ -62,3 +62,4 @@ After setting up the PSQL database, run the following migration scripts:
   * `init.sql`
   * `create_schema_tables.sql`
   * `add_basic_skills.sql`
+  * `grant_access.sql`
