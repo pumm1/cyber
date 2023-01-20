@@ -49,9 +49,10 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 
 # Setup
 
-* Install python3.10
-  * Install colorama
-  * Install psycopg2
+* Install python 3.10+
+  * Dependencies:
+    - colorama
+    - psycopg2
 
 ## secrets.json in /src for (PSQL) db config:
 ```
