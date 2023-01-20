@@ -1,7 +1,7 @@
 BEGIN;
 
 CREATE TABLE cyberpunk.characters(
-    id BIGSERIAL not null primary key primary key,
+    id BIGSERIAL not null primary key,
     name varchar not null,
     role varchar not null,
     special_ability integer not null,
