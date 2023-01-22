@@ -9,6 +9,7 @@ from chrome import addChromeWithHumanityCost
 
 class Armor:
     def __init__(self, row):
+        print(f'... row: {row}')
         self.id = row['id']
         self.item = row['item']
         self.sp = row['sp']

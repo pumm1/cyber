@@ -121,7 +121,7 @@ atr_emp = 'atr_emp'
 body_type_mod = 'body_type_modifier'
 
 #these are for gear, including atr and body type modifiers
-modifier_list = [atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, body_type_mod]
+modifier_list = [INT, REF, TECH, COOL, ATTR, LUCK, MA, BODY, EMP, body_type_mod]
 atr_info = f"""1 - {INT}
 2 - {REF}
 3 - {TECH}
