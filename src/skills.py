@@ -1,7 +1,7 @@
 from colorama import Fore, Style
 
 import dice, cyberdao as DAO
-from gameHelper import safeCastToInt, printGreenLine, coloredText
+from gameHelper import safeCastToInt, printGreenLine, coloredText, list_skills_helper_str
 
 skill_athletics = 'athletics'
 skill_first_aid = 'first aid'
@@ -143,3 +143,17 @@ def allSkills():
 def skillsByAttribute(atr):
     skills = DAO.listSkillsByAttribute(atr)
     return skills
+
+
+def listSkills(command):
+    match command:
+        case[_]:
+            listAllSkills()
+        case[_, 'atr', atr]:
+            listSkillsByAttribute(atr)
+        case[_, 'fuzzy', str]:
+            findSkillsByString(str)
+        case[_, 'char', name]:
+            printCharacterSkills(name)
+        case _:
+            print(list_skills_helper_str)
