@@ -5,6 +5,7 @@ from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_part
     uniqueArr, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, atr_info, modifier_list, BODY_TYPE_MOD, yes_no, \
     body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg, printGreenLine, coloredText
 from chrome import addChromeWithHumanityCost
+from bonus import addAttributeBonuses, handleBonuses
 
 
 class Armor:
@@ -70,7 +71,7 @@ def addArmorForCharacter(name):
             sp = safeCastToInt(sp_i)
             if sp > 0:
                 break;
-        bonuses_dict = addAttributeBonuses()
+        (atr_bonuses, skill_bonuses) = handleBonuses()
         print('Give encumbrance (EV):')
         ev = -1
         while ev < 0:
@@ -91,47 +92,11 @@ def addArmorForCharacter(name):
                     covered_parts.append(input)
                     covered_parts = uniqueArr(covered_parts)
 
-        DAO.addArmor(character.id, item, sp, covered_parts, ev, bonuses_dict)
+        item_bonus_id = DAO.addArmor(character.id, item, sp, covered_parts, ev, atr_bonuses, skill_bonuses)
         if is_chrome:
-            addChromeWithHumanityCost(character, item, 'Added with armor')
+            addChromeWithHumanityCost(character, item, 'Added with armor', item_bonus_id=item_bonus_id)
         printGreenLine(f'Armor added!')
 
-
-
-def handleAttributeBonuses():
-    print(f'Modify attributes? {yes_no}')
-    i = askInput()
-    bonuses = []
-    while True:
-        if i == 'y':
-            bonuses = addAttributeBonuses()
-            break
-        elif i == 'n':
-            break
-    return bonuses
-
-
-def addAttributeBonuses():
-    bonuses_dict = {}
-    array_limit = len(modifier_list)
-    bonus = 0
-    while True:
-        print(f'Give attributes: (end with -1)')
-        print(atr_info)
-        input = askInput()
-        i = safeCastToInt(input)
-        if len(bonuses_dict) >= array_limit:
-            break
-        elif i == -1:
-            break
-        elif 0 < i <= array_limit:
-            atr = modifier_list[i - 1]
-            print(f'Attribute ({atr}) modified by:')
-            inp = askInput()
-            bonus = safeCastToInt(inp)
-            bonuses_dict.update({atr: bonus})
-        print(f'Current bonuses: {bonuses_dict}')
-    return bonuses_dict
 
 
 

@@ -21,10 +21,9 @@ CREATE TABLE cyberpunk.characters(
 
 CREATE TABLE cyberpunk.character_skills(
     character_id bigint not null,
-    skill varchar not null,
-    skill_value integer,
-    attribute varchar not null,
-    CONSTRAINT unique_char_skill UNIQUE (character_id, skill)
+    skill_id bigint not null,
+    skill_lvl integer not null,
+    CONSTRAINT unique_char_skill UNIQUE (character_id, skill_id)
 );
 
 alter table cyberpunk.character_skills
@@ -93,16 +92,7 @@ create table cyberpunk.character_armor(
     sp integer not null,
     body_parts varchar[] not null,
     ev integer not null,
-    atr_int integer not null DEFAULT 0,
-    atr_ref integer not null DEFAULT 0,
-    atr_cool integer not null DEFAULT 0,
-    atr_ma integer not null DEFAULT 0,
-    atr_attr integer not null DEFAULT 0,
-    atr_body integer not null DEFAULT 0,
-    atr_luck integer not null DEFAULT 0,
-    atr_emp integer not null DEFAULT 0,
-    atr_tech integer not null DEFAULT 0,
-    body_type_modifier integer not null DEFAULT 0
+    item_bonus_id bigint
 );
 
 alter table cyberpunk.character_armor
@@ -134,7 +124,8 @@ create table cyberpunk.character_weapons(
     clip_size integer not null,
     shots_left integer not null,
     reliability cyberpunk.reliability not null,
-    weight integer not null default 3
+    weight integer not null default 3,
+    item_bonus_id bigint
 );
 
 alter table cyberpunk.character_weapons
@@ -147,7 +138,8 @@ create table cyberpunk.character_chrome(
     humanity_cost integer not null,
     character_id bigint not null,
     item varchar not null,
-    description varchar not null
+    description varchar not null,
+    item_bonus_id bigint
 );
 
 alter table cyberpunk.character_chrome
@@ -178,7 +170,8 @@ alter table cyberpunk.character_notice_quick_checks
 
 --TODO: use later for weapons/chrome/armor
 --then have foreign key to here from where ever
-create table cyberpunk.item_atr_changes(
+
+create table cyberpunk.item_atr_bonuses(
     id bigserial not null primary key,
     atr_int integer not null DEFAULT 0,
     atr_ref integer not null DEFAULT 0,
@@ -191,5 +184,35 @@ create table cyberpunk.item_atr_changes(
     atr_tech integer not null DEFAULT 0,
     body_type_modifier integer not null DEFAULT 0
 );
+
+
+create table cyberpunk.item_bonuses(
+    id bigserial not null PRIMARY KEY,
+    item_atr_id bigint not null
+);
+
+alter table cyberpunk.item_bonuses
+    add constraint item_bonus__item_atr_fk
+        foreign key(item_atr_id)
+        references cyberpunk.item_atr_bonuses(id);
+
+create table cyberpunk.item_skill_bonus(
+    item_bonus_id bigint not null,
+    skill_id bigint not null,
+    skill_bonus integer not null
+);
+
+
+alter table cyberpunk.item_skill_bonus
+    add constraint item_skill_bonus__skill_fk
+        foreign key(skill_id)
+        references cyberpunk.skills(id);
+
+alter table cyberpunk.item_skill_bonus
+    add constraint item_skill_bonus__item_bonus_fk
+        foreign key(item_bonus_id)
+        references cyberpunk.item_bonuses(id);
+
+--TODO: DAO muutokset
 
 COMMIT;

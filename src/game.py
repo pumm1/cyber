@@ -7,7 +7,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     explain_str, add_reputation_str, add_char_help_str, advance_combat_initiative_str, list_combat_initiative_str, \
     new_combat_initiative_str, new_combat_initiative_help_str, clear_combat_str, character_str, \
     character_helper_str, roll_help_str, stun_check_str, stun_check_help_str, dmg_str, safeCastToInt, dmg_helper_str, \
-    roll_all_str, roll_atr_str, list_skills_str, list_skills_helpeer_str, lvl_up_skill_str, lvl_up_skill_help_str, \
+    roll_all_str, roll_atr_str, list_skills_str, list_skills_helper_str, lvl_up_skill_str, lvl_up_skill_help_str, \
     fumble_str, fumble_help_str, jam_str, jam_help_str, add_armor_str, add_armor_help_str, add_reputation_help_str, \
     list_rep_str, l_rep_help_str, add_event_str, add_weapon_str, add_weapon_help_str, attack_str, attack_help_str, \
     reload_str, reload_help_str, attack_type_single, attack_type_burst, attack_type_full_auto, list_event_str, \
@@ -134,15 +134,7 @@ def start():
                 case _:
                     print(jam_help_str)
         elif command.startswith(list_skills_str):
-            match command_parts:
-                case [_]:
-                    skills.listAllSkills()
-                case [_, 'atr', atr]:
-                    skills.listSkillsByAttribute(atr)
-                case [_, 'fuzzy', str]:
-                    skills.findSkillsByString(str)
-                case [_, 'char', name]:
-                    skills.printCharacterSkills(name)
+            skills.listSkills(command_parts)
         elif command.startswith(explain_str):
             print('TODO: add explanations for things')
         elif command.startswith(add_reputation_str):
@@ -439,7 +431,7 @@ def help(param):
 - {fieldName('List character reputation')}
 {l_rep_help_str}
 - {fieldName('List skills (all | by attribute | by fuzzy logic | by character)')}
-{list_skills_helpeer_str}
+{list_skills_helper_str}
 - {fieldName('See current stun check for character')}:
 {stun_check_help_str}
 - {fieldName('See fumble effect')}:
