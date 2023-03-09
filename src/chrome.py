@@ -32,7 +32,8 @@ def addChrome(name):
         item = askInput()
         print('Give description:')
         descr = askInput()
-        addChromeWithHumanityCost(character, item, descr, handle_bonuses=True)
+
+        addChromeWithHumanityCost(character, item, descr)
         printGreenLine(f'Chrome added for {character.name}')
 
 
