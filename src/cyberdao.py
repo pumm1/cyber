@@ -1,3 +1,4 @@
+from collections import defaultdict
 import psycopg2.extras
 from colorama import Fore
 
@@ -305,19 +306,18 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
 
 
 def characterSkillsFromRows(skill_rows) -> list[SkillInfo]:
-    skills = []
+    skills = list()
     for skill in skill_rows:
         skill_lvl = skill['skill_lvl']
-        skill_bonus = skill['skill_bonus']
         if skill_lvl is None:
             skill_lvl = 0
-        if skill_bonus is None:
-            skill_bonus = 0
-        lvl = skill_lvl + skill_bonus
 
-        s = SkillInfo(skill['skill'], lvl, skill['attribute'])
+        s = SkillInfo(skill['skill_id'], skill['skill'], skill_lvl, skill['attribute'])
         skills.append(s)
 
+    skill_groups = defaultdict(list)
+    for skill in skills:
+        skill_groups[skill.id].append(skill)
     return list(skills)
 
 
@@ -361,27 +361,41 @@ def skillByName(s_name: str):
 
 
 def getCharacterSkillsById(id, bonus_skill_ids: [int], item_bonus_ids: [int]) -> list[SkillInfo]:
-    ids_listed = ', '.join(map(str, bonus_skill_ids))
-    ids_str = '{' + ids_listed + '}'
+    char_skills_q = f"""{character_skills_q} cs
+    JOIN {table_skills} s ON cs.skill_id = s.id
+    JOIN {table_characters} c ON cs.character_id = c.id
+    WHERE c.id = {id};
+    """
 
-    q = f"""{character_skills_q} cs 
-        FULL OUTER JOIN (
-            SELECT s.id as s_id, *  FROM {table_skills} s 
-            JOIN {table_item_skill_bonus} isb ON isb.skill_id = s.id
-            JOIN {table_item_bonuses} ib ON isb.item_bonus_id = ib.id
-            LEFT JOIN {table_character_chrome} cc on cc.item_bonus_id = ib.id
-            JOIN {table_characters} c ON cc.character_id = c.id
-        ) s ON cs.skill_id = s.s_id
-        WHERE cs.character_id = {id} OR s.s_id = ANY ('{ids_str}'::bigint[]);"""
+    item_bonus_skills_q = f"""SELECT skill_bonus as skill_lvl, * FROM {table_item_skill_bonus} isb
+    JOIN {table_item_bonuses} ib ON isb.item_bonus_id = ib.id
+    JOIN {table_character_chrome} cc on cc.item_bonus_id = ib.id
+    JOIN {table_characters} c ON c.id = cc.character_id
+    JOIN {table_skills} s ON isb.skill_id = s.id
+    WHERE c.id = {id};
+    """
 
-    cur.execute(
-        q
-    )
-    skill_rows = cur.fetchall()
+    cur.execute(char_skills_q)
+    char_skill_rows = cur.fetchall()
+    cur.execute(item_bonus_skills_q)
+    item_bonus_skill_rows = cur.fetchall()
     conn.commit()
-    skills = characterSkillsFromRows(skill_rows)
+    skills = characterSkillsFromRows(char_skill_rows)
+    item_bonus_skills = characterSkillsFromRows(item_bonus_skill_rows)
 
-    return skills
+    all_skills = skills + item_bonus_skills
+
+    skill_dict = dict([])
+
+    for skill in all_skills:
+        t_skill = skill_dict.get(skill.id)
+        if t_skill is None:
+            skill_dict[skill.id] = skill
+        else:
+            t_skill.updateSkill(skill.lvl)
+            skill_dict[skill.id] = t_skill
+
+    return skill_dict.values()
 
 
 def listSkillsByAttribute(atr: str):
