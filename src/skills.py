@@ -38,6 +38,30 @@ def printSkillInfo(skills):
         print(f"({s}) {skillInfo['skill']} [{skillInfo['attribute']}]: {skillInfo['description']}")
 
 
+def rollCharacterMeleeDef(name, roll):
+    character = DAO.getCharacterByName(name)
+    if character is not None:
+        skill = DAO.getSkillByName('dodge/escape')
+        if skill is not None:
+            die_roll = safeCastToInt(roll)
+            if die_roll <= 0:
+                die_roll = dice.rollWithCrit(True)
+
+            atr_bonus = character.attributes[skill['attribute']]
+
+            char_dodge_skill = None
+            for s in character.skills:
+                if s.id == skill['id']:
+                    char_dodge_skill = s
+                    break
+            char_dodge_lvl = 0
+            if char_dodge_skill is not None:
+                char_dodge_lvl = char_dodge_skill['lvl']
+            roll = die_roll + atr_bonus
+            print(f"""(die roll = {die_roll} atr_bonus = {atr_bonus} dodge = {char_dodge_lvl})""")
+            printGreenLine(f"Melee def total: {roll} (hopefully the attacker rolled lower..)")
+
+
 def rollCharacterSkill(name, skill_num, roll, modifier):
     skill_name = ''
     character = DAO.getCharacterByName(name)

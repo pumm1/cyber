@@ -69,6 +69,10 @@ def start():
                     faceOffRoll(character, roll=0)
                 case [_, 'face_off', character, roll]:
                     faceOffRoll(character, roll)
+                case [_, 'melee_def', name]:
+                    skills.rollCharacterMeleeDef(name, roll=0)
+                case [_, 'melee_def', name, roll]:
+                    skills.rollCharacterMeleeDef(name, roll)
                 case [_, 'hit_loc']:
                     location = combat.determineHitLocation()
                     print(f'Hit {location}')
