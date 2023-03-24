@@ -5,7 +5,7 @@ from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_part
     uniqueArr, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, atr_info, modifier_list, BODY_TYPE_MOD, yes_no, \
     body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg, printGreenLine, coloredText
 from chrome import addChromeWithHumanityCost
-from bonus import addAttributeBonuses, handleBonuses
+from bonus import addAttributeBonuses, handleBonuses, AtrBonus
 
 
 class Armor:
@@ -16,18 +16,8 @@ class Armor:
         self.body_parts = row['body_parts']
         self.ev = row['ev']
         self.character_id = row['character_id']
-        self.attributes = {
-            INT: row['atr_int'],
-            REF: row['atr_ref'],
-            TECH: row['atr_tech'],
-            COOL: row['atr_ref'],
-            ATTR: row['atr_attr'],
-            MA: row['atr_ma'],
-            BODY: row['atr_body'],
-            LUCK: row['atr_luck'],
-            EMP: row['atr_emp'],
-            BODY_TYPE_MOD: row['body_type_modifier']
-        }
+        attributes = AtrBonus(row)
+        self.atr_bonuses = attributes
 
     def toStr(self) -> str:
         return f'(id: {self.id}) {coloredText(Fore.LIGHTCYAN_EX, self.item)} ({self.sp} SP) - {self.body_parts}'

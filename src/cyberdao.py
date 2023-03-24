@@ -10,7 +10,8 @@ from character import Character
 from skill import SkillInfo
 from armor import Armor
 from gameHelper import EMP, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, woundEffect, calculateModifierBonus, \
-    BODY_TYPE_MOD, t_thrown, coloredText
+    BODY_TYPE_MOD, t_thrown, coloredText, body_type_mod, atr_int, atr_tech, atr_ref, atr_cool, atr_attr, atr_luck, \
+    atr_ma, atr_body, atr_emp
 from chrome import Chrome
 from status import Status
 from weapon import Weapon
@@ -101,32 +102,32 @@ def getCharacter(char_row) -> Character | None:
 
         (ref, int, cool) = woundEffect(dmg_taken, char_row['atr_ref'], char_row['atr_int'], char_row['atr_cool'])
 
-        armor_body_type_bonus = calculateModifierBonus(armors, BODY_TYPE_MOD)
+        item_body_type_bonus = calculateModifierBonus(armors, cybernetics, BODY_TYPE_MOD)
 
-        bodyTypeModifier = char_row['body_type_modifier'] + armor_body_type_bonus
+        bodyTypeModifier = char_row['body_type_modifier'] + item_body_type_bonus
 
-        armor_modifier_bonuses = {
-            INT: calculateModifierBonus(armors, INT),
-            REF: calculateModifierBonus(armors, REF),
-            TECH: calculateModifierBonus(armors, TECH),
-            COOL: calculateModifierBonus(armors, COOL),
-            ATTR: calculateModifierBonus(armors, ATTR),
-            MA: calculateModifierBonus(armors, MA),
-            BODY: calculateModifierBonus(armors, BODY),
-            LUCK: calculateModifierBonus(armors, LUCK),
-            EMP: calculateModifierBonus(armors, EMP),
+        item_modifier_bonuses = {
+            INT: calculateModifierBonus(armors, cybernetics, INT),
+            REF: calculateModifierBonus(armors, cybernetics, REF),
+            TECH: calculateModifierBonus(armors, cybernetics, TECH),
+            COOL: calculateModifierBonus(armors, cybernetics, COOL),
+            ATTR: calculateModifierBonus(armors, cybernetics, ATTR),
+            MA: calculateModifierBonus(armors, cybernetics, MA),
+            BODY: calculateModifierBonus(armors, cybernetics, BODY),
+            LUCK: calculateModifierBonus(armors, cybernetics, LUCK),
+            EMP: calculateModifierBonus(armors, cybernetics, EMP),
         }
 
         attributes = {
-            INT: int,
-            REF: ref - ev_total + armor_modifier_bonuses[REF],
-            TECH: char_row['atr_tech'] + armor_modifier_bonuses[TECH],
-            COOL: cool + armor_modifier_bonuses[TECH],
-            ATTR: char_row['atr_attr'] + armor_modifier_bonuses[ATTR],
-            MA: char_row['atr_ma'] + armor_modifier_bonuses[MA],
-            BODY: char_row['atr_body'] + armor_modifier_bonuses[BODY],
-            LUCK: char_row['atr_luck'] + armor_modifier_bonuses[LUCK],
-            EMP: char_row['atr_emp'] + armor_modifier_bonuses[EMP]
+            INT: int + item_modifier_bonuses[INT],
+            REF: ref - ev_total + item_modifier_bonuses[REF],
+            TECH: char_row['atr_tech'] + item_modifier_bonuses[TECH],
+            COOL: cool + item_modifier_bonuses[TECH],
+            ATTR: char_row['atr_attr'] + item_modifier_bonuses[ATTR],
+            MA: char_row['atr_ma'] + item_modifier_bonuses[MA],
+            BODY: char_row['atr_body'] + item_modifier_bonuses[BODY],
+            LUCK: char_row['atr_luck'] + item_modifier_bonuses[LUCK],
+            EMP: char_row['atr_emp'] + item_modifier_bonuses[EMP]
         }
 
         weapon_rows = characterWeapons(id, body=attributes[BODY])
@@ -456,7 +457,7 @@ def insertItemBonusesReturningBonusId(atr_bonuses_dict: dict, skill_bonuses: lis
         f"""{insert} {table_item_atr_bonuses} 
         (body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr, 
         atr_luck, atr_ma, atr_body, atr_emp)
-        VALUES ({atr_bonuses_dict.get(BODY_TYPE_MOD, 0)}, {atr_bonuses_dict.get(INT, 0)},
+        VALUES ({atr_bonuses_dict.get(body_type_mod, 0)}, {atr_bonuses_dict.get(INT, 0)},
         {atr_bonuses_dict.get(REF, 0)}, {atr_bonuses_dict.get(TECH, 0)}, {atr_bonuses_dict.get(COOL, 0)}, 
         {atr_bonuses_dict.get(ATTR, 0)}, {atr_bonuses_dict.get(LUCK, 0)}, {atr_bonuses_dict.get(MA, 0)}, 
         {atr_bonuses_dict.get(BODY, 0)}, {atr_bonuses_dict.get(EMP, 0)})

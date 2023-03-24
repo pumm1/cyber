@@ -1,7 +1,8 @@
 from colorama import Fore
 
 from gameHelper import INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, BODY_TYPE_MOD, askInput, yes_no, modifier_list, \
-    atr_info, safeCastToInt, list_skills_helper_str, list_skills_str, split_at, coloredText
+    atr_info, safeCastToInt, list_skills_helper_str, list_skills_str, split_at, coloredText, body_type_mod, atr_int, \
+    atr_emp, atr_luck, atr_body, atr_ma, atr_attr, atr_ref, atr_tech
 import skills
 import cyberdao as DAO
 
@@ -9,16 +10,16 @@ import cyberdao as DAO
 class AtrBonus:
     def __init__(self, atr_row):
         self.attributes = {
-            INT: atr_row['atr_int'],
-            REF: atr_row['atr_ref'],
-            TECH: atr_row['atr_tech'],
-            COOL: atr_row['atr_ref'],
-            ATTR: atr_row['atr_attr'],
-            MA: atr_row['atr_ma'],
-            BODY: atr_row['atr_body'],
-            LUCK: atr_row['atr_luck'],
-            EMP: atr_row['atr_emp'],
-            BODY_TYPE_MOD: atr_row['body_type_modifier']
+            INT: atr_row[atr_int],
+            REF: atr_row[atr_ref],
+            TECH: atr_row[atr_tech],
+            COOL: atr_row[atr_ref],
+            ATTR: atr_row[atr_attr],
+            MA: atr_row[atr_ma],
+            BODY: atr_row[atr_body],
+            LUCK: atr_row[atr_luck],
+            EMP: atr_row[atr_emp],
+            BODY_TYPE_MOD: atr_row[body_type_mod]
         }
 
 
@@ -35,7 +36,7 @@ def handleBonuses():
     atr_bonuses: dict[str, int] = {}
     while True:
         if i == 'y':
-            bonuses = addAttributeBonuses()
+            atr_bonuses = addAttributeBonuses()
             break
         elif i == 'n':
             break

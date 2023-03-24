@@ -233,10 +233,13 @@ def fieldName(field):
     return coloredText(Fore.LIGHTMAGENTA_EX, field)
 
 
-def calculateModifierBonus(armors, modifier):
+def calculateModifierBonus(armors, cybernetics, modifier):
     bonus = 0
     for armor in armors:
-        bonus += armor.attributes[modifier]
+        bonus += armor.atr_bonuses.attributes[modifier]
+
+    for cybernetic in cybernetics:
+        bonus += cybernetic.atr_bonuses.attributes[modifier]
 
     return bonus
 
