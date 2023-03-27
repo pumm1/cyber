@@ -51,8 +51,8 @@ def handleHumanity(char):
     while True:
         i = askInput()
         if i == roll_str:
-            (dice, die, bonus) = askForRoll()
-            humanity_cost = roll(dice, die) + bonus
+            (dice, die, divide_by, bonus) = askForRoll()
+            humanity_cost = roll(dice, die, divide_by) + bonus
             print(f'Rolled {humanity_cost}')
             break
         else:

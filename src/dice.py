@@ -1,22 +1,30 @@
+import math
 import random
 
 from gameHelper import safeCastToInt, askInput, roll_str, printGreenLine, printRedLine
 
 
-def roll(n, d_die):
+def roll(n, d_die, divide_by=1, bonus=0):
+    if divide_by == 0:
+        divide_by = 1
     res = 0
     for i in range(n):
-        roll = random.randint(1, d_die)
-        #print(f'Rolled {roll} from {diceToStr(1, d_die, 0)}')
-        res = res + roll
-    return res
+        die_roll = random.randint(1, d_die)
+        res = res + die_roll
+    dice_roll_res = math.ceil(res / divide_by) + bonus
+    print(f'Rolled {dice_roll_res} (before possible div: {res}) from {diceToStr(n, d_die, divide_by, bonus)}')
+    return dice_roll_res
 
-def diceToStr(n, d_die, bonus) -> str:
-    str = f"{n}D{d_die}"
+def diceToStr(n, d_die, divide_by, bonus) -> str:
+    div_str = ''
+    if divide_by == 0:
+        divide_by = 1
+    if divide_by > 1:
+        div_str = f'/{divide_by}'
+    str = f"{n}D{d_die}{div_str}"
     suffix = ''
     if bonus > 0:
-        suffix = f' + {bonus}'
-    str = str + suffix
+        str = f'{str} + {bonus}'
 
     return str
 

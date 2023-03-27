@@ -117,6 +117,7 @@ create table cyberpunk.character_weapons(
     is_chrome boolean not null,
     dice_number integer not null,
     dice_dmg integer not null,
+    divide_by integer not null
     dmg_bonus integer not null,
     range integer not null,
     effect_radius integer not null,

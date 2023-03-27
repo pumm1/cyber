@@ -289,21 +289,20 @@ def askInputCaseSensitive() -> str:
     return i
 
 
-def askForRoll() -> (int, int, int):
-    print('Give roll (e.g. 2D6+1 = 2-6-1, 1D6 = 1-6)')
+#TODO: allow also division and save that to db
+def askForRoll() -> (int, int, int, int):
+    print('Give roll (e.g. 2D6+1 = 2-6-1-1, 1D6 = 1-6-1-0, 3D6/2+1 = 3-6-2-1)')
     input = askInput()
     parts = input.split('-')
     match parts:
-        case [dice_s, die_s]:
+        case [dice_s, die_s, divide_s, bonus_s]:
             dice = safeCastToInt(dice_s)
             die = safeCastToInt(die_s)
-            bonus = 0
-            return (dice, die, 0)
-        case [dice_s, die_s, bonus_s]:
-            dice = safeCastToInt(dice_s)
-            die = safeCastToInt(die_s)
+            divide_by = safeCastToInt(divide_s)
+            if divide_by == 0:
+                divide_by = 1
             bonus = safeCastToInt(bonus_s)
-            return (dice, die, bonus)
+            return (dice, die, divide_by, bonus)
         case _:
             print('Invalid input')
             return askForRoll()

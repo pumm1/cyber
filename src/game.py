@@ -62,9 +62,9 @@ def start():
         elif command.startswith(roll_str):
             match command_parts:
                 case [_, 'dice']:
-                    (dice_num, die, bonus) = askForRoll()
-                    res = dice.roll(dice_num, die) + bonus
-                    print(f'Rolled {res}')
+                    (dice_num, die, divide_by, bonus) = askForRoll()
+                    res = dice.roll(dice_num, die, divide_by, bonus)
+                    printGreenLine(f'Rolled {res}')
                 case [_, 'face_off', character]:
                     faceOffRoll(character, roll=0)
                 case [_, 'face_off', character, roll]:

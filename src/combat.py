@@ -173,14 +173,14 @@ def handleMeleeDmg(name, roll):
                 case 'weapon':
                     wep = weaponByAttackType(attack_type_melee, character)
                     if dmg_roll == 0:
-                        dmg_roll = dice.roll(wep.dice_num, wep.dice_dmg)
+                        dmg_roll = dice.roll(wep.dice_num, wep.dice_dmg, divide_by=wep.divide_by, bonus=wep.dmg_bonus)
                     if wep is not None:
-                        dmg = dmg_roll + wep.dmg_bonus + dmg_bonus
+                        dmg = dmg_roll + dmg_bonus
                         method = wep.item
                         break
                 case 'strike':
                     if dmg_roll == 0:
-                        dmg_roll = math.floor(dice.roll(1, 6) / 2)
+                        dmg_roll = dice.roll(1, 6, divide_by=2)
                     dmg = dmg_roll + dmg_bonus
                     break
                 case 'kick':
@@ -342,7 +342,7 @@ def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill):
         total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa
         print(rollToBeatStr(roll_to_beat, total))
         if total >= roll_to_beat:
-            hits = math.ceil(dice.roll(1, 6) / 2)
+            hits = dice.roll(1, 6, divide_by=2)
             if shots_fired < 3 and hits == 3:
                 hits = shots_left
             total_dmg = 0
@@ -449,7 +449,7 @@ def handleWeaponDmgAndHit(wep, attack_range):
     while True:
         input = askInput()
         if input == roll_str:
-            dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus
+            dmg = dice.roll(wep.dice_num, wep.dice_dmg, divide_by=wep.divide_by, bonus=wep.dmg_bonus)
             break
         else:
             dmg = safeCastToInt(input)

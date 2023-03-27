@@ -597,14 +597,14 @@ def listEvents():
     return rows
 
 
-def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size,
+def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, divide_by, dmg_bonus, range, rof, clip_size,
               effect_radius, wa, con, reliability, weight):
     cur.execute(
         f"""{insert} {table_character_weapons} 
-            (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, clip_size, 
+            (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, divide_by, dmg_bonus, range, rof, clip_size, 
             shots_left, effect_radius, wa, con, reliability, weight)
             VALUES
-            ({character_id}, '{item}', '{weapon_type}', {is_chrome}, {dice_number}, {dice_dmg}, {dmg_bonus}, {range}, 
+            ({character_id}, '{item}', '{weapon_type}', {is_chrome}, {dice_number}, {dice_dmg}, {divide_by}, {dmg_bonus}, {range}, 
             {rof}, {clip_size}, {clip_size}, {effect_radius}, {wa}, '{con}', '{reliability}', {weight});
         """
     )

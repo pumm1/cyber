@@ -18,6 +18,7 @@ class Weapon:
         self.is_chrome = row['is_chrome']
         self.dice_num = row['dice_number']
         self.dice_dmg = row['dice_dmg']
+        self.divide_by = row['divide_by']
         self.dmg_bonus = row['dmg_bonus']
         self.weight = row['weight']
         if custom_range is None:
@@ -119,7 +120,7 @@ class Weapon:
         cybernetic_str = ''
         if self.is_chrome:
             cybernetic_str = ' [cybernetic]'
-        str = f'(id: {self.weapon_id}) {coloredText(Fore.LIGHTCYAN_EX ,self.item)} ({self.weapon_type}{cybernetic_str}) [{self.shots_left} / {self.clip_size}] - {dice.diceToStr(self.dice_num, self.dice_dmg, self.dmg_bonus)} | WA: {self.wa} | range {self.range}m | #ROF: {self.rof} | REL: {self.reliability} | CON: {self.con}'
+        str = f'(id: {self.weapon_id}) {coloredText(Fore.LIGHTCYAN_EX ,self.item)} ({self.weapon_type}{cybernetic_str}) [{self.shots_left} / {self.clip_size}] - {dice.diceToStr(self.dice_num, self.dice_dmg, self.divide_by, self.dmg_bonus)} | WA: {self.wa} | range {self.range}m | #ROF: {self.rof} | REL: {self.reliability} | CON: {self.con}'
         return str
 
     def isGun(self) -> bool:
@@ -147,9 +148,9 @@ def addChracterWeapon(character_name):
         reliability = askReliability()
         weight = askWeight()
 
-        (dice, die, bonus) = askForRoll()
+        (dice, die, divide_by, bonus) = askForRoll()
 
-        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, bonus, weapon_range, rof, clip_size,
+        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, divide_by, bonus, weapon_range, rof, clip_size,
                       effect_radius, wa, con, reliability, weight)
         if is_chrome:
             handleHumanity(char)
