@@ -53,7 +53,6 @@ def handleBonuses():
     return (atr_bonuses, skill_bonuses)
 
 
-#TODO: debug
 def addSkillBonuses() -> [SkillBonus]:
     print(f"Give skill id for bonus or {list_skills_str} to list skills")
     print("(end with -1)")

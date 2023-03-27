@@ -76,7 +76,7 @@ def getCharcaterRowById(id):
 
     return char_row
 
-#TODO: korjaa skillit
+
 def getCharacter(char_row) -> Character | None:
     character = None
     if char_row is not None:

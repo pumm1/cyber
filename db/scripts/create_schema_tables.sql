@@ -214,6 +214,17 @@ alter table cyberpunk.item_skill_bonus
         foreign key(item_bonus_id)
         references cyberpunk.item_bonuses(id);
 
---TODO: DAO muutokset
+
+CREATE TABLE cyberpunk.statuses(
+    id bigserial not null primary key,
+    status_name varchar not null,
+    description varchar not null,
+    item_atr_id bigint not null
+);
+
+alter table cyberpunk.statuses
+    add constraint status__item_atr_id_fk
+        foreign key(item_atr_id)
+        references cyberpunk.item_atr_bonuses(id);
 
 COMMIT;

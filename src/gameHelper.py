@@ -78,7 +78,6 @@ wep_unreliable = 'UR'
 
 wep_all_reliabilities = [wep_very_reliable, wep_standard_reliability, wep_unreliable]
 
-#TODO: make a clearable table for characters to run notice checks automatically with one call
 notice_roll_str = '/notice'
 notice_roll_help_str = f'{notice_roll_str} <roll_to_beat>'
 add_character_for_notice_str = '/add_notice'
@@ -280,16 +279,15 @@ def woundEffect(dmg_taken, ref, int, cool):
     return (r, i, c)
 
 
-
 def askInput() -> str:
     return askInputCaseSensitive().lower().strip()
+
 
 def askInputCaseSensitive() -> str:
     i = input(inputIndicator).replace("'", "’")
     return i
 
 
-#TODO: allow also division and save that to db
 def askForRoll() -> (int, int, int, int):
     print('Give roll (e.g. 2D6+1 = 2-6-1-1, 1D6 = 1-6-1-0, 3D6/2+1 = 3-6-2-1)')
     input = askInput()
@@ -306,6 +304,7 @@ def askForRoll() -> (int, int, int, int):
         case _:
             print('Invalid input')
             return askForRoll()
+
 
 def uniqueArr(arr):
     print(f'arr: {arr}')
