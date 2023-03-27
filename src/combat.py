@@ -9,7 +9,7 @@ from gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
     t_thrown, roll_str, close_range_str, medium_range_str, attack_type_single, attack_type_burst, \
     attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str, body_parts, \
-    t_heavy_weapon, printColorLine, printRedLine, printGreenLine, coloredText
+    t_heavy_weapon, printColorLine, printRedLine, printGreenLine, coloredText, t_smg
 from skills import skillBonusForSkill, skill_athletics
 from weapon import Weapon
 from colorama import Fore, Style
@@ -79,6 +79,7 @@ def characterAttack(name, attack_type, range_str, given_roll):
         character = DAO.getCharacterByName(name)
         if character is not None:
             wep = weaponByAttackType(attack_type, character)
+            (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
 
             if wep is not None:
                 if wep.effect_radius > 0:
@@ -89,13 +90,13 @@ def characterAttack(name, attack_type, range_str, given_roll):
                         """For shotguns, point blank/short range attack is for one spot, mid range hits 2 spots and long/extreme hits 3 places."""
                     )
                 if attack_type == attack_type_single:
-                    handleSingleShot(character, wep, attack_range, given_roll)
+                    handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill)
                 elif attack_type == attack_type_burst:
-                    handleBurst(character, wep, attack_range, given_roll)
+                    handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill)
                 elif attack_type == attack_type_full_auto:
-                    handleFullAuto(character, wep)
+                    handleFullAuto(character, wep, skill_bonus, skill)
                 elif attack_type == attack_type_melee:
-                    handleMelee(character, wep, given_roll)
+                    handleMelee(character, wep, given_roll, skill_bonus, skill)
             else:
                 print(f'{character.name} has no ways of attack for {attack_type}')
 
@@ -138,18 +139,13 @@ melee_attacks = [
 ]
 
 
-def handleMelee(character, wep, given_roll):
+def handleMelee(character, wep, given_roll, skill_bonus, skill):
     modifiers_total = modifiersForTarget(1)
     ref_bonus = character.attributes[REF]
-    skill_bonus = 0
     if wep.item == unarmed:
         print('Give skill for bonus (e.g. brawling, karate, judo...)')
         skill = askInput()
         skill_bonus = skillBonusForSkill(character.skills, skill)
-
-    else:
-        (skill_b, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
-        skill_bonus = skill_b
     t_roll = safeCastToInt(given_roll)
     roll = 0
     if t_roll > 0:
@@ -158,12 +154,13 @@ def handleMelee(character, wep, given_roll):
         roll = dice.rollWithCrit()
     total = roll + ref_bonus + skill_bonus + modifiers_total
     printGreenLine(f'{character.name} attacks with {wep.item} (Roll total = {total})')
-    print(f'(dice roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus}, modifiers = {modifiers_total})')
-    printRedLine("Defend against melee attack by rolling opponent's REF + <some appropriate skill> + 1D10")
-    print(f'If attack is successful, {melee_dmg_help_str}')
+    print(f'If attack is successful, calculate damage for roll (or automatically roll dmg) with {melee_dmg_help_str}')
+    print(f'(dice roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), modifiers = {modifiers_total})')
+    printRedLine("Defend against melee attack by rolling opponent's REF + dodge skill + 1D10")
 
 
-def handleMeleeDmg(name):
+def handleMeleeDmg(name, roll):
+    dmg_roll = safeCastToInt(roll)
     character = DAO.getCharacterByName(name)
     if character is not None:
         dmg_bonus = bodytypes.meleeDmgBonusByModifier(character.bodyTypeModifier)
@@ -175,21 +172,31 @@ def handleMeleeDmg(name):
             match method:
                 case 'weapon':
                     wep = weaponByAttackType(attack_type_melee, character)
+                    if dmg_roll == 0:
+                        dmg_roll = dice.roll(wep.dice_num, wep.dice_dmg)
                     if wep is not None:
-                        dmg = dice.roll(wep.dice_num, wep.dice_dmg) + wep.dmg_bonus + dmg_bonus
+                        dmg = dmg_roll + wep.dmg_bonus + dmg_bonus
                         method = wep.item
                         break
                 case 'strike':
-                    dmg = math.floor(dice.roll(1, 6) / 2) + dmg_bonus
+                    if dmg_roll == 0:
+                        dmg_roll = math.floor(dice.roll(1, 6) / 2)
+                    dmg = dmg_roll + dmg_bonus
                     break
                 case 'kick':
-                    dmg = dice.roll(1, 6) + dmg_bonus
+                    if dmg_roll == 0:
+                        dice.roll(1, 6)
+                    dmg = dmg_roll + dmg_bonus
                     break
                 case 'throw':
-                    dmg = dice.roll(1, 6) + dmg_bonus
+                    if dmg_roll == 0:
+                        dice.roll(1, 6)
+                    dmg = dmg_roll + dmg_bonus
                     break
                 case 'choke':
-                    dmg = dice.roll(1, 6)
+                    if dmg_roll == 0:
+                        dice.roll(1, 6)
+                    dmg = dmg_roll
                     break
         hit_loc = determineHitLocation()
         printGreenLine(f'{character.name} did {dmg} DMG to {hit_loc} using {method}')
@@ -209,12 +216,14 @@ def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
         skill = skill_athletics
     elif wep_t == t_heavy_weapon:
         skill = 'heavy weapons'
+    elif wep_t == t_smg:
+        skill = 'smg'
     skill_bonus = skillBonusForSkill(skills, skill)
 
     return (skill_bonus, skill)
 
 
-def handleFullAuto(character, wep):
+def handleFullAuto(character, wep, skill_bonus, skill):
     print(f'Trying full auto attack with {wep.item}')
     shots_left = wep.shots_left
     weapon_can_attack = True
@@ -243,8 +252,6 @@ def handleFullAuto(character, wep):
             num_of_targets = safeCastToInt(input)
             if num_of_targets > 0:
                 break
-
-        (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
         ref_bonus = character.attributes[REF]
         range_bonus = math.ceil(num_of_shots / 10)
         shots_per_target = math.ceil(num_of_shots / num_of_targets)
@@ -273,7 +280,9 @@ def handleFullAuto(character, wep):
             total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa
             num_of_hits = 0
             print(
-                f'{rollToBeatStr(roll_to_beat, total)} [roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus}, range bonus = {range_bonus} WA = {wep.wa}]')
+                f'{rollToBeatStr(roll_to_beat, total)} '
+                f'[roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), range bonus = {range_bonus} WA = {wep.wa}]'
+            )
 
             if total >= roll_to_beat:
                 targets_hit = targets_hit + 1
@@ -305,7 +314,7 @@ def rollToBeatStr(to_beat, total):
     return f'[{coloredText(Fore.RED, f"roll to beat ({to_beat})")} vs {coloredText(Fore.GREEN, f"total ({total})")}]'
 
 
-def handleBurst(character, wep, attack_range, given_roll):
+def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill):
     modifiers_total = modifiersForTarget(1)
     print(f'Trying burst attack with {wep.item}')
     roll = safeCastToInt(given_roll)
@@ -320,7 +329,6 @@ def handleBurst(character, wep, attack_range, given_roll):
     if weapon_can_attack:
         print(f'{wep.item} can do burst [shots left: {wep.shots_left}, rof: {wep.rof}]')
         (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
-        (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
         ref_bonus = character.attributes[REF]
         range_bonus = 0
         if r == close_range_str or r == medium_range_str:
@@ -339,6 +347,10 @@ def handleBurst(character, wep, attack_range, given_roll):
                 hits = shots_left
             total_dmg = 0
             printGreenLine(f'{hits} hits to target!')
+            print(
+                f'{character.name} selected {wep.item} [range = {wep.range}m] '
+                f'(roll = {roll} vs roll to beat {roll_to_beat} - skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})'
+            )
             for i in range(hits):
                 dmg = hitDmg(wep, attack_range)
                 total_dmg = total_dmg + dmg
@@ -349,10 +361,11 @@ def handleBurst(character, wep, attack_range, given_roll):
 
     else:
         printRedLine(
-            f"Unable to do burst attack with {wep.item} ({wep.weapon_type}) [{wep.shots_left} / {wep.clip_size}] ROF: {wep.rof}")
+            f"Unable to do burst attack with {wep.item} ({wep.weapon_type}) [{wep.shots_left} / {wep.clip_size}] ROF: {wep.rof}"
+        )
 
 
-def handleSingleShot(character, wep, attack_range, given_roll):
+def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill):
     modifiers_total = modifiersForTarget(1)
     roll = safeCastToInt(given_roll)
     if roll <= 0:
@@ -366,7 +379,6 @@ def handleSingleShot(character, wep, attack_range, given_roll):
 
     (roll_to_beat, range_str, _) = wep.rollToBeatAndRangeStr(attack_range)
 
-    (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
     ref_bonus = character.attributes[REF]
     total = roll + ref_bonus + skill_bonus + modifiers_total + wep.wa
     hit_res = total >= roll_to_beat

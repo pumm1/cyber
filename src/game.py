@@ -190,7 +190,9 @@ def start():
         elif command.startswith(melee_dmg_str):
             match command_parts:
                 case [_, attacker_name]:
-                    combat.handleMeleeDmg(attacker_name)
+                    combat.handleMeleeDmg(attacker_name, 0)
+                case [_, attacker_name, dmg]:
+                    combat.handleMeleeDmg(attacker_name, dmg)
                 case _:
                     print(f'{melee_dmg_help_str}')
         elif command.startswith(add_event_str):

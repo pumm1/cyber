@@ -2,7 +2,7 @@ very_weak = 'very weak'
 weak = 'weak'
 average = 'average'
 strong = 'strong'
-very_strong = 'very_strong'
+very_strong = 'very strong'
 superhuman = 'superhuman'
 
 label = 'label'
@@ -34,6 +34,18 @@ def meleeDmgBonusByModifier(modifier) -> int:
         return 6
     else:
         return 8
+
+def bodyTypeByValue(body):
+    if body <= 2:
+        return very_weak
+    elif 3 <= body <= 4:
+        return weak
+    elif 5 <= body <= 7:
+        return average
+    elif 8 <= body <= 9:
+        return strong
+    else:
+        return strong
 
 
 def bodyTypeModifiersByValue(modifier):

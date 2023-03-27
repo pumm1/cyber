@@ -56,8 +56,8 @@ def rollCharacterMeleeDef(name, roll):
                     break
             char_dodge_lvl = 0
             if char_dodge_skill is not None:
-                char_dodge_lvl = char_dodge_skill['lvl']
-            roll = die_roll + atr_bonus
+                char_dodge_lvl = char_dodge_skill.lvl
+            roll = die_roll + atr_bonus + char_dodge_lvl
             print(f"""(die roll = {die_roll} atr_bonus = {atr_bonus} dodge = {char_dodge_lvl})""")
             printGreenLine(f"Melee def total: {roll} (hopefully the attacker rolled lower..)")
 

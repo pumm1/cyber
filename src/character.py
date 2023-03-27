@@ -3,7 +3,7 @@ from roles import roleSpecialAbility
 import bodytypes
 from gameHelper import woundState, body_part_head, body_part_body, \
     body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr, fieldName, coloredText, \
-    no_dmg, light_dmg
+    no_dmg, light_dmg, BODY
 from colorama import Fore, Style
 
 class Character:
@@ -74,7 +74,8 @@ class Character:
         wnd_state = woundState(self.dmg_taken)
         if wnd_state != no_dmg and wnd_state != light_dmg:
             atr_affected = f'{coloredText(Fore.RED, "(Stats affected by dmg)")}'
-        body_type = bodytypes.bodyTypeModifiersByValue(self.bodyTypeModifier)
+        body_type = bodytypes.bodyTypeByValue(self.attributes[BODY])
+        body_type_mod = bodytypes.bodyTypeModifiersByValue(self.bodyTypeModifier)
         skill_infos = map(lambda skill: (
             skill.toStr()
         ), self.skills)
@@ -94,7 +95,8 @@ class Character:
 
         str = f"""************* {coloredText(Fore.GREEN, self.name)} (id: {self.id}) *************
 {fieldName('Role')}: {self.role}
-{fieldName('Body type')}: {body_type} ({self.bodyTypeModifier})
+{fieldName('Body type')}: {body_type} (Save {self.attributes[BODY]})
+{fieldName('Body type modifier')}: {body_type_mod} (-{self.bodyTypeModifier} to dmg)
 {fieldName('Attributes')}: {self.attributes} {atr_affected}
 {fieldName('Humanity')}: {self.humanity}
 {fieldName('Encumbrance (Subtracted from REF)')}: {coloredText(Fore.RED, f"{self.ev}")} 
