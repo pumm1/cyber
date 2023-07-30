@@ -1,0 +1,31 @@
+label {
+    background-color: black;
+    color: white;
+    padding: 2px;
+    margin: 4px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.fieldContainer {
+    margin-top: 4px;
+    display: block ruby;
+}
+
+.roleContainer {
+    margin-top: 4px;
+    width: 50%
+}
+
+.statContainer {
+    margin-top: 4px;
+    width: 39%
+}
+
+
+
+.fieldValue {
+    border-style: solid;
+    border-color: black;
+    width: 28%;
+}
