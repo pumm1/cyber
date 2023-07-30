@@ -72,34 +72,48 @@ def suppressiveFireDef(name, rounds, area):
     else:
         print(f'Suppressive area needs at least one shot fired into it and valid area width')
 
+def characterAttack(character, attack_type, attack_range, given_roll):
+    wep = weaponByAttackType(attack_type, character)
+    (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
 
-def characterAttack(name, attack_type, range_str, given_roll):
+    if wep is not None:
+        if wep.effect_radius > 0:
+            print(
+                f'Hit affects radius of {wep.effect_radius} - Check also if hit misses or if there are other targets in the radius!')
+        if wep.weapon_type == t_shotgun:
+            print(
+                """For shotguns, point blank/short range attack is for one spot, mid range hits 2 spots and long/extreme hits 3 places."""
+            )
+        if attack_type == attack_type_single:
+            handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill)
+        elif attack_type == attack_type_burst:
+            handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill)
+        elif attack_type == attack_type_full_auto:
+            handleFullAuto(character, wep, skill_bonus, skill)
+        elif attack_type == attack_type_melee:
+            handleMelee(character, wep, given_roll, skill_bonus, skill)
+    else:
+        print(f'{character.name} has no ways of attack for {attack_type}')
+
+
+#TODO: collect all printed lines are array of strings/some result json and return to UI to be printed..?
+def characterAttackById(id, attack_type, range_str, given_roll):
+    attack_range = safeCastToInt(range_str)
+    if attack_range > 0:
+        character = DAO.getCharacterById(id)
+        if character is not None:
+            characterAttack(character, attack_type, attack_range, given_roll)
+    else:
+        print(f'Range must be bigger than 0')
+
+
+
+def characterAttackByName(name, attack_type, range_str, given_roll):
     attack_range = safeCastToInt(range_str)
     if attack_range > 0:
         character = DAO.getCharacterByName(name)
         if character is not None:
-            wep = weaponByAttackType(attack_type, character)
-            (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
-
-            if wep is not None:
-                if wep.effect_radius > 0:
-                    print(
-                        f'Hit affects radius of {wep.effect_radius} - Check also if hit misses or if there are other targets in the radius!')
-                if wep.weapon_type == t_shotgun:
-                    print(
-                        """For shotguns, point blank/short range attack is for one spot, mid range hits 2 spots and long/extreme hits 3 places."""
-                    )
-                if attack_type == attack_type_single:
-                    handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill)
-                elif attack_type == attack_type_burst:
-                    handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill)
-                elif attack_type == attack_type_full_auto:
-                    handleFullAuto(character, wep, skill_bonus, skill)
-                elif attack_type == attack_type_melee:
-                    handleMelee(character, wep, given_roll, skill_bonus, skill)
-            else:
-                print(f'{character.name} has no ways of attack for {attack_type}')
-
+            characterAttack(character, attack_type, attack_range, given_roll)
     else:
         print(f'Range must be bigger than 0')
 

@@ -53,6 +53,10 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
   * Dependencies:
     - colorama
     - psycopg2
+    - Flask
+    - Flask-Cors
+    
+  * NPM for the NET
 
 ## secrets.json in /src for (PSQL) db config:
 ```
@@ -70,3 +74,7 @@ After setting up the PSQL database, run the following migration scripts:
   * `create_schema_tables.sql`
   * `add_basic_skills.sql`
   * `grant_access.sql`
+
+Running the NET:
+- `flask --app src/net/app run`
+- `cd ui && npm start`

@@ -1,10 +1,12 @@
 import dice
 from roles import roleSpecialAbility
 import bodytypes
-from gameHelper import woundState, body_part_head, body_part_body, \
+from gameHelper import woundState, woundStatePlain, body_part_head, body_part_body, \
     body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr, fieldName, coloredText, \
     no_dmg, light_dmg, BODY
 from colorama import Fore, Style
+from flask import jsonify
+import json
 
 class Character:
     def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses, bodyTypeModifier, attributes, cybernetics):
@@ -61,7 +63,51 @@ class Character:
             roll = dice.rollWithCrit()
         return roll + self.attributes['COOL'] + self.reputation
 
+    def asJson(self):
+        """
+        {fieldName('Role')}: {self.role}
+        {fieldName('Body type')}: {body_type} (Save {self.attributes[BODY]})
+        {fieldName('Body type modifier')}: {body_type_mod} (-{self.bodyTypeModifier} to dmg)
+        {fieldName('Attributes')}: {self.attributes} {atr_affected}
+        {fieldName('Humanity')}: {self.humanity}
+        {fieldName('Encumbrance (Subtracted from REF)')}: {coloredText(Fore.RED, f"{self.ev}")}
+        {fieldName('Special ability')} ({roleSpecialAbility(self.role)}): {self.specialAbility}
+        {fieldName('Reputation')}: {self.reputation}
+        {fieldName('Health')}: 40 / {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
+        {fieldName('SP')}: {self.sp}
+        """
+        skills = map(lambda skill: (
+            skill.asJson()
+        ), self.skills)
+        armor = map(lambda a: (
+            a.asJson()
+        ), self.armors)
+        weapons = map(lambda w: (
+            w.asJson()
+        ), self.weapons)
+        chrome = map(lambda c: (
+            c.asJson()
+        ), self.cybernetics)
 
+        resJson = {
+            "name": self.name,
+            "role": self.role,
+            "specialAbilityLvl": self.specialAbility,
+            "specialAbility": roleSpecialAbility(self.role),
+            "attributes": self.attributes,
+            "bodyType": bodytypes.bodyTypeByValue(self.attributes[BODY]),
+            "bodyTypeModifier": bodytypes.bodyTypeModifiersByValue(self.bodyTypeModifier),
+            "woundState": woundStatePlain(self.dmg_taken),
+            "reputation": self.reputation,
+            "humanity": self.humanity,
+            "skills": list(skills),
+            "chrome": list(chrome),
+            'weapons': list(weapons),
+            "armor": list(armor),
+            "sp": self.sp,
+        }
+
+        return resJson
 
     def info(self):
         weapons_infos = map(lambda w: (

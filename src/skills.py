@@ -120,6 +120,10 @@ def awarenessSkill():
     return DAO.skillByName('awareness')
 
 
+def fetchAllSkils():
+    skills = allSkills().values()
+    return list(skills)
+
 def listAllSkills():
     all_skills = allSkills()
     printSkillInfo(all_skills)

@@ -10,5 +10,17 @@ class SkillInfo:
     def updateSkill(self, lvl_up):
         self.lvl += lvl_up
 
+
+    def asJson(self):
+        resJson = {
+            'id': self.id,
+            'lvl': self.lvl,
+            'skill': self.skill,
+            'attribute': self.attribute,
+        }
+
+        return resJson
+
+
     def toStr(self):
         return f'{coloredText(Fore.LIGHTCYAN_EX, self.skill)} {self.lvl} [{self.attribute}]'

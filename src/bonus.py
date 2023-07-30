@@ -22,12 +22,37 @@ class AtrBonus:
             BODY_TYPE_MOD: atr_row[body_type_mod]
         }
 
+    def asJson(self):
+        resJson = {
+            'INT': self.attributes[INT],
+            'REF': self.attributes[REF],
+            'TECH': self.attributes[TECH],
+            'COOL': self.attributes[COOL],
+            'ATTR': self.attributes[ATTR],
+            'MA': self.attributes[MA],
+            'BODY': self.attributes[BODY],
+            'LUCK': self.attributes[LUCK],
+            'EMP': self.attributes[INT],
+            'BTM': self.attributes[BODY_TYPE_MOD]
+        }
+
+        return resJson
+
 
 class SkillBonus:
     def __init__(self, skill_id, bonus, item_bonus_id):
         self.skill_id = skill_id
         self.bonus = bonus
         self.item_bonus_id = item_bonus_id
+
+    def asJson(self):
+        resJson = {
+            'skillId': self.skill_id,
+            'bonus': self.bonus,
+            'itemBonusId': self.item_bonus_id
+        }
+
+        return resJson
 
 
 def handleBonuses():

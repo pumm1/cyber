@@ -10,6 +10,7 @@ from bonus import handleBonuses, AtrBonus, SkillBonus
 
 class Chrome:
     def __init__(self, row):
+        self.id = row['id']
         self.item = row['item']
         self.description = row['description']
         atr_bonuses = AtrBonus(row)
@@ -23,6 +24,20 @@ class Chrome:
 
     def toStr(self):
         return f"{coloredText(Fore.LIGHTCYAN_EX, self.item)} ({self.description})"
+
+    def asJson(self):
+        skill_bonuses = map(lambda s: (
+            s.asJson()
+        ), self.skill_bonuses)
+        resJson = {
+            'item': self.item,
+            'id': self.id,
+            'description': self.description,
+            'attributeBonuses': self.atr_bonuses.asJson(),
+            'skillBonuses': list(skill_bonuses)
+        }
+
+        return resJson
 
 
 def addChrome(name):

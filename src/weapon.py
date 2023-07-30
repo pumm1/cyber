@@ -116,6 +116,32 @@ class Weapon:
             return self.range * 2
 
 
+    def asJson(self):
+        resJson = {
+            'id': self.weapon_id,
+            'item': self.item,
+            'range': self.range,
+            'dmg': self.dice_dmg,
+            'divideBy': self.divide_by,
+            'diceNum': self.dice_num,
+            'weight': self.weight,
+            'clipSize': self.clip_size,
+            'shotsLeft': self.shots_left,
+            'reliability': self.reliability,
+            'isChrome': self.is_chrome,
+            'effectRadius': self.effect_radius,
+            'weaponType': self.weapon_type,
+            'dmgBonus': self.dmg_bonus,
+            'extremeRangeLimit': self.extremeRangeLimit(),
+            'longRangeLimit:': self.longRangeLimit(),
+            'midRangeLimit': self.midRangeLimit(),
+            'closeRangeLimit': self.closeRangeLimit(),
+            'pointBlankLimit': self.pointBlankLimit()
+        }
+
+        return resJson
+
+
     def toStr(self):
         cybernetic_str = ''
         if self.is_chrome:

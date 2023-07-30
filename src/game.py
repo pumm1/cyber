@@ -214,19 +214,19 @@ def start():
         elif command.startswith(attack_str):
             match command_parts:
                 case [_, name, 'melee']:
-                    combat.characterAttack(name, attack_type_melee, range_str='1', given_roll=0)
+                    combat.characterAttackByName(name, attack_type_melee, range_str='1', given_roll=0)
                 case [_, name, 'melee', roll]:
-                    combat.characterAttack(name, attack_type_melee, range_str='1', given_roll=roll)
+                    combat.characterAttackByName(name, attack_type_melee, range_str='1', given_roll=roll)
                 case [_, name, 'burst', range]:
-                    combat.characterAttack(name, attack_type_burst, range, given_roll=0)
+                    combat.characterAttackByName(name, attack_type_burst, range, given_roll=0)
                 case [_, name, 'burst', range, roll]:
-                    combat.characterAttack(name, attack_type_burst, range, given_roll=roll)
+                    combat.characterAttackByName(name, attack_type_burst, range, given_roll=roll)
                 case [_, name, 'single', range]:
-                    combat.characterAttack(name, attack_type_single, range, given_roll=0)
+                    combat.characterAttackByName(name, attack_type_single, range, given_roll=0)
                 case [_, name, 'single', range, roll]:
-                    combat.characterAttack(name, attack_type_single, range, given_roll=roll)
+                    combat.characterAttackByName(name, attack_type_single, range, given_roll=roll)
                 case [_, name, 'fa']:
-                    combat.characterAttack(name, attack_type_full_auto, range_str='99', given_roll=0)
+                    combat.characterAttackByName(name, attack_type_full_auto, range_str='99', given_roll=0)
                 case _:
                     print(f'{attack_help_str}')
         elif command.startswith(reload_str):
@@ -294,6 +294,13 @@ def faceOffRoll(name, roll):
         res = character.rollFaceDown(roll)
         print(f'{character.name} face off result: {res}')
 
+def getCharacter(name):
+    character = DAO.getCharacterByName(name)
+    if character is None:
+        print(f'Character not found by the name of {name}')
+        return None
+    else:
+        return character.asJson()
 
 def fetchCharacter(name):
     character = DAO.getCharacterByName(name)

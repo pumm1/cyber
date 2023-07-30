@@ -19,8 +19,20 @@ class Armor:
         attributes = AtrBonus(row)
         self.atr_bonuses = attributes
 
+    def asJson(self):
+        resJson = {
+            'id': self.id,
+            'item': self.item,
+            'sp': self.sp,
+            'bodyParts': self.body_parts
+        }
+
+        return resJson
+
+
     def toStr(self) -> str:
         return f'(id: {self.id}) {coloredText(Fore.LIGHTCYAN_EX, self.item)} ({self.sp} SP) - {self.body_parts}'
+
 
 
 def checkBodyPartNum(i):
