@@ -3,6 +3,9 @@ const pathBase = "http://127.0.0.1:5000" //TODO: some env?
 const fetchData = (path: string) =>
     fetch(path).then(res => res.json())
 
+const fetchDataAs = <T,>(path: string) =>
+    fetchData(path).then(res => res as T)
+
 export enum Attribute {
     ATTR = 'ATTR',
     BODY = 'BODY',
@@ -81,6 +84,13 @@ export interface SP {
     r_leg: number
 }
 
+export interface CharacterSkill {
+    attribute: Attribute
+    id: number
+    lvl: number
+    skill: string
+}
+
 export interface Character {
     name: string
     role: string
@@ -91,7 +101,7 @@ export interface Character {
     bodyTypeModifier: string
     btm?: number //TODO in backend
     woundState: string
-    skills: string[]
+    skills: CharacterSkill[]
     armor: Armor[]
     weapons: Weapon[]
 }
@@ -104,5 +114,5 @@ export const rollDice = () =>
 
 
 export const listSkills = () => 
-    fetchData(`${pathBase}/list-skills`)
+    fetchDataAs<Skill[]>(`${pathBase}/list-skills`)
  

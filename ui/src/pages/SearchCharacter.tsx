@@ -16,11 +16,13 @@ const SearchCharacter = () => {
     
     return(
         <div>
-            <label>Search</label>
-            <input type="text" onChange={(event) => {
-                        setName(event.target.value);
-                      }}/>
-            <button onClick={() => getCharacter(name).then(setCharacter)}>Search</button>
+            <div className="search">
+                <label>Search</label>
+                <input type="text" onChange={(event) => {
+                            setName(event.target.value);
+                        }}/>
+                <button onClick={() => getCharacter(name).then(setCharacter)}>Search</button>
+            </div>
             {!!character ? <CharacterSheet character={character} allSkills={allSkills}/> : character === null ? <CharacterNotFound /> : ''} 
         </div>
     )

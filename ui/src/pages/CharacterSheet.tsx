@@ -1,8 +1,7 @@
-import { Character, Attributes, listSkills } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute } from './CyberClient'
 import React, { useState, useEffect } from "react"
 import './CharacterSheet.css'
 
-//test foo bar afsfaf
 const roles = {
     solo: 'Solo',
     rocker: 'Rocker',
@@ -21,10 +20,10 @@ const DisabledInput = ({value, name, checked}) =>
     <input type="radio" value={value} name={name} checked={checked} disabled={true}/>
 
 
-const textField = (fieldName: string, value: string) => {
+const TextField = ({fieldName, value}: {fieldName: string, value: string}) => {
     return(
         <div className='fieldContainer'>
-            <span>
+            <span className='fieldContent'>
                 <label>{fieldName}</label>
                 <div className='fieldValue'>{value}</div>
             </span>
@@ -32,32 +31,34 @@ const textField = (fieldName: string, value: string) => {
     )
 }
 
-const roleFiled = (value: string) => {
+const RoleFiled = ({value}: {value: string}) => {
     return(
-        <div className='roleContainer'>
+        <div className='fieldContainer'>
             <label>ROLE</label>
-            <DisabledInput value={roles.solo} name={roles.solo} checked={value === roles.solo} /> Solo
-            <DisabledInput value={roles.rocker} name={roles.rocker} checked={value === roles.rocker} /> Rocker
-            <DisabledInput value={roles.netrunner} name={roles.netrunner} checked={value === roles.netrunner} /> Netrunner
-            <DisabledInput value={roles.media} name={roles.media} checked={value === roles.media} /> Media
-            <DisabledInput value={roles.nomad} name={roles.nomad} checked={value === roles.nomad} /> Nomad
-            <DisabledInput value={roles.fixer} name={roles.fixer} checked={value === roles.fixer} /> Fixer
-            <DisabledInput value={roles.cop} name={roles.cop} checked={value === roles.cop} /> Cop
-            <DisabledInput value={roles.corp} name={roles.solo} checked={value === roles.corp} /> Corp
-            <DisabledInput value={roles.techie} name={roles.techie} checked={value === roles.techie} /> Techie
-            <DisabledInput value={roles.medtechie} name={roles.medtechie} checked={value === roles.medtechie} /> Medtechie
+            <span className='roles'>
+                <DisabledInput value={roles.solo} name={roles.solo} checked={value === roles.solo} /> Solo
+                <DisabledInput value={roles.rocker} name={roles.rocker} checked={value === roles.rocker} /> Rocker
+                <DisabledInput value={roles.netrunner} name={roles.netrunner} checked={value === roles.netrunner} /> Netrunner
+                <DisabledInput value={roles.media} name={roles.media} checked={value === roles.media} /> Media
+                <DisabledInput value={roles.nomad} name={roles.nomad} checked={value === roles.nomad} /> Nomad
+                <DisabledInput value={roles.fixer} name={roles.fixer} checked={value === roles.fixer} /> Fixer
+                <DisabledInput value={roles.cop} name={roles.cop} checked={value === roles.cop} /> Cop
+                <DisabledInput value={roles.corp} name={roles.solo} checked={value === roles.corp} /> Corp
+                <DisabledInput value={roles.techie} name={roles.techie} checked={value === roles.techie} /> Techie
+                <DisabledInput value={roles.medtechie} name={roles.medtechie} checked={value === roles.medtechie} /> Medtechie
+            </span>
         </div>
     )
 }
 
-const stats = (attributes: Attributes) => {
+const Stats = ( {attributes}: {attributes: Attributes}) => {
     const statValue = (field: string, value: number, outOf?: number) => 
-        <> <b>{field}</b> <b>[ {value} ]</b></>
+        <> <b>{field} [ {value} ]</b></>
 
     return (
-        <div className='statContainer'>
+        <div className='fieldContainer'>
              <label>STATS</label>
-            <div>
+            <div className='stats'>
                 {statValue('INT', attributes.INT)}
                 {statValue('REF', attributes.REF)}
                 {statValue('TECH', attributes.TECH)}
@@ -74,17 +75,61 @@ const stats = (attributes: Attributes) => {
 
 export interface CharacterSheetProps {
     character: Character
-    allSkills?: any[]
+    allSkills?: Skill[]
 }
 
-const CharacterSheet = ({character}: CharacterSheetProps) => {
+const attributesInOrder = [
+    Attribute.ATTR,
+    Attribute.BODY,
+    Attribute.COOL,
+    Attribute.EMP,
+    Attribute.INT,
+    Attribute.REF,
+    Attribute.TECH,
+]
+
+const SkillField = ({skill, characterSkills}: {skill: Skill, characterSkills: CharacterSkill[]}) => {
+    const charSkillLvl = characterSkills.find(s => s.id === skill.id)?.lvl
+
+    return (
+    <div>
+        {skill.skill}......[{charSkillLvl ?? ''}]
+    </div>
+    )
+}
+
+const SkillsByAttribute = (
+    {attribute, skills, characterSkills}: {attribute: Attribute, skills: Skill[], characterSkills: CharacterSkill[]} 
+) => {
+    return (
+       <span className='skill'>
+            <b>{attribute}</b>
+            {skills.filter(s => s.attribute === attribute).map(s => <SkillField skill={s} characterSkills={characterSkills}/>)}
+       </span>
+    )
+}
+
+const SkillsByAttributes = (
+    {skills, characterSkills}: {skills: Skill[], characterSkills: CharacterSkill[]} 
+) => {
+   return (
+    <div className='fieldContainer'>
+        <label>Skills</label>
+        <div className='skills'>
+            {attributesInOrder.map(atr => <SkillsByAttribute attribute={atr} skills={skills} characterSkills={characterSkills}/>)}
+        </div>
+    </div>
+   )
+}
+
+
+const CharacterSheet = ({character, allSkills}: CharacterSheetProps) => {
     return(
         <div>
-            <div>
-                {textField('HANDLE', character.name)}
-                {roleFiled(character.role)}
-                {stats(character.attributes)}
-            </div>
+            <TextField fieldName='HANDLE' value={character.name} />
+            <RoleFiled value={character.role}/>
+            <Stats attributes={character.attributes}/>
+            {allSkills && <SkillsByAttributes skills={allSkills} characterSkills={character.skills}/>}
         </div>
     )
 }

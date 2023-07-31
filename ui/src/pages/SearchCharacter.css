@@ -1,4 +1,10 @@
 .CharacterInfo {
     display: grid
-  }
+}
+
+.search {
+  padding-bottom: 8px;
+  border-bottom: solid;
+}
+
   

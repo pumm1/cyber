@@ -4,8 +4,9 @@
 }
 
 .container {
-    position: relative;
+    position: absolute;
     display: flex;
     width: 100%;
+    max-width: 600px;
     flex-direction: column;
 }

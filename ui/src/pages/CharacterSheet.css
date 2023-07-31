@@ -5,27 +5,43 @@ label {
     margin: 4px;
     padding-left: 4px;
     padding-right: 4px;
+    font-size: 24px;
+    font-weight: bold;
 }
 
 .fieldContainer {
     margin-top: 4px;
-    display: block ruby;
 }
 
-.roleContainer {
+.fieldContent {
+    width: 100%;
+    display: flex;
+}
+
+.stats {
     margin-top: 4px;
-    width: 50%
+    margin-left: 8px;
 }
 
-.statContainer {
-    margin-top: 4px;
-    width: 39%
+.roles {
+    font-size: 22px;
 }
-
-
 
 .fieldValue {
     border-style: solid;
     border-color: black;
-    width: 28%;
+    border-width: 2px;
+    padding-left: 4px;
+    padding-top: 4px;
+    width: 100%;
+    margin: 4px;
+}
+
+.skills {
+    display:flex;
+    flex-flow:column wrap;
+    max-height:800px;
+    max-width: 400px;
+    font-size: 14px;
+
 }
