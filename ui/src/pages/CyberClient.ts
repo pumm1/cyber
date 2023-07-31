@@ -75,7 +75,7 @@ export interface Weapon {
     dmgBonus: number
 }
 
-export interface SP {
+export interface CharacterSP {
     head: number
     body: number
     l_arm: number
@@ -104,6 +104,7 @@ export interface Character {
     skills: CharacterSkill[]
     armor: Armor[]
     weapons: Weapon[]
+    sp: CharacterSP
 }
 
 export const getCharacter = (name: string) =>

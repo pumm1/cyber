@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP } from './CyberClient'
 import React, { useState, useEffect } from "react"
 import './CharacterSheet.css'
 
@@ -114,12 +114,47 @@ const SkillsByAttributes = (
 ) => {
    return (
     <div className='fieldContainer'>
-        <label>Skills</label>
+        
         <div className='skills'>
             {attributesInOrder.map(atr => <SkillsByAttribute attribute={atr} skills={skills} characterSkills={characterSkills}/>)}
         </div>
     </div>
    )
+}
+
+const CharacterSPField = ({sp}: {sp: CharacterSP}) => {
+    const Label = ({label}: {label: string}) => <label className='armorLabel'><i>{label}</i></label>
+    const GridBox = ({value, bolden}: {value: number | string, bolden?: boolean}) => 
+        <div className='foo'>
+            {!!bolden ? <b><i>{value}</i></b> : value}
+        </div>
+
+    return(
+        <div className='armorSection'>
+            <span className='armorRowContainer'>
+               <Label label='Location'/>
+                <div className='armorContent'>
+                    <GridBox value='Head' bolden={true}/>
+                    <GridBox value='Torso' bolden={true}/>
+                    <GridBox value='R.Arm' bolden={true}/>
+                    <GridBox value='L.Arm' bolden={true}/>
+                    <GridBox value='R.Leg' bolden={true}/>
+                    <GridBox value='L.Leg' bolden={true}/>
+                </div>
+            </span>
+            <span className='armorRowContainer'>
+                <Label label='Armor SP'/>
+                <div className='armorContent'>
+                    <GridBox value={sp.head}/>
+                    <GridBox value={sp.body}/>
+                    <GridBox value={sp.r_arm}/>
+                    <GridBox value={sp.l_arm}/>
+                    <GridBox value={sp.r_leg}/>
+                    <GridBox value={sp.l_leg}/>
+                </div>
+            </span>
+        </div>
+    )
 }
 
 
@@ -129,6 +164,7 @@ const CharacterSheet = ({character, allSkills}: CharacterSheetProps) => {
             <TextField fieldName='HANDLE' value={character.name} />
             <RoleFiled value={character.role}/>
             <Stats attributes={character.attributes}/>
+            <CharacterSPField sp={character.sp}/>
             {allSkills && <SkillsByAttributes skills={allSkills} characterSkills={character.skills}/>}
         </div>
     )

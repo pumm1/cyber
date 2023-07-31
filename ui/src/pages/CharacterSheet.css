@@ -24,7 +24,7 @@ label {
 }
 
 .roles {
-    font-size: 22px;
+    font-size: 21px;
 }
 
 .fieldValue {
@@ -35,6 +35,33 @@ label {
     padding-top: 4px;
     width: 100%;
     margin: 4px;
+}
+
+.armorLabel {
+    font-size: 18px;
+    width: 128px;
+    text-align: center;
+    padding: 6px 0px;
+}
+
+.armorRowContainer {
+    display: flex;
+}
+
+.armorSection {
+    margin: 4px 0px
+}
+
+.foo {
+    border: solid;
+}
+
+.armorContent {
+    font-size: 14px;
+    text-align: center;
+    display: grid;
+    grid-column-start: 1;
+    grid-template-columns: 60px 60px 60px 60px 60px 60px;
 }
 
 .skills {
