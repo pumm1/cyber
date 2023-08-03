@@ -5,3 +5,7 @@
     max-height: 100px;
     overflow-y: auto;
 }
+
+.log {
+    margin-top: 2px;
+}

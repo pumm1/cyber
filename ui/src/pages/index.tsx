@@ -13,7 +13,10 @@ const IndexPage: React.FC<PageProps> = () => {
   const addToLogs = (s: string) => {
     const newLogs: string[] = logs
     setLogs(newLogs.concat(s)) 
-}
+  }
+
+  const updateLogs = (s: string[]) =>
+    s.map(r => addToLogs(r))
 
 
   return (
@@ -21,7 +24,7 @@ const IndexPage: React.FC<PageProps> = () => {
       <h1>Welcome to the NET</h1>
       <div className='container'>
         <Dice/>
-        <SearchCharacter/>
+        <SearchCharacter updateLogs={updateLogs}/>
         <LogViewer logs={logs} addToLogs={addToLogs}/>
       </div>
     </div>

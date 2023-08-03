@@ -7,12 +7,12 @@ const LogViewer = ({logs, addToLogs}: {logs: string[], addToLogs: (s: string) =>
     var fieldRef = React.useRef<HTMLInputElement>(null)
 
     const LogRow = ({log}: {log: string}) =>
-        <p>
+        <div className='log'>
             {log}
-        </p>
+        </div>
 
     const scrollToBottom = () => {
-        fieldRef.current?.scrollIntoView({ behavior: "smooth" })
+        fieldRef.current?.scrollIntoView()
     }
 
     useEffect(() => {
@@ -22,8 +22,8 @@ const LogViewer = ({logs, addToLogs}: {logs: string[], addToLogs: (s: string) =>
     const logsIdxLimit = logs.length - 1 
     return (
         <div>
+            <div><b>Logs</b></div>
             <div className='logs' ref={fieldRef}>
-                <h4>Logs</h4>
                 {logs.map((log, idx) => {
                     return(
                         <>

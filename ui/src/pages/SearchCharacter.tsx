@@ -5,7 +5,11 @@ import React from "react"
 import CharacterSheet from "./CharacterSheet"
 import Window from "floating-window-ui";
 
-const SearchCharacter = () => {
+interface SearchCharacterProps {
+    updateLogs: (s: string[]) => void
+}
+
+const SearchCharacter = ({updateLogs}: SearchCharacterProps) => {
     const [name, setName] = useState('')
     const [character, setCharacter] = useState<undefined | null | Character>(undefined)
     const [allSkills, setAllSkills] = useState<any[] | undefined>(undefined)
@@ -32,7 +36,7 @@ const SearchCharacter = () => {
             </div>
             {!!character &&
             <Window id={'character' + character.id} height={1300} width={900} resizable={true} titleBar={titleBarProps(character)}>
-                <div className="sheetContainer"><CharacterSheet character={character} allSkills={allSkills}/></div>
+                <div className="sheetContainer"><CharacterSheet character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
             </Window>}
         </div>
     )

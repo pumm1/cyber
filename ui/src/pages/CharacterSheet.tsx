@@ -76,6 +76,7 @@ const Stats = ( {attributes}: {attributes: Attributes}) => {
 export interface CharacterSheetProps {
     character: Character
     allSkills?: Skill[]
+    updateLogs: (s: string[]) => void
 }
 
 const attributesInOrder = [
@@ -132,10 +133,9 @@ const SkillsByAttributes = (
    )
 }
 
-const WeaponRow = ({weapon, characterId}: {weapon: Weapon, characterId: number}) => {
+const WeaponRow = ({weapon, characterId, updateLogs}: {weapon: Weapon, characterId: number, updateLogs: (s: string[]) => void}) => {
     const isMelee = weapon.weaponType === 'melee'
     const defaultAttackType = isMelee ? AttackType.Melee : AttackType.Single
-    console.log(`... weapon: ${weapon.item} ... default attack type ${defaultAttackType}`)
     const ammoInfo = isMelee ? '' : `(${weapon.shotsLeft} / ${weapon.clipSize})`
     const [attackType, setAttackType] = useState<AttackType>(defaultAttackType)
     const isFullAuto: boolean = !isMelee && weapon.rof >= 3
@@ -167,19 +167,19 @@ const WeaponRow = ({weapon, characterId}: {weapon: Weapon, characterId: number})
     return (
         <div className='weapon' key={`${characterId} ${weapon.id}`}>
             {weapon.item} {ammoInfo} [{weapon.weaponType}]
-            <button onClick={() => attack(attackReq)}>Attack</button>
+            <button onClick={() => attack(attackReq).then(resLogs => updateLogs(resLogs))}>Attack</button>
             <AttackTypes />
         </div>
     )
 }
 
 const CharacterWeapons = (
-    {weapons, characterId}: {weapons: Weapon[], characterId: number}
+    {weapons, characterId, updateLogs}: {weapons: Weapon[], characterId: number, updateLogs: (s: string[]) => void}
 ) => {
     return (
     <div key={characterId} className='fieldContainer'>
         <div className='weapons'>
-            {weapons.map(w => <WeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} />)}
+            {weapons.map(w => <WeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} />)}
         </div>
     </div>
     )
@@ -221,7 +221,7 @@ const CharacterSPField = ({sp}: {sp: CharacterSP}) => {
 }
 
 
-const CharacterSheet = ({character, allSkills}: CharacterSheetProps) => {
+const CharacterSheet = ({character, allSkills, updateLogs}: CharacterSheetProps) => {
     return(
         <div className='main'>
             <TextField fieldName='HANDLE' value={character.name} />
@@ -229,7 +229,7 @@ const CharacterSheet = ({character, allSkills}: CharacterSheetProps) => {
             <Stats attributes={character.attributes}/>
             <CharacterSPField sp={character.sp}/>
             {allSkills && <SkillsByAttributes skills={allSkills} characterSkills={character.skills} charId={character.id}/>}
-            <CharacterWeapons weapons={character.weapons} characterId={character.id}/>
+            <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs}/>
         </div>
     )
 }
