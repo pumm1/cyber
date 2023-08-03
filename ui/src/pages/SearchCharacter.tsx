@@ -25,6 +25,8 @@ const SearchCharacter = ({updateLogs}: SearchCharacterProps) => {
         }
     })
     
+    const updateCharacter = (): Promise<void> => getCharacter(name).then(setCharacter)
+
     return(
         <div>
             <div className="search">
@@ -32,11 +34,11 @@ const SearchCharacter = ({updateLogs}: SearchCharacterProps) => {
                 <input type="text" onChange={(event) => {
                             setName(event.target.value);
                         }}/>
-                <button onClick={() => getCharacter(name).then(setCharacter)}>Search</button>
+                <button onClick={() => updateCharacter()}>Search</button>
             </div>
             {!!character &&
             <Window id={'character' + character.id} height={1300} width={900} resizable={true} titleBar={titleBarProps(character)}>
-                <div className="sheetContainer"><CharacterSheet character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
+                <div className="sheetContainer"><CharacterSheet updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
             </Window>}
         </div>
     )

@@ -75,3 +75,13 @@ def attack():
         return jsonify(combat.characterAttackByCharacterAndWeaponId(char_id, weapon_id, attack_type, attack_range, attack_modifier)) #TODO
     else:
         return "Invalid request", 400
+
+@app.route('/reload', methods = ['POST'])
+def reload():
+    if (request.method == 'POST'):
+        data = request.get_json()
+        weapon_id = data['weaponId']
+        shots = data['shots']
+        return jsonify(combat.reloadWeapon(weapon_id, shots))
+    else:
+        return "Invalid request", 400

@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, RollSkill, Weapon, attack, AttackReq, AttackType } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, RollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload } from './CyberClient'
 import React, { useState, useEffect } from "react"
 import './CharacterSheet.css'
 
@@ -77,6 +77,7 @@ export interface CharacterSheetProps {
     character: Character
     allSkills?: Skill[]
     updateLogs: (s: string[]) => void
+    updateCharacter: () => Promise<void>
 }
 
 const attributesInOrder = [
@@ -133,8 +134,10 @@ const SkillsByAttributes = (
    )
 }
 
-const WeaponRow = ({weapon, characterId, updateLogs}: {weapon: Weapon, characterId: number, updateLogs: (s: string[]) => void}) => {
+const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: 
+    {weapon: Weapon, characterId: number, updateLogs: (s: string[]) => void, updateCharacter: () => Promise<void>}) => {
     const isMelee = weapon.weaponType === 'melee'
+    const weaponIsGun = isGun(weapon.weaponType)
     const defaultAttackType = isMelee ? AttackType.Melee : AttackType.Single
     const ammoInfo = isMelee ? '' : `(${weapon.shotsLeft} / ${weapon.clipSize})`
     const [attackType, setAttackType] = useState<AttackType>(defaultAttackType)
@@ -164,22 +167,38 @@ const WeaponRow = ({weapon, characterId, updateLogs}: {weapon: Weapon, character
         attackModifier: 0 //TODO
     }
 
+    const reloadReq: ReloadReq = {
+        weaponId: weapon.id,
+        shots: weapon.clipSize
+    }
+
     return (
         <div className='weapon' key={`${characterId} ${weapon.id}`}>
             {weapon.item} {ammoInfo} [{weapon.weaponType}]
-            <button onClick={() => attack(attackReq).then(resLogs => updateLogs(resLogs))}>Attack</button>
+            <button onClick={() => attack(attackReq).then(resLogs => {
+                updateLogs(resLogs)
+                updateCharacter()
+            })}>Attack</button>
+            {weaponIsGun && 
+            <button 
+                onClick={() => reload(reloadReq).then(resLogs => {
+                updateLogs(resLogs)
+                updateCharacter()
+            })}
+            >Reload</button>}
             <AttackTypes />
         </div>
     )
 }
 
 const CharacterWeapons = (
-    {weapons, characterId, updateLogs}: {weapons: Weapon[], characterId: number, updateLogs: (s: string[]) => void}
+    {weapons, characterId, updateLogs, updateCharacter}: 
+    {weapons: Weapon[], characterId: number, updateLogs: (s: string[]) => void, updateCharacter: () => Promise<void>}
 ) => {
     return (
     <div key={characterId} className='fieldContainer'>
         <div className='weapons'>
-            {weapons.map(w => <WeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} />)}
+            {weapons.map(w => <WeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} updateCharacter={updateCharacter} />)}
         </div>
     </div>
     )
@@ -221,7 +240,7 @@ const CharacterSPField = ({sp}: {sp: CharacterSP}) => {
 }
 
 
-const CharacterSheet = ({character, allSkills, updateLogs}: CharacterSheetProps) => {
+const CharacterSheet = ({character, allSkills, updateLogs, updateCharacter}: CharacterSheetProps) => {
     return(
         <div className='main'>
             <TextField fieldName='HANDLE' value={character.name} />
@@ -229,7 +248,7 @@ const CharacterSheet = ({character, allSkills, updateLogs}: CharacterSheetProps)
             <Stats attributes={character.attributes}/>
             <CharacterSPField sp={character.sp}/>
             {allSkills && <SkillsByAttributes skills={allSkills} characterSkills={character.skills} charId={character.id}/>}
-            <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs}/>
+            <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
         </div>
     )
 }

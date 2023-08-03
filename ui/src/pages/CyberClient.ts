@@ -77,6 +77,11 @@ export enum WeaponType {
     Heavy = 'heavy'
 }
 
+const guns = [WeaponType.Handgun, WeaponType.SMG, WeaponType.Rifle, WeaponType.Shotgun, WeaponType.Heavy]
+export const isGun = (w: WeaponType): Boolean =>
+    guns.includes(w)
+
+
 export interface Weapon {
     id: number
     isChrome: boolean
@@ -159,8 +164,11 @@ export enum AttackType {
     Melee = 'melee'
 }
 
-export interface AttackReq {
+interface WeaponReq {
     weaponId: number
+}
+
+export interface AttackReq extends WeaponReq {
     charId: number
     attackType: AttackType
     attackRange: number
@@ -169,3 +177,10 @@ export interface AttackReq {
 
 export const attack = (attack: AttackReq) =>
     postData<string[]>(`${pathBase}/attack`, attack)
+
+export interface ReloadReq extends WeaponReq {
+    shots: number
+}
+
+export const reload = (reload: ReloadReq) => 
+    postData<string[]>(`${pathBase}/reload`, reload)

@@ -599,19 +599,31 @@ def determineHitLocDamages(dmg, locations):
 
 
 def reloadWeapon(weapon_id, shots):
+    log_events = []
     id = safeCastToInt(weapon_id)
     amount = safeCastToInt(shots)
     weapon = DAO.getWeaponById(id)
     if weapon is not None and amount > 0:
         if weapon.isGun():
             if weapon.clip_size < amount:
-                print(f"Can't hold that many shots for {weapon.item}, clip size = {weapon.clip_size}")
+                too_much_str = f"Can't hold that many shots for {weapon.item}, clip size = {weapon.clip_size}"
+                print(too_much_str)
+                log_events.append(too_much_str)
                 amount = weapon.clip_size
 
             DAO.updateShotsInClip(id, amount)
-            printGreenLine(f'{weapon.item} reloaded with {amount} shots')
+            reloaded_str = f'{weapon.item} reloaded with {amount} shots'
+            printGreenLine(reloaded_str)
+            log_events.append(reloaded_str)
         else:
-            print(f"{weapon.item} is not a gun, can't reload it")
+            not_gun_str = f"{weapon.item} is not a gun, can't reload it"
+            print(not_gun_str)
+            log_events.append(not_gun_str)
+    else:
+        invalid_str = 'Weapon not found or invalid amount to reload'
+        printRedLine(invalid_str)
+        log_events.append(invalid_str)
+    return log_events
 
 
 def hitCharacter(name, body_part, dmg_str, is_ap=False, pass_sp=False):
