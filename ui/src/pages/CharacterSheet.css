@@ -11,6 +11,7 @@ label {
 
 .fieldContainer {
     margin-top: 4px;
+    max-width: 600px;
 }
 
 .fieldContent {
@@ -52,7 +53,7 @@ label {
     margin: 4px 0px
 }
 
-.foo {
+.sp {
     border: solid;
 }
 
@@ -71,4 +72,23 @@ label {
     max-width: 400px;
     font-size: 14px;
 
+}
+
+.skill {
+    margin-right: 4px;
+}
+
+.skillBtn {
+    margin-right: 2px;
+}
+
+.weapons {
+    margin-top: 16px;
+    border-top: solid;
+    border-bottom: solid;
+    padding: 4px 0px;
+}
+
+.weapon {
+    margin-bottom: 4px;
 }

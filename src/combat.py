@@ -14,7 +14,7 @@ from skills import skillBonusForSkill, skill_athletics
 from weapon import Weapon
 from colorama import Fore, Style
 
-def weaponsByType(attack_type, weapons):
+def weaponsByAttackType(attack_type, weapons):
     weps = []
     if attack_type == attack_type_melee:
         for w in weapons:
@@ -30,9 +30,22 @@ def weaponsByType(attack_type, weapons):
                 weps.append(w)
     return weps
 
+def weaponByAttackTypeAndWeaponId(character, weapon_id, attack_type):
+    weapons = weaponsByAttackType(attack_type, character.weapons)
+    weapon = None
+    for w in weapons:
+        if w.weapon_id == weapon_id:
+            weapon = w
+            break
+    if weapon is None:
+        printRedLine(f'No weapons found for {attack_type}, character_id = {character.id}, weapon_id = {weapon_id}')
+
+    return weapon
+
+
 
 def weaponByAttackType(attack_type, character):
-    weapons = weaponsByType(attack_type, character.weapons)
+    weapons = weaponsByAttackType(attack_type, character.weapons)
     idx = 0
     if len(weapons) > 0:
         print(f'Select weapon num: ')
@@ -72,20 +85,62 @@ def suppressiveFireDef(name, rounds, area):
     else:
         print(f'Suppressive area needs at least one shot fired into it and valid area width')
 
+def weapon_info(wep):
+    if wep.effect_radius > 0:
+        print(
+            f'Hit affects radius of {wep.effect_radius} - Check also if hit misses or if there are other targets in the radius!'
+        )
+    if wep.weapon_type == t_shotgun:
+        print(
+            """For shotguns, point blank/short range attack is for one spot, mid range hits 2 spots and long/extreme hits 3 places."""
+        )
+
+
+def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, attack_range, attack_modifier):
+    character = DAO.getCharacterById(character_id)
+    result_logs = []
+    if character is not None:
+        wep = weaponByAttackTypeAndWeaponId(character, weapon_id, attack_type)
+        if wep is not None:
+            weapon_info(wep)
+            (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
+            if attack_type == attack_type_single:
+                result_logs = handleSingleShot(
+                    character,
+                    wep,
+                    attack_range,
+                    given_roll=0,
+                    skill_bonus=skill_bonus,
+                    skill=skill,
+                    modifiers_total=attack_modifier,
+                    skip_luck=True,
+                    auto_roll=True
+                )
+            else:
+                not_supported_str = f'Attack type {attack_type} not supported yet for NET'
+                print(not_supported_str)
+                result_logs.append(not_supported_str)
+        else:
+            wep_not_found_str = f'Weapon not found [character_id = {character_id}, weapon_id = {weapon_id}]'
+            printRedLine(wep_not_found_str)
+            result_logs.append(wep_not_found_str)
+    else:
+        character_not_found_str = f'Character not found [character_id = {character_id}]'
+        printRedLine(character_not_found_str)
+        result_logs.append(character_not_found_str)
+
+    return result_logs
+
+
+
 def characterAttack(character, attack_type, attack_range, given_roll):
     wep = weaponByAttackType(attack_type, character)
     (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
 
     if wep is not None:
-        if wep.effect_radius > 0:
-            print(
-                f'Hit affects radius of {wep.effect_radius} - Check also if hit misses or if there are other targets in the radius!')
-        if wep.weapon_type == t_shotgun:
-            print(
-                """For shotguns, point blank/short range attack is for one spot, mid range hits 2 spots and long/extreme hits 3 places."""
-            )
+        weapon_info(wep)
         if attack_type == attack_type_single:
-            handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill)
+            handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill, modifiers_total=None)
         elif attack_type == attack_type_burst:
             handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill)
         elif attack_type == attack_type_full_auto:
@@ -379,11 +434,13 @@ def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill):
         )
 
 
-def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill):
-    modifiers_total = modifiersForTarget(1)
+def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill, modifiers_total, skip_luck=False, auto_roll=False):
+    if modifiers_total is None:
+        modifiers_total = modifiersForTarget(1)
     roll = safeCastToInt(given_roll)
+    result_logs = []
     if roll <= 0:
-        roll = dice.rollWithCrit()
+        roll = dice.rollWithCrit(skip_luck)
 
     shots_left = wep.shots_left
     weapon_can_attack = True
@@ -411,25 +468,33 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
         if hit_res == False:
             end_res = failure
             if wep.isThrown():
-                print('Roll 1D10 to see how the throw misses and another 1D10 to see how far! (See grenade table)')
+                thrown_info_str = 'Roll 1D10 to see how the throw misses and another 1D10 to see how far! (See grenade table)'
+                print(thrown_info_str)
+                result_logs.append(thrown_info_str)
         else:
-            printGreenLine(f'Attack successful!')
-            dmg = hitDmg(wep, attack_range)
-            printGreenLine(f'DMG done: {dmg}')
+            attack_success_str = f'Attack successful!'
+            printGreenLine(attack_success_str)
+            dmg = hitDmg(wep, attack_range, auto_roll=auto_roll)
+            dmg_done_str = f'DMG done: {dmg}'
+            printGreenLine(dmg_done_str)
+            result_logs.append(attack_success_str)
+            result_logs.append(dmg_done_str)
 
-        print(
-            f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})'
-        )
-        print(
-            f'{range_str} range attack ({attack_range}m) is {end_res} {rollToBeatStr(roll_to_beat, total)}'
-        )
+        attack_info_str = f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})'
+        print(attack_info_str)
+        result_logs.append(attack_info_str)
+        range_info_str = f'{range_str} range attack ({attack_range}m) is {end_res} {rollToBeatStr(roll_to_beat, total)}'
+        print(range_info_str)
+        result_logs.append(range_info_str)
     else:
-        printRedLine(
-            f'Unable to attack with (id: {wep.weapon_id}) {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]'
-        )
+        unable_str = f'Unable to attack with (id: {wep.weapon_id}) {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]'
+        printRedLine(unable_str)
+        result_logs.append(unable_str)
+
+    return result_logs
 
 
-def hitDmg(wep, attack_range):
+def hitDmg(wep, attack_range, auto_roll=False):
     dmg = 0
     targets = 0
     if wep.weapon_type == t_shotgun:
@@ -453,15 +518,20 @@ def hitDmg(wep, attack_range):
             dmg += t_dmg
 
     else:
-        dmg = handleWeaponDmgAndHit(wep, attack_range)
+        dmg = handleWeaponDmgAndHit(wep, attack_range, auto_roll)
     return dmg
 
 
-def handleWeaponDmgAndHit(wep, attack_range):
+def handleWeaponDmgAndHit(wep, attack_range, auto_roll):
     print(f'{roll_str} or give dmg (> 0):')
     dmg = 0
     while True:
-        input = askInput()
+        input = ''
+        if auto_roll:
+            input = roll_str
+        else:
+            input = askInput()
+
         if input == roll_str:
             dmg = dice.roll(wep.dice_num, wep.dice_dmg, divide_by=wep.divide_by, bonus=wep.dmg_bonus)
             break

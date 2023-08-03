@@ -62,9 +62,18 @@ def rollCharacterMeleeDef(name, roll):
             printGreenLine(f"Melee def total: {roll} (hopefully the attacker rolled lower..)")
 
 
-def rollCharacterSkill(name, skill_num, roll, modifier):
-    skill_name = ''
+def rollCharacterSkillById(id, skill_num, roll, modifier, added_luck):
+    character = DAO.getCharacterById(id)
+    return rollCharacterSkill(character, skill_num, roll, modifier, added_luck)
+
+
+def rollCharactersKillByName(name, skill_num, roll, modifier):
     character = DAO.getCharacterByName(name)
+    rollCharacterSkill(character, skill_num, roll, modifier, added_luck=None)
+
+
+def rollCharacterSkill(character, skill_num, roll, modifier, added_luck):
+    skill_name = ''
     roll_modifier = safeCastToInt(modifier)
     skill_id = safeCastToInt(skill_num)
     skill = DAO.getSkillById(skill_id)
@@ -76,7 +85,9 @@ def rollCharacterSkill(name, skill_num, roll, modifier):
         char_skill_lvl = 0
         die_roll = 0
         if t_roll <= 0:
-            die_roll = dice.rollWithCrit() + roll_modifier
+            if added_luck == None:
+                added_luck = dice.handleLuck()
+            die_roll = dice.rollWithCritAndGivenLuck(added_luck) + roll_modifier
         else:
             die_roll = t_roll + roll_modifier
         skill = [s for s in character.skills if s.skill == skill_name]
@@ -93,9 +104,9 @@ def rollCharacterSkill(name, skill_num, roll, modifier):
                 atr_bonus = character.attributes[skill_atr]
                 roll = die_roll + atr_bonus
 
-        printGreenLine(f"""{name} rolled {roll} for {skill_name}""")
+        printGreenLine(f"""{character.name} rolled {roll} for {skill_name}""")
         print(f"""(die roll = {die_roll} atr_bonus = {atr_bonus} skill_level = {char_skill_lvl} modifier = {roll_modifier})""")
-
+        return roll
 
 def printCharSkillInfo(skills):
     if len(skills) > 0:

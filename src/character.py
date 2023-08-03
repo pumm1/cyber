@@ -90,6 +90,7 @@ class Character:
         ), self.cybernetics)
 
         resJson = {
+            "id": self.id,
             "name": self.name,
             "role": self.role,
             "specialAbilityLvl": self.specialAbility,

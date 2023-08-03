@@ -2,8 +2,8 @@ import { useState, useEffect } from "react"
 import { getCharacter , Character, listSkills} from './CyberClient'
 import './SearchCharacter.css'
 import React from "react"
-import Head from './character_parts/head.svg'
 import CharacterSheet from "./CharacterSheet"
+import Window from "floating-window-ui";
 
 const SearchCharacter = () => {
     const [name, setName] = useState('')
@@ -13,6 +13,13 @@ const SearchCharacter = () => {
     useEffect(() => {
         listSkills().then(setAllSkills)
     }, [])
+
+    const titleBarProps = (c: Character) => ({
+        title: c.name,
+        buttons: {
+            close: () => setCharacter(undefined)
+        }
+    })
     
     return(
         <div>
@@ -23,40 +30,10 @@ const SearchCharacter = () => {
                         }}/>
                 <button onClick={() => getCharacter(name).then(setCharacter)}>Search</button>
             </div>
-            {!!character ? <CharacterSheet character={character} allSkills={allSkills}/> : character === null ? <CharacterNotFound /> : ''} 
-        </div>
-    )
-}
-
-const field = (fieldName: string, value: string) => {
-    return(
-        <span>
-            <label>{fieldName}: </label>
-            <>{value}</>
-        </span>
-    )
-}
-
-const skills = (c: Character) => {
-    return (
-        <>{c.skills.map(s => <span>{s}</span>)}</>
-    )
-}
-
-const CharacterNotFound = () => <div>Not found</div>
-
-const CharacterInfo = (char: Character): JSX.Element => {
-    //TODO: attributes
-    //TODO: make character info look closer to original character sheet
-    //TODO: figure out svgs
-    return (
-        <div className='CharacterInfo'>
-            {field('handle', char.name)}
-            {field('role', char.role)}
-            {field('body type', char.bodyType)}
-            {field('BTM', char.bodyTypeModifier)}
-            {field('skills', "")}
-            {skills(char)}
+            {!!character &&
+            <Window id={'character' + character.id} height={1300} width={900} resizable={true} titleBar={titleBarProps(character)}>
+                <div className="sheetContainer"><CharacterSheet character={character} allSkills={allSkills}/></div>
+            </Window>}
         </div>
     )
 }

@@ -1,3 +1,18 @@
+button {
+    border: 0;
+    font-size: 12px;
+    background-color: black;
+    color: white;
+}
+button:active {
+    background-color: white;
+    color: black;
+}
+button:hover {
+    background-color: white;
+    color: black;
+}
+
 .main {
     padding: 16px 8px;
     font-family:Verdana, Geneva, Tahoma, sans-serif;

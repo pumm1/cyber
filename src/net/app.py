@@ -34,6 +34,20 @@ def roll():
     else:
         return "Invalid request", 400
 
+
+@app.route('/roll-skill', methods = ['POST'])
+def rollSkill():
+    if (request.method == 'POST'):
+        data = request.get_json()
+        print(f'..... data: {data} ... request: {request}')
+        char_id = data['charId']
+        skill_id = data['skillId']
+        added_luck = data['addedLuck']
+        print(f'.... roll char {char_id} skill {skill_id} added luck {added_luck}')
+        return jsonify(skills.rollCharacterSkillById(char_id, skill_id, 0, 0, added_luck))
+    else:
+        return "Invalid request", 400
+
 @app.route('/char', methods = ['GET'])
 def getChar():
     if (request.method == 'GET'):
@@ -52,6 +66,12 @@ def listSkills():
 @app.route('/attack', methods = ['POST'])
 def attack():
     if (request.method == 'POST'):
-        return jsonify(skills.fetchAllSkils())
+        data = request.get_json()
+        weapon_id = data['weaponId']
+        char_id = data['charId']
+        attack_type = data['attackType']
+        attack_range = data['attackRange']
+        attack_modifier = data['attackModifier']
+        return jsonify(combat.characterAttackByCharacterAndWeaponId(char_id, weapon_id, attack_type, attack_range, attack_modifier)) #TODO
     else:
         return "Invalid request", 400

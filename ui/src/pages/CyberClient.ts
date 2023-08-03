@@ -6,6 +6,20 @@ const fetchData = (path: string) =>
 const fetchDataAs = <T,>(path: string) =>
     fetchData(path).then(res => res as T)
 
+const postData = <T, >(path: string, data: any) => {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }
+
+    return fetch(path, requestOptions).then(res => {
+        console.log(`.... POST RESPONSE: ${JSON.stringify(res)}`)
+        
+        return res.json() as T
+    })
+}
+
 export enum Attribute {
     ATTR = 'ATTR',
     BODY = 'BODY',
@@ -53,14 +67,25 @@ export interface Armor {
     sp: number
 }
 
+export enum WeaponType {
+    Melee = 'melee',
+    Handgun = 'handgun',
+    SMG = 'smg',
+    Rifle = 'rifle',
+    Thrown = 'thrown',
+    Shotgun = 'shotgun',
+    Heavy = 'heavy'
+}
+
 export interface Weapon {
     id: number
     isChrome: boolean
     item: string
     clipSize: number
     shotsLeft: number
+    rof: number
     weight: number
-    weaponType: string //TODO: enum
+    weaponType: WeaponType //TODO: enum
     reliability: string //TODO: enum
     range: number
     pointBlankLimit: number
@@ -92,6 +117,7 @@ export interface CharacterSkill {
 }
 
 export interface Character {
+    id: number
     name: string
     role: string
     specialAbility: string, //TODO: enum?
@@ -117,3 +143,29 @@ export const rollDice = () =>
 export const listSkills = () => 
     fetchDataAs<Skill[]>(`${pathBase}/list-skills`)
  
+export interface RollSkillReq {
+    charId: number
+    skillId: number
+    addedLuck: number
+}
+    //TODO: make POST with params
+export const rollSkill = (roll: RollSkillReq) =>
+    postData<number>(`${pathBase}/roll-skill`, roll)
+
+export enum AttackType {
+    Single = 'single',
+    Burst = 'burst',
+    FullAuto = 'full auto',
+    Melee = 'melee'
+}
+
+export interface AttackReq {
+    weaponId: number
+    charId: number
+    attackType: AttackType
+    attackRange: number
+    attackModifier: number
+}
+
+export const attack = (attack: AttackReq) =>
+    postData<string[]>(`${pathBase}/attack`, attack)

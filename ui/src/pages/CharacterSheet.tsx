@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, RollSkill, Weapon, attack, AttackReq, AttackType } from './CyberClient'
 import React, { useState, useEffect } from "react"
 import './CharacterSheet.css'
 
@@ -88,44 +88,107 @@ const attributesInOrder = [
     Attribute.TECH,
 ]
 
-const SkillField = ({skill, characterSkills}: {skill: Skill, characterSkills: CharacterSkill[]}) => {
+const SkillField = ({skill, characterSkills, charId}: {skill: Skill, characterSkills: CharacterSkill[], charId: number}) => {
+    const [rollResult, setRollResult] = useState<undefined | number>(undefined)
     const charSkillLvl = characterSkills.find(s => s.id === skill.id)?.lvl
+    const roll: RollSkill = {
+        charId: charId,
+        skillId: skill.id,
+        addedLuck: 0
+    }
 
     return (
-    <div>
-        {skill.skill}......[{charSkillLvl ?? ''}]
+    <div className='skill' key={skill.id}>
+        <span>
+            <button className='skillBtn' onClick={() => rollSkill(roll).then(res => setRollResult(res))}>Roll</button>
+            {skill.skill}......[{charSkillLvl ?? ''}]
+            {rollResult && <>({rollResult})</>}
+        </span>
     </div>
     )
 }
 
 const SkillsByAttribute = (
-    {attribute, skills, characterSkills}: {attribute: Attribute, skills: Skill[], characterSkills: CharacterSkill[]} 
+    {attribute, skills, characterSkills, charId}: {attribute: Attribute, skills: Skill[], characterSkills: CharacterSkill[], charId: number} 
 ) => {
     return (
-       <span className='skill'>
+       <span key={attribute}>
             <b>{attribute}</b>
-            {skills.filter(s => s.attribute === attribute).map(s => <SkillField skill={s} characterSkills={characterSkills}/>)}
+            {skills.filter(s => s.attribute === attribute).map(s => <SkillField skill={s} characterSkills={characterSkills} charId={charId}/>)}
        </span>
     )
 }
 
 const SkillsByAttributes = (
-    {skills, characterSkills}: {skills: Skill[], characterSkills: CharacterSkill[]} 
+    {skills, characterSkills, charId}: {skills: Skill[], characterSkills: CharacterSkill[], charId: number} 
 ) => {
    return (
     <div className='fieldContainer'>
         
         <div className='skills'>
-            {attributesInOrder.map(atr => <SkillsByAttribute attribute={atr} skills={skills} characterSkills={characterSkills}/>)}
+            {attributesInOrder.map(atr => <SkillsByAttribute attribute={atr} skills={skills} characterSkills={characterSkills} charId={charId}/>)}
         </div>
     </div>
    )
 }
 
+const WeaponRow = ({weapon, characterId}: {weapon: Weapon, characterId: number}) => {
+    const isMelee = weapon.weaponType === 'melee'
+    const defaultAttackType = isMelee ? AttackType.Melee : AttackType.Single
+    console.log(`... weapon: ${weapon.item} ... default attack type ${defaultAttackType}`)
+    const ammoInfo = isMelee ? '' : `(${weapon.shotsLeft} / ${weapon.clipSize})`
+    const [attackType, setAttackType] = useState<AttackType>(defaultAttackType)
+    const isFullAuto: boolean = !isMelee && weapon.rof >= 3
+
+    const InputRow = ({show, onClick, checked, label}: {show: boolean, onClick: () => void, checked: boolean, label: string}) => {
+       const inputId = label + weapon.id
+
+       return (
+            show && <><input key={weapon.id} type='radio' onChange={() => {}} onClick={onClick} checked={checked} value={inputId} name={inputId}/> {label}</>
+       )
+    }
+
+    const AttackTypes = ({}) => 
+        <span>
+            <InputRow show={isMelee} onClick={() => setAttackType(AttackType.Melee)} checked={attackType === AttackType.Melee} label='Melee' />
+            <InputRow show={!isMelee} onClick={() => setAttackType(AttackType.Single)} checked={attackType === AttackType.Single} label='Single' />
+            <InputRow show={isFullAuto} onClick={() => setAttackType(AttackType.Burst)} checked={attackType === AttackType.Burst} label='Burst' />
+            <InputRow show={isFullAuto} onClick={() => setAttackType(AttackType.FullAuto)} checked={attackType === AttackType.FullAuto} label='Full auto' />
+        </span>
+
+    const attackReq: AttackReq = {
+        charId: characterId,
+        weaponId: weapon.id,
+        attackType,
+        attackRange: 10, //TODO
+        attackModifier: 0 //TODO
+    }
+
+    return (
+        <div className='weapon' key={`${characterId} ${weapon.id}`}>
+            {weapon.item} {ammoInfo} [{weapon.weaponType}]
+            <button onClick={() => attack(attackReq)}>Attack</button>
+            <AttackTypes />
+        </div>
+    )
+}
+
+const CharacterWeapons = (
+    {weapons, characterId}: {weapons: Weapon[], characterId: number}
+) => {
+    return (
+    <div key={characterId} className='fieldContainer'>
+        <div className='weapons'>
+            {weapons.map(w => <WeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} />)}
+        </div>
+    </div>
+    )
+}
+
 const CharacterSPField = ({sp}: {sp: CharacterSP}) => {
     const Label = ({label}: {label: string}) => <label className='armorLabel'><i>{label}</i></label>
     const GridBox = ({value, bolden}: {value: number | string, bolden?: boolean}) => 
-        <div className='foo'>
+        <div className='sp'>
             {!!bolden ? <b><i>{value}</i></b> : value}
         </div>
 
@@ -160,12 +223,13 @@ const CharacterSPField = ({sp}: {sp: CharacterSP}) => {
 
 const CharacterSheet = ({character, allSkills}: CharacterSheetProps) => {
     return(
-        <div>
+        <div className='main'>
             <TextField fieldName='HANDLE' value={character.name} />
             <RoleFiled value={character.role}/>
             <Stats attributes={character.attributes}/>
             <CharacterSPField sp={character.sp}/>
-            {allSkills && <SkillsByAttributes skills={allSkills} characterSkills={character.skills}/>}
+            {allSkills && <SkillsByAttributes skills={allSkills} characterSkills={character.skills} charId={character.id}/>}
+            <CharacterWeapons weapons={character.weapons} characterId={character.id}/>
         </div>
     )
 }

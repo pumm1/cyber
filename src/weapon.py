@@ -126,6 +126,7 @@ class Weapon:
             'diceNum': self.dice_num,
             'weight': self.weight,
             'clipSize': self.clip_size,
+            'rof': self.rof,
             'shotsLeft': self.shots_left,
             'reliability': self.reliability,
             'isChrome': self.is_chrome,
