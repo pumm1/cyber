@@ -1,0 +1,7 @@
+.logs {
+    margin-top: 8px;
+    padding: 4px;
+    border: solid;
+    max-height: 100px;
+    overflow-y: auto;
+}
