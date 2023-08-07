@@ -106,9 +106,6 @@ def lvlUp():
         skill_id = data['skillId']
         amount = data['amount']
 
-        res = skills.updateCharSkillById(char_id, skill_id, amount)
-        print(f'.... data: {data} ... res: {res}')
-
-        return jsonify(res)
+        return jsonify(skills.updateCharSkillById(char_id, skill_id, amount))
     else:
         return "Invalid request", 400

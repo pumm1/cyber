@@ -111,7 +111,7 @@ const SkillRow = ({skill, characterSkills, charId, updateCharacter}: SkillProps)
         <span>
             {<button className='skillBtn' disabled={charSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(updateCharacter)}>+</button>}
             <button className='skillBtn' onClick={() => rollSkill(roll).then(res => setRollResult(res))}>Roll</button>
-            {skill.skill}......[{charSkillLvl ?? ''}]
+            {skill.skill.padEnd(36, '.')}[{charSkillLvl ?? ''}]
             {rollResult && <>({rollResult})</>}
         </span>
     </div>
@@ -138,7 +138,7 @@ const SkillsByAttribute = ({attribute, skills, characterSkills, charId, updateCh
     )
 }
 
-const SkillsByAttributes = ({skills, characterSkills, charId, updateCharacter}: SkillsByAttributeProps ) => {
+const SkillsByAttributes = ({skills, characterSkills, charId, updateCharacter}: SkillsProps ) => {
    return (
     <div className='fieldContainer'>
         
@@ -284,6 +284,91 @@ const CharacterSPField = ({sp, characterId, updateCharacter}: SPFieldProps) => {
     )
 }
 
+interface SaveAndHealthProps {
+    character: Character
+}
+
+const maxDmg = 40
+
+interface DmgBoxSetProps {
+    upper: string
+    lower: string
+}
+
+const FourDmgBoxes = ({upper, lower}: DmgBoxSetProps) => {
+    return(
+        <div className='fourDmgBoxes'>
+            <div>{upper}</div>
+            <>
+                {(() => {
+                    const arr = [];
+
+                    for (let i = 0; i < 4; i++) {
+                        arr.push(
+                            <div className='dmgBox'>
+                                x
+                            </div>
+                        )
+                    }
+                    return <div className='dmgBoxSet'>{arr}</div>;
+                })()}
+        </>
+       <div className='dmgStun'>{lower}</div>
+    </div>
+    )
+}
+
+
+const DmgTaken = ({dmgTaken} : {dmgTaken: number}) => {
+    var t_dmg = 0
+    return(
+        <>
+        {(() => {
+            const arr = [];
+
+            for (let i = 0; i < maxDmg; i++) {
+                const markDmgTaken = i < dmgTaken
+                if (markDmgTaken) {
+                    t_dmg++
+                }
+                arr.push(
+                    <div className='dmgTakenBox'>
+                        {markDmgTaken ? 'x' : 'i'}
+                        {i % 4 && i > 0 && <></>}
+                    </div>
+                )
+            }
+            return arr;
+        })()}
+    </>
+    )
+}
+
+const SaveAndHealthRow = ({character}: SaveAndHealthProps) => {
+    const save = character.attributes.BODY
+    const btm = character.btm
+
+    return(
+        <div className='boxContainer'>
+             <div className='outerBox'>
+                    <div className='boxLabel'>Save</div>
+                    <div className='boxValue'>{save}</div>
+                </div>
+                <div className='outerBox'>
+                    <div className='boxLabel'>BTM</div>
+                    <div className='boxValue'>{btm ?? ''}</div>
+                </div>
+                <div className='dmgTakenOuterbox'>
+                    <FourDmgBoxes upper='Light' lower='Stun 0'/>
+                    <FourDmgBoxes upper='Serious' lower='Stun 1'/>
+                    <FourDmgBoxes upper='Critical' lower='Stun 2'/>
+                    <FourDmgBoxes upper='Mortal 0' lower='Stun 3'/>
+                    <FourDmgBoxes upper='Mortal 1' lower='Stun 4'/>
+                </div>
+        </div>
+    )
+}
+
 
 const CharacterSheet = ({character, allSkills, updateLogs, updateCharacter}: CharacterSheetProps) => {
     return(
@@ -292,6 +377,7 @@ const CharacterSheet = ({character, allSkills, updateLogs, updateCharacter}: Cha
             <RoleFiled value={character.role}/>
             <Stats attributes={character.attributes}/>
             <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter}/>
+            <SaveAndHealthRow character={character}/>
             {allSkills && <SkillsByAttributes skills={allSkills} characterSkills={character.skills} charId={character.id} updateCharacter={updateCharacter}/>}
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
         </div>

@@ -11,7 +11,7 @@ from gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_
     attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str, body_parts, \
     t_heavy_weapon, printColorLine, printRedLine, printGreenLine, coloredText, t_smg
 from skills import skillBonusForSkill, skill_athletics
-from logger import Log, log_neg, log_pos, log_neutral
+from logger import Log, log_neg, log_pos, log_neutral, log_event
 from weapon import Weapon
 from colorama import Fore, Style
 
@@ -231,7 +231,7 @@ melee_attacks = [
 
 
 def handleMelee(character, wep, given_roll, skill_bonus, skill, modifiers_total):
-    res_logs = []
+    logs = []
     if modifiers_total is None:
         modifiers_total = modifiersForTarget(1)
     ref_bonus = character.attributes[REF]
@@ -247,16 +247,12 @@ def handleMelee(character, wep, given_roll, skill_bonus, skill, modifiers_total)
     else:
         roll = dice.rollWithCrit(skip_luck=True)
     total = roll + ref_bonus + skill_bonus + modifiers_total
-    melee_log = Log(f'{character.name} attacks with {wep.item} (Roll total = {total})', log_pos)
-    res_logs.append(melee_log.toJson())
-    def_info_log = Log("Defend against melee attack by rolling opponent's REF + dodge skill + 1D10", log_neg)
-    res_logs.append(def_info_log.toJson())
-    attack_info_log = Log(f'If attack is successful, calculate damage for roll (or automatically roll dmg) with {melee_dmg_help_str}', log_neutral)
-    res_logs.append(attack_info_log.toJson())
-    roll_info_log = Log(f'(dice roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), modifiers = {modifiers_total})', log_neutral)
-    res_logs.append(roll_info_log.toJson())
+    logs = log_event(logs, f'{character.name} attacks with {wep.item} (Roll total = {total})', log_pos)
+    logs = log_event(logs, "Defend against melee attack by rolling opponent's REF + dodge skill + 1D10", log_neg)
+    logs = log_event(logs, f'If attack is successful, calculate damage for roll (or automatically roll dmg) with {melee_dmg_help_str}', log_neutral)
+    logs = log_event(logs, f'(dice roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), modifiers = {modifiers_total})', log_neutral)
 
-    return res_logs
+    return logs
 
 
 def handleMeleeDmg(name, roll):
@@ -415,11 +411,10 @@ def rollToBeatStr(to_beat, total):
 
 
 def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill, modifiers_total, skip_luck=False, auto_roll=False) -> [Log]:
-    log_events = []
+    logs = []
     if modifiers_total < 0 or modifiers_total is None:
         modifiers_total = modifiersForTarget(1)
-    trying_burst_log = Log(f'Trying burst attack with {wep.item}', log_neutral)
-    log_events.append(trying_burst_log.toJson())
+    logs = log_event(logs, f'Trying burst attack with {wep.item}', log_neutral)
     roll = safeCastToInt(given_roll)
     if roll <= 0:
         roll = dice.rollWithCrit(skip_luck)
@@ -430,8 +425,7 @@ def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill, mo
             weapon_can_attack = False
 
     if weapon_can_attack:
-        can_burst_log = Log(f'{wep.item} can do burst [shots left: {wep.shots_left}, rof: {wep.rof}]', log_neutral)
-        log_events.append(can_burst_log.toJson())
+        logs = log_event(logs, f'{wep.item} can do burst [shots left: {wep.shots_left}, rof: {wep.rof}]', log_neutral)
         (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
         ref_bonus = character.attributes[REF]
         range_bonus = 0
@@ -450,38 +444,32 @@ def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill, mo
             if shots_fired < 3 and hits == 3:
                 hits = shots_left
             total_dmg = 0
-            hits_to_target_log = Log(f'{hits} hits to target!', log_pos)
-            log_events.append(hits_to_target_log.toJson())
+            logs = log_event(logs, f'{hits} hits to target!', log_pos)
             attack_info_str = f"""
 {character.name} selected {wep.item} [range = {wep.range}m]
-(roll = {roll} vs roll to beat {roll_to_beat} - skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})
+(total = {total} vs roll to beat {roll_to_beat} - roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})
                 """
-            attack_info_log = Log(attack_info_str, log_neutral)
-            log_events.append(attack_info_log.toJson())
+            logs = log_event(logs, attack_info_str, log_neutral)
             for i in range(hits):
                 (dmg, hitLogs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
-                print(f'.......... {hitLogs}')
-                log_events = log_events + hitLogs
+                logs = logs + hitLogs
                 total_dmg = total_dmg + dmg
-            total_dmg_log = Log(f'Total dmg done to target: {total_dmg}', log_pos)
-            log_events.append(total_dmg_log.toJson())
+            logs = log_event(logs, f'Total dmg done to target: {total_dmg}', log_pos)
         else:
-            burst_miss_log = Log(f'Burst attack misses target!', log_neg)
-            log_events.append(burst_miss_log.toJson())
+            logs = log_event(logs, f'Burst attack misses target!', log_neg)
         DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
 
     else:
-        unable_log = Log( f"Unable to do burst attack with {wep.item} ({wep.weapon_type}) [{wep.shots_left} / {wep.clip_size}] ROF: {wep.rof}", log_neg)
-        log_events.append(unable_log.toJson())
+        logs = log_event(logs, f"Unable to do burst attack with {wep.item} ({wep.weapon_type}) [{wep.shots_left} / {wep.clip_size}] ROF: {wep.rof}", log_neg)
 
-    return log_events
+    return logs
 
 
 def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill, modifiers_total, skip_luck=False, auto_roll=False):
     if modifiers_total is None:
         modifiers_total = modifiersForTarget(1)
     roll = safeCastToInt(given_roll)
-    result_logs = []
+    logs = []
     if roll <= 0:
         roll = dice.rollWithCrit(skip_luck)
 
@@ -511,31 +499,25 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
         if hit_res == False:
             end_res = failure_str
             if wep.isThrown():
-                throw_log = Log('Roll 1D10 to see how the throw misses and another 1D10 to see how far! (See grenade table)', log_neutral)
-                result_logs.append(throw_log.toJson())
+                logs = log_event(logs, 'Roll 1D10 to see how the throw misses and another 1D10 to see how far! (See grenade table)', log_neutral)
         else:
-            attack_success = Log(f'Attack successful!', log_pos)
+            logs = log_event(logs, f'Attack successful!', log_pos)
             dmg = hitDmg(wep, attack_range, auto_roll=auto_roll)
-            dmg_done = Log(f'DMG done: {dmg}', log_pos)
-            result_logs.append(attack_success.toJson())
-            result_logs.append(dmg_done.toJson())
+            logs = log_event(logs, f'DMG done: {dmg}', log_pos)
 
         attack_info_str = f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})'
-        attack_info = Log(attack_info_str, log_neutral)
-        result_logs.append(attack_info.toJson())
+        logs = log_event(logs, attack_info_str, log_neutral)
 
         range_info_str = f'{range_str} range attack ({attack_range}m) is {end_res} {rollToBeatStr(roll_to_beat, total)}'
-        range_info_log = Log(range_info_str, log_neutral)
-        result_logs.append(range_info_log.toJson())
+        logs = log_event(logs, range_info_str, log_neutral)
     else:
         unable_str = f'Unable to attack with (id: {wep.weapon_id}) {wep.item} [Shots left: {wep.shots_left} / {wep.clip_size}]'
-        unable_log = Log(unable_str, log_neg)
-        result_logs.append(unable_log.toJson())
+        logs = log_event(logs, unable_str, log_neg)
 
-    return result_logs
+    return logs
 
 
-def hitDmg(wep, attack_range, auto_roll=False) -> (int, [Log]):
+def hitDmg(wep, attack_range, auto_roll=False) -> (int, list[Log]):
     log_events = []
     dmg = 0
     targets = 0
@@ -645,27 +627,23 @@ def determineHitLocDamages(dmg, locations):
 
 
 def reloadWeapon(weapon_id, shots):
-    log_events = []
+    logs = []
     id = safeCastToInt(weapon_id)
     amount = safeCastToInt(shots)
     weapon = DAO.getWeaponById(id)
     if weapon is not None and amount > 0:
         if weapon.isGun():
             if weapon.clip_size < amount:
-                too_much_log = Log(f"Can't hold that many shots for {weapon.item}, clip size = {weapon.clip_size}", log_neutral)
-                log_events.append(too_much_log)
+                logs = log_event(logs, f"Can't hold that many shots for {weapon.item}, clip size = {weapon.clip_size}", log_neutral)
                 amount = weapon.clip_size
 
             DAO.updateShotsInClip(id, amount)
-            reload_log = Log(f'{weapon.item} reloaded with {amount} shots', log_pos)
-            log_events.append(reload_log.toJson())
+            logs = log_event(logs, f'{weapon.item} reloaded with {amount} shots', log_pos)
         else:
-            not_gun_log = Log(f"{weapon.item} is not a gun, can't reload it", log_neutral)
-            log_events.append(not_gun_log)
+            logs = log_event(logs, f"{weapon.item} is not a gun, can't reload it", log_neutral)
     else:
-        invalid_log = Log('Weapon not found or invalid amount to reload', log_neg)
-        log_events.append(invalid_log)
-    return log_events
+        logs = log_event(logs, 'Weapon not found or invalid amount to reload', log_neg)
+    return logs
 
 
 def hitCharacter(name, body_part, dmg_str, is_ap=False, pass_sp=False):

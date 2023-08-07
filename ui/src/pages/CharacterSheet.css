@@ -57,6 +57,62 @@ label {
     border: solid;
 }
 
+.boxContainer {
+    display: flex;
+    height: 72px;
+}
+
+.outerBox {
+    display: flex;
+    flex-direction: column;
+    border: solid;
+    width: 44px;
+    height: 62px;
+    margin: 4px;
+}
+
+.boxLabel {
+    font-size: 14px;
+    font-weight: bold;
+    border-bottom: solid;
+    padding-left: 2px;
+}
+
+.boxValue {
+    margin-top: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+
+}
+
+.dmgTakenOuterbox {
+    display: flex;
+    flex-direction: row;
+}
+
+.fourDmgBoxes {
+    margin-right: 10px;
+}
+
+.dmgBoxSet {
+    display: flex;
+}
+
+.dmgBox {
+    border: solid;
+    height: 20px;
+}
+
+.dmgStun {
+    width: 100%;
+    margin-top: 2px;
+    background-color: black;
+    color: white;
+    width: 150%;
+    font-size: 12px;
+}
+
 .armorContent {
     font-size: 14px;
     text-align: center;

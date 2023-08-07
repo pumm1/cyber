@@ -135,6 +135,7 @@ export interface Character {
     bodyTypeModifier: string
     btm?: number //TODO in backend
     woundState: string
+    dmgTaken: number
     skills: CharacterSkill[]
     armor: Armor[]
     weapons: Weapon[]
