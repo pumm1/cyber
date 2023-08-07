@@ -100,13 +100,22 @@ def addArmorForCharacter(name):
         printGreenLine(f'Armor added!')
 
 
-
-
-def repairSP(name):
-    char = DAO.getCharacterByName(name)
+def repairCharSP(char) -> bool:
     if char is not None:
         DAO.repairCharacterSP(char.id)
         printGreenLine(f'Armor repaired for {char.name}')
+        return True
+    else:
+        return False
+
+def repairSPById(char_id) -> bool:
+    char = DAO.getCharacterById(char_id)
+    repairCharSP(char)
+
+
+def repairSP(name) -> bool:
+    char = DAO.getCharacterByName(name)
+    repairCharSP(char)
 
 
 def removeArmor(name, armor_id):

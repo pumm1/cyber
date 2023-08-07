@@ -5,18 +5,19 @@ import SearchCharacter from "./SearchCharacter"
 import './index.css'
 import LogViewer from "./LogViewer"
 import { useState } from "react"
+import { Log, LogType } from "./CyberClient"
 
 
 const IndexPage: React.FC<PageProps> = () => {
-  const [logs, setLogs] = useState<string[]>([])
+  const [logs, setLogs] = useState<Log[]>([])
 
-  const addToLogs = (s: string) => {
-    const newLogs: string[] = logs
-    setLogs(newLogs.concat(s)) 
+  const addToLogs = (l: Log) => {
+    const newLogs: Log[] = logs
+    setLogs(newLogs.concat(l)) 
   }
 
-  const updateLogs = (s: string[]) =>
-    s.map(r => addToLogs(r))
+  const updateLogs = (newLogs: Log[]) => 
+    setLogs([...logs, ...newLogs])
 
 
   return (

@@ -2,6 +2,7 @@ from colorama import Fore, Style
 
 import dice, cyberdao as DAO
 from gameHelper import safeCastToInt, printGreenLine, coloredText, list_skills_helper_str
+from src.logger import Log, log_pos, log_neg
 
 skill_athletics = 'athletics'
 skill_first_aid = 'first aid'
@@ -139,24 +140,39 @@ def listAllSkills():
     all_skills = allSkills()
     printSkillInfo(all_skills)
 
-
-def updateCharSkill(name, skill_id, lvl_up_amount):
+def udpateCharacterSkill(character, skill_id, lvl_up_amount) -> [Log]:
+    event_logs = []
     t_skill = safeCastToInt(skill_id)
     if t_skill >= 0:
-        character = DAO.getCharacterByName(name)
         if character is not None:
             if t_skill == 0:
                 DAO.updateCharSpecial(character.id, lvl_up_amount)
-                printGreenLine(f'{character.name} special updated (+{lvl_up_amount})')
+                special_log = Log(f'{character.name} special updated (+{lvl_up_amount})', log_pos)
+                event_logs.append(special_log.toJson())
             else:
                 skill = DAO.getSkillById(skill_id)
                 if skill is not None:
                     DAO.updateCharSkill(character.id, skill, lvl_up_amount)
-                    printGreenLine(f"Skill {skill['skill']} (+{lvl_up_amount}) updated for {name}")
+                    skill_updated_log = Log(f"Skill {skill['skill']} (+{lvl_up_amount}) updated for {character.name}", log_pos)
+                    event_logs.append(skill_updated_log.toJson())
                 else:
-                    print(f'Skill not found by id ({skill_id})')
+                    not_found_log = Log(f'Skill not found by id ({skill_id})', log_neg)
+                    event_logs.append(not_found_log.toJson())
     else:
-        print(f"'{skill_id}' not a valid skill id")
+        not_valid_skill_log = Log(f"'{skill_id}' not a valid skill id", log_neg)
+        event_logs.append(not_valid_skill_log.toJson())
+
+    return event_logs
+
+
+def updateCharSkillById(char_id, skill_id, lvl_up_amount):
+    character = DAO.getCharacterById(char_id)
+    return udpateCharacterSkill(character, skill_id, lvl_up_amount)
+
+
+def updateCharSkill(name, skill_id, lvl_up_amount):
+    character = DAO.getCharacterByName(name)
+    return udpateCharacterSkill(character, skill_id, lvl_up_amount)
 
 
 def printCharacterSkills(name):

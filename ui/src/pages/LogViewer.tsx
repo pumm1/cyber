@@ -1,14 +1,15 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import './LogViewer.css'
+import { Log, LogType } from './CyberClient'
 
-const LogViewer = ({logs, addToLogs}: {logs: string[], addToLogs: (s: string) => void}) => {
+const LogViewer = ({logs, addToLogs}: {logs: Log[], addToLogs: (s: Log) => void}) => {
     const [input, setInput] = useState<string>('') //for testing
     var fieldRef = React.useRef<HTMLInputElement>(null)
 
-    const LogRow = ({log}: {log: string}) =>
+    const LogRow = ({log}: {log: Log}) =>
         <div className='log'>
-            {log}
+            {'>'} {log.log}
         </div>
 
     const scrollToBottom = () => {
@@ -33,11 +34,11 @@ const LogViewer = ({logs, addToLogs}: {logs: string[], addToLogs: (s: string) =>
                     )
                 })}
             </div>
-            <input type='text' value={input} onChange={e => setInput(e.target.value)} />
-            <button onClick={() =>{
-                 addToLogs(input)
+            <div className='input'><input type='text' value={input} onChange={e => setInput(e.target.value)} /></div>
+            <div><button onClick={() =>{
+                 addToLogs({log: input, logType: LogType.neutral})
                  setInput('')
-            }}>Add log</button>
+            }}>Add log</button></div>
         </div>
     )
 } 

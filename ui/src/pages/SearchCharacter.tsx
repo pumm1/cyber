@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react"
-import { getCharacter , Character, listSkills} from './CyberClient'
+import { getCharacter , Character, listSkills, Log} from './CyberClient'
 import './SearchCharacter.css'
 import React from "react"
 import CharacterSheet from "./CharacterSheet"
 import Window from "floating-window-ui";
 
 interface SearchCharacterProps {
-    updateLogs: (s: string[]) => void
+    updateLogs: (s: Log[]) => void
 }
 
 const SearchCharacter = ({updateLogs}: SearchCharacterProps) => {

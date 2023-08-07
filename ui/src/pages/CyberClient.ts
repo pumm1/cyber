@@ -6,19 +6,22 @@ const fetchData = (path: string) =>
 const fetchDataAs = <T,>(path: string) =>
     fetchData(path).then(res => res as T)
 
-const postData = <T, >(path: string, data: any) => {
+
+const postData = (path: string, data: any) => {
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     }
 
-    return fetch(path, requestOptions).then(res => {
-        console.log(`.... POST RESPONSE: ${JSON.stringify(res)}`)
-        
-        return res.json() as T
-    })
+    return fetch(path, requestOptions)
 }
+
+const postDataAs = <T, >(path: string, data: any): Promise<T> => 
+    postData(path, data).then(res => {
+       return res.json() as T
+    })
+
 
 export enum Attribute {
     ATTR = 'ATTR',
@@ -78,7 +81,7 @@ export enum WeaponType {
 }
 
 const guns = [WeaponType.Handgun, WeaponType.SMG, WeaponType.Rifle, WeaponType.Shotgun, WeaponType.Heavy]
-export const isGun = (w: WeaponType): Boolean =>
+export const isGun = (w: WeaponType): boolean =>
     guns.includes(w)
 
 
@@ -155,7 +158,7 @@ export interface RollSkillReq {
 }
     //TODO: make POST with params
 export const rollSkill = (roll: RollSkillReq) =>
-    postData<number>(`${pathBase}/roll-skill`, roll)
+    postDataAs<number>(`${pathBase}/roll-skill`, roll)
 
 export enum AttackType {
     Single = 'single',
@@ -175,12 +178,42 @@ export interface AttackReq extends WeaponReq {
     attackModifier: number
 }
 
+export enum LogType {
+    pos = 'positive',
+    neutral = 'neutral',
+    neg = 'negative'
+}
+
+export interface Log {
+    log: string
+    logType: LogType
+}
+
 export const attack = (attack: AttackReq) =>
-    postData<string[]>(`${pathBase}/attack`, attack)
+    postDataAs<Log[]>(`${pathBase}/attack`, attack)
 
 export interface ReloadReq extends WeaponReq {
     shots: number
 }
 
 export const reload = (reload: ReloadReq) => 
-    postData<string[]>(`${pathBase}/reload`, reload)
+    postDataAs<Log[]>(`${pathBase}/reload`, reload)
+
+export const repair = (charId: number) =>
+    postData(`${pathBase}/repair-sp`, charId)
+
+export interface LvlUpReq {
+    charId: number
+    skillId: number
+    amount: number
+}
+
+export const lvlUp = (charId: number, skillId: number) => {
+    const lvlUpReq = {
+        charId,
+        skillId,
+        amount: 1
+    } 
+
+    return postDataAs<Log[]>(`${pathBase}/lvl-up`, lvlUpReq)
+}

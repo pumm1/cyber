@@ -17,7 +17,7 @@ sys.path.append(parent)
 
 # now we can import the module in the parent
 # directory.
-import dice, game, skills, combat
+import dice, game, skills, combat, armor
 
 app = Flask(__name__)
 CORS(app)
@@ -83,5 +83,32 @@ def reload():
         weapon_id = data['weaponId']
         shots = data['shots']
         return jsonify(combat.reloadWeapon(weapon_id, shots))
+    else:
+        return "Invalid request", 400
+
+@app.route('/repair-sp', methods = ['POST'])
+def repairSP():
+    if (request.method == 'POST'):
+        char_id = request.get_json()
+        is_repaired: bool = armor.repairSPById(char_id)
+        res = 'Ok'
+        if is_repaired == False:
+            res = 'Character not found'
+        return res, 200
+    else:
+        return "Invalid request", 400
+
+@app.route('/lvl-up', methods = ['POST'])
+def lvlUp():
+    if (request.method == 'POST'):
+        data = request.get_json()
+        char_id = data['charId']
+        skill_id = data['skillId']
+        amount = data['amount']
+
+        res = skills.updateCharSkillById(char_id, skill_id, amount)
+        print(f'.... data: {data} ... res: {res}')
+
+        return jsonify(res)
     else:
         return "Invalid request", 400

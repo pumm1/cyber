@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, RollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, RollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp } from './CyberClient'
 import React, { useState, useEffect } from "react"
 import './CharacterSheet.css'
 
@@ -76,7 +76,7 @@ const Stats = ( {attributes}: {attributes: Attributes}) => {
 export interface CharacterSheetProps {
     character: Character
     allSkills?: Skill[]
-    updateLogs: (s: string[]) => void
+    updateLogs: (s: Log[]) => void
     updateCharacter: () => Promise<void>
 }
 
@@ -90,9 +90,16 @@ const attributesInOrder = [
     Attribute.TECH,
 ]
 
-const SkillField = ({skill, characterSkills, charId}: {skill: Skill, characterSkills: CharacterSkill[], charId: number}) => {
+interface SkillProps {
+    skill: Skill
+    characterSkills: CharacterSkill[]
+    charId: number
+    updateCharacter: () => Promise<void>
+}
+
+const SkillRow = ({skill, characterSkills, charId, updateCharacter}: SkillProps) => {
     const [rollResult, setRollResult] = useState<undefined | number>(undefined)
-    const charSkillLvl = characterSkills.find(s => s.id === skill.id)?.lvl
+    const charSkillLvl = characterSkills.find(s => s.id === skill.id)?.lvl ?? 0
     const roll: RollSkill = {
         charId: charId,
         skillId: skill.id,
@@ -102,6 +109,7 @@ const SkillField = ({skill, characterSkills, charId}: {skill: Skill, characterSk
     return (
     <div className='skill' key={skill.id}>
         <span>
+            {<button className='skillBtn' disabled={charSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(updateCharacter)}>+</button>}
             <button className='skillBtn' onClick={() => rollSkill(roll).then(res => setRollResult(res))}>Roll</button>
             {skill.skill}......[{charSkillLvl ?? ''}]
             {rollResult && <>({rollResult})</>}
@@ -110,34 +118,56 @@ const SkillField = ({skill, characterSkills, charId}: {skill: Skill, characterSk
     )
 }
 
-const SkillsByAttribute = (
-    {attribute, skills, characterSkills, charId}: {attribute: Attribute, skills: Skill[], characterSkills: CharacterSkill[], charId: number} 
-) => {
+interface SkillsProps {
+    skills: Skill[]
+    characterSkills: CharacterSkill[]
+    charId: number
+    updateCharacter: () => Promise<void>
+}
+
+interface SkillsByAttributeProps extends SkillsProps{
+    attribute: Attribute
+}
+
+const SkillsByAttribute = ({attribute, skills, characterSkills, charId, updateCharacter}: SkillsByAttributeProps) => {
     return (
        <span key={attribute}>
             <b>{attribute}</b>
-            {skills.filter(s => s.attribute === attribute).map(s => <SkillField skill={s} characterSkills={characterSkills} charId={charId}/>)}
+            {skills.filter(s => s.attribute === attribute).map(s => <SkillRow skill={s} characterSkills={characterSkills} charId={charId} updateCharacter={updateCharacter}/>)}
        </span>
     )
 }
 
-const SkillsByAttributes = (
-    {skills, characterSkills, charId}: {skills: Skill[], characterSkills: CharacterSkill[], charId: number} 
-) => {
+const SkillsByAttributes = ({skills, characterSkills, charId, updateCharacter}: SkillsByAttributeProps ) => {
    return (
     <div className='fieldContainer'>
         
         <div className='skills'>
-            {attributesInOrder.map(atr => <SkillsByAttribute attribute={atr} skills={skills} characterSkills={characterSkills} charId={charId}/>)}
+            {attributesInOrder.map(atr => <SkillsByAttribute updateCharacter={updateCharacter} attribute={atr} skills={skills} characterSkills={characterSkills} charId={charId}/>)}
         </div>
     </div>
    )
 }
 
-const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: 
-    {weapon: Weapon, characterId: number, updateLogs: (s: string[]) => void, updateCharacter: () => Promise<void>}) => {
+interface RangeProps {
+    weaponIsGun: boolean
+    attackRange: number
+    setAttackRange: (n: number) => void
+}
+
+const Range = ({weaponIsGun, attackRange, setAttackRange}: RangeProps) => 
+        weaponIsGun && <>Range <input className='range' type='text' disabled={false} value={attackRange} onChange={e => setAttackRange(parseInt(e.target.value) || 1)}/></>
+
+interface WeaponProps {
+    weapon: Weapon, 
+    characterId: number, 
+    updateLogs: (s: Log[]) => void, 
+    updateCharacter: () => Promise<void>
+}
+
+const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponProps) => {
     const isMelee = weapon.weaponType === 'melee'
-    const weaponIsGun = isGun(weapon.weaponType)
+    const weaponIsGun: boolean = isGun(weapon.weaponType)
     const defaultAttackType = isMelee ? AttackType.Melee : AttackType.Single
     const ammoInfo = isMelee ? '' : `(${weapon.shotsLeft} / ${weapon.clipSize})`
     const [attackType, setAttackType] = useState<AttackType>(defaultAttackType)
@@ -156,14 +186,17 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}:
             <InputRow show={isMelee} onClick={() => setAttackType(AttackType.Melee)} checked={attackType === AttackType.Melee} label='Melee' />
             <InputRow show={!isMelee} onClick={() => setAttackType(AttackType.Single)} checked={attackType === AttackType.Single} label='Single' />
             <InputRow show={isFullAuto} onClick={() => setAttackType(AttackType.Burst)} checked={attackType === AttackType.Burst} label='Burst' />
-            <InputRow show={isFullAuto} onClick={() => setAttackType(AttackType.FullAuto)} checked={attackType === AttackType.FullAuto} label='Full auto' />
+            <InputRow show={isFullAuto} onClick={() => setAttackType(AttackType.FullAuto)} checked={attackType === AttackType.FullAuto} label='FA' />
         </span>
+
+    const defaultAttackRange = weaponIsGun ? 10 : 1
+    const [attackRange, setAttackRange] = useState(defaultAttackRange)
 
     const attackReq: AttackReq = {
         charId: characterId,
         weaponId: weapon.id,
         attackType,
-        attackRange: 10, //TODO
+        attackRange, //TODO
         attackModifier: 0 //TODO
     }
 
@@ -172,20 +205,25 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}:
         shots: weapon.clipSize
     }
 
+    const updateLogsAndCharacter = (resLogs: Log[]) => {
+        updateLogs(resLogs)
+        updateCharacter()
+    }
+
+    const Dmg = ({}) => {
+        const possibleBonusDmg = weapon.dmgBonus ? <>{`+${weapon.dmgBonus}`}</> : <></>
+        return(<>[{weapon.diceNum}D{weapon.dmg}{possibleBonusDmg}]</>)
+    }    
+
     return (
         <div className='weapon' key={`${characterId} ${weapon.id}`}>
-            {weapon.item} {ammoInfo} [{weapon.weaponType}]
-            <button onClick={() => attack(attackReq).then(resLogs => {
-                updateLogs(resLogs)
-                updateCharacter()
-            })}>Attack</button>
+            {weapon.item} {ammoInfo} [{weapon.weaponType}] <Dmg />
+            <button onClick={() => attack(attackReq).then(updateLogsAndCharacter)}>Attack</button>
+            <Range weaponIsGun={weaponIsGun} attackRange={attackRange} setAttackRange={setAttackRange}/>
             {weaponIsGun && 
-            <button 
-                onClick={() => reload(reloadReq).then(resLogs => {
-                updateLogs(resLogs)
-                updateCharacter()
-            })}
-            >Reload</button>}
+            <button onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}>
+                Reload
+            </button>}
             <AttackTypes />
         </div>
     )
@@ -193,7 +231,7 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}:
 
 const CharacterWeapons = (
     {weapons, characterId, updateLogs, updateCharacter}: 
-    {weapons: Weapon[], characterId: number, updateLogs: (s: string[]) => void, updateCharacter: () => Promise<void>}
+    {weapons: Weapon[], characterId: number, updateLogs: (s: Log[]) => void, updateCharacter: () => Promise<void>}
 ) => {
     return (
     <div key={characterId} className='fieldContainer'>
@@ -204,7 +242,13 @@ const CharacterWeapons = (
     )
 }
 
-const CharacterSPField = ({sp}: {sp: CharacterSP}) => {
+interface SPFieldProps {
+    characterId: number
+    sp: CharacterSP
+    updateCharacter: () => Promise<void>
+}
+
+const CharacterSPField = ({sp, characterId, updateCharacter}: SPFieldProps) => {
     const Label = ({label}: {label: string}) => <label className='armorLabel'><i>{label}</i></label>
     const GridBox = ({value, bolden}: {value: number | string, bolden?: boolean}) => 
         <div className='sp'>
@@ -234,6 +278,7 @@ const CharacterSPField = ({sp}: {sp: CharacterSP}) => {
                     <GridBox value={sp.r_leg}/>
                     <GridBox value={sp.l_leg}/>
                 </div>
+                <button className='repair' onClick={() => repair(characterId).then(updateCharacter)}>Repair</button>
             </span>
         </div>
     )
@@ -246,8 +291,8 @@ const CharacterSheet = ({character, allSkills, updateLogs, updateCharacter}: Cha
             <TextField fieldName='HANDLE' value={character.name} />
             <RoleFiled value={character.role}/>
             <Stats attributes={character.attributes}/>
-            <CharacterSPField sp={character.sp}/>
-            {allSkills && <SkillsByAttributes skills={allSkills} characterSkills={character.skills} charId={character.id}/>}
+            <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter}/>
+            {allSkills && <SkillsByAttributes skills={allSkills} characterSkills={character.skills} charId={character.id} updateCharacter={updateCharacter}/>}
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
         </div>
     )

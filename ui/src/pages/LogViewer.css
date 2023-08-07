@@ -2,10 +2,18 @@
     margin-top: 8px;
     padding: 4px;
     border: solid;
+    min-height: 100px;
     max-height: 100px;
     overflow-y: auto;
+    background-color: black;
 }
 
 .log {
+    color: white;
     margin-top: 2px;
+    font-size: 12px;
+}
+
+.input {
+    margin: 4px 0px;
 }

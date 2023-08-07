@@ -82,6 +82,12 @@ label {
     margin-right: 2px;
 }
 
+.skillBtn:disabled {
+    background-color: lightgrey;
+    color: black;
+    opacity: 1;
+}
+
 .weapons {
     margin-top: 16px;
     border-top: solid;
@@ -91,4 +97,12 @@ label {
 
 .weapon {
     margin-bottom: 4px;
+}
+
+.range {
+    width: 24px;
+}
+
+.repair {
+    margin-left: 4px;
 }
