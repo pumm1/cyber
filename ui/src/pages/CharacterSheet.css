@@ -67,7 +67,6 @@ label {
     flex-direction: column;
     border: solid;
     width: 44px;
-    height: 62px;
     margin: 4px;
 }
 
@@ -112,6 +111,15 @@ label {
     font-size: 10px;
     margin-left: auto;
     margin-right: auto;
+}
+
+.dmgTick {
+    background-color: black;
+    max-height: 8px;
+    max-width: 8px;
+    min-height: 8px;
+    min-width: 8px;
+    margin: 2px;
 }
 
 .dmgUpperLabel {

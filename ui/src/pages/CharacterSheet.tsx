@@ -248,11 +248,21 @@ interface SPFieldProps {
     updateCharacter: () => Promise<void>
 }
 
+interface GridBoxProps {
+    value: number | string
+    bolden?: boolean
+    otherValue?: number | string
+}
+
 const CharacterSPField = ({sp, characterId, updateCharacter}: SPFieldProps) => {
     const Label = ({label}: {label: string}) => <label className='armorLabel'><i>{label}</i></label>
-    const GridBox = ({value, bolden}: {value: number | string, bolden?: boolean}) => 
+    const BoldenVal = ({value}: GridBoxProps) => 
+        <div><b><i>{value}</i></b></div>
+
+    const GridBox = ({value, otherValue, bolden}: GridBoxProps) => 
         <div className='sp'>
-            {!!bolden ? <b><i>{value}</i></b> : value}
+            <div>{!!bolden ? <BoldenVal value={value}/> : value}</div>
+            {otherValue && !!bolden && <div><BoldenVal value={otherValue}/> </div>}
         </div>
 
     return(
@@ -260,12 +270,12 @@ const CharacterSPField = ({sp, characterId, updateCharacter}: SPFieldProps) => {
             <span className='armorRowContainer'>
                <Label label='Location'/>
                 <div className='armorContent'>
-                    <GridBox value='Head' bolden={true}/>
-                    <GridBox value='Torso' bolden={true}/>
-                    <GridBox value='R.Arm' bolden={true}/>
-                    <GridBox value='L.Arm' bolden={true}/>
-                    <GridBox value='R.Leg' bolden={true}/>
-                    <GridBox value='L.Leg' bolden={true}/>
+                    <GridBox value='Head' otherValue='1' bolden={true}/>
+                    <GridBox value='Torso' otherValue='2-4' bolden={true}/>
+                    <GridBox value='R.Arm' otherValue='5' bolden={true}/>
+                    <GridBox value='L.Arm' otherValue='6' bolden={true}/>
+                    <GridBox value='R.Leg' otherValue='7-8' bolden={true}/>
+                    <GridBox value='L.Leg' otherValue='9-0' bolden={true}/>
                 </div>
             </span>
             <span className='armorRowContainer'>
@@ -307,7 +317,7 @@ const FourDmgBoxes = ({upper, lower, boxesTicked}: DmgBoxSetProps) => {
                     for (let i = 1; i <= 4; i++) {
                         arr.push(
                             <div className='dmgBox'>
-                                {i <= boxesTicked ? 'x' : ' '}
+                                {i <= boxesTicked ? <div key={upper + i} className='dmgTick'></div> : ' '}
                             </div>
                         )
                     }
@@ -319,38 +329,10 @@ const FourDmgBoxes = ({upper, lower, boxesTicked}: DmgBoxSetProps) => {
     )
 }
 
-
-const DmgTaken = ({dmgTaken} : {dmgTaken: number}) => {
-    var t_dmg = 0
-    return(
-        <>
-        {(() => {
-            const arr = [];
-
-            for (let i = 0; i < maxDmg; i++) {
-                const markDmgTaken = i < dmgTaken
-                if (markDmgTaken) {
-                    t_dmg++
-                }
-                arr.push(
-                    <div className='dmgTakenBox'>
-                        {markDmgTaken ? 'x' : 'i'}
-                        {i % 4 && i > 0 && <></>}
-                    </div>
-                )
-            }
-            return arr;
-        })()}
-    </>
-    )
-}
-
 const SaveAndHealthRow = ({character}: SaveAndHealthProps) => {
     const { dmgTaken } = character
     const save = character.attributes.BODY
     const btm = character.btm
-
-    console.log(`... dmg taken: ${dmgTaken}`)
     
     const leftOver = dmgTaken % 4
 

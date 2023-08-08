@@ -16,6 +16,8 @@ button:hover {
 .main {
     padding: 16px 8px;
     font-family:Verdana, Geneva, Tahoma, sans-serif;
+    min-width: 800px;
+    min-height: 1200px;
 }
 
 .container {
