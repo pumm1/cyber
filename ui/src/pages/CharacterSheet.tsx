@@ -140,12 +140,14 @@ const SkillsByAttribute = ({attribute, skills, characterSkills, charId, updateCh
 
 const SkillsByAttributes = ({skills, characterSkills, charId, updateCharacter}: SkillsProps ) => {
    return (
-    <div className='fieldContainer'>
-        
-        <div className='skills'>
-            {attributesInOrder.map(atr => <SkillsByAttribute updateCharacter={updateCharacter} attribute={atr} skills={skills} characterSkills={characterSkills} charId={charId}/>)}
+    <>
+        <label>Skills</label>
+        <div className='fieldContainer'>
+            <div className='skills'>
+                {attributesInOrder.map(atr => <SkillsByAttribute updateCharacter={updateCharacter} attribute={atr} skills={skills} characterSkills={characterSkills} charId={charId}/>)}
+            </div>
         </div>
-    </div>
+    </>
    )
 }
 
@@ -297,8 +299,6 @@ const CharacterSPField = ({sp, characterId, updateCharacter}: SPFieldProps) => {
 interface SaveAndHealthProps {
     character: Character
 }
-
-const maxDmg = 40
 
 interface DmgBoxSetProps {
     upper: string
