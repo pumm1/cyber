@@ -10,6 +10,8 @@ from gameHelper import TECH, askInput, safeCastToInt, checkListCommand, list_str
 from roles import meditechie
 
 #values are changed from offial rules a bit, then they would be 0.5 and 1
+from src.logger import Log, log_event, log_pos, log_neg
+
 default_healing_rate = 1
 default_medtech_healing_rate = 2
 
@@ -116,14 +118,26 @@ def calculateHealingAmount(days):
     printGreenLine(f'{healing}HP recovered in {heal_days} days \n'
                    f'[days healed = {heal_days}, nano machine bonus = {nano_bonus}, speedheal bonus = {speed_doses}, med tech bonus = {med_tech_bonus}]')
 
-
-def healCharacter(name, amount):
-    char = DAO.getCharacterByName(name)
-    healing = safeCastToInt(amount)
+def healCharacter(char, amount) -> list[Log]:
+    logs = []
     if char is not None:
+        healing = safeCastToInt(amount)
         dmg_taken = char.dmg_taken
         dmg_taken -= healing
         if dmg_taken < 0:
             dmg_taken = 0
         DAO.healCharacter(char.id, dmg_taken)
-        print(f"{char.name} {coloredText(Fore.GREEN, f'healed by {healing}')}")
+        logs = log_event(logs, f"{char.name} healed by {healing}", log_pos)
+    else:
+        logs = log_event(logs, f"Character not found to heal", log_neg)
+
+    return logs
+
+
+def healCharacterById(id, amount) -> list[Log]:
+    char = DAO.getCharacterById(id)
+    return healCharacter(char, amount)
+
+def healCharacterByName(name, amount) -> list[Log]:
+    char = DAO.getCharacterByName(name)
+    return healCharacter(char, amount)

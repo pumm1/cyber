@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, RollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, RollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal } from './CyberClient'
 import React, { useState, useEffect } from "react"
 import './CharacterSheet.css'
 
@@ -13,6 +13,14 @@ const roles = {
     corp: 'Corp',
     techie: 'Techie',
     medtechie: 'Medtechie'
+}
+
+interface UpdateCharacter {
+    updateCharacter: () => Promise<void>
+}
+
+interface UpdateCharacterAndLogs extends UpdateCharacter {
+    updateLogs: (s: Log[]) => void
 }
 
 
@@ -73,11 +81,9 @@ const Stats = ( {attributes}: {attributes: Attributes}) => {
     )
 }
 
-export interface CharacterSheetProps {
+export interface CharacterSheetProps extends UpdateCharacterAndLogs{
     character: Character
     allSkills?: Skill[]
-    updateLogs: (s: Log[]) => void
-    updateCharacter: () => Promise<void>
 }
 
 const attributesInOrder = [
@@ -160,11 +166,9 @@ interface RangeProps {
 const Range = ({weaponIsGun, attackRange, setAttackRange}: RangeProps) => 
         weaponIsGun && <>Range <input className='range' type='text' disabled={false} value={attackRange} onChange={e => setAttackRange(parseInt(e.target.value) || 1)}/></>
 
-interface WeaponProps {
+interface WeaponProps extends UpdateCharacterAndLogs {
     weapon: Weapon, 
-    characterId: number, 
-    updateLogs: (s: Log[]) => void, 
-    updateCharacter: () => Promise<void>
+    characterId: number
 }
 
 const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponProps) => {
@@ -296,7 +300,7 @@ const CharacterSPField = ({sp, characterId, updateCharacter}: SPFieldProps) => {
     )
 }
 
-interface SaveAndHealthProps {
+interface SaveAndHealthProps extends UpdateCharacterAndLogs{
     character: Character
 }
 
@@ -329,15 +333,20 @@ const FourDmgBoxes = ({upper, lower, boxesTicked}: DmgBoxSetProps) => {
     )
 }
 
-const SaveAndHealthRow = ({character}: SaveAndHealthProps) => {
-    const { dmgTaken } = character
+const SaveAndHealthRow = ({character, updateCharacter, updateLogs}: SaveAndHealthProps) => {
+    const { dmgTaken, id } = character
     const save = character.attributes.BODY
     const btm = character.btm
     
     const leftOver = dmgTaken % 4
 
+    const updateLogsAndCharacter = (resLogs: Log[]) => {
+        updateLogs(resLogs)
+        updateCharacter()
+    }
+
     const resolveTicks = (lowerLimit:number, upperLimit: number): number => 
-        dmgTaken > lowerLimit ? (dmgTaken > upperLimit ? 4 : leftOver) : 0
+        dmgTaken > lowerLimit ? (dmgTaken >= upperLimit ? 4 : leftOver) : 0
 
     return(
         <div className='boxContainer'>
@@ -364,6 +373,7 @@ const SaveAndHealthRow = ({character}: SaveAndHealthProps) => {
                         <FourDmgBoxes upper='Mortal 5' lower='Stun 8' boxesTicked={resolveTicks(32, 36)}/>
                         <FourDmgBoxes upper='Mortal 6' lower='Stun 9' boxesTicked={resolveTicks(36, 40)}/>
                     </div>
+                    <div><button onClick={() => heal(id).then(updateLogsAndCharacter)}>Heal (1)</button></div>
                 </div>
         </div>
     )
@@ -377,7 +387,7 @@ const CharacterSheet = ({character, allSkills, updateLogs, updateCharacter}: Cha
             <RoleFiled value={character.role}/>
             <Stats attributes={character.attributes}/>
             <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter}/>
-            <SaveAndHealthRow character={character}/>
+            <SaveAndHealthRow character={character} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
             {allSkills && <SkillsByAttributes skills={allSkills} characterSkills={character.skills} charId={character.id} updateCharacter={updateCharacter}/>}
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
         </div>

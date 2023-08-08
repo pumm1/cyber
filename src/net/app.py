@@ -17,7 +17,7 @@ sys.path.append(parent)
 
 # now we can import the module in the parent
 # directory.
-import dice, game, skills, combat, armor
+import dice, game, skills, combat, armor, healing
 
 app = Flask(__name__)
 CORS(app)
@@ -95,6 +95,15 @@ def repairSP():
         if is_repaired == False:
             res = 'Character not found'
         return res, 200
+    else:
+        return "Invalid request", 400
+
+@app.route('/heal', methods = ['POST'])
+def heal():
+    if (request.method == 'POST'):
+        char_id = request.get_json()
+
+        return jsonify(healing.healCharacterById(char_id, 1))
     else:
         return "Invalid request", 400
 

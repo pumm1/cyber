@@ -258,7 +258,7 @@ def start():
         elif command.startswith(heal_str):
             match command_parts:
                 case [_, name, amount]:
-                    healing.healCharacter(name, amount)
+                    healing.healCharacterByName(name, amount)
                 case _:
                     print(heal_help_str)
         elif command.startswith(repair_sp_str):

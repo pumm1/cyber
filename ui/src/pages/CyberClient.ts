@@ -218,3 +218,6 @@ export const lvlUp = (charId: number, skillId: number) => {
 
     return postDataAs<Log[]>(`${pathBase}/lvl-up`, lvlUpReq)
 }
+
+export const heal = (charId: number) =>
+    postDataAs<Log[]>(`${pathBase}/heal`, charId)
