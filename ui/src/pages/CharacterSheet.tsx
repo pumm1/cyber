@@ -293,20 +293,21 @@ const maxDmg = 40
 interface DmgBoxSetProps {
     upper: string
     lower: string
+    boxesTicked: number
 }
 
-const FourDmgBoxes = ({upper, lower}: DmgBoxSetProps) => {
+const FourDmgBoxes = ({upper, lower, boxesTicked}: DmgBoxSetProps) => {
     return(
         <div className='fourDmgBoxes'>
-            <div>{upper}</div>
+            <div className='dmgUpperLabel'>{upper}</div>
             <>
                 {(() => {
                     const arr = [];
 
-                    for (let i = 0; i < 4; i++) {
+                    for (let i = 1; i <= 4; i++) {
                         arr.push(
                             <div className='dmgBox'>
-                                x
+                                {i <= boxesTicked ? 'x' : ' '}
                             </div>
                         )
                     }
@@ -345,8 +346,16 @@ const DmgTaken = ({dmgTaken} : {dmgTaken: number}) => {
 }
 
 const SaveAndHealthRow = ({character}: SaveAndHealthProps) => {
+    const { dmgTaken } = character
     const save = character.attributes.BODY
     const btm = character.btm
+
+    console.log(`... dmg taken: ${dmgTaken}`)
+    
+    const leftOver = dmgTaken % 4
+
+    const resolveTicks = (lowerLimit:number, upperLimit: number): number => 
+        dmgTaken > lowerLimit ? (dmgTaken > upperLimit ? 4 : leftOver) : 0
 
     return(
         <div className='boxContainer'>
@@ -358,12 +367,21 @@ const SaveAndHealthRow = ({character}: SaveAndHealthProps) => {
                     <div className='boxLabel'>BTM</div>
                     <div className='boxValue'>{btm ?? ''}</div>
                 </div>
-                <div className='dmgTakenOuterbox'>
-                    <FourDmgBoxes upper='Light' lower='Stun 0'/>
-                    <FourDmgBoxes upper='Serious' lower='Stun 1'/>
-                    <FourDmgBoxes upper='Critical' lower='Stun 2'/>
-                    <FourDmgBoxes upper='Mortal 0' lower='Stun 3'/>
-                    <FourDmgBoxes upper='Mortal 1' lower='Stun 4'/>
+                <div className='dmgTakenContainer'>
+                    <div className='dmgTakenOuterbox'>
+                        <FourDmgBoxes upper='Light' lower='Stun 0' boxesTicked={resolveTicks(0, 4)}/>
+                        <FourDmgBoxes upper='Serious' lower='Stun 1' boxesTicked={resolveTicks(4, 8)}/>
+                        <FourDmgBoxes upper='Critical' lower='Stun 2' boxesTicked={resolveTicks(8, 12)}/>
+                        <FourDmgBoxes upper='Mortal 0' lower='Stun 3' boxesTicked={resolveTicks(12, 16)}/>
+                        <FourDmgBoxes upper='Mortal 1' lower='Stun 4' boxesTicked={resolveTicks(16, 20)}/>
+                    </div>
+                    <div className='dmgTakenOuterbox'>
+                        <FourDmgBoxes upper='Mortal 2' lower='Stun 5' boxesTicked={resolveTicks(20, 24)}/>
+                        <FourDmgBoxes upper='Mortal 3' lower='Stun 6' boxesTicked={resolveTicks(24, 28)}/>
+                        <FourDmgBoxes upper='Mortal 4' lower='Stun 7' boxesTicked={resolveTicks(28, 32)}/>
+                        <FourDmgBoxes upper='Mortal 5' lower='Stun 8' boxesTicked={resolveTicks(32, 36)}/>
+                        <FourDmgBoxes upper='Mortal 6' lower='Stun 9' boxesTicked={resolveTicks(36, 40)}/>
+                    </div>
                 </div>
         </div>
     )
