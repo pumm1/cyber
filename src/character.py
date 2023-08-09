@@ -60,7 +60,7 @@ class Character:
     def rollFaceDown(self, r):
         roll = safeCastToInt(r)
         if roll <= 0:
-            roll = dice.rollWithCrit()
+            (roll, _) = dice.rollWithCrit()
         return roll + self.attributes['COOL'] + self.reputation
 
     def asJson(self):

@@ -77,11 +77,11 @@ def start():
                     location = combat.determineHitLocation()
                     print(f'Hit {location}')
                 case [_, 'skill', name, skill]:
-                    skills.rollCharacterSkill(name, skill, roll=0, modifier=0)
+                    skills.rollCharacterSkillByName(name, skill, roll=0, modifier=0)
                 case [_, 'skill', name, skill, roll]:
-                    skills.rollCharacterSkill(name, skill, roll=roll, modifier=0)
+                    skills.rollCharacterSkillByName(name, skill, roll=roll, modifier=0)
                 case[_, 'skill', name, skill, roll, modifier]:
-                    skills.rollCharacterSkill(name, skill, roll=roll, modifier=modifier)
+                    skills.rollCharacterSkillByName(name, skill, roll=roll, modifier=modifier)
                 case _:
                     print(roll_help_str)
         elif command.startswith(notice_roll_str):
@@ -264,7 +264,7 @@ def start():
         elif command.startswith(repair_sp_str):
             match command_parts:
                 case [_, name]:
-                    armor.repairSP(name)
+                    armor.repairSPByName(name)
                 case _:
                     print(f'{repair_sp_help_str}')
         elif command.startswith(remove_armor_str):

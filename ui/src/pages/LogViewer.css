@@ -14,6 +14,18 @@
     font-size: 12px;
 }
 
+.logPos {
+    color: green;
+    margin-top: 2px;
+    font-size: 12px;
+}
+
+.logNeg {
+    color: red;
+    margin-top: 2px;
+    font-size: 12px;
+}
+
 .input {
     margin: 4px 0px;
 }

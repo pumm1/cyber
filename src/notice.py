@@ -22,7 +22,7 @@ def quickNoticeCheckForCharacters(to_beat):
                 if skill.skill == 'awareness':
                     skill_bonus += skill.lvl
             atr_bonus = c.attributes[atr]
-            roll = rollWithCrit(skip_luck=True)
+            (roll, _) = rollWithCrit(skip_luck=True)
             total = skill_bonus + atr_bonus + roll
             roll_info = f'(total = {total}, roll = {roll}, skill_bonus = {skill_bonus}, atr_bonus = {atr_bonus})'
             if roll_to_beat <= total:

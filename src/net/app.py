@@ -90,11 +90,7 @@ def reload():
 def repairSP():
     if (request.method == 'POST'):
         char_id = request.get_json()
-        is_repaired: bool = armor.repairSPById(char_id)
-        res = 'Ok'
-        if is_repaired == False:
-            res = 'Character not found'
-        return res, 200
+        return jsonify(armor.repairSPById(char_id)), 200
     else:
         return "Invalid request", 400
 

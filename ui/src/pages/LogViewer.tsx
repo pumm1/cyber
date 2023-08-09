@@ -8,7 +8,7 @@ const LogViewer = ({logs, addToLogs}: {logs: Log[], addToLogs: (s: Log) => void}
     var fieldRef = React.useRef<HTMLInputElement>(null)
 
     const LogRow = ({log}: {log: Log}) =>
-        <div className='log'>
+        <div className={log.logType == LogType.pos ? 'logPos' : log.logType === LogType.neg ? 'logNeg' : 'log'}>
             {'>'} {log.log}
         </div>
 

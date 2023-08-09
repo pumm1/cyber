@@ -1,8 +1,11 @@
 from colorama import Fore, Style
 
 import dice, cyberdao as DAO
-from gameHelper import safeCastToInt, printGreenLine, coloredText, list_skills_helper_str
+from gameHelper import safeCastToInt, printGreenLine, coloredText, list_skills_helper_str, printRedLine, COOL, INT, REF
+from src.character import Character
 from src.logger import Log, log_pos, log_neg
+from src.roles import roleSpecialAbility, solo, rocker, netrunner, media, nomad, fixer, cop, corp, techie, meditechie
+from src.skill import SkillInfo
 
 skill_athletics = 'athletics'
 skill_first_aid = 'first aid'
@@ -46,7 +49,7 @@ def rollCharacterMeleeDef(name, roll):
         if skill is not None:
             die_roll = safeCastToInt(roll)
             if die_roll <= 0:
-                die_roll = dice.rollWithCrit(True)
+                (die_roll, _) = dice.rollWithCrit(True)
 
             atr_bonus = character.attributes[skill['attribute']]
 
@@ -68,46 +71,103 @@ def rollCharacterSkillById(id, skill_num, roll, modifier, added_luck):
     return rollCharacterSkill(character, skill_num, roll, modifier, added_luck)
 
 
-def rollCharactersKillByName(name, skill_num, roll, modifier):
+def rollCharacterSkillByName(name, skill_num, roll, modifier):
     character = DAO.getCharacterByName(name)
-    rollCharacterSkill(character, skill_num, roll, modifier, added_luck=None)
+    return rollCharacterSkill(character, skill_num, roll, modifier, added_luck=None)
 
 
-def rollCharacterSkill(character, skill_num, roll, modifier, added_luck):
+def character_special_atr_bonus_on_skill(character: Character) -> (int, str):
+    role = character.role
+    atr_bonus = 0
+    atr = INT
+    if role == solo:
+        atr_bonus = 0
+        atr = REF
+    elif role == rocker:
+        atr_bonus = character.attributes[COOL]
+        atr = COOL
+    elif role == netrunner:
+        atr_bonus = character.attributes[INT]
+        atr = INT
+    elif role == media:
+        atr_bonus = character.attributes[INT]
+        atr = INT
+    elif role == nomad:
+        atr_bonus = character.attributes[INT]
+        atr = INT
+    elif role == fixer:
+        atr_bonus = character.attributes[COOL]
+        atr = COOL
+    elif role == cop:
+        atr_bonus = character.attributes[COOL]
+        atr = COOL
+    elif role == corp:
+        atr_bonus = character.attributes[INT]
+        atr = INT
+    elif role == techie:
+        atr_bonus = 0
+        atr = INT
+    elif role == meditechie:
+        atr_bonus = 0
+        atr = INT
+
+    return (atr_bonus, atr)
+
+
+#TODO: handle special skill
+def rollCharacterSkill(character, skill_num, roll, modifier, added_luck=None):
     skill_name = ''
     roll_modifier = safeCastToInt(modifier)
     skill_id = safeCastToInt(skill_num)
-    skill = DAO.getSkillById(skill_id)
-    if skill is not None:
-            skill_name = skill['skill']
+    skill = None
+    roll = 0
     if character is not None:
         t_roll = safeCastToInt(roll)
         atr_bonus = 0
         char_skill_lvl = 0
         die_roll = 0
-        if t_roll <= 0:
-            if added_luck == None:
-                added_luck = dice.handleLuck()
-            die_roll = dice.rollWithCritAndGivenLuck(added_luck) + roll_modifier
+        (special_atr_bonus, special_atr) = character_special_atr_bonus_on_skill(character)
+        if skill_id == 0:
+            skill = {
+                'id': 0,
+                'skill': roleSpecialAbility(character.role),
+                'attribute': special_atr,  # TODO: define for all special skills
+                'description': 'TODO'
+            }
         else:
-            die_roll = t_roll + roll_modifier
-        skill = [s for s in character.skills if s.skill == skill_name]
-        if len(skill) > 0:
-            char_skill = skill[0]
-            char_skill_lvl = char_skill.lvl
-            skill_atr = char_skill.attribute
-            atr_bonus = character.attributes[skill_atr]
-            roll = die_roll + char_skill_lvl + atr_bonus
-        else:
-            skill = DAO.getSkillByName(skill_name)
-            if skill is not None:
+            skill = DAO.getSkillById(skill_id)
+
+        if skill is not None:
+            skill_name = skill['skill']
+
+            if t_roll <= 0:
+                if added_luck == None:
+                    added_luck = dice.handleLuck()
+                (die_roll, logs) = dice.rollWithCritAndGivenLuck(added_luck)
+            else:
+                die_roll = t_roll
+            skill_with_lvl = None
+            if skill_id == 0:
+                atr_bonus = special_atr_bonus
+                skill_with_lvl = SkillInfo(skill_id, skill['skill'], character.specialAbility, skill['attribute'])
+            else:
+                skill_with_lvl_arr = [s for s in character.skills if s.skill == skill_name]
                 skill_atr = skill['attribute']
                 atr_bonus = character.attributes[skill_atr]
-                roll = die_roll + atr_bonus
+                if len(skill_with_lvl_arr) > 0:
+                    skill_with_lvl = skill_with_lvl_arr[0]
+                    char_skill_lvl = skill_with_lvl.lvl
+            roll = die_roll + char_skill_lvl + atr_bonus + roll_modifier
 
-        printGreenLine(f"""{character.name} rolled {roll} for {skill_name}""")
-        print(f"""(die roll = {die_roll} atr_bonus = {atr_bonus} skill_level = {char_skill_lvl} modifier = {roll_modifier})""")
-        return roll
+            printGreenLine(f"""{character.name} rolled {roll} for {skill_name}""")
+            print(
+                f"""(die roll = {die_roll} atr_bonus = {atr_bonus} skill_level = {char_skill_lvl} modifier = {roll_modifier})""")
+
+        else:
+            printRedLine(f'SKILL NOT FOUND [skill_id = {skill_id}]')
+
+
+    return roll
 
 def printCharSkillInfo(skills):
     if len(skills) > 0:

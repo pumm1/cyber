@@ -2,6 +2,7 @@ import math
 import random
 
 from gameHelper import safeCastToInt, askInput, roll_str, printGreenLine, printRedLine
+from src.logger import Log, log_event, log_pos, log_neg
 
 
 def roll(n, d_die, divide_by=1, bonus=0):
@@ -34,7 +35,7 @@ def resolveAutoOrManualRollWithCrit():
     while roll <= 0:
         i = askInput()
         if i == roll_str:
-            roll = rollWithCrit()
+            (roll, _) = rollWithCrit()
         else:
             roll = safeCastToInt(i)
     return roll
@@ -52,18 +53,18 @@ def handleLuck(skip_luck=False):
                 break
     return added_luck
 
-def rollWithCritAndGivenLuck(added_luck=0):
-    res = rollWithCrit(skip_luck=True) + added_luck
+def rollWithCritAndGivenLuck(added_luck=0) -> (int, list[Log]):
+    (res, added_logs) = rollWithCrit(skip_luck=True)
+    logs = added_logs
     if res == 10:
-        printGreenLine('Critical success roll!')
+        logs = log_event(logs, 'Critical success roll!', log_pos)
         res = res + rollWithCrit(skip_luck=True)
-    elif res == 1:
-        printRedLine('Fumble! For automatic weapons skip fumble table and roll jam')
 
-    return res
+    return (res + added_luck, logs)
 
 
-def rollWithCrit(skip_luck=False):
+def rollWithCrit(skip_luck=False) -> (int, list[Log]):
+    logs = []
     added_luck = 0
     if skip_luck == False:
         print('Add luck? [0-10]')
@@ -75,9 +76,11 @@ def rollWithCrit(skip_luck=False):
                 break
     res = roll(1, 10) + added_luck
     if res == 10:
-        printGreenLine('Critical success roll!')
-        res = res + rollWithCrit(skip_luck=True)
+        logs = log_event(logs, 'Critical success roll!', log_pos)
+        (t_res, added_logs) = rollWithCrit(skip_luck=True)
+        res = t_res + res
+        logs = logs + added_logs
     elif res == 1:
-        printRedLine('Fumble! For automatic weapons skip fumble table and roll jam')
+        logs = log_event(logs, 'Fumble! For automatic weapons skip fumble table and roll jam', log_neg)
 
-    return res
+    return (res, logs)

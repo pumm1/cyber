@@ -70,7 +70,7 @@ def medicalCheck(name, given_roll):
         if t_roll > 0:
             roll = t_roll
         else:
-            roll = dice.rollWithCrit()
+            (roll, _) = dice.rollWithCrit()
         total = tech_bonus + first_aid_bonus + med_tech_bonus + roll
 
         info = f'Roll total ({total}) vs {to_beat} [roll = {roll}, first aid bonus = {first_aid_bonus}, medtech bonus = {med_tech_bonus}, tech_bonus = {tech_bonus}]'

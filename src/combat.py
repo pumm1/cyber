@@ -71,7 +71,7 @@ def suppressiveFireDef(name, rounds, area):
     if shots_in_area > 0 and area_width > 0:
         character = DAO.getCharacterByName(name)
         if character is not None:
-            roll = dice.rollWithCrit()
+            (roll, _) = dice.rollWithCrit()
             athletics_bonus = skillBonusForSkill(character.skills, skill_athletics)
             ref_bonus = character.attributes[REF]
             total = roll + athletics_bonus + ref_bonus
@@ -245,7 +245,7 @@ def handleMelee(character, wep, given_roll, skill_bonus, skill, modifiers_total)
     if t_roll > 0:
         roll = t_roll
     else:
-        roll = dice.rollWithCrit(skip_luck=True)
+        (roll, _) = dice.rollWithCrit(skip_luck=True)
     total = roll + ref_bonus + skill_bonus + modifiers_total
     logs = log_event(logs, f'{character.name} attacks with {wep.item} (Roll total = {total})', log_pos)
     logs = log_event(logs, "Defend against melee attack by rolling opponent's REF + dodge skill + 1D10", log_neg)
@@ -417,7 +417,8 @@ def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill, mo
     logs = log_event(logs, f'Trying burst attack with {wep.item}', log_neutral)
     roll = safeCastToInt(given_roll)
     if roll <= 0:
-        roll = dice.rollWithCrit(skip_luck)
+        (roll, added_logs) = dice.rollWithCrit(skip_luck)
+        logs = logs + added_logs
     shots_left = wep.shots_left
     weapon_can_attack = True
     if wep.isGun() and wep.rof > 2:
@@ -471,8 +472,8 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
     roll = safeCastToInt(given_roll)
     logs = []
     if roll <= 0:
-        roll = dice.rollWithCrit(skip_luck)
-
+        (roll, added_logs) = dice.rollWithCrit(skip_luck)
+        logs = logs + added_logs
     shots_left = wep.shots_left
     weapon_can_attack = True
     if wep.isGun():
@@ -783,13 +784,13 @@ def stunCheck(name) -> list[Log]:
         (save_against, stun_logs) = stunCheckToBeat(c.dmg_taken, c.attributes['BODY'])
         logs = logs + stun_logs
         roll = dice.roll(1, 10)
-        isStunned = roll > save_against
+        is_stunned = roll > save_against
 
-        if isStunned:
+        if is_stunned:
             logs = log_event(logs, rollStunOverActingEffect(c.name), log_neg)
         else:
             logs = log_event(logs, f"{c.name} wasn't stunned!", log_pos)
-            logs = log_event(logs, f'[Stun save against = {save_against} < roll = {roll}]', log_neutral)
+        logs = log_event(logs, f'[Stun save against = {save_against} < roll = {roll}]', log_neutral)
     else:
         logs = log_event(logs, f'Character not found [name = {name}]', log_neg)
     return logs

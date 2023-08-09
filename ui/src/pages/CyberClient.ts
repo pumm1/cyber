@@ -140,6 +140,8 @@ export interface Character {
     armor: Armor[]
     weapons: Weapon[]
     sp: CharacterSP
+    reputation: number
+    humanity: number
 }
 
 export const getCharacter = (name: string) =>
@@ -201,7 +203,7 @@ export const reload = (reload: ReloadReq) =>
     postDataAs<Log[]>(`${pathBase}/reload`, reload)
 
 export const repair = (charId: number) =>
-    postData(`${pathBase}/repair-sp`, charId)
+    postDataAs<Log[]>(`${pathBase}/repair-sp`, charId)
 
 export interface LvlUpReq {
     charId: number

@@ -2,6 +2,7 @@ import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, Ch
 import React, { useState, useEffect } from "react"
 import './CharacterSheet.css'
 
+
 const roles = {
     solo: 'Solo',
     rocker: 'Rocker',
@@ -16,8 +17,11 @@ const roles = {
 }
 
 //TODO:
-//REP, current humanity
+//näytä special skill
 //tallenna IP..?
+//luo hahmo
+//FA toimimaan
+//aseet ja chromi taulukkoon (aseet jo esillä, FA toimimaan)
 
 interface UpdateCharacter {
     updateCharacter: () => Promise<void>
@@ -68,10 +72,17 @@ const RoleFiled = ({value}: {value: string}) => {
     )
 }
 
-const Stats = ( {attributes}: {attributes: Attributes}) => {
-    const statValue = (field: string, value: number, outOf?: number) => 
+interface StatValueProps {
+    field: string,
+    value: number
+    outOf?: number //TODO: use outOf?
+}
+const StatValue = ({field, value}: StatValueProps) => 
         <> <b>{field} [ {value} ]</b></>
 
+
+const Stats = ( {attributes}: {attributes: Attributes}) => {
+    
     const run = attributes.MA * 3
     const leap = run / 4
     const liftKg = attributes.BODY * 40 
@@ -80,18 +91,18 @@ const Stats = ( {attributes}: {attributes: Attributes}) => {
         <div className='fieldContainer'>
              <label>STATS</label>
             <div className='stats'>
-                {statValue('INT', attributes.INT)}
-                {statValue('REF', attributes.REF)}
-                {statValue('TECH', attributes.TECH)}
-                {statValue('COOL', attributes.COOL)}
-                {statValue('ATTR', attributes.ATTR)}
-                {statValue('LUCK', attributes.LUCK)}
-                {statValue('MA', attributes.MA)}
-                {statValue('BODY', attributes.BODY)}
-                {statValue('EMP', attributes.EMP)}
-                {statValue('RUN', run)}
-                {statValue('Leap', leap)}
-                {statValue('Lift', liftKg)}
+                <StatValue field='INT' value={attributes.INT} />
+                <StatValue field='REF' value={attributes.REF} />
+                <StatValue field='TECH' value={attributes.TECH} />
+                <StatValue field='COOL' value={attributes.COOL} />
+                <StatValue field='ATTR' value={attributes.ATTR} />
+                <StatValue field='LUCK' value={attributes.LUCK} />
+                <StatValue field='MA' value={attributes.MA} />
+                <StatValue field='BODY' value={attributes.BODY} />
+                <StatValue field='EMP' value={attributes.EMP} />
+                <StatValue field='RUN' value={run} />
+                <StatValue field='Leap' value={leap} />
+                <StatValue field='Lift' value={liftKg} />
             </div>
         </div>
     )
@@ -119,8 +130,29 @@ interface SkillProps {
     updateCharacter: () => Promise<void>
 }
 
-const SkillRow = ({skill, characterSkills, charId, updateCharacter}: SkillProps) => {
+interface SkillRowProps extends UpdateCharacter {
+    charId: number
+    rollSkill: (r: RollSkillReq) => Promise<number>
+    skill: Skill
+    charSkillLvl: number
+    roll: RollSkillReq
+}
+
+const SkillRow = ({skill, charSkillLvl, roll, charId, updateCharacter}: SkillRowProps) => {
     const [rollResult, setRollResult] = useState<undefined | number>(undefined)
+    return(
+        <div className='skill' key={skill.id}>
+            <span>
+                {<button className='skillBtn' disabled={charSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(updateCharacter)}>+</button>}
+                <button className='skillBtn' onClick={() => rollSkill(roll).then(res => setRollResult(res))}>Roll</button>
+                {skill.skill.padEnd(36, '.')}[{charSkillLvl ?? ''}]
+                {rollResult && <>({rollResult})</>}
+            </span>
+        </div>
+    )
+}
+
+const SkillRowByCharacterSkills = ({skill, characterSkills, charId, updateCharacter}: SkillProps) => {
     const charSkillLvl = characterSkills.find(s => s.id === skill.id)?.lvl ?? 0
     const roll: RollSkillReq = {
         charId: charId,
@@ -129,44 +161,53 @@ const SkillRow = ({skill, characterSkills, charId, updateCharacter}: SkillProps)
     }
 
     return (
-    <div className='skill' key={skill.id}>
-        <span>
-            {<button className='skillBtn' disabled={charSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(updateCharacter)}>+</button>}
-            <button className='skillBtn' onClick={() => rollSkill(roll).then(res => setRollResult(res))}>Roll</button>
-            {skill.skill.padEnd(36, '.')}[{charSkillLvl ?? ''}]
-            {rollResult && <>({rollResult})</>}
-        </span>
-    </div>
+        <SkillRow charSkillLvl={charSkillLvl} updateCharacter={updateCharacter} skill={skill} charId={charId} rollSkill={rollSkill} roll={roll} />
     )
 }
 
 interface SkillsProps {
     skills: Skill[]
-    characterSkills: CharacterSkill[]
-    charId: number
+    character: Character
     updateCharacter: () => Promise<void>
 }
 
 interface SkillsByAttributeProps extends SkillsProps{
     attribute: Attribute
+    characterSkills: CharacterSkill[]
 }
 
-const SkillsByAttribute = ({attribute, skills, characterSkills, charId, updateCharacter}: SkillsByAttributeProps) => {
-    return (
-       <span key={attribute}>
-            <b>{attribute}</b>
-            {skills.filter(s => s.attribute === attribute).map(s => <SkillRow skill={s} characterSkills={characterSkills} charId={charId} updateCharacter={updateCharacter}/>)}
-       </span>
-    )
-}
+const SkillsByAttribute = ({attribute, skills, characterSkills, character, updateCharacter}: SkillsByAttributeProps) => 
+    <span key={attribute}>
+        <b>{attribute}</b>
+        {skills.filter(s => s.attribute === attribute).map(s => <SkillRowByCharacterSkills skill={s} characterSkills={characterSkills} charId={character.id} updateCharacter={updateCharacter}/>)}
+    </span>
 
-const SkillsByAttributes = ({skills, characterSkills, charId, updateCharacter}: SkillsProps ) => {
+const SkillsByAttributes = ({skills, character, updateCharacter}: SkillsProps ) => {
+    const spceialSkill: Skill = {
+        skill: character.specialAbility,
+        attribute:  Attribute.REF, //TODO
+        description: '', //TODO
+        id: 0
+    }
+
+    const specialRollReq: RollSkillReq = {
+        charId: character.id,
+        skillId: spceialSkill.id,
+        addedLuck: 0
+    }
    return (
     <>
         <label>Skills</label>
         <div className='fieldContainer'>
             <div className='skills'>
-                {attributesInOrder.map(atr => <SkillsByAttribute updateCharacter={updateCharacter} attribute={atr} skills={skills} characterSkills={characterSkills} charId={charId}/>)}
+            <span>
+                <b>Special ability</b>
+                <SkillRow roll={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={spceialSkill} />
+                </span>
+                {attributesInOrder.map(atr => <SkillsByAttribute updateCharacter={updateCharacter} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
+                <StatValue field='REP' value={2}/>
+                <StatValue field='Current IP' value={0}/> 
+                <StatValue field='Humanity' value={character.humanity}/>
             </div>
         </div>
     </>
@@ -347,7 +388,7 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
                     <GridBox value={sp.r_leg} otherElement={<DmgSetter bodyPart={BodyPart.R_leg}/>}/>
                     <GridBox value={sp.l_leg} otherElement={<DmgSetter bodyPart={BodyPart.L_leg}/>}/>
                 </div>
-                <button className='repair' onClick={() => repair(characterId).then(updateCharacter)}>Repair</button>
+                <button className='repair' onClick={() => repair(characterId).then(updateLogsAndCharacter)}>Repair</button>
             </span>
         </div>
     )
@@ -463,7 +504,7 @@ const CharacterSheet = ({character, allSkills, updateLogs, updateCharacter}: Cha
             <Stats attributes={character.attributes}/>
             <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
             <SaveAndHealthRow character={character} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
-            {allSkills && <SkillsByAttributes skills={allSkills} characterSkills={character.skills} charId={character.id} updateCharacter={updateCharacter}/>}
+            {allSkills && <SkillsByAttributes skills={allSkills} character={character} updateCharacter={updateCharacter}/>}
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
         </div>
     )

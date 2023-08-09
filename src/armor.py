@@ -6,6 +6,7 @@ from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_part
     body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg, printGreenLine, coloredText
 from chrome import addChromeWithHumanityCost
 from bonus import addAttributeBonuses, handleBonuses, AtrBonus
+from src.logger import log_event, log_pos, log_neg
 
 
 class Armor:
@@ -101,21 +102,23 @@ def addArmorForCharacter(name):
 
 
 def repairCharSP(char) -> bool:
+    logs = []
     if char is not None:
         DAO.repairCharacterSP(char.id)
-        printGreenLine(f'Armor repaired for {char.name}')
-        return True
+        logs = log_event(logs, f'Armor repaired for {char.name}', log_pos)
+        return logs
     else:
-        return False
+        logs = log_event(logs, f'Character not found for armor repair', log_neg)
+    return logs
 
 def repairSPById(char_id) -> bool:
     char = DAO.getCharacterById(char_id)
-    repairCharSP(char)
+    return repairCharSP(char)
 
 
-def repairSP(name) -> bool:
+def repairSPByName(name) -> bool:
     char = DAO.getCharacterByName(name)
-    repairCharSP(char)
+    return repairCharSP(char)
 
 
 def removeArmor(name, armor_id):
