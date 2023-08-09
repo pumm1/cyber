@@ -646,61 +646,82 @@ def reloadWeapon(weapon_id, shots):
     return logs
 
 
-def hitCharacter(name, body_part, dmg_str, is_ap=False, pass_sp=False):
+def hitCharacter(character, body_part, dmg_str, is_ap, pass_sp):
     dmg = safeCastToInt(dmg_str)
-    character = DAO.getCharacterByName(name)
+    logs = []
     if character is not None:
         if pass_sp == True:
-            damageCharacter(character, dmg)
+            logs = damageCharacter(character, dmg)
         elif body_parts.__contains__(body_part):
             if is_ap:
-                handleApHit(character, dmg, body_part)
+                logs = handleApHit(character, dmg, body_part)
             else:
-                handleNormalHit(character, dmg, body_part)
+                logs = handleNormalHit(character, dmg, body_part)
+
+            logs = log_event(logs, f'{character.name} damaged at {body_part} for {dmg}', log_neg)
         else:
             valid_body_parts = ', '.join(body_parts)
-            print(f'Invalid body part {body_part} [{valid_body_parts}]')
+            logs = log_event(logs, f'Invalid body part {body_part} [{valid_body_parts}]', log_neg)
+    else:
+        logs = log_event(logs, 'Character not found', log_neg)
+    return logs
 
 
-def handleNormalHit(character: Character, dmg, body_part):
+def hitCharacterById(id, body_part, dmg_str, is_ap=False, pass_sp=False):
+    character = DAO.getCharacterById(id)
+    return hitCharacter(character, body_part, dmg_str, is_ap, pass_sp)
+
+
+def hitCharacterByName(name, body_part, dmg_str, is_ap=False, pass_sp=False):
+    character = DAO.getCharacterByName(name)
+    return hitCharacter(character, body_part, dmg_str, is_ap, pass_sp)
+
+
+def handleNormalHit(character: Character, dmg, body_part) -> list[Log]:
+    logs = []
     char_sp = character.sp[body_part]
     sp_left = 0
     if char_sp > 0:
         sp_left = char_sp - dmg
         if sp_left >= 0:
-            printRedLine(f'Armor damaged at {body_part}')
+            logs = log_event(logs, f'Armor damaged at {body_part}', log_neg)
             DAO.dmgCharacterSP(character.id, body_part, dmg)
         else:
-            printRedLine(f'Armor broken at {body_part}')
+            logs = log_event(logs, f'Armor broken at {body_part}', log_neg)
             dmg_left = abs(sp_left)
             DAO.dmgCharacterSP(character.id, body_part, char_sp)
-            damageCharacter(character, dmg_left)
+            dmg_logs = damageCharacter(character, dmg_left)
+            logs = logs + dmg_logs
     else:
-        damageCharacter(character, dmg)
+        logs = damageCharacter(character, dmg)
+    return logs
 
 
-def handleApHit(character: Character, dmg, body_part):
+def handleApHit(character: Character, dmg, body_part) -> list[Log]:
     char_sp = character.sp[body_part]
     sp_left = math.ceil(char_sp / 2)
     dmg_done = math.floor((dmg - sp_left) / 2)
     DAO.dmgCharacterSP(character.id, body_part, dmg)
-    damageCharacter(character, dmg_done)
+    return damageCharacter(character, dmg_done)
 
 
-def damageCharacter(c: Character, dmg):
+def damageCharacter(c: Character, dmg) -> list[Log]:
+    logs = []
     dmgReduction = c.bodyTypeModifier
     total_dmg = dmg - dmgReduction
     if total_dmg > 0:
-        printRedLine(f'{c.name} damaged by {total_dmg}! (DMG reduced by {dmgReduction})')
+        logs = log_event(logs, f'{c.name} damaged by {total_dmg}! (DMG reduced by {dmgReduction})', log_neg)
         DAO.dmgCharacter(c.id, total_dmg)
         updated_character = DAO.getCharacterById(c.id)
 
         if updated_character.dmg_taken >= max_health:
-            printRedLine(f'{c.name} has flatlined')
+            logs = log_event(logs, f'{c.name} has flatlined', log_neg)
         else:
-            stunCheck(updated_character.name)
+            logs = logs + stunCheck(updated_character.name)
     else:
         print('The hit did not damage target')
+
+    return logs
 
 
 def determineHitLocation() -> str:
@@ -740,31 +761,35 @@ def rollStunOverActingEffect(name):
         return f'{name} slumps into ground, moaning'
 
 
-def stunCheckToBeat(dmg_taken, body):
+def stunCheckToBeat(dmg_taken, body) -> (int, list[Log]):
+    logs = []
     penalty = stunPenalty(dmg_taken)
     if penalty > 0:
-        printRedLine(f'penalty for {dmg_taken} DMG taken is {penalty}')
+        logs = log_event(logs, f'penalty for {dmg_taken} DMG taken is {penalty}', log_neg)
     save_against = body - penalty
     if (save_against > 0):
-        print(f'To not be stunned/shocked (or to not lose death save), roll {save_against} or lower')
+        logs = log_event(logs, f'To not be stunned/shocked (or to not lose death save), roll {save_against} or lower', log_neutral)
     else:
-        printRedLine(f'Stun/shock saves cannot help anymore, character needs to be stabilized fast')
+        logs = log_event(logs, f'Stun/shock saves cannot help anymore, character needs to be stabilized fast', log_neg)
 
-    return save_against
+    return (save_against, logs)
 
 
 
-def stunCheck(name):
+def stunCheck(name) -> list[Log]:
+    logs = []
     c = DAO.getCharacterByName(name)
     if c is not None:
-        save_against = stunCheckToBeat(c.dmg_taken, c.attributes['BODY'])
+        (save_against, stun_logs) = stunCheckToBeat(c.dmg_taken, c.attributes['BODY'])
+        logs = logs + stun_logs
         roll = dice.roll(1, 10)
         isStunned = roll > save_against
 
         if isStunned:
-            printRedLine(rollStunOverActingEffect(c.name))
+            logs = log_event(logs, rollStunOverActingEffect(c.name), log_neg)
         else:
-            printGreenLine(f"{c.name} wasn't stunned!")
-        print(f'[Save against = {save_against} vs roll = {roll}]')
-
-        return isStunned
+            logs = log_event(logs, f"{c.name} wasn't stunned!", log_pos)
+            logs = log_event(logs, f'[Stun save against = {save_against} < roll = {roll}]', log_neutral)
+    else:
+        logs = log_event(logs, f'Character not found [name = {name}]', log_neg)
+    return logs

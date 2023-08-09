@@ -101,9 +101,11 @@ def repairSP():
 @app.route('/heal', methods = ['POST'])
 def heal():
     if (request.method == 'POST'):
-        char_id = request.get_json()
+        data = request.get_json()
+        char_id = data['charId']
+        amount = data['amount']
 
-        return jsonify(healing.healCharacterById(char_id, 1))
+        return jsonify(healing.healCharacterById(char_id, amount))
     else:
         return "Invalid request", 400
 
@@ -116,5 +118,18 @@ def lvlUp():
         amount = data['amount']
 
         return jsonify(skills.updateCharSkillById(char_id, skill_id, amount))
+    else:
+        return "Invalid request", 400
+
+@app.route('/dmg', methods = ['POST'])
+def dmg():
+    if (request.method == 'POST'):
+        data = request.get_json()
+        char_id = data['charId']
+        body_part = data['bodyPart']
+        dmg = data['dmg']
+        res = combat.hitCharacterById(char_id, body_part=body_part, dmg_str=dmg, pass_sp=False)
+        print(f'... res: {res}')
+        return jsonify(res)
     else:
         return "Invalid request", 400

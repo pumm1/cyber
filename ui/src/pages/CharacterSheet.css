@@ -22,6 +22,7 @@ label {
 .stats {
     margin-top: 4px;
     margin-left: 8px;
+    max-width: 400px;
 }
 
 .roles {
@@ -94,6 +95,11 @@ label {
     flex-direction: row;
 }
 
+.healContainer {
+    margin-top: 4px;
+    display: flex;
+}
+
 .fourDmgBoxes {
     margin-right: 8px;
 }
@@ -133,6 +139,20 @@ label {
     color: white;
     width: 120%;
     font-size: 12px;
+    padding-left: 12px;
+}
+
+.dmgSetter {
+    display: flex;
+    justify-content: center;
+}
+
+.dmgSetterButton {
+    font-size: 10px;
+}
+
+.trianglesSet {
+    margin-top: 2px;
 }
 
 .armorContent {
@@ -140,7 +160,7 @@ label {
     text-align: center;
     display: grid;
     grid-column-start: 1;
-    grid-template-columns: 60px 60px 60px 60px 60px 60px;
+    grid-template-columns: 66px 66px 66px 66px 66px 66px;
 }
 
 .skills {
@@ -160,12 +180,6 @@ label {
     margin-right: 2px;
 }
 
-.skillBtn:disabled {
-    background-color: lightgrey;
-    color: black;
-    opacity: 1;
-}
-
 .weapons {
     margin-top: 16px;
     border-top: solid;
@@ -183,4 +197,29 @@ label {
 
 .repair {
     margin-left: 4px;
+}
+
+.triangleUp {
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid black;
+    margin-bottom: 2px;
+}
+
+.triangleUp:hover {
+    border-bottom: 5px solid grey;
+}
+
+.triangleDown {
+    width: 0; 
+    height: 0; 
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid black;
+  }
+
+  .triangleDown:hover {
+    border-top: 5px solid grey;
 }

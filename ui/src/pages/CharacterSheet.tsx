@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, RollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart } from './CyberClient'
 import React, { useState, useEffect } from "react"
 import './CharacterSheet.css'
 
@@ -15,6 +15,10 @@ const roles = {
     medtechie: 'Medtechie'
 }
 
+//TODO:
+//REP, current humanity
+//tallenna IP..?
+
 interface UpdateCharacter {
     updateCharacter: () => Promise<void>
 }
@@ -23,8 +27,13 @@ interface UpdateCharacterAndLogs extends UpdateCharacter {
     updateLogs: (s: Log[]) => void
 }
 
+interface DisabledInputProps {
+    value: number | string
+    name: string
+    checked: boolean
+}
 
-const DisabledInput = ({value, name, checked}) => 
+const DisabledInput = ({value, name, checked}: DisabledInputProps) => 
     <input type="radio" value={value} name={name} checked={checked} disabled={true}/>
 
 
@@ -63,6 +72,10 @@ const Stats = ( {attributes}: {attributes: Attributes}) => {
     const statValue = (field: string, value: number, outOf?: number) => 
         <> <b>{field} [ {value} ]</b></>
 
+    const run = attributes.MA * 3
+    const leap = run / 4
+    const liftKg = attributes.BODY * 40 
+
     return (
         <div className='fieldContainer'>
              <label>STATS</label>
@@ -76,6 +89,9 @@ const Stats = ( {attributes}: {attributes: Attributes}) => {
                 {statValue('MA', attributes.MA)}
                 {statValue('BODY', attributes.BODY)}
                 {statValue('EMP', attributes.EMP)}
+                {statValue('RUN', run)}
+                {statValue('Leap', leap)}
+                {statValue('Lift', liftKg)}
             </div>
         </div>
     )
@@ -106,7 +122,7 @@ interface SkillProps {
 const SkillRow = ({skill, characterSkills, charId, updateCharacter}: SkillProps) => {
     const [rollResult, setRollResult] = useState<undefined | number>(undefined)
     const charSkillLvl = characterSkills.find(s => s.id === skill.id)?.lvl ?? 0
-    const roll: RollSkill = {
+    const roll: RollSkillReq = {
         charId: charId,
         skillId: skill.id,
         addedLuck: 0
@@ -248,27 +264,64 @@ const CharacterWeapons = (
     )
 }
 
-interface SPFieldProps {
+interface SPFieldProps extends UpdateCharacterAndLogs {
     characterId: number
     sp: CharacterSP
-    updateCharacter: () => Promise<void>
 }
 
 interface GridBoxProps {
     value: number | string
     bolden?: boolean
     otherValue?: number | string
+    otherElement?: JSX.Element
 }
 
-const CharacterSPField = ({sp, characterId, updateCharacter}: SPFieldProps) => {
+const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFieldProps) => {
+    const updateLogsAndCharacter = (resLogs: Log[]) => {
+        updateLogs(resLogs)
+        updateCharacter()
+    }
     const Label = ({label}: {label: string}) => <label className='armorLabel'><i>{label}</i></label>
     const BoldenVal = ({value}: GridBoxProps) => 
         <div><b><i>{value}</i></b></div>
 
-    const GridBox = ({value, otherValue, bolden}: GridBoxProps) => 
+    interface DmgSetterProps {
+        bodyPart: BodyPart
+    }
+
+    const DmgSetter = ({bodyPart}: DmgSetterProps) => {
+        const [dmg, setDmg] = useState(0)
+
+        const dmgReq = {
+            charId: characterId,
+            bodyPart,
+            dmg
+        }
+
+        return(
+            <div className='dmgSetter'>
+                <div className='trianglesSet'>
+                    <a onClick={() => setDmg(dmg + 1)}>
+                        <div className="triangleUp"></div>
+                    </a>
+                    <a onClick={() => dmg > 0 && setDmg(dmg - 1)}>
+                        <div className="triangleDown"></div>
+                    </a>
+                </div>
+                <button className='dmgSetterButton' disabled={dmg === 0} onClick={() => doDmg(dmgReq).then(logs => {
+                    setDmg(0)
+                    updateLogsAndCharacter(logs)
+                })}>{dmg} DMG</button>
+            </div>
+        )
+    }
+
+
+    const GridBox = ({value, otherValue, bolden, otherElement}: GridBoxProps) => 
         <div className='sp'>
             <div>{!!bolden ? <BoldenVal value={value}/> : value}</div>
             {otherValue && !!bolden && <div><BoldenVal value={otherValue}/> </div>}
+            {otherElement && <div>{otherElement}</div>}
         </div>
 
     return(
@@ -287,12 +340,12 @@ const CharacterSPField = ({sp, characterId, updateCharacter}: SPFieldProps) => {
             <span className='armorRowContainer'>
                 <Label label='Armor SP'/>
                 <div className='armorContent'>
-                    <GridBox value={sp.head}/>
-                    <GridBox value={sp.body}/>
-                    <GridBox value={sp.r_arm}/>
-                    <GridBox value={sp.l_arm}/>
-                    <GridBox value={sp.r_leg}/>
-                    <GridBox value={sp.l_leg}/>
+                    <GridBox value={sp.head} otherElement={<DmgSetter bodyPart={BodyPart.Head}/>}/>
+                    <GridBox value={sp.body} otherElement={<DmgSetter bodyPart={BodyPart.Body}/>}/>
+                    <GridBox value={sp.r_arm} otherElement={<DmgSetter bodyPart={BodyPart.R_arm}/>}/>
+                    <GridBox value={sp.l_arm} otherElement={<DmgSetter bodyPart={BodyPart.L_arm}/>}/>
+                    <GridBox value={sp.r_leg} otherElement={<DmgSetter bodyPart={BodyPart.R_leg}/>}/>
+                    <GridBox value={sp.l_leg} otherElement={<DmgSetter bodyPart={BodyPart.L_leg}/>}/>
                 </div>
                 <button className='repair' onClick={() => repair(characterId).then(updateCharacter)}>Repair</button>
             </span>
@@ -347,6 +400,13 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs}: SaveAndHealt
 
     const resolveTicks = (lowerLimit:number, upperLimit: number): number => 
         dmgTaken > lowerLimit ? (dmgTaken >= upperLimit ? 4 : leftOver) : 0
+    
+    const [healAmount, setHealAmount] = useState(1)
+
+    const healReq = {
+        charId: character.id,
+        amount: healAmount
+    }
 
     return(
         <div className='boxContainer'>
@@ -373,7 +433,22 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs}: SaveAndHealt
                         <FourDmgBoxes upper='Mortal 5' lower='Stun 8' boxesTicked={resolveTicks(32, 36)}/>
                         <FourDmgBoxes upper='Mortal 6' lower='Stun 9' boxesTicked={resolveTicks(36, 40)}/>
                     </div>
-                    <div><button onClick={() => heal(id).then(updateLogsAndCharacter)}>Heal (1)</button></div>
+                    <div className='healContainer'>
+                        <div className='trianglesSet'>
+                                <a onClick={() => setHealAmount(healAmount + 1)}>
+                                    <div className="triangleUp"></div>
+                                </a>
+                                <a onClick={() => healAmount > 1 && setHealAmount(healAmount - 1)}>
+                                    <div className="triangleDown"></div>
+                                </a>
+                        </div>
+                        <button onClick={() => {
+                            heal(healReq).then(updateLogsAndCharacter)
+                            setHealAmount(1)
+                        }}>
+                            Heal {healAmount}
+                        </button>
+                    </div>
                 </div>
         </div>
     )
@@ -386,7 +461,7 @@ const CharacterSheet = ({character, allSkills, updateLogs, updateCharacter}: Cha
             <TextField fieldName='HANDLE' value={character.name} />
             <RoleFiled value={character.role}/>
             <Stats attributes={character.attributes}/>
-            <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter}/>
+            <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
             <SaveAndHealthRow character={character} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
             {allSkills && <SkillsByAttributes skills={allSkills} characterSkills={character.skills} charId={character.id} updateCharacter={updateCharacter}/>}
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>

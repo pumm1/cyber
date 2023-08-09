@@ -219,5 +219,19 @@ export const lvlUp = (charId: number, skillId: number) => {
     return postDataAs<Log[]>(`${pathBase}/lvl-up`, lvlUpReq)
 }
 
-export const heal = (charId: number) =>
-    postDataAs<Log[]>(`${pathBase}/heal`, charId)
+export interface HealReq {
+    charId: number
+    amount: number
+}
+
+export const heal = (healReq: HealReq) =>
+    postDataAs<Log[]>(`${pathBase}/heal`, healReq)
+
+export interface DmgReq {
+    charId: number
+    dmg: number
+    bodyPart: BodyPart
+}
+
+export const doDmg = (dmgReq: DmgReq) =>
+    postDataAs<Log[]>(`${pathBase}/dmg`, dmgReq)

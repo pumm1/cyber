@@ -12,6 +12,11 @@ button:hover {
     background-color: white;
     color: black;
 }
+button:disabled {
+    background-color: lightgrey;
+    color: black;
+    opacity: 1;
+}
 
 .main {
     padding: 16px 8px;
