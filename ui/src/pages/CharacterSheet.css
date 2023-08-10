@@ -20,13 +20,27 @@ label {
 }
 
 .stats {
+    display: flex;
+    flex-wrap: wrap;
     margin-top: 4px;
     margin-left: 8px;
     max-width: 400px;
 }
 
+.statValue {
+    display: block ruby;
+}
+
 .roles {
     font-size: 21px;
+}
+
+.saveCharacter {
+    margin-left: 4px;
+}
+
+.saveCharacterBtn {
+    font-size: 24px;
 }
 
 .fieldValue {
@@ -37,6 +51,15 @@ label {
     padding-top: 4px;
     width: 100%;
     margin: 4px;
+}
+
+.fieldValue:disabled {
+    color: black;
+}
+
+.fieldValue:focus {
+    outline: none;
+ 
 }
 
 .armorLabel {
@@ -79,6 +102,7 @@ label {
 }
 
 .boxValue {
+    display: flex;
     margin-top: auto;
     margin-left: auto;
     margin-right: auto;

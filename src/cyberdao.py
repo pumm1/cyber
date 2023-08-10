@@ -297,9 +297,9 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
     cur.execute(
         f"""{insert} {table_character_weapons} 
         (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, 
-        clip_size, shots_left, effect_radius, wa, con, reliability, weight)
+        clip_size, shots_left, effect_radius, wa, con, reliability, weight, divide_by)
         VALUES
-        ({new_char['id']}, 'unarmed', 'melee', false, 1, 6, 0, 1, 1, 1, 1, 0, 0, 'P', 'ST', 0);
+        ({new_char['id']}, 'unarmed', 'melee', false, 1, 6, 0, 1, 1, 1, 1, 0, 0, 'P', 'ST', 0, 1);
         """
     )
     conn.commit()

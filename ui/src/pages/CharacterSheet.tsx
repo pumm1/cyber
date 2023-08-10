@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq } from './CyberClient'
 import React, { useState, useEffect } from "react"
 import './CharacterSheet.css'
 
@@ -31,42 +31,38 @@ interface UpdateCharacterAndLogs extends UpdateCharacter {
     updateLogs: (s: Log[]) => void
 }
 
-interface DisabledInputProps {
+interface RoleInputProps {
     value: number | string
     name: string
     checked: boolean
+    edit: boolean
+    updateChracterRole: (r: string) => void
 }
 
-const DisabledInput = ({value, name, checked}: DisabledInputProps) => 
-    <input type="radio" value={value} name={name} checked={checked} disabled={true}/>
+const RoleInput = ({edit, value, name, checked,  updateChracterRole}: RoleInputProps) => 
+    <input type="radio" value={value} name={name} checked={checked} disabled={!edit} onChange={e => updateChracterRole(e.target.value)}/>
 
-
-const TextField = ({fieldName, value}: {fieldName: string, value: string}) => {
-    return(
-        <div className='fieldContainer'>
-            <span className='fieldContent'>
-                <label>{fieldName}</label>
-                <div className='fieldValue'>{value}</div>
-            </span>
-        </div>
-    )
+interface RoleFieldProps {
+    value: string
+    edit: boolean
+    updateChracterRole: (r: string) => void
 }
 
-const RoleFiled = ({value}: {value: string}) => {
+const RoleFiled = ({value, edit, updateChracterRole}: RoleFieldProps) => {
     return(
         <div className='fieldContainer'>
             <label>ROLE</label>
             <span className='roles'>
-                <DisabledInput value={roles.solo} name={roles.solo} checked={value === roles.solo} /> Solo
-                <DisabledInput value={roles.rocker} name={roles.rocker} checked={value === roles.rocker} /> Rocker
-                <DisabledInput value={roles.netrunner} name={roles.netrunner} checked={value === roles.netrunner} /> Netrunner
-                <DisabledInput value={roles.media} name={roles.media} checked={value === roles.media} /> Media
-                <DisabledInput value={roles.nomad} name={roles.nomad} checked={value === roles.nomad} /> Nomad
-                <DisabledInput value={roles.fixer} name={roles.fixer} checked={value === roles.fixer} /> Fixer
-                <DisabledInput value={roles.cop} name={roles.cop} checked={value === roles.cop} /> Cop
-                <DisabledInput value={roles.corp} name={roles.solo} checked={value === roles.corp} /> Corp
-                <DisabledInput value={roles.techie} name={roles.techie} checked={value === roles.techie} /> Techie
-                <DisabledInput value={roles.medtechie} name={roles.medtechie} checked={value === roles.medtechie} /> Medtechie
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.solo} name={roles.solo} checked={value === roles.solo} /> Solo
+                <RoleInput updateChracterRole={updateChracterRole}  edit={edit} value={roles.rocker} name={roles.rocker} checked={value === roles.rocker} /> Rocker
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.netrunner} name={roles.netrunner} checked={value === roles.netrunner} /> Netrunner
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.media} name={roles.media} checked={value === roles.media} /> Media
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.nomad} name={roles.nomad} checked={value === roles.nomad} /> Nomad
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.fixer} name={roles.fixer} checked={value === roles.fixer} /> Fixer
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.cop} name={roles.cop} checked={value === roles.cop} /> Cop
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.corp} name={roles.solo} checked={value === roles.corp} /> Corp
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.techie} name={roles.techie} checked={value === roles.techie} /> Techie
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.medtechie} name={roles.medtechie} checked={value === roles.medtechie} /> Medtechie
             </span>
         </div>
     )
@@ -76,41 +72,92 @@ interface StatValueProps {
     field: string,
     value: number
     outOf?: number //TODO: use outOf?
+    props?: JSX.Element
 }
-const StatValue = ({field, value}: StatValueProps) => 
-        <> <b>{field} [ {value} ]</b></>
+const StatValue = ({field, value, props}: StatValueProps) => 
+        <span className='statValue'> <b>{field} [{value}{props}]</b></span>
 
 
-const Stats = ( {attributes}: {attributes: Attributes}) => {
+interface StatsProps {
+    attributes: Attributes
+    updateCharacterAttributes: (a: Attributes) => void
+    edit: boolean
+}
+
+const Stats = ( {attributes, updateCharacterAttributes, edit}: StatsProps) => {
     
     const run = attributes.MA * 3
-    const leap = run / 4
+    const leap = Math.floor(run / 4)
     const liftKg = attributes.BODY * 40 
+
+    interface FooProps {
+        attribute: Attribute
+        value: number
+    }
+    const Foo = ({attribute, value}: FooProps) => {
+        const updatedAttributes = (change: number) => {
+            switch(attribute) {
+                case Attribute.ATTR:
+                    const {ATTR, ...a} = attributes
+                    return {ATTR: value + change, ...a}
+                case Attribute.BODY:
+                    const {BODY, ...b} = attributes
+                    return {BODY: value + change, ...b}
+                case Attribute.COOL:
+                    const {COOL, ...c} = attributes
+                    return {COOL: value + change, ...c}
+                case Attribute.EMP:
+                    const {EMP, ...d} = attributes
+                    return {EMP: value + change, ...d}
+                case Attribute.INT:
+                    const {INT, ...e} = attributes
+                    return {INT: value + change, ...e}
+                case Attribute.LUCK:
+                    const {LUCK, ...f} = attributes
+                    return {LUCK: value + change, ...f}
+                case Attribute.MA:
+                    const {MA, ...g} = attributes
+                    return {MA: value + change, ...g}
+                case Attribute.REF:
+                    const {REF, ...h} = attributes
+                    return {REF: value + change, ...h}
+                case Attribute.TECH:
+                    const {TECH, ...i} = attributes
+                    return {TECH: value + change, ...i}
+            }
+        }
+
+        return (
+            <div className='trianglesSet'>
+                <a onClick={() => updateCharacterAttributes(updatedAttributes(+1))}>
+                    <div className="triangleUp"></div>
+                </a>
+                <a onClick={() => updateCharacterAttributes(updatedAttributes(-1))}>
+                    <div className="triangleDown"></div>
+                </a>
+            </div>
+         )
+    }
 
     return (
         <div className='fieldContainer'>
              <label>STATS</label>
             <div className='stats'>
-                <StatValue field='INT' value={attributes.INT} />
-                <StatValue field='REF' value={attributes.REF} />
-                <StatValue field='TECH' value={attributes.TECH} />
-                <StatValue field='COOL' value={attributes.COOL} />
-                <StatValue field='ATTR' value={attributes.ATTR} />
-                <StatValue field='LUCK' value={attributes.LUCK} />
-                <StatValue field='MA' value={attributes.MA} />
-                <StatValue field='BODY' value={attributes.BODY} />
-                <StatValue field='EMP' value={attributes.EMP} />
+                <StatValue field='INT' value={attributes.INT} props={edit ?  <Foo attribute={Attribute.INT} value={attributes.INT}/> : undefined}/>
+                <StatValue field='REF' value={attributes.REF} props={edit ? <Foo attribute={Attribute.REF} value={attributes.REF}/> : undefined}/>
+                <StatValue field='TECH' value={attributes.TECH} props={edit ? <Foo attribute={Attribute.TECH} value={attributes.TECH}/> : undefined}/>
+                <StatValue field='COOL' value={attributes.COOL} props={edit ? <Foo attribute={Attribute.COOL} value={attributes.COOL}/> : undefined}/>
+                <StatValue field='ATTR' value={attributes.ATTR} props={edit ? <Foo attribute={Attribute.ATTR} value={attributes.ATTR}/> : undefined}/>
+                <StatValue field='LUCK' value={attributes.LUCK} props={edit ? <Foo attribute={Attribute.LUCK} value={attributes.LUCK}/> : undefined}/>
+                <StatValue field='MA' value={attributes.MA} props={edit ? <Foo attribute={Attribute.MA} value={attributes.MA}/> : undefined}/>
+                <StatValue field='BODY' value={attributes.BODY} props={edit ? <Foo attribute={Attribute.BODY} value={attributes.BODY}/> : undefined}/>
+                <StatValue field='EMP' value={attributes.EMP} props={edit ? <Foo attribute={Attribute.EMP} value={attributes.EMP}/> : undefined}/>
                 <StatValue field='RUN' value={run} />
                 <StatValue field='Leap' value={leap} />
                 <StatValue field='Lift' value={liftKg} />
             </div>
         </div>
     )
-}
-
-export interface CharacterSheetProps extends UpdateCharacterAndLogs{
-    character: Character
-    allSkills?: Skill[]
 }
 
 const attributesInOrder = [
@@ -394,17 +441,13 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
     )
 }
 
-interface SaveAndHealthProps extends UpdateCharacterAndLogs{
-    character: Character
-}
-
-interface DmgBoxSetProps {
+interface FourDmgBoxesProps {
     upper: string
     lower: string
     boxesTicked: number
 }
 
-const FourDmgBoxes = ({upper, lower, boxesTicked}: DmgBoxSetProps) => {
+const FourDmgBoxes = ({upper, lower, boxesTicked}: FourDmgBoxesProps) => {
     return(
         <div className='fourDmgBoxes'>
             <div className='dmgUpperLabel'>{upper}</div>
@@ -427,8 +470,14 @@ const FourDmgBoxes = ({upper, lower, boxesTicked}: DmgBoxSetProps) => {
     )
 }
 
-const SaveAndHealthRow = ({character, updateCharacter, updateLogs}: SaveAndHealthProps) => {
-    const { dmgTaken, id } = character
+interface SaveAndHealthProps extends UpdateCharacterAndLogs{
+    character: Character
+    edit: boolean
+    updateCharacterBTM: (n: number) => void
+}
+
+const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, updateCharacterBTM}: SaveAndHealthProps) => {
+    const { dmgTaken } = character
     const save = character.attributes.BODY
     const btm = character.btm
     
@@ -457,9 +506,21 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs}: SaveAndHealt
                 </div>
                 <div className='outerBox'>
                     <div className='boxLabel'>BTM</div>
-                    <div className='boxValue'>{btm ?? ''}</div>
+                    <div className='boxValue'>
+                        {btm}
+                        {edit &&
+                            <div className='trianglesSet'>
+                                <a onClick={() => updateCharacterBTM(btm +1)}>
+                                    <div className="triangleUp"></div>
+                                </a>
+                                <a onClick={() => updateCharacterBTM(btm - 1)}>
+                                    <div className="triangleDown"></div>
+                                </a>
+                            </div>
+                        }
+                    </div>
                 </div>
-                <div className='dmgTakenContainer'>
+                {!edit && <div className='dmgTakenContainer'>
                     <div className='dmgTakenOuterbox'>
                         <FourDmgBoxes upper='Light' lower='Stun 0' boxesTicked={resolveTicks(0, 4)}/>
                         <FourDmgBoxes upper='Serious' lower='Stun 1' boxesTicked={resolveTicks(4, 8)}/>
@@ -490,21 +551,124 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs}: SaveAndHealt
                             Heal {healAmount}
                         </button>
                     </div>
-                </div>
+                </div>}
         </div>
     )
 }
 
+interface TextFieldProps {
+    fieldName: string
+    value: string
+    edit: boolean
+    onUpdate: (n: string) => void 
+}
 
-const CharacterSheet = ({character, allSkills, updateLogs, updateCharacter}: CharacterSheetProps) => {
+const TextField = ({fieldName, value, edit, onUpdate}: TextFieldProps) => {
+    return(
+        <div className='fieldContainer'>
+            <span className='fieldContent'>
+                <label>{fieldName}</label>
+                <input disabled={!edit} className='fieldValue' value={value} onChange={e => onUpdate(e.target.value)} />
+            </span>
+        </div>
+    )
+}
+
+export interface CharacterSheetProps extends UpdateCharacterAndLogs{
+    edit: boolean
+    character: Character
+    allSkills?: Skill[]
+    editCharacter?: (c: Character) => void
+}
+
+
+const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter, editCharacter}: CharacterSheetProps) => {
+    const editCharacterInForm = (newCharacter: Character, isValid: boolean) => 
+        editCharacter && isValid && editCharacter(newCharacter)
+    
+    const isBetween = (lowerLimit: number, value: number, upperLimit: number) =>
+        lowerLimit <= value && value <= upperLimit
+
+    const updateCharacterName = (newName: string) => {
+        const {name, ...rest} = character
+        const newCharacter: Character = {name: newName, ...rest}
+
+        editCharacterInForm(newCharacter, true)
+    }
+
+    const updateCharacterRole = (newRole: string) => {
+        const {role, ...rest} = character
+        const newCharacter: Character = {role: newRole, ...rest}
+
+        editCharacterInForm(newCharacter, true)
+    }
+
+    const characterAttributesValid = (c: Character): boolean => {
+        const attributes = c.attributes
+        const validAttributes = [
+            isBetween(1, attributes.ATTR, 10),
+            isBetween(1, attributes.BODY, 10),
+            isBetween(1, attributes.COOL, 10),
+            isBetween(1, attributes.EMP, 10),
+            isBetween(1, attributes.INT, 10),
+            isBetween(1, attributes.LUCK, 10),
+            isBetween(1, attributes.MA, 10),
+            isBetween(1, attributes.REF, 10),
+            isBetween(1, attributes.TECH, 10),
+        ]
+
+        return validAttributes.every(v => v === true)
+    }
+
+    const updateCharacterAttributes = (newAttributes: Attributes) => {
+        const {attributes, ...rest} = character
+        const newCharacter: Character = {attributes: newAttributes, ...rest}
+        const attributesAreValid = characterAttributesValid(newCharacter)
+
+        editCharacterInForm(newCharacter, attributesAreValid)
+    }
+
+    const updateCharacterBTM = (newBtm: number) => {
+        const {btm, ...rest} = character
+        const newCharacter: Character = {btm: newBtm, ...rest}
+
+        editCharacterInForm(newCharacter, isBetween(0, newBtm, 4))
+    }
+
+    const roleAndNameIsValid = (): boolean =>
+        character.role != '' && character.name != ''
+
+    const saveCharacterFormValid = (): boolean =>
+        edit && characterAttributesValid(character) && roleAndNameIsValid()
+
+    const SaveNewCharacter = ({}) => {
+        const createReq: CreateCharacterReq = {
+            name: character.name,
+            role: character.role,
+            attributes: character.attributes,
+            btm: character.btm,
+            randomize: false
+        }
+
+        const createCharacterAndLog = () => 
+            createCharacter(createReq).then(updateLogs)
+        return (
+            <div className='saveCharacter'>
+                <button onClick={() => createCharacterAndLog()} disabled={!saveCharacterFormValid()}className='saveCharacterBtn'>Create character</button>
+            </div>
+        )
+    }
+        
+
     return(
         <div className='main'>
-            <TextField fieldName='HANDLE' value={character.name} />
-            <RoleFiled value={character.role}/>
-            <Stats attributes={character.attributes}/>
-            <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
-            <SaveAndHealthRow character={character} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
-            {allSkills && <SkillsByAttributes skills={allSkills} character={character} updateCharacter={updateCharacter}/>}
+            <TextField edit={edit} fieldName='HANDLE' value={character.name} onUpdate={updateCharacterName}/>
+            <RoleFiled updateChracterRole={updateCharacterRole} edit={edit} value={character.role}/>
+            <Stats edit={edit} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>
+            {!edit && <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter} updateLogs={updateLogs}/>}
+            <SaveAndHealthRow updateCharacterBTM={updateCharacterBTM} edit={edit} character={character} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
+            {edit && <SaveNewCharacter />}
+            {allSkills && !edit && <SkillsByAttributes skills={allSkills} character={character} updateCharacter={updateCharacter}/>}
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
         </div>
     )

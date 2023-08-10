@@ -17,7 +17,7 @@ sys.path.append(parent)
 
 # now we can import the module in the parent
 # directory.
-import dice, game, skills, combat, armor, healing
+import dice, game, skills, combat, armor, healing, logger, characterBuilder
 
 app = Flask(__name__)
 CORS(app)
@@ -25,6 +25,24 @@ CORS(app)
 @app.route('/test')
 def hello():
     return 'Welcome to the NET!'
+
+
+#TODO
+@app.route('/create-character', methods = ['POST'])
+def createCharacter():
+    if (request.method == 'POST'):
+        data = request.get_json()
+        attributes = data['attributes']
+        name = data['name']
+        role = data['role']
+        body_type = data['btm']
+
+        print(f"... data for create character: {data}")
+        return jsonify(
+            characterBuilder.createCharacterFromReq(name, role, body_type, attributes)
+        )
+    else:
+        return "Invalid request", 400
 
 @app.route('/roll', methods = ['GET'])
 def roll():

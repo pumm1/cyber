@@ -132,8 +132,7 @@ export interface Character {
     specialAbilityLvl: number
     bodyType: string
     attributes: Attributes
-    bodyTypeModifier: string
-    btm?: number //TODO in backend
+    btm: number //TODO in backend
     woundState: string
     dmgTaken: number
     skills: CharacterSkill[]
@@ -237,3 +236,15 @@ export interface DmgReq {
 
 export const doDmg = (dmgReq: DmgReq) =>
     postDataAs<Log[]>(`${pathBase}/dmg`, dmgReq)
+
+export interface CreateCharacterReq {
+    name: string
+    attributes: Attributes
+    role: string
+    btm: number
+    randomize: boolean
+}
+
+export const createCharacter = (c: CreateCharacterReq) =>
+    postDataAs<Log[]>(`${pathBase}/create-character`, c)
+

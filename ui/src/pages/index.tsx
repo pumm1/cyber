@@ -1,7 +1,7 @@
 import * as React from "react"
 import type { HeadFC, PageProps } from "gatsby"
 import Dice from "./Dice"
-import SearchCharacter from "./SearchCharacter"
+import SearchOrCreateCharacter from "./SearchOrCreateCharacter"
 import './index.css'
 import LogViewer from "./LogViewer"
 import { useState } from "react"
@@ -25,7 +25,7 @@ const IndexPage: React.FC<PageProps> = () => {
       <h1>Welcome to the NET</h1>
       <div className='container'>
         <Dice/>
-        <SearchCharacter updateLogs={updateLogs}/>
+        <SearchOrCreateCharacter updateLogs={updateLogs}/>
         <LogViewer logs={logs} addToLogs={addToLogs}/>
       </div>
     </div>

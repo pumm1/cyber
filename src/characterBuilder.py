@@ -6,6 +6,7 @@ from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToI
     COOL, ATTR, LUCK, MA, BODY, EMP, body_part_l_arm, body_part_body, body_part_head, body_part_r_arm, t_melee, \
     t_handgun, t_shotgun, t_rifle, t_thrown, t_smg, con_pocket, con_long_coat, con_jacket, not_hideable, yes_no, \
     body_part_l_leg, body_part_r_leg, printGreenLine
+from src.logger import log_event, log_pos
 
 
 def rollAtr():
@@ -90,11 +91,16 @@ def rollBodyType():
     return body_type
 
 
-def addBodyType() -> int:
+def addBodyType(given_body_type=None) -> int:
     print(f'<give body type> or {roll_str} random body type ({list_str} to show all)')
     body_type = 0
+    ans = 0
     while True:
-        ans = askInput()
+        if given_body_type is not None:
+            ans = given_body_type
+            break
+        else:
+            ans = askInput()
         if checkListCommand(ans):
             bodytypes.listAvailableModifiers()
         elif checkRollCommand(ans):
@@ -401,6 +407,28 @@ def rollAtributes():
 
     return (atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp)
 
+def createCharacterFromReq(name, role, given_body_type, attributes):
+    logs = []
+    body_Type = addBodyType(given_body_type)
+    special = 0
+    DAO.addCharacter(
+        name,
+        role,
+        special,
+        body_Type,
+        atr_int=attributes[INT],
+        atr_ref=attributes[REF],
+        atr_tech=attributes[TECH],
+        atr_cool=attributes[COOL],
+        atr_attr=attributes[ATTR],
+        atr_luck=attributes[LUCK],
+        atr_ma=attributes[MA],
+        atr_body=attributes[BODY],
+        atr_emp=attributes[EMP]
+    )
+    logs = log_event(logs, f'Character {name} created', log_pos)
+
+    return logs
 
 def createManualCharacter(name):
     role = addRole()
