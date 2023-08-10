@@ -20,11 +20,12 @@ label {
 }
 
 .stats {
+    font-size: 16px;
     display: flex;
     flex-wrap: wrap;
     margin-top: 4px;
     margin-left: 8px;
-    max-width: 400px;
+    max-width: 420px;
 }
 
 .statValue {
@@ -32,7 +33,7 @@ label {
 }
 
 .roles {
-    font-size: 21px;
+    font-size: 22px;
 }
 
 .saveCharacter {
@@ -192,7 +193,7 @@ label {
     flex-flow:column wrap;
     max-height:800px;
     max-width: 400px;
-    font-size: 14px;
+    font-size: 12px;
 
 }
 

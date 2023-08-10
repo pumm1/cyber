@@ -192,7 +192,7 @@ const SkillRow = ({skill, charSkillLvl, roll, charId, updateCharacter}: SkillRow
             <span>
                 {<button className='skillBtn' disabled={charSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(updateCharacter)}>+</button>}
                 <button className='skillBtn' onClick={() => rollSkill(roll).then(res => setRollResult(res))}>Roll</button>
-                {skill.skill.padEnd(36, '.')}[{charSkillLvl ?? ''}]
+                {skill.skill.padEnd(30, '.')}[{charSkillLvl ?? ''}]
                 {rollResult && <>({rollResult})</>}
             </span>
         </div>
@@ -247,9 +247,9 @@ const SkillsByAttributes = ({skills, character, updateCharacter}: SkillsProps ) 
         <label>Skills</label>
         <div className='fieldContainer'>
             <div className='skills'>
-            <span>
-                <b>Special ability</b>
-                <SkillRow roll={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={spceialSkill} />
+                <span>
+                    <b>Special ability</b>
+                    <SkillRow roll={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={spceialSkill} />
                 </span>
                 {attributesInOrder.map(atr => <SkillsByAttribute updateCharacter={updateCharacter} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
                 <StatValue field='REP' value={2}/>

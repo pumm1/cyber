@@ -20,7 +20,7 @@ button:disabled {
 
 .main {
     padding: 16px 8px;
-    font-family:Verdana, Geneva, Tahoma, sans-serif;
+    font-family: monospace;
     min-width: 800px;
     min-height: 1200px;
 }
