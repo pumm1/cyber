@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome } from './CyberClient'
 import React, { useState, useEffect } from "react"
 import './CharacterSheet.css'
 
@@ -268,7 +268,7 @@ interface RangeProps {
 }
 
 const Range = ({weaponIsGun, attackRange, setAttackRange}: RangeProps) => 
-        weaponIsGun && <>Range <input className='range' type='text' disabled={false} value={attackRange} onChange={e => setAttackRange(parseInt(e.target.value) || 1)}/></>
+        weaponIsGun && <><input className='range' type='text' disabled={false} value={attackRange} onChange={e => setAttackRange(parseInt(e.target.value) || 0)}/></>
 
 interface WeaponProps extends UpdateCharacterAndLogs {
     weapon: Weapon, 
@@ -326,29 +326,95 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
     }    
 
     return (
-        <div className='weapon' key={`${characterId} ${weapon.id}`}>
-            {weapon.item} {ammoInfo} [{weapon.weaponType}] <Dmg />
-            <button onClick={() => attack(attackReq).then(updateLogsAndCharacter)}>Attack</button>
-            <Range weaponIsGun={weaponIsGun} attackRange={attackRange} setAttackRange={setAttackRange}/>
-            {weaponIsGun && 
-            <button onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}>
-                Reload
-            </button>}
-            <AttackTypes />
-        </div>
+        <tr>
+            <td>
+                {weapon.item} {ammoInfo}
+            </td>
+            <td>
+                {weapon.weaponType}
+            </td>
+            <td>
+                <Dmg/>
+            </td>
+            <td>
+                <button className='weaponButton' onClick={() => attack(attackReq).then(updateLogsAndCharacter)}>Attack</button>
+            </td>
+            <td>
+                <AttackTypes />
+                {weaponIsGun && 
+                    <button className='weaponButton' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}>
+                        Reload
+                    </button>
+                 }
+            </td>
+            <td>
+                <Range weaponIsGun={weaponIsGun} attackRange={attackRange} setAttackRange={setAttackRange}/>
+            </td>
+        </tr>
     )
 }
 
+interface CharacterWeaponsProps extends UpdateCharacterAndLogs{
+    weapons: Weapon[]
+    characterId: number
+}
+
 const CharacterWeapons = (
-    {weapons, characterId, updateLogs, updateCharacter}: 
-    {weapons: Weapon[], characterId: number, updateLogs: (s: Log[]) => void, updateCharacter: () => Promise<void>}
+    {weapons, characterId, updateLogs, updateCharacter}: CharacterWeaponsProps
 ) => {
     return (
-    <div key={characterId} className='fieldContainer'>
-        <div className='weapons'>
-            {weapons.map(w => <WeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} updateCharacter={updateCharacter} />)}
-        </div>
-    </div>
+        <>
+            <table>
+                <tr>
+                    <th>Weapon</th>
+                    <th>Type</th>
+                    <th>DMG</th>
+                    <th>Action</th>
+                    <th>Attack Type</th>
+                    <th>Attack Range</th>
+                </tr>
+                {weapons.map(w => 
+                    <WeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} updateCharacter={updateCharacter} />
+                )}
+            </table>
+        </>
+    )
+}
+
+
+
+interface ChromeRowProps {
+    chrome: Chrome
+}
+
+const ChromeRow = ({chrome}: ChromeRowProps) =>
+    <tr>
+        <td>
+            {chrome.item}
+        </td>
+        <td>
+            {chrome.description}
+        </td>
+    </tr>
+
+
+interface CharacterChromeProps {
+    charChrome: Chrome[]
+}
+
+const CharacterChrome = ({charChrome}: CharacterChromeProps) => {
+    return (
+        <>
+            <table>
+                <tr>
+                    <th>Cybernetic</th>
+                    <th>Description</th>
+                </tr>
+                {charChrome.map(c => 
+                    <ChromeRow chrome={c}/>
+                )}
+            </table>
+        </>
     )
 }
 
@@ -670,6 +736,7 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
             {edit && <SaveNewCharacter />}
             {allSkills && !edit && <SkillsByAttributes skills={allSkills} character={character} updateCharacter={updateCharacter}/>}
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
+            <CharacterChrome charChrome={character.chrome}/>
         </div>
     )
 }

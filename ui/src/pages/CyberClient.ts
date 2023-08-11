@@ -108,6 +108,18 @@ export interface Weapon {
     dmgBonus: number
 }
 
+export interface SkillBonus {
+    skillId: number
+    bonus: number
+}
+
+export interface Chrome {
+    id: number
+    item: string
+    description: string
+    skillBonuses: SkillBonus[]
+}
+
 export interface CharacterSP {
     head: number
     body: number
@@ -138,6 +150,7 @@ export interface Character {
     skills: CharacterSkill[]
     armor: Armor[]
     weapons: Weapon[]
+    chrome: Chrome[],
     sp: CharacterSP
     reputation: number
     humanity: number

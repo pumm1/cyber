@@ -248,3 +248,7 @@ label {
   .triangleDown:hover {
     border-top: 5px solid grey;
 }
+
+.weaponButton {
+    margin-left: 2px;
+}
