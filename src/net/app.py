@@ -17,7 +17,7 @@ sys.path.append(parent)
 
 # now we can import the module in the parent
 # directory.
-import dice, game, skills, combat, armor, healing, logger, characterBuilder
+import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip
 
 app = Flask(__name__)
 CORS(app)
@@ -47,7 +47,7 @@ def createCharacter():
 @app.route('/roll', methods = ['GET'])
 def roll():
     if (request.method == 'GET'):
-        dice_roll_res = dice.roll(1, 10)
+        (dice_roll_res, _) = dice.rollWithCrit(skip_luck=True)
         return jsonify(dice_roll_res)
     else:
         return "Invalid request", 400
@@ -85,12 +85,14 @@ def listSkills():
 def attack():
     if (request.method == 'POST'):
         data = request.get_json()
+        print(f'..... data: {data}')
         weapon_id = data['weaponId']
         char_id = data['charId']
         attack_type = data['attackType']
         attack_range = data['attackRange']
         attack_modifier = data['attackModifier']
-        return jsonify(combat.characterAttackByCharacterAndWeaponId(char_id, weapon_id, attack_type, attack_range, attack_modifier)) #TODO
+        targets: int = data.get('targets', 1)
+        return jsonify(combat.characterAttackByCharacterAndWeaponId(char_id, weapon_id, attack_type, attack_range, attack_modifier, targets=targets)) #TODO
     else:
         return "Invalid request", 400
 
@@ -143,6 +145,18 @@ def dmg():
         body_part = data['bodyPart']
         dmg = data['dmg']
         res = combat.hitCharacterById(char_id, body_part=body_part, dmg_str=dmg, pass_sp=False)
+        print(f'... res: {res}')
+        return jsonify(res)
+    else:
+        return "Invalid request", 400
+
+@app.route('/save-ip', methods = ['POST'])
+def saveIP():
+    if (request.method == 'POST'):
+        data = request.get_json()
+        char_id = data['charId']
+        ipAmount = data['ipAmount']
+        res = ip.saveIP(char_id, ipAmount)
         print(f'... res: {res}')
         return jsonify(res)
     else:

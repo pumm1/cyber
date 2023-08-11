@@ -21,8 +21,6 @@ button:disabled {
 .main {
     padding: 16px 8px;
     font-family: monospace;
-    min-width: 800px;
-    min-height: 1200px;
 }
 
 .container {

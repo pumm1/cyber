@@ -36,6 +36,7 @@ class Character:
             body_part_r_leg: sp_row['r_leg'],
             body_part_l_leg: sp_row['l_leg']
         }
+        self.ip = row['ip']
         self.ev = ev_total
         self.statuses = statuses
 
@@ -107,6 +108,7 @@ class Character:
             'weapons': list(weapons),
             "armor": list(armor),
             "sp": self.sp,
+            "ip": self.ip,
         }
 
         return resJson

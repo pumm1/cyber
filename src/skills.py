@@ -2,10 +2,10 @@ from colorama import Fore, Style
 
 import dice, cyberdao as DAO
 from gameHelper import safeCastToInt, printGreenLine, coloredText, list_skills_helper_str, printRedLine, COOL, INT, REF
-from src.character import Character
-from src.logger import Log, log_pos, log_neg
-from src.roles import roleSpecialAbility, solo, rocker, netrunner, media, nomad, fixer, cop, corp, techie, meditechie
-from src.skill import SkillInfo
+from character import Character
+from logger import Log, log_pos, log_neg
+from roles import roleSpecialAbility, solo, rocker, netrunner, media, nomad, fixer, cop, corp, techie, meditechie
+from skill import SkillInfo
 
 skill_athletics = 'athletics'
 skill_first_aid = 'first aid'

@@ -152,6 +152,13 @@ def getCharacterByName(name: str):
 
     return char
 
+def updateCharacterIp(character_id, ip_amount):
+    cur.execute(
+        f"""{update} {table_characters}
+                SET ip = ip + {ip_amount}
+                WHERE id = {character_id};"""
+    )
+    conn.commit()
 
 def healCharacter(character_id, new_dmg_taken):
     cur.execute(
@@ -275,9 +282,9 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
                  atr_luck, atr_ma, atr_body, atr_emp):
     cur.execute(
         f"""{insert} {table_characters} 
-            (name, role, special_ability, body_type_modifier, humanity,
+            (name, role, special_ability, body_type_modifier, humanity, ip,
             atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken)
-            VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10},
+            VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10}, 0,
             {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0)
             RETURNING id;
         """

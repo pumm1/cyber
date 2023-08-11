@@ -154,6 +154,7 @@ export interface Character {
     sp: CharacterSP
     reputation: number
     humanity: number
+    ip: number
 }
 
 export const getCharacter = (name: string) =>
@@ -191,6 +192,7 @@ export interface AttackReq extends WeaponReq {
     attackType: AttackType
     attackRange: number
     attackModifier: number
+    targets?: number
 }
 
 export enum LogType {

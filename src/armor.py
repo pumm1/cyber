@@ -6,7 +6,7 @@ from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_part
     body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg, printGreenLine, coloredText
 from chrome import addChromeWithHumanityCost
 from bonus import addAttributeBonuses, handleBonuses, AtrBonus
-from src.logger import log_event, log_pos, log_neg
+from logger import log_event, log_pos, log_neg
 
 
 class Armor:

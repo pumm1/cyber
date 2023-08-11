@@ -10,7 +10,7 @@ from gameHelper import TECH, askInput, safeCastToInt, checkListCommand, list_str
 from roles import meditechie
 
 #values are changed from offial rules a bit, then they would be 0.5 and 1
-from src.logger import Log, log_event, log_pos, log_neg
+from logger import Log, log_event, log_pos, log_neg
 
 default_healing_rate = 1
 default_medtech_healing_rate = 2

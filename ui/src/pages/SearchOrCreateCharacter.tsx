@@ -41,9 +41,11 @@ const characterToCreate: Character = {
     attributes: initialAttributes,
     woundState: 'No damage',
     dmgTaken: 0,
+    ip: 0,
     armor: [],
     skills: [],
     weapons: [],
+    chrome: [],
     sp: initialSp,
     reputation: 0,
     humanity: initialAttributes.EMP * 10

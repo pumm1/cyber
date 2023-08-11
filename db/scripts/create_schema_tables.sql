@@ -227,4 +227,10 @@ alter table cyberpunk.statuses
         foreign key(item_atr_id)
         references cyberpunk.item_atr_bonuses(id);
 
+ALTER TABLE cyberpunk.characters
+ADD COLUMN ip integer not null default 0;
+
+ALTER TABLE cyberpunk.characters
+ALTER COLUMN ip DROP DEFAULT;
+
 COMMIT;

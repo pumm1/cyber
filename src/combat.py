@@ -97,7 +97,7 @@ def weapon_info(wep):
         )
 
 
-def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, attack_range, attack_modifier):
+def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, attack_range, attack_modifier, targets):
     character = DAO.getCharacterById(character_id)
     result_logs = []
     if character is not None:
@@ -114,6 +114,7 @@ def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, 
                     skill_bonus=skill_bonus,
                     skill=skill,
                     modifiers_total=attack_modifier,
+                    targets=targets,
                     skip_luck=True,
                     auto_roll=True
                 )
@@ -393,7 +394,7 @@ def handleFullAuto(character, wep, skill_bonus, skill):
                 printGreenLine(f'Target {t} hit {num_of_hits} times!')
 
                 for i in range(num_of_hits):
-                    dmg = hitDmg(wep, attack_range)
+                    (dmg, _) = hitDmg(wep, attack_range)
                     target_total_dmg = target_total_dmg + dmg
                 printGreenLine(f'Total dmg done to target [{t}]: {target_total_dmg}')
 
@@ -466,7 +467,7 @@ def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill, mo
     return logs
 
 
-def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill, modifiers_total, skip_luck=False, auto_roll=False):
+def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill, modifiers_total, targets=1, skip_luck=False, auto_roll=False):
     if modifiers_total is None:
         modifiers_total = modifiersForTarget(1)
     roll = safeCastToInt(given_roll)
@@ -484,7 +485,7 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
 
     ref_bonus = character.attributes[REF]
     total = roll + ref_bonus + skill_bonus + modifiers_total + wep.wa
-    hit_res = total >= roll_to_beat
+    hit_res = roll > 1 and total >= roll_to_beat
     success_str = 'successful'
     failure_str = 'unsuccessful'
     end_res = success_str
@@ -495,7 +496,7 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
             DAO.updateShotsInClip(wep.weapon_id, shots_left - 1)
         elif wep.weapon_type == t_thrown:
             DAO.deleteThrown(wep.weapon_id)
-            printRedLine(f'Thrown weapon gone')
+            logs = log_event(logs, f'Thrown weapon gone', log_neg)
 
         if hit_res == False:
             end_res = failure_str
@@ -503,7 +504,8 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
                 logs = log_event(logs, 'Roll 1D10 to see how the throw misses and another 1D10 to see how far! (See grenade table)', log_neutral)
         else:
             logs = log_event(logs, f'Attack successful!', log_pos)
-            dmg = hitDmg(wep, attack_range, auto_roll=auto_roll)
+            (dmg, dmg_logs) = hitDmg(wep, attack_range, targets=targets, auto_roll=auto_roll)
+            logs = logs + dmg_logs
             logs = log_event(logs, f'DMG done: {dmg}', log_pos)
 
         attack_info_str = f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})'
@@ -518,18 +520,18 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
     return logs
 
 
-def hitDmg(wep, attack_range, auto_roll=False) -> (int, list[Log]):
+def hitDmg(wep, attack_range, targets=1, auto_roll=False) -> (int, list[Log]):
     log_events = []
     dmg = 0
-    targets = 0
     #TODO for REST
     if wep.weapon_type == t_shotgun:
-        print('Give targets in shotgun spread area (At least main target is hit, others have 50/50 a chance of not being hit):')
-        while True:
-            input = askInput()
-            targets = safeCastToInt(input)
-            if targets > 0:
-                break
+        if targets is None or targets <= 0:
+            while True:
+                input = askInput()
+                targets = safeCastToInt(input)
+                if targets > 0:
+                    break
+        log_events = log_event(log_events, f'{targets} targets in shotgun spread area (At least main target is hit, others have 50/50 a chance of not being hit)', log_neutral)
 
         for target in range(targets):
             t_dmg = 0
@@ -551,13 +553,13 @@ def hitDmg(wep, attack_range, auto_roll=False) -> (int, list[Log]):
 
 
 def handleWeaponDmgAndHit(wep, auto_roll) -> (int, Log):
-    print(f'{roll_str} or give dmg (> 0):')
     dmg = 0
     while True:
         input = ''
         if auto_roll:
             input = roll_str
         else:
+            print(f'{roll_str} or give dmg (> 0):')
             input = askInput()
 
         if input == roll_str:
@@ -568,9 +570,9 @@ def handleWeaponDmgAndHit(wep, auto_roll) -> (int, Log):
             if dmg > 0:
                 break
     location = determineHitLocation()
-    hit_log = Log(f'{dmg} DMG to {location}', log_neg)
+    logs = log_event([], f'{dmg} DMG to {location}', log_neg)
 
-    return (dmg, hit_log)
+    return (dmg, logs)
 
 
 def handleShotgunDmgAndHit(wep, attack_range):
@@ -658,8 +660,6 @@ def hitCharacter(character, body_part, dmg_str, is_ap, pass_sp):
                 logs = handleApHit(character, dmg, body_part)
             else:
                 logs = handleNormalHit(character, dmg, body_part)
-
-            logs = log_event(logs, f'{character.name} damaged at {body_part} for {dmg}', log_neg)
         else:
             valid_body_parts = ', '.join(body_parts)
             logs = log_event(logs, f'Invalid body part {body_part} [{valid_body_parts}]', log_neg)
@@ -720,7 +720,7 @@ def damageCharacter(c: Character, dmg) -> list[Log]:
         else:
             logs = logs + stunCheck(updated_character.name)
     else:
-        print('The hit did not damage target')
+        logs = log_event(logs, f'The hit did not damage target (DMG = {dmg}, DMG reduced by = {dmgReduction})', log_neutral)
 
     return logs
 
@@ -787,6 +787,7 @@ def stunCheck(name) -> list[Log]:
         is_stunned = roll > save_against
 
         if is_stunned:
+            logs = log_event(logs, f'{name} fails stun check!', log_neg)
             logs = log_event(logs, rollStunOverActingEffect(c.name), log_neg)
         else:
             logs = log_event(logs, f"{c.name} wasn't stunned!", log_pos)

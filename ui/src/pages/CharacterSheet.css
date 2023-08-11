@@ -9,9 +9,16 @@ label {
     font-weight: bold;
 }
 
+.sheet {
+    min-width: 800px;
+    min-height: 1200px;
+    padding: 16px 8px;
+    font-family: monospace;
+}
+
 .fieldContainer {
     margin-top: 4px;
-    max-width: 600px;
+    max-width: 636px;
 }
 
 .fieldContent {
@@ -251,4 +258,9 @@ label {
 
 .weaponButton {
     margin-left: 2px;
+}
+
+.targets {
+    display: flex;
+    padding: 0px 4px;
 }

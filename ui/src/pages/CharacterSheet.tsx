@@ -1,5 +1,5 @@
 import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome } from './CyberClient'
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import './CharacterSheet.css'
 
 
@@ -17,11 +17,10 @@ const roles = {
 }
 
 //TODO:
-//näytä special skill
 //tallenna IP..?
-//luo hahmo
 //FA toimimaan
-//aseet ja chromi taulukkoon (aseet jo esillä, FA toimimaan)
+//shotgun toimimaan
+//thrown toimimaan?
 
 interface UpdateCharacter {
     updateCharacter: () => Promise<void>
@@ -41,6 +40,21 @@ interface RoleInputProps {
 
 const RoleInput = ({edit, value, name, checked,  updateChracterRole}: RoleInputProps) => 
     <input type="radio" value={value} name={name} checked={checked} disabled={!edit} onChange={e => updateChracterRole(e.target.value)}/>
+
+interface ValueChangerProps {
+    baseValue: number
+    onChange: (i: number) => void
+}
+
+const ValueChanger = ({onChange, baseValue}: ValueChangerProps) =>
+    <div className='trianglesSet'>
+        <a onClick={() => onChange(baseValue + 1)}>
+            <div className="triangleUp"></div>
+        </a>
+        <a onClick={() =>  onChange(baseValue - 1)}>
+            <div className="triangleDown"></div>
+        </a>
+    </div>
 
 interface RoleFieldProps {
     value: string
@@ -90,11 +104,11 @@ const Stats = ( {attributes, updateCharacterAttributes, edit}: StatsProps) => {
     const leap = Math.floor(run / 4)
     const liftKg = attributes.BODY * 40 
 
-    interface FooProps {
+    interface EditableStatProps {
         attribute: Attribute
         value: number
     }
-    const Foo = ({attribute, value}: FooProps) => {
+    const EditableStat = ({attribute, value}: EditableStatProps) => {
         const updatedAttributes = (change: number) => {
             switch(attribute) {
                 case Attribute.ATTR:
@@ -143,15 +157,15 @@ const Stats = ( {attributes, updateCharacterAttributes, edit}: StatsProps) => {
         <div className='fieldContainer'>
              <label>STATS</label>
             <div className='stats'>
-                <StatValue field='INT' value={attributes.INT} props={edit ?  <Foo attribute={Attribute.INT} value={attributes.INT}/> : undefined}/>
-                <StatValue field='REF' value={attributes.REF} props={edit ? <Foo attribute={Attribute.REF} value={attributes.REF}/> : undefined}/>
-                <StatValue field='TECH' value={attributes.TECH} props={edit ? <Foo attribute={Attribute.TECH} value={attributes.TECH}/> : undefined}/>
-                <StatValue field='COOL' value={attributes.COOL} props={edit ? <Foo attribute={Attribute.COOL} value={attributes.COOL}/> : undefined}/>
-                <StatValue field='ATTR' value={attributes.ATTR} props={edit ? <Foo attribute={Attribute.ATTR} value={attributes.ATTR}/> : undefined}/>
-                <StatValue field='LUCK' value={attributes.LUCK} props={edit ? <Foo attribute={Attribute.LUCK} value={attributes.LUCK}/> : undefined}/>
-                <StatValue field='MA' value={attributes.MA} props={edit ? <Foo attribute={Attribute.MA} value={attributes.MA}/> : undefined}/>
-                <StatValue field='BODY' value={attributes.BODY} props={edit ? <Foo attribute={Attribute.BODY} value={attributes.BODY}/> : undefined}/>
-                <StatValue field='EMP' value={attributes.EMP} props={edit ? <Foo attribute={Attribute.EMP} value={attributes.EMP}/> : undefined}/>
+                <StatValue field='INT' value={attributes.INT} props={edit ?  <EditableStat attribute={Attribute.INT} value={attributes.INT}/> : undefined}/>
+                <StatValue field='REF' value={attributes.REF} props={edit ? <EditableStat attribute={Attribute.REF} value={attributes.REF}/> : undefined}/>
+                <StatValue field='TECH' value={attributes.TECH} props={edit ? <EditableStat attribute={Attribute.TECH} value={attributes.TECH}/> : undefined}/>
+                <StatValue field='COOL' value={attributes.COOL} props={edit ? <EditableStat attribute={Attribute.COOL} value={attributes.COOL}/> : undefined}/>
+                <StatValue field='ATTR' value={attributes.ATTR} props={edit ? <EditableStat attribute={Attribute.ATTR} value={attributes.ATTR}/> : undefined}/>
+                <StatValue field='LUCK' value={attributes.LUCK} props={edit ? <EditableStat attribute={Attribute.LUCK} value={attributes.LUCK}/> : undefined}/>
+                <StatValue field='MA' value={attributes.MA} props={edit ? <EditableStat attribute={Attribute.MA} value={attributes.MA}/> : undefined}/>
+                <StatValue field='BODY' value={attributes.BODY} props={edit ? <EditableStat attribute={Attribute.BODY} value={attributes.BODY}/> : undefined}/>
+                <StatValue field='EMP' value={attributes.EMP} props={edit ? <EditableStat attribute={Attribute.EMP} value={attributes.EMP}/> : undefined}/>
                 <StatValue field='RUN' value={run} />
                 <StatValue field='Leap' value={leap} />
                 <StatValue field='Lift' value={liftKg} />
@@ -253,7 +267,7 @@ const SkillsByAttributes = ({skills, character, updateCharacter}: SkillsProps ) 
                 </span>
                 {attributesInOrder.map(atr => <SkillsByAttribute updateCharacter={updateCharacter} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
                 <StatValue field='REP' value={2}/>
-                <StatValue field='Current IP' value={0}/> 
+                <StatValue field='Current IP' value={character.ip}/> 
                 <StatValue field='Humanity' value={character.humanity}/>
             </div>
         </div>
@@ -282,6 +296,9 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
     const ammoInfo = isMelee ? '' : `(${weapon.shotsLeft} / ${weapon.clipSize})`
     const [attackType, setAttackType] = useState<AttackType>(defaultAttackType)
     const isFullAuto: boolean = !isMelee && weapon.rof >= 3
+    const isShotgunOrAutomatic = weaponIsGun && weapon.weaponType === WeaponType.Shotgun || weapon.rof >= 3
+    const defaultTargets = isShotgunOrAutomatic ? 1 : undefined
+    const [targets, setTargets] = useState<number | undefined>(defaultTargets)
 
     const InputRow = ({show, onClick, checked, label}: {show: boolean, onClick: () => void, checked: boolean, label: string}) => {
        const inputId = label + weapon.id
@@ -306,8 +323,9 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
         charId: characterId,
         weaponId: weapon.id,
         attackType,
-        attackRange, //TODO
-        attackModifier: 0 //TODO
+        attackRange,
+        attackModifier: 0, //TODO
+        targets
     }
 
     const reloadReq: ReloadReq = {
@@ -350,6 +368,9 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
             <td>
                 <Range weaponIsGun={weaponIsGun} attackRange={attackRange} setAttackRange={setAttackRange}/>
             </td>
+            <td>
+                {isShotgunOrAutomatic && targets !== undefined && <span className='targets'>{targets} <ValueChanger onChange={setTargets} baseValue={targets} /></span>}
+            </td>
         </tr>
     )
 }
@@ -372,6 +393,7 @@ const CharacterWeapons = (
                     <th>Action</th>
                     <th>Attack Type</th>
                     <th>Attack Range</th>
+                    <th>(Optional: Targets)</th>
                 </tr>
                 {weapons.map(w => 
                     <WeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} updateCharacter={updateCharacter} />
@@ -446,22 +468,21 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
     const DmgSetter = ({bodyPart}: DmgSetterProps) => {
         const [dmg, setDmg] = useState(0)
 
+        const updateDmg = (newVal: number) => {
+            if (newVal >= 0) {
+                setDmg(newVal)
+            }
+        }
+
         const dmgReq = {
             charId: characterId,
             bodyPart,
             dmg
         }
 
-        return(
+        return( //FIX DMG
             <div className='dmgSetter'>
-                <div className='trianglesSet'>
-                    <a onClick={() => setDmg(dmg + 1)}>
-                        <div className="triangleUp"></div>
-                    </a>
-                    <a onClick={() => dmg > 0 && setDmg(dmg - 1)}>
-                        <div className="triangleDown"></div>
-                    </a>
-                </div>
+                <ValueChanger onChange={updateDmg} baseValue={dmg}/>
                 <button className='dmgSetterButton' disabled={dmg === 0} onClick={() => doDmg(dmgReq).then(logs => {
                     setDmg(0)
                     updateLogsAndCharacter(logs)
@@ -575,14 +596,7 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, updateC
                     <div className='boxValue'>
                         {btm}
                         {edit &&
-                            <div className='trianglesSet'>
-                                <a onClick={() => updateCharacterBTM(btm +1)}>
-                                    <div className="triangleUp"></div>
-                                </a>
-                                <a onClick={() => updateCharacterBTM(btm - 1)}>
-                                    <div className="triangleDown"></div>
-                                </a>
-                            </div>
+                            <ValueChanger onChange={updateCharacterBTM} baseValue={btm}/>
                         }
                     </div>
                 </div>
@@ -602,14 +616,7 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, updateC
                         <FourDmgBoxes upper='Mortal 6' lower='Stun 9' boxesTicked={resolveTicks(36, 40)}/>
                     </div>
                     <div className='healContainer'>
-                        <div className='trianglesSet'>
-                                <a onClick={() => setHealAmount(healAmount + 1)}>
-                                    <div className="triangleUp"></div>
-                                </a>
-                                <a onClick={() => healAmount > 1 && setHealAmount(healAmount - 1)}>
-                                    <div className="triangleDown"></div>
-                                </a>
-                        </div>
+                        <ValueChanger onChange={setHealAmount} baseValue={healAmount}/>
                         <button onClick={() => {
                             heal(healReq).then(updateLogsAndCharacter)
                             setHealAmount(1)
@@ -727,7 +734,7 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
         
 
     return(
-        <div className='main'>
+        <div className='sheet'>
             <TextField edit={edit} fieldName='HANDLE' value={character.name} onUpdate={updateCharacterName}/>
             <RoleFiled updateChracterRole={updateCharacterRole} edit={edit} value={character.role}/>
             <Stats edit={edit} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>

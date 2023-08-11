@@ -6,7 +6,7 @@ from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToI
     COOL, ATTR, LUCK, MA, BODY, EMP, body_part_l_arm, body_part_body, body_part_head, body_part_r_arm, t_melee, \
     t_handgun, t_shotgun, t_rifle, t_thrown, t_smg, con_pocket, con_long_coat, con_jacket, not_hideable, yes_no, \
     body_part_l_leg, body_part_r_leg, printGreenLine
-from src.logger import log_event, log_pos
+from logger import log_event, log_pos
 
 
 def rollAtr():

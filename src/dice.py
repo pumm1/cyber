@@ -2,7 +2,7 @@ import math
 import random
 
 from gameHelper import safeCastToInt, askInput, roll_str, printGreenLine, printRedLine
-from src.logger import Log, log_event, log_pos, log_neg
+from logger import Log, log_event, log_pos, log_neg
 
 
 def roll(n, d_die, divide_by=1, bonus=0):
