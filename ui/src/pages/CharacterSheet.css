@@ -260,6 +260,14 @@ label {
     margin-left: 2px;
 }
 
+.ipToAdd {
+    display: flex;
+}
+
+.ipButton {
+    margin-left: 8px;
+}
+
 .targets {
     display: flex;
     padding: 0px 4px;

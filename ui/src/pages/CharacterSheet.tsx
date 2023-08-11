@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
 
@@ -19,7 +19,7 @@ const roles = {
 //TODO:
 //tallenna IP..?
 //FA toimimaan
-//shotgun toimimaan
+//opt LUCK skilleihin
 //thrown toimimaan?
 
 interface UpdateCharacter {
@@ -226,10 +226,9 @@ const SkillRowByCharacterSkills = ({skill, characterSkills, charId, updateCharac
     )
 }
 
-interface SkillsProps {
+interface SkillsProps extends UpdateCharacterAndLogs {
     skills: Skill[]
     character: Character
-    updateCharacter: () => Promise<void>
 }
 
 interface SkillsByAttributeProps extends SkillsProps{
@@ -243,7 +242,12 @@ const SkillsByAttribute = ({attribute, skills, characterSkills, character, updat
         {skills.filter(s => s.attribute === attribute).map(s => <SkillRowByCharacterSkills skill={s} characterSkills={characterSkills} charId={character.id} updateCharacter={updateCharacter}/>)}
     </span>
 
-const SkillsByAttributes = ({skills, character, updateCharacter}: SkillsProps ) => {
+const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: SkillsProps ) => {
+    const updateLogsAndCharacter = (resLogs: Log[]) => {
+        updateLogs(resLogs)
+        updateCharacter()
+    }
+
     const spceialSkill: Skill = {
         skill: character.specialAbility,
         attribute:  Attribute.REF, //TODO
@@ -256,6 +260,16 @@ const SkillsByAttributes = ({skills, character, updateCharacter}: SkillsProps ) 
         skillId: spceialSkill.id,
         addedLuck: 0
     }
+    const [ipToAdd, setIpToadd] = useState(0)
+
+    const ipReq: UpdateIPReq = {
+        charId: character.id,
+        ipAmount: ipToAdd
+    }
+    const updateIp = () => {
+        updateIP(ipReq).then(updateLogsAndCharacter).then(() => setIpToadd(0))
+    }
+
    return (
     <>
         <label>Skills</label>
@@ -265,9 +279,14 @@ const SkillsByAttributes = ({skills, character, updateCharacter}: SkillsProps ) 
                     <b>Special ability</b>
                     <SkillRow roll={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={spceialSkill} />
                 </span>
-                {attributesInOrder.map(atr => <SkillsByAttribute updateCharacter={updateCharacter} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
+                {attributesInOrder.map(atr => <SkillsByAttribute updateCharacter={updateCharacter} updateLogs={updateLogs} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
                 <StatValue field='REP' value={2}/>
-                <StatValue field='Current IP' value={character.ip}/> 
+                <span className='ipToAdd'>
+                    <StatValue field='Current IP' value={character.ip}/>
+                    ({ipToAdd})
+                    <ValueChanger onChange={setIpToadd} baseValue={ipToAdd} />
+                    <button className='ipButton' disabled={ipToAdd === 0} onClick={updateIp}>Change IP</button>
+                </span>
                 <StatValue field='Humanity' value={character.humanity}/>
             </div>
         </div>
@@ -741,7 +760,7 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
             {!edit && <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter} updateLogs={updateLogs}/>}
             <SaveAndHealthRow updateCharacterBTM={updateCharacterBTM} edit={edit} character={character} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
             {edit && <SaveNewCharacter />}
-            {allSkills && !edit && <SkillsByAttributes skills={allSkills} character={character} updateCharacter={updateCharacter}/>}
+            {allSkills && !edit && <SkillsByAttributes updateLogs={updateLogs} skills={allSkills} character={character} updateCharacter={updateCharacter}/>}
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
             <CharacterChrome charChrome={character.chrome}/>
         </div>

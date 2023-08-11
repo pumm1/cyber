@@ -1,7 +1,7 @@
 import cyberdao as DAO
-from logger import log_event, log_pos, log_neg
+from logger import log_event, log_pos, log_neg, Log
 
-def saveIP(character_id, ipAmount):
+def saveIP(character_id, ipAmount) -> list(Log):
     logs = []
     character = DAO.getCharacterById(character_id)
     if character is not None:

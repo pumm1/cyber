@@ -37,7 +37,6 @@ def createCharacter():
         role = data['role']
         body_type = data['btm']
 
-        print(f"... data for create character: {data}")
         return jsonify(
             characterBuilder.createCharacterFromReq(name, role, body_type, attributes)
         )

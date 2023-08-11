@@ -263,3 +263,11 @@ export interface CreateCharacterReq {
 export const createCharacter = (c: CreateCharacterReq) =>
     postDataAs<Log[]>(`${pathBase}/create-character`, c)
 
+export interface UpdateIPReq {
+    charId: number
+    ipAmount: number
+}
+
+export const updateIP = (ipReq: UpdateIPReq) => 
+    postDataAs<Log[]>(`${pathBase}/save-ip`, ipReq)
+
