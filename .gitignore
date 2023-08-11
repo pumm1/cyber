@@ -8,7 +8,6 @@ ui/node_modules/
 ui/.cache/
 ui/public
 ui/src/gatsby-types.d.ts
-ui/package.json
 ui/package-lock.json
 # C extensions
 *.so
