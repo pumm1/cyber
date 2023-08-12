@@ -367,6 +367,10 @@ def handleFullAuto(character, wep, skill_bonus, skill, attack_range=0, num_of_ta
 
         targets_hit = 0
         total_hits = 0
+        #test one roll for whole full auto attack
+        if roll <= 0:
+            roll = dice.resolveAutoOrManualRollWithCrit(auto_roll=auto_roll, skip_luck=skip_luck)
+        roll_total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa
         for target in range(num_of_targets):
             t = target + 1
             logs = log_event(logs, f'Rolling attack for target {t} / {num_of_targets}', log_neutral)
@@ -381,14 +385,12 @@ def handleFullAuto(character, wep, skill_bonus, skill, attack_range=0, num_of_ta
             if modifiers_total is None:
                 modifiers_total = modifiersForTarget(t)
             target_total_dmg = 0
-            if roll <= 0:
-                roll = dice.resolveAutoOrManualRollWithCrit(auto_roll=auto_roll, skip_luck=skip_luck)
             (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
             if not (r == close_range_str or r == point_blank_range_str):
                 range_bonus = -1 * range_bonus
             #last minus is balancing test. more targts = more sway in aiming
             sway_balance = 3 * target
-            roll_total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa - sway_balance
+            roll_total = roll_total - sway_balance
             num_of_hits = 0
             logs = log_event(
                 logs,
