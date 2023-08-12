@@ -91,7 +91,12 @@ def attack():
         attack_range = data['attackRange']
         attack_modifier = data['attackModifier']
         targets: int = data.get('targets', 1)
-        return jsonify(combat.characterAttackByCharacterAndWeaponId(char_id, weapon_id, attack_type, attack_range, attack_modifier, targets=targets)) #TODO
+        shots_fired = data.get('shotsFired', 1)
+        return jsonify(
+            combat.characterAttackByCharacterAndWeaponId(
+                char_id, weapon_id, attack_type, attack_range, attack_modifier=attack_modifier, targets=targets, shots_fired=shots_fired
+            )
+        )
     else:
         return "Invalid request", 400
 

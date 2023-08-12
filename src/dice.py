@@ -29,13 +29,17 @@ def diceToStr(n, d_die, divide_by, bonus) -> str:
 
     return str
 
-def resolveAutoOrManualRollWithCrit():
-    print(f'{roll_str} or give roll:')
+def resolveAutoOrManualRollWithCrit(auto_roll=False, skip_luck=False):
     roll = 0
+    i = ''
     while roll <= 0:
-        i = askInput()
+        if auto_roll is False:
+            print(f'{roll_str} or give roll:')
+            i = askInput()
+        else:
+            i = roll_str
         if i == roll_str:
-            (roll, _) = rollWithCrit()
+            (roll, _) = rollWithCrit(skip_luck)
         else:
             roll = safeCastToInt(i)
     return roll

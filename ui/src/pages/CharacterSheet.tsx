@@ -314,10 +314,12 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
     const defaultAttackType = isMelee ? AttackType.Melee : AttackType.Single
     const ammoInfo = isMelee ? '' : `(${weapon.shotsLeft} / ${weapon.clipSize})`
     const [attackType, setAttackType] = useState<AttackType>(defaultAttackType)
-    const isFullAuto: boolean = !isMelee && weapon.rof >= 3
+    const isFullAuto: boolean = weaponIsGun && weapon.rof >= 3
     const isShotgunOrAutomatic = weaponIsGun && weapon.weaponType === WeaponType.Shotgun || weapon.rof >= 3
     const defaultTargets = isShotgunOrAutomatic ? 1 : undefined
     const [targets, setTargets] = useState<number | undefined>(defaultTargets)
+    const defaultShotsFired = isFullAuto ? 1 : undefined
+    const [shotsFired, setShotsFired] = useState<number | undefined>(defaultShotsFired)
 
     const InputRow = ({show, onClick, checked, label}: {show: boolean, onClick: () => void, checked: boolean, label: string}) => {
        const inputId = label + weapon.id
@@ -344,7 +346,8 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
         attackType,
         attackRange,
         attackModifier: 0, //TODO
-        targets
+        targets,
+        shotsFired
     }
 
     const reloadReq: ReloadReq = {
@@ -388,7 +391,15 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
                 <Range weaponIsGun={weaponIsGun} attackRange={attackRange} setAttackRange={setAttackRange}/>
             </td>
             <td>
-                {isShotgunOrAutomatic && targets !== undefined && <span className='targets'>{targets} <ValueChanger onChange={setTargets} baseValue={targets} /></span>}
+                {isShotgunOrAutomatic && targets !== undefined && 
+                    <span className='attackMod'>
+                        {targets} <ValueChanger onChange={setTargets} baseValue={targets} />
+                    </span>}
+            </td>
+            <td>
+                {isFullAuto && shotsFired && 
+                    <span className='attackMod'>{shotsFired}<ValueChanger onChange={setShotsFired} baseValue={shotsFired}/> </span>
+                }
             </td>
         </tr>
     )
@@ -412,7 +423,8 @@ const CharacterWeapons = (
                     <th>Action</th>
                     <th>Attack Type</th>
                     <th>Attack Range</th>
-                    <th>(Optional: Targets)</th>
+                    <th>(Opt: targets)</th>
+                    <th>(Opt: #shots)</th>
                 </tr>
                 {weapons.map(w => 
                     <WeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} updateCharacter={updateCharacter} />

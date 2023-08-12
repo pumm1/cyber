@@ -193,6 +193,7 @@ export interface AttackReq extends WeaponReq {
     attackRange: number
     attackModifier: number
     targets?: number
+    shotsFired?: number
 }
 
 export enum LogType {

@@ -97,7 +97,7 @@ def weapon_info(wep):
         )
 
 
-def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, attack_range, attack_modifier, targets):
+def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, attack_range, attack_modifier, targets, shots_fired=1):
     character = DAO.getCharacterById(character_id)
     result_logs = []
     if character is not None:
@@ -139,10 +139,19 @@ def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, 
                     skip_luck=True,
                     auto_roll=True
                 )
-            else:
-                not_supported = Log(f'Attack type {attack_type} not supported yet for NET', log_neutral)
-                not_supported.log()
-                result_logs.append(not_supported.toJson())
+            elif attack_type == attack_type_full_auto:
+                result_logs = handleFullAuto(
+                    character=character,
+                    wep=wep,
+                    num_of_shots=shots_fired,
+                    num_of_targets=targets,
+                    attack_range=attack_range,
+                    skill_bonus=skill_bonus,
+                    skill=skill,
+                    modifiers_total=attack_modifier,
+                    auto_roll=True,
+                    skip_luck=True
+                )
         else:
             wep_not_found = Log(f'Weapon not found [character_id = {character_id}, weapon_id = {weapon_id}]', log_neg)
             wep_not_found.log()
@@ -320,8 +329,9 @@ def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
     return (skill_bonus, skill)
 
 
-def handleFullAuto(character, wep, skill_bonus, skill):
-    print(f'Trying full auto attack with {wep.item}')
+def handleFullAuto(character, wep, skill_bonus, skill, attack_range=0, num_of_targets=0, num_of_shots=0, roll=0, modifiers_total=None, auto_roll=False, skip_luck=False) -> list[Log]:
+    logs = []
+    logs = log_event(logs, f'Trying full auto attack with {wep.item}', log_neutral)
     shots_left = wep.shots_left
     weapon_can_attack = True
     if wep.isGun() and wep.rof > 2:
@@ -329,29 +339,29 @@ def handleFullAuto(character, wep, skill_bonus, skill):
             weapon_can_attack = False
 
     if weapon_can_attack:
-        print('How many shots fired? (> 1)')
-        num_of_shots = 0
-        while True:
-            input = askInput()
-            num_of_shots = safeCastToInt(input)
-            if num_of_shots > 1:
-                break
+        if num_of_shots <= 0:
+            print('How many shots fired? (> 1)')
+            while True:
+                input = askInput()
+                num_of_shots = safeCastToInt(input)
+                if num_of_shots > 1:
+                    break
         if num_of_shots > wep.rof:
             num_of_shots = wep.rof
         if num_of_shots > shots_left:
             num_of_shots = shots_left
-        print(f'Num of shots: {num_of_shots}')
-        print('How many targets?')
-        num_of_targets = 0
-        # multiple targets = divide shots for each
-        while True:
-            input = askInput()
-            num_of_targets = safeCastToInt(input)
-            if num_of_targets > 0:
-                break
+        logs = log_event(logs, f'Num of shots actually fired: {num_of_shots}', log_neutral)
+        if num_of_targets <= 0:
+            print('How many targets?')
+            # multiple targets = divide shots for each
+            while True:
+                input = askInput()
+                num_of_targets = safeCastToInt(input)
+                if num_of_targets > 0:
+                    break
         ref_bonus = character.attributes[REF]
         range_bonus = math.ceil(num_of_shots / 10)
-        shots_per_target = math.ceil(num_of_shots / num_of_targets)
+        shots_per_target = math.floor(num_of_shots / num_of_targets)
 
         shots_left_after_firing = wep.shots_left - num_of_shots
 
@@ -359,31 +369,37 @@ def handleFullAuto(character, wep, skill_bonus, skill):
         total_hits = 0
         for target in range(num_of_targets):
             t = target + 1
-            print(f'Rolling attack for target {t} / {num_of_targets}')
-            print(f'Give range for target {t}:')
-            attack_range = 0
-            while True:
-                i = askInput()
-                attack_range = safeCastToInt(i)
-                if attack_range > 0:
-                    break
+            logs = log_event(logs, f'Rolling attack for target {t} / {num_of_targets}', log_neutral)
+            if attack_range <= 0:
+                print(f'Give range for target {t}:')
+                while True:
+                    i = askInput()
+                    attack_range = safeCastToInt(i)
+                    if attack_range > 0:
+                        break
 
-            modifiers_total = modifiersForTarget(t)
+            if modifiers_total is None:
+                modifiers_total = modifiersForTarget(t)
             target_total_dmg = 0
-            roll = dice.resolveAutoOrManualRollWithCrit()
+            if roll <= 0:
+                roll = dice.resolveAutoOrManualRollWithCrit(auto_roll=auto_roll, skip_luck=skip_luck)
             (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
             if not (r == close_range_str or r == point_blank_range_str):
                 range_bonus = -1 * range_bonus
-            total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa
+            #last minus is balancing test. more targts = more sway in aiming
+            sway_balance = 3 * target
+            roll_total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa - sway_balance
             num_of_hits = 0
-            print(
-                f'{rollToBeatStr(roll_to_beat, total)} '
-                f'[roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), range bonus = {range_bonus} WA = {wep.wa}]'
+            logs = log_event(
+                logs,
+                f'{rollToBeatStr(roll_to_beat, roll_total)} '
+                f'[roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), range bonus = {range_bonus}, WA = {wep.wa}, target sway_balance = {sway_balance}]',
+                log_neutral
             )
 
-            if total >= roll_to_beat:
+            if roll_total >= roll_to_beat:
                 targets_hit = targets_hit + 1
-                num_of_hits = total - roll_to_beat
+                num_of_hits = roll_total - roll_to_beat
                 if num_of_hits >= shots_per_target:
                     num_of_hits = shots_per_target
                 if num_of_hits <= 0:
@@ -391,20 +407,23 @@ def handleFullAuto(character, wep, skill_bonus, skill):
 
                 total_hits = total_hits + num_of_hits
 
-                printGreenLine(f'Target {t} hit {num_of_hits} times!')
+                logs = log_event(logs, f'Target {t} hit {num_of_hits} times!', log_pos)
 
                 for i in range(num_of_hits):
-                    (dmg, _) = hitDmg(wep, attack_range)
+                    (dmg, dmg_logs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
+                    logs = logs + dmg_logs
                     target_total_dmg = target_total_dmg + dmg
-                printGreenLine(f'Total dmg done to target [{t}]: {target_total_dmg}')
+                logs = log_event(logs, f'Total dmg done to target [{t}]: {target_total_dmg}', log_pos)
 
             else:
-                printRedLine(f'Full auto missed target {t}!')
+                logs = log_event(logs, f'Full auto missed target {t}!', log_neg)
 
             DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
-        printGreenLine(f'{num_of_shots} shots fired in full auto with {wep.item} hitting {total_hits} times')
+        logs = log_event(logs, f'{num_of_shots} shots fired in full auto with {wep.item} hitting {total_hits} times', log_neutral)
     else:
-        printRedLine(f"Can't attack with {wep.item} [{wep.shots_left} / {wep.clip_size}]")
+        logs = log_event(logs, f"Can't attack with {wep.item} [{wep.shots_left} / {wep.clip_size}]", log_neg)
+
+    return logs
 
 
 def rollToBeatStr(to_beat, total):
@@ -546,13 +565,13 @@ def hitDmg(wep, attack_range, targets=1, auto_roll=False) -> (int, list[Log]):
             dmg += t_dmg
 
     else:
-        (dmg, hitDmgLog) = handleWeaponDmgAndHit(wep, auto_roll)
-        log_events.append(hitDmgLog.toJson())
+        (dmg, hitDmgLogs) = handleWeaponDmgAndHit(wep, auto_roll)
+        log_events = log_events + hitDmgLogs
 
     return (dmg, log_events)
 
 
-def handleWeaponDmgAndHit(wep, auto_roll) -> (int, Log):
+def handleWeaponDmgAndHit(wep, auto_roll) -> (int, list[Log]):
     dmg = 0
     while True:
         input = ''
