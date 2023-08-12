@@ -1,0 +1,36 @@
+.grenadeComponent {
+    margin-top: 8px;
+}
+
+.info {
+    margin-top: 4px;
+}
+.grenadeTable {
+    margin-top: 8px;
+    max-width: 200px;
+}
+
+.tableContainer {
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 5px;
+    justify-content: center;
+    align-content: center;
+}
+
+.tableContainer span {
+    border: solid black 4px;
+    display: grid;
+    align-content: center;
+    text-align: center;
+    aspect-ratio: 1;
+}
+
+.missContainer {
+    padding-top: 4px;
+}
+
+.miss {
+    display: flex;
+}

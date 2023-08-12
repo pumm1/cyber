@@ -1,11 +1,11 @@
 import * as React from "react"
 import type { HeadFC, PageProps } from "gatsby"
-import Dice from "./Dice"
 import SearchOrCreateCharacter from "./SearchOrCreateCharacter"
 import './index.css'
 import LogViewer from "./LogViewer"
 import { useState } from "react"
 import { Log, LogType } from "./CyberClient"
+import GrenadeTable from "./GrenadeTable"
 
 
 const IndexPage: React.FC<PageProps> = () => {
@@ -24,9 +24,9 @@ const IndexPage: React.FC<PageProps> = () => {
     <div className='main'>
       <h1>Welcome to the NET</h1>
       <div className='container'>
-        <Dice/>
         <SearchOrCreateCharacter updateLogs={updateLogs}/>
         <LogViewer logs={logs} addToLogs={addToLogs}/>
+        <GrenadeTable />
       </div>
     </div>
   )

@@ -1,7 +1,6 @@
 .diceContainer {
-    margin-bottom: 16px;
     padding-bottom: 8px;
-    border-bottom: solid;
+    margin-left: 4px;
 }
 
 .dice {

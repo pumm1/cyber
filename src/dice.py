@@ -5,7 +5,7 @@ from gameHelper import safeCastToInt, askInput, roll_str, printGreenLine, printR
 from logger import Log, log_event, log_pos, log_neg
 
 
-def roll(n, d_die, divide_by=1, bonus=0):
+def roll(n, d_die, divide_by=1, bonus=0) -> int:
     if divide_by == 0:
         divide_by = 1
     res = 0

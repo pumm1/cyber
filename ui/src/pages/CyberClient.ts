@@ -160,8 +160,12 @@ export interface Character {
 export const getCharacter = (name: string) =>
     fetchData(`${pathBase}/char?name=${name}`).then(res => res as Character)
 
-export const rollDice = () => 
-    fetchData(`${pathBase}/roll`)
+export interface RollReq {
+    numberOfDice: number
+    dDie: number
+}
+export const rollDice = (r: RollReq) => 
+    postDataAs<number>(`${pathBase}/roll`, r)
 
 
 export const listSkills = () => 

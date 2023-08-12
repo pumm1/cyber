@@ -1,18 +1,20 @@
 import { useState } from "react"
-import { rollDice } from "./CyberClient"
+import { RollReq, rollDice } from "./CyberClient"
 import React from "react"
 import './Dice.css'
 
-const Dice = () => {
+
+const Dice = ({numberOfDice, dDie}: RollReq) => {
     const [roll, setRoll] = useState<undefined | number>(undefined)
 
+    const rollReq: RollReq = {numberOfDice, dDie}
     return (
         <div className='diceContainer'>
             <span className='dice'>
-                <button onClick={() => rollDice().then(res => setRoll(res))}>
-                    ROLL
+                <button onClick={() => rollDice(rollReq).then(res => setRoll(res))}>
+                    ROLL [{numberOfDice}D{dDie}]
                 </button>
-                {roll !== undefined && <div className='result'>Roll: {roll}</div>}
+                {roll !== undefined && <div className='result'>{roll}</div>}
             </span>
         </div>
     )

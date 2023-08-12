@@ -43,10 +43,13 @@ def createCharacter():
     else:
         return "Invalid request", 400
 
-@app.route('/roll', methods = ['GET'])
+@app.route('/roll', methods = ['POST'])
 def roll():
-    if (request.method == 'GET'):
-        (dice_roll_res, _) = dice.rollWithCrit(skip_luck=True)
+    if (request.method == 'POST'):
+        data = request.get_json()
+        n = data.get('numberOfDice', 1)
+        d_die = data.get('dDie', 10)
+        dice_roll_res = dice.roll(n, d_die)
         return jsonify(dice_roll_res)
     else:
         return "Invalid request", 400
@@ -56,7 +59,6 @@ def roll():
 def rollSkill():
     if (request.method == 'POST'):
         data = request.get_json()
-        print(f'..... data: {data} ... request: {request}')
         char_id = data['charId']
         skill_id = data['skillId']
         added_luck = data['addedLuck']
