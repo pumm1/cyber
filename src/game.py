@@ -202,7 +202,7 @@ def start():
         elif command.startswith(add_weapon_str):
             match command_parts:
                 case [_, name]:
-                    weapon.addChracterWeapon(name)
+                    weapon.addChracterWeaponByName(name)
                 case _:
                     print(add_weapon_help_str)
         elif command.startswith(add_chrome_str):

@@ -18,6 +18,10 @@ button:disabled {
     opacity: 1;
 }
 
+label {
+    margin-right: 4px;
+}
+
 .main {
     padding: 16px 8px;
     font-family: monospace;

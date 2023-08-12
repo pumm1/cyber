@@ -60,21 +60,22 @@ def addChromeWithHumanityCost(character, item, descr, item_bonus_id: int | None 
     DAO.addChrome(character.id, item, humanity_cost, descr, item_bonus_id, atr_bonuses, skill_bonuses)
 
 
-def handleHumanity(char):
+def handleHumanity(char, humanity_cost=None):
     print(f'Reduce humanity for chrome ({roll_str} or <amount>)')
-    humanity_cost = 0
-    while True:
-        i = askInput()
-        if i == roll_str:
-            (dice, die, divide_by, bonus) = askForRoll()
-            humanity_cost = roll(dice, die, divide_by) + bonus
-            print(f'Rolled {humanity_cost}')
-            break
-        else:
-            cost = safeCastToInt(i)
-            if cost > 0:
-                humanity_cost = cost
+    if humanity_cost is None:
+        humanity_cost = 0
+        while True:
+            i = askInput()
+            if i == roll_str:
+                (dice, die, divide_by, bonus) = askForRoll()
+                humanity_cost = roll(dice, die, divide_by) + bonus
+                print(f'Rolled {humanity_cost}')
                 break
+            else:
+                cost = safeCastToInt(i)
+                if cost > 0:
+                    humanity_cost = cost
+                    break
 
     curr_hum = char.humanity
     t_hum = curr_hum - humanity_cost

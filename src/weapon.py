@@ -8,6 +8,8 @@ from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handg
 import dice
 import cyberdao as DAO
 from chrome import handleHumanity
+from logger import Log, log_event, log_pos, log_neg
+from character import Character
 
 
 class Weapon:
@@ -155,34 +157,80 @@ class Weapon:
 
     def isThrown(self) -> bool:
         return self.weapon_type == t_thrown
-def addChracterWeapon(character_name):
-    char = DAO.getCharacterByName(character_name)
+
+def addCharWeapon(char: Character, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None, humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None)-> list[Log]:
+    logs = []
     if char is not None:
-        print(f'Give weapon name:')
-        weapon_name = askInput()
-        (weapon_t, clip_size) = askWeaponType()
+        if weapon_name is None:
+            print(f'Give weapon name:')
+            weapon_name = askInput()
+        if clip_size is None or weapon_t is None:
+            (weapon_t, clip_size) = askWeaponType()
         weapon_range = rangeByType(char, weapon_t)
-        is_chrome = askForChrome()
-        print('Give effect radius (e.g. explosives)')
-        r = askInput()
-        effect_radius = safeCastToInt(r)
-        rof = 1
-        if guns.__contains__(weapon_t):
+        is_chrome = False
+        if humanity_cost is None:
+            is_chrome = askForChrome()
+        elif humanity_cost > 0:
+            is_chrome = True
+        if effect_radius is None:
+            print('Give effect radius (e.g. explosives)')
+            r = askInput()
+            effect_radius = safeCastToInt(r)
+        if rof is None:
+            rof = 1
             rof = askRof()
 
-        wa = askWa()
-        con = askCon()
-        reliability = askReliability()
-        weight = askWeight()
+        if wa is None:
+            wa = askWa()
+        if con is None:
+            con = askCon()
+        if reliability is None:
+            reliability = askReliability()
+        if weight is None:
+            weight = askWeight()
 
-        (dice, die, divide_by, bonus) = askForRoll()
+        if dice is None or die is None or divide_by is None or bonus is None:
+            (dice, die, divide_by, bonus) = askForRoll()
 
         DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, divide_by, bonus, weapon_range, rof, clip_size,
                       effect_radius, wa, con, reliability, weight)
         if is_chrome:
             handleHumanity(char)
 
-        print('Weapon added!')
+        logs = log_event(logs, 'Weapon added!', log_pos)
+    else:
+        logs = log_event(logs, 'Character not found for weapon add', log_neg)
+
+    return logs
+
+
+def addCharacterWeaponById(
+        character_id, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None,
+        humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None
+) -> list[Log]:
+    char = DAO.getCharacterById(
+        character_id,
+        dice=dice,
+        die=die,
+        divide_by=divide_by,
+        bonus=bonus,
+        weapon_name=weapon_name,
+        clip_size=clip_size,
+        rof=rof,
+        humanity_cost=humanity_cost,
+        weapon_t=weapon_t,
+        wa=wa,
+        con=con,
+        weight=weight,
+        reliability=reliability,
+        effect_radius=effect_radius
+    )
+    logs = addCharWeapon(char)
+    return logs
+
+def addChracterWeaponByName(character_name):
+    char = DAO.getCharacterByName(character_name)
+    addCharWeapon(char)
 
 
 def askRof() -> int:

@@ -1,6 +1,8 @@
 import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
+import { AddWeapon } from './AddWeapon'
+import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 
 
 const roles = {
@@ -41,20 +43,6 @@ interface RoleInputProps {
 const RoleInput = ({edit, value, name, checked,  updateChracterRole}: RoleInputProps) => 
     <input type="radio" value={value} name={name} checked={checked} disabled={!edit} onChange={e => updateChracterRole(e.target.value)}/>
 
-interface ValueChangerProps {
-    baseValue: number
-    onChange: (i: number) => void
-}
-
-const ValueChanger = ({onChange, baseValue}: ValueChangerProps) =>
-    <div className='trianglesSet'>
-        <a onClick={() => onChange(baseValue + 1)}>
-            <div className="triangleUp"></div>
-        </a>
-        <a onClick={() =>  onChange(baseValue - 1)}>
-            <div className="triangleDown"></div>
-        </a>
-    </div>
 
 interface RoleFieldProps {
     value: string
@@ -515,12 +503,6 @@ interface GridBoxProps {
     otherElement?: JSX.Element
 }
 
-const updateNumWithLowerLimit = (newValue: number, limit: number, setter: (i: number) => void) => {
-    if (newValue >= limit) {
-        setter(newValue)
-    }
-}
-
 const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFieldProps) => {
     const updateLogsAndCharacter = (resLogs: Log[]) => {
         updateLogs(resLogs)
@@ -807,6 +789,7 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
             <SaveAndHealthRow updateCharacterBTM={updateCharacterBTM} edit={edit} character={character} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
             {edit && <SaveNewCharacter />}
             {allSkills && !edit && <SkillsByAttributes updateLogs={updateLogs} skills={allSkills} character={character} updateCharacter={updateCharacter}/>}
+            <AddWeapon characterId={character.id}/>
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
             <CharacterChrome charChrome={character.chrome}/>
         </div>

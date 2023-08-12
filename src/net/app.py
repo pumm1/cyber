@@ -17,10 +17,13 @@ sys.path.append(parent)
 
 # now we can import the module in the parent
 # directory.
-import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip
+import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip, weapon
 
 app = Flask(__name__)
 CORS(app)
+
+post = 'POST'
+get = 'GET'
 
 @app.route('/test')
 def hello():
@@ -28,9 +31,9 @@ def hello():
 
 
 #TODO
-@app.route('/create-character', methods = ['POST'])
+@app.route('/create-character', methods = [post])
 def createCharacter():
-    if (request.method == 'POST'):
+    if request.method == post:
         data = request.get_json()
         attributes = data['attributes']
         name = data['name']
@@ -43,9 +46,9 @@ def createCharacter():
     else:
         return "Invalid request", 400
 
-@app.route('/roll', methods = ['POST'])
+@app.route('/roll', methods = [post])
 def roll():
-    if (request.method == 'POST'):
+    if request.method == post:
         data = request.get_json()
         n = data.get('numberOfDice', 1)
         d_die = data.get('dDie', 10)
@@ -55,9 +58,9 @@ def roll():
         return "Invalid request", 400
 
 
-@app.route('/roll-skill', methods = ['POST'])
+@app.route('/roll-skill', methods = [post])
 def rollSkill():
-    if (request.method == 'POST'):
+    if request.method == post:
         data = request.get_json()
         char_id = data['charId']
         skill_id = data['skillId']
@@ -67,24 +70,24 @@ def rollSkill():
     else:
         return "Invalid request", 400
 
-@app.route('/char', methods = ['GET'])
+@app.route('/char', methods = [get])
 def getChar():
-    if (request.method == 'GET'):
+    if request.method == get:
         name = request.args.get('name')
         return jsonify(game.getCharacter(name))
     else:
         return "Invalid request", 400
 
-@app.route('/list-skills', methods = ['GET'])
+@app.route('/list-skills', methods = [get])
 def listSkills():
-    if (request.method == 'GET'):
+    if request.method == get:
         return jsonify(skills.fetchAllSkils())
     else:
         return "Invalid request", 400
 
-@app.route('/attack', methods = ['POST'])
+@app.route('/attack', methods = [post])
 def attack():
-    if (request.method == 'POST'):
+    if request.method == post:
         data = request.get_json()
         print(f'..... data: {data}')
         weapon_id = data['weaponId']
@@ -103,9 +106,9 @@ def attack():
     else:
         return "Invalid request", 400
 
-@app.route('/reload', methods = ['POST'])
+@app.route('/reload', methods = [post])
 def reload():
-    if (request.method == 'POST'):
+    if request.method == post:
         data = request.get_json()
         weapon_id = data['weaponId']
         shots = data['shots']
@@ -113,17 +116,17 @@ def reload():
     else:
         return "Invalid request", 400
 
-@app.route('/repair-sp', methods = ['POST'])
+@app.route('/repair-sp', methods = [post])
 def repairSP():
-    if (request.method == 'POST'):
+    if request.method == post:
         char_id = request.get_json()
         return jsonify(armor.repairSPById(char_id)), 200
     else:
         return "Invalid request", 400
 
-@app.route('/heal', methods = ['POST'])
+@app.route('/heal', methods = [post])
 def heal():
-    if (request.method == 'POST'):
+    if request.method == post:
         data = request.get_json()
         char_id = data['charId']
         amount = data['amount']
@@ -132,9 +135,9 @@ def heal():
     else:
         return "Invalid request", 400
 
-@app.route('/lvl-up', methods = ['POST'])
+@app.route('/lvl-up', methods = [post])
 def lvlUp():
-    if (request.method == 'POST'):
+    if request.method == post:
         data = request.get_json()
         char_id = data['charId']
         skill_id = data['skillId']
@@ -144,9 +147,9 @@ def lvlUp():
     else:
         return "Invalid request", 400
 
-@app.route('/dmg', methods = ['POST'])
+@app.route('/dmg', methods = [post])
 def dmg():
-    if (request.method == 'POST'):
+    if request.method == post:
         data = request.get_json()
         char_id = data['charId']
         body_part = data['bodyPart']
@@ -157,9 +160,9 @@ def dmg():
     else:
         return "Invalid request", 400
 
-@app.route('/save-ip', methods = ['POST'])
+@app.route('/save-ip', methods = [post])
 def saveIP():
-    if (request.method == 'POST'):
+    if request.method == post:
         data = request.get_json()
         char_id = data['charId']
         ipAmount = data['ipAmount']
@@ -168,3 +171,34 @@ def saveIP():
         return jsonify(res)
     else:
         return "Invalid request", 400
+
+@app.route('/add-weapon', methods = [post])
+def addWeapon():
+    """
+    character_id, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None,
+    humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None
+    :return:
+    """
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        item = data['item']
+        weapon_type = data['weaponType']
+        dice_num = data['diceNum']
+        die = data['die']
+        dmg_bonus = data['dmgBonus']
+        divide_by = data['divideBy']
+        clip_size = data['clipSize']
+        rof = data['rof']
+        humanity_cost = data['humanityCost']
+        wa = data['wa']
+        con = data['con']
+        weight = data['weight']
+        reliability = data['reliability']
+        effect_radius = data['effectRadius']
+        res = weapon.addCharacterWeaponById(char_id, ipAmount)
+        print(f'... res: {res}')
+        return jsonify(res)
+    else:
+        return "Invalid request", 400
+

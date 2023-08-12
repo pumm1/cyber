@@ -277,3 +277,39 @@ export interface UpdateIPReq {
 export const updateIP = (ipReq: UpdateIPReq) => 
     postDataAs<Log[]>(`${pathBase}/save-ip`, ipReq)
 
+    /** 
+     character_id, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None,
+    humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None
+    */
+export enum Con {
+    Pocket = 'P',
+    Jacket = 'J',
+    LongJacket = 'L',
+    NotHideable =  'N'
+}
+
+export enum Reliability {
+    VeryReliable = 'VR',
+    Standard = 'ST',
+    Unreliable = 'UR'
+}
+
+export interface AddWeaponReq {
+    charId: number
+    item: string
+    dice: number
+    die: number
+    divideBy: number
+    dmgBonus: number
+    clipSize: number
+    wa: number
+    humanityCost: number
+    effectRadius: number
+    weaponType: WeaponType
+    con: Con
+    reliability: Reliability
+}
+
+export const addWeapon = (a: AddWeaponReq) =>
+    postDataAs<Log[]>(`${pathBase}/add-weapon`, a)
+
