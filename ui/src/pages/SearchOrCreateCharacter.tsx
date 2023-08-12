@@ -87,8 +87,8 @@ const SearchOrCreateCharacter = ({updateLogs}: SearchCharacterProps) => {
                 <input type="text" onChange={(event) => {
                             setName(event.target.value);
                         }}/>
-                <button onClick={() => updateCharacter()}>Search</button>
-                <button onClick={() => createCharacter()}>Create</button>
+                <button className='searchOrCreate' onClick={() => updateCharacter()}>Search</button>
+                <button className='searchOrCreate' onClick={() => createCharacter()}>Create</button>
             </div>
             {!!character &&
                 <Window id={'character' + character.id} height={1400} width={950} resizable={true} titleBar={titleBarProps()}>
