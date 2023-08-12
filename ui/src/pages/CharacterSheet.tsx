@@ -332,8 +332,8 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
     const AttackTypes = ({}) => 
         <span>
             <InputRow show={isMelee} onClick={() => setAttackType(AttackType.Melee)} checked={attackType === AttackType.Melee} label='Melee' />
-            <InputRow show={!isMelee} onClick={() => setAttackType(AttackType.Single)} checked={attackType === AttackType.Single} label='Single' />
-            <InputRow show={isFullAuto} onClick={() => setAttackType(AttackType.Burst)} checked={attackType === AttackType.Burst} label='Burst' />
+            <InputRow show={!isMelee} onClick={() => setAttackType(AttackType.Single)} checked={attackType === AttackType.Single} label='*' />
+            <InputRow show={isFullAuto} onClick={() => setAttackType(AttackType.Burst)} checked={attackType === AttackType.Burst} label='***' />
             <InputRow show={isFullAuto} onClick={() => setAttackType(AttackType.FullAuto)} checked={attackType === AttackType.FullAuto} label='FA' />
         </span>
 
@@ -363,7 +363,11 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
     const Dmg = ({}) => {
         const possibleBonusDmg = weapon.dmgBonus ? <>{`+${weapon.dmgBonus}`}</> : <></>
         return(<>[{weapon.diceNum}D{weapon.dmg}{possibleBonusDmg}]</>)
-    }    
+    }
+
+    const updateTargets = (newVal: number) => updateNumWithLowerLimit(newVal, 1, setTargets)
+    const updateShots = (newVal: number) => updateNumWithLowerLimit(newVal, 1, setShotsFired)
+    
 
     return (
         <tr>
@@ -377,15 +381,22 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
                 <Dmg/>
             </td>
             <td>
-                <button className='weaponButton' onClick={() => attack(attackReq).then(updateLogsAndCharacter)}>Attack</button>
+                <span className='attackMod'>
+                    <button className='weaponButton' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
+                        setShotsFired(1)
+                        setTargets(1)
+                    })}>
+                        Attack
+                    </button>
+                    {weaponIsGun && 
+                        <button className='weaponButton' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}>
+                            Reload
+                        </button>
+                    }
+                </span>
             </td>
             <td>
                 <AttackTypes />
-                {weaponIsGun && 
-                    <button className='weaponButton' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}>
-                        Reload
-                    </button>
-                 }
             </td>
             <td>
                 <Range weaponIsGun={weaponIsGun} attackRange={attackRange} setAttackRange={setAttackRange}/>
@@ -393,12 +404,12 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
             <td>
                 {isShotgunOrAutomatic && targets !== undefined && 
                     <span className='attackMod'>
-                        {targets} <ValueChanger onChange={setTargets} baseValue={targets} />
+                        {targets} <ValueChanger onChange={updateTargets} baseValue={targets} />
                     </span>}
             </td>
             <td>
                 {isFullAuto && shotsFired && 
-                    <span className='attackMod'>{shotsFired}<ValueChanger onChange={setShotsFired} baseValue={shotsFired}/> </span>
+                    <span className='attackMod'>{shotsFired}<ValueChanger onChange={updateShots} baseValue={shotsFired}/> </span>
                 }
             </td>
         </tr>
@@ -483,6 +494,12 @@ interface GridBoxProps {
     otherElement?: JSX.Element
 }
 
+const updateNumWithLowerLimit = (newValue: number, limit: number, setter: (i: number) => void) => {
+    if (newValue >= limit) {
+        setter(newValue)
+    }
+}
+
 const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFieldProps) => {
     const updateLogsAndCharacter = (resLogs: Log[]) => {
         updateLogs(resLogs)
@@ -499,11 +516,7 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
     const DmgSetter = ({bodyPart}: DmgSetterProps) => {
         const [dmg, setDmg] = useState(0)
 
-        const updateDmg = (newVal: number) => {
-            if (newVal >= 0) {
-                setDmg(newVal)
-            }
-        }
+        const updateDmg = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setDmg)
 
         const dmgReq = {
             charId: characterId,
