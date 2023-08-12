@@ -196,6 +196,7 @@ export interface AttackReq extends WeaponReq {
     attackType: AttackType
     attackRange: number
     attackModifier: number
+    givenRoll: number,
     targets?: number
     shotsFired?: number
 }

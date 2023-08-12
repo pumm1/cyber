@@ -97,7 +97,7 @@ def weapon_info(wep):
         )
 
 
-def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, attack_range, attack_modifier, targets, shots_fired=1):
+def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, attack_range, given_roll, attack_modifier, targets, shots_fired=1):
     character = DAO.getCharacterById(character_id)
     result_logs = []
     if character is not None:
@@ -110,7 +110,7 @@ def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, 
                     character=character,
                     wep=wep,
                     attack_range=attack_range,
-                    given_roll=0,
+                    given_roll=given_roll,
                     skill_bonus=skill_bonus,
                     skill=skill,
                     modifiers_total=attack_modifier,
@@ -122,7 +122,7 @@ def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, 
                 result_logs = handleMelee(
                     character=character,
                     wep=wep,
-                    given_roll=0,
+                    given_roll=given_roll,
                     skill_bonus=skill_bonus,
                     skill=skill,
                     modifiers_total=attack_modifier
@@ -132,7 +132,7 @@ def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, 
                     character=character,
                     wep=wep,
                     attack_range=attack_range,
-                    given_roll=0,
+                    given_roll=given_roll,
                     skill_bonus=skill_bonus,
                     skill=skill,
                     modifiers_total=attack_modifier,
@@ -143,6 +143,7 @@ def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, 
                 result_logs = handleFullAuto(
                     character=character,
                     wep=wep,
+                    roll=given_roll,
                     num_of_shots=shots_fired,
                     num_of_targets=targets,
                     attack_range=attack_range,

@@ -88,6 +88,7 @@ def attack():
         data = request.get_json()
         print(f'..... data: {data}')
         weapon_id = data['weaponId']
+        given_roll = data['givenRoll']
         char_id = data['charId']
         attack_type = data['attackType']
         attack_range = data['attackRange']
@@ -96,7 +97,7 @@ def attack():
         shots_fired = data.get('shotsFired', 1)
         return jsonify(
             combat.characterAttackByCharacterAndWeaponId(
-                char_id, weapon_id, attack_type, attack_range, attack_modifier=attack_modifier, targets=targets, shots_fired=shots_fired
+                char_id, weapon_id, attack_type, attack_range, given_roll=given_roll, attack_modifier=attack_modifier, targets=targets, shots_fired=shots_fired
             )
         )
     else:

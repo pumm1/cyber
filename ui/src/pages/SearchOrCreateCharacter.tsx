@@ -91,7 +91,7 @@ const SearchOrCreateCharacter = ({updateLogs}: SearchCharacterProps) => {
                 <button className='searchOrCreate' onClick={() => createCharacter()}>Create</button>
             </div>
             {!!character &&
-                <Window id={'character' + character.id} height={1400} width={950} resizable={true} titleBar={titleBarProps()}>
+                <Window id={'character' + character.id} height={1400} width={1000} resizable={true} titleBar={titleBarProps()}>
                     <div className="sheetContainer"><CharacterSheet editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
                 </Window>
             }

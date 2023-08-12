@@ -320,6 +320,8 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
     const [targets, setTargets] = useState<number | undefined>(defaultTargets)
     const defaultShotsFired = isFullAuto ? 1 : undefined
     const [shotsFired, setShotsFired] = useState<number | undefined>(defaultShotsFired)
+    const [givenRoll, setGivenRoll] = useState(0)
+    const [attackModifier, setAttackModifier] = useState(0)
 
     const InputRow = ({show, onClick, checked, label}: {show: boolean, onClick: () => void, checked: boolean, label: string}) => {
        const inputId = label + weapon.id
@@ -345,9 +347,10 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
         weaponId: weapon.id,
         attackType,
         attackRange,
-        attackModifier: 0, //TODO
+        attackModifier, //TODO
         targets,
-        shotsFired
+        shotsFired,
+        givenRoll
     }
 
     const reloadReq: ReloadReq = {
@@ -367,6 +370,8 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
 
     const updateTargets = (newVal: number) => updateNumWithLowerLimit(newVal, 1, setTargets)
     const updateShots = (newVal: number) => updateNumWithLowerLimit(newVal, 1, setShotsFired)
+    const updateGivenRoll = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setGivenRoll)
+    const updateModifier = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setAttackModifier) 
     
 
     return (
@@ -385,6 +390,8 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
                     <button className='weaponButton' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
                         setShotsFired(1)
                         setTargets(1)
+                        setAttackModifier(0)
+                        setGivenRoll(0)
                     })}>
                         Attack
                     </button>
@@ -405,12 +412,24 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
                 {isShotgunOrAutomatic && targets !== undefined && 
                     <span className='attackMod'>
                         {targets} <ValueChanger onChange={updateTargets} baseValue={targets} />
-                    </span>}
+                    </span>
+                }
             </td>
             <td>
                 {isFullAuto && shotsFired && 
                     <span className='attackMod'>{shotsFired}<ValueChanger onChange={updateShots} baseValue={shotsFired}/> </span>
                 }
+            </td>
+            <td>
+                <span className='attackMod'>
+                    {givenRoll} <ValueChanger onChange={updateGivenRoll} baseValue={givenRoll} />
+                </span>
+                
+            </td>
+            <td>
+                <span className='attackMod'>
+                    {attackModifier} <ValueChanger onChange={updateModifier} baseValue={attackModifier} />
+                </span>
             </td>
         </tr>
     )
@@ -436,6 +455,8 @@ const CharacterWeapons = (
                     <th>Attack Range</th>
                     <th>(Opt: targets)</th>
                     <th>(Opt: #shots)</th>
+                    <th>(Opt: Roll)</th>
+                    <th>(Opt: Modifier)</th>
                 </tr>
                 {weapons.map(w => 
                     <WeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} updateCharacter={updateCharacter} />
