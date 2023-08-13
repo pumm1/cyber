@@ -184,7 +184,7 @@ def addWeapon():
         char_id = data['charId']
         item = data['item']
         weapon_type = data['weaponType']
-        dice_num = data['diceNum']
+        dice_num = data['diceNumber']
         die = data['die']
         dmg_bonus = data['dmgBonus']
         divide_by = data['divideBy']

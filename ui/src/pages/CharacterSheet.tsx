@@ -778,6 +778,11 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
             </div>
         )
     }
+
+    const updateLogsAndCharacter = (l: Log[]) => {
+        updateLogs(l)
+        updateCharacter()
+    }
         
 
     return(
@@ -789,7 +794,7 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
             <SaveAndHealthRow updateCharacterBTM={updateCharacterBTM} edit={edit} character={character} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
             {edit && <SaveNewCharacter />}
             {allSkills && !edit && <SkillsByAttributes updateLogs={updateLogs} skills={allSkills} character={character} updateCharacter={updateCharacter}/>}
-            <AddWeapon characterId={character.id}/>
+            <AddWeapon characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
             <CharacterChrome charChrome={character.chrome}/>
         </div>
