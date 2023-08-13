@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { AddWeaponReq, Con, Log, Reliability, WeaponType, addWeapon } from './CyberClient'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
+import './AddWeapon.css'
 
 interface AddWeaponProps {
     characterId: number
@@ -20,6 +21,8 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
     const [wa, setWa] = useState(0)
     const [effectRadius, setEffectRadius] = useState(0)
     const [con, setCon] = useState(Con.Pocket)
+    const [rof, setRof] = useState(1)
+    const [weight, setWeight] = useState(1)
 
     const updateDiceNum = (v: number) => updateNumWithLowerLimit(v, 1, setDiceNum)
     const updateDie = (v: number) => updateNumWithLowerLimit(v, 1, setDie)
@@ -28,6 +31,9 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
     const updateHlCost = (v: number) => updateNumWithLowerLimit(v, 0, setHumanityCost)
     const updateWa = (v: number) => updateNumWithLowerLimit(v, 0, setWa)
     const updateEffectRadius = (v: number) => updateNumWithLowerLimit(v, 0, setEffectRadius)
+    const updateDivideBy = (v: number) => updateNumWithLowerLimit(v, 1, setDivideBy)
+    const updateRof = (v: number) => updateNumWithLowerLimit(v, 1, setRof)
+    const updateWeight = (v: number) => updateNumWithLowerLimit(v, 1, setWeight)
 
     const addWeaponReq: AddWeaponReq = {
         charId: characterId,
@@ -37,9 +43,11 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
         dmgBonus,
         weaponType,
         divideBy,
+        rof,
         wa,
         reliability,
         con,
+        weight,
         humanityCost,
         effectRadius,
         clipSize,
@@ -63,10 +71,14 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
                 <th>Type</th>
                 <th># Dice</th>
                 <th>D Die</th>
+                <th>(Opt. Div)</th>
                 <th>Dmg bonus</th>
+                <th>ROF</th>
                 <th>WA</th>
                 <th>Clip size</th>
+                <th>Reliability</th>
                 <th>CON</th>
+                <th>Weight</th>
                 <th>Effect radius</th>
                 <th>(Opt. HL cost)</th>
             </tr>
@@ -79,13 +91,13 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
                 </td>
                 <td>
                     <select>
-                        <option value={WeaponType.Melee} onSelect={() => setWeaponType(WeaponType.Melee)}>Melee</option>
-                        <option value={WeaponType.Handgun} onSelect={() => setWeaponType(WeaponType.Handgun)}>Handgun</option>
-                        <option value={WeaponType.SMG} onSelect={() => setWeaponType(WeaponType.SMG)}>SMG</option>
-                        <option value={WeaponType.Rifle} onSelect={() => setWeaponType(WeaponType.Rifle)}>Rifle</option>
-                        <option value={WeaponType.Shotgun} onSelect={() => setWeaponType(WeaponType.Shotgun)}>Shotgun</option>
-                        <option value={WeaponType.Thrown} onSelect={() => setWeaponType(WeaponType.Thrown)}>Thrown</option>
-                        <option value={WeaponType.Heavy} onSelect={() => setWeaponType(WeaponType.Heavy)}>Heavy</option>
+                        <option value={WeaponType.Melee} onClick={() => setWeaponType(WeaponType.Melee)}>Melee</option>
+                        <option value={WeaponType.Handgun} onClick={() => setWeaponType(WeaponType.Handgun)}>Handgun</option>
+                        <option value={WeaponType.SMG} onClick={() => setWeaponType(WeaponType.SMG)}>SMG</option>
+                        <option value={WeaponType.Rifle} onClick={() => setWeaponType(WeaponType.Rifle)}>Rifle</option>
+                        <option value={WeaponType.Shotgun} onClick={() => setWeaponType(WeaponType.Shotgun)}>Shotgun</option>
+                        <option value={WeaponType.Thrown} onClick={() => setWeaponType(WeaponType.Thrown)}>Thrown</option>
+                        <option value={WeaponType.Heavy} onClick={() => setWeaponType(WeaponType.Heavy)}>Heavy</option>
                     </select>
                 </td>
                 <td>
@@ -95,7 +107,13 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
                     <FormRowWithValueChanger onChange={updateDie} value={`D${dDie}`} baseValue={dDie}/>
                 </td>
                 <td>
+                    <FormRowWithValueChanger onChange={updateDivideBy} value={`/${divideBy}`} baseValue={divideBy}/>
+                </td>
+                <td>
                     <FormRowWithValueChanger onChange={updateDmgBonus} value={`+${dmgBonus}`} baseValue={dmgBonus}/>
+                </td>
+                <td>
+                    <FormRowWithValueChanger onChange={updateRof} value={rof} baseValue={rof}/>
                 </td>
                 <td>
                     <FormRowWithValueChanger onChange={updateWa} value={wa} baseValue={wa}/>
@@ -105,11 +123,21 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
                 </td>
                 <td>
                     <select>
-                        <option value={Con.Pocket} onSelect={() => setCon(Con.Pocket)}>Pocket</option>
-                        <option value={Con.Jacket} onSelect={() => setCon(Con.Jacket)}>Jacket</option>
-                        <option value={Con.LongJacket} onSelect={() => setCon(Con.LongJacket)}>Lon  g Jacket</option>
-                        <option value={Con.NotHideable} onSelect={() => setCon(Con.NotHideable)}>Not hideable</option>
+                        <option value={Reliability.Standard} onClick={() => setReliabilty(Reliability.Standard)}>ST</option>
+                        <option value={Reliability.VeryReliable} onClick={() => setReliabilty(Reliability.VeryReliable)}>VR</option>
+                        <option value={Reliability.Unreliable} onClick={() => setReliabilty(Reliability.Unreliable)}>UR</option>
+                    </select> 
+                </td>
+                <td>
+                    <select>
+                        <option value={Con.Pocket} onClick={() => setCon(Con.Pocket)}>P</option>
+                        <option value={Con.Jacket} onClick={() => setCon(Con.Jacket)}>J</option>
+                        <option value={Con.LongJacket} onClick={() => setCon(Con.LongJacket)}>L</option>
+                        <option value={Con.NotHideable} onClick={() => setCon(Con.NotHideable)}>N</option>
                     </select>
+                </td>
+                <td>
+                    <FormRowWithValueChanger onChange={updateWeight} value={`${weight}kg`} baseValue={weight}/>
                 </td>
                 <td>
                     <FormRowWithValueChanger onChange={updateEffectRadius} value={effectRadius} baseValue={effectRadius}/>
@@ -126,9 +154,9 @@ export const AddWeapon = ({characterId, updateLogsAndCharacter}: AddWeaponProps)
     const [showForm, setShowForm] = useState(false)
 
     return (
-        <div>
+        <div className='form'>
              <button onClick={() => setShowForm(!showForm)}>
-                {showForm ? 'Add weapon' : 'Hide form'}
+                {!showForm ? 'Add weapon' : 'Hide form'}
             </button>
             {showForm && 
                  <NewWeaponForm characterId={characterId} updateLogsAndCharacter={updateLogsAndCharacter}/>

@@ -184,7 +184,7 @@ def addWeapon():
         char_id = data['charId']
         item = data['item']
         weapon_type = data['weaponType']
-        dice_num = data['diceNumber']
+        dice_num = data['dice']
         die = data['die']
         dmg_bonus = data['dmgBonus']
         divide_by = data['divideBy']
@@ -196,7 +196,10 @@ def addWeapon():
         weight = data['weight']
         reliability = data['reliability']
         effect_radius = data['effectRadius']
-        res = weapon.addCharacterWeaponById(char_id, ipAmount)
+        res = weapon.addCharacterWeaponById(
+            char_id, dice_num, die, divide_by, dmg_bonus, item, clip_size, rof,
+            humanity_cost, weapon_type, wa, con, weight, reliability, effect_radius
+        )
         print(f'... res: {res}')
         return jsonify(res)
     else:

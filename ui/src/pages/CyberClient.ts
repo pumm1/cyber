@@ -301,12 +301,14 @@ export interface AddWeaponReq {
     die: number
     divideBy: number
     dmgBonus: number
+    rof: number
     clipSize: number
     wa: number
     humanityCost: number
     effectRadius: number
     weaponType: WeaponType
     con: Con
+    weight: number
     reliability: Reliability
 }
 

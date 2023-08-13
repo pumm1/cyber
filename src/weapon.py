@@ -208,8 +208,9 @@ def addCharacterWeaponById(
         character_id, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None,
         humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None
 ) -> list[Log]:
-    char = DAO.getCharacterById(
-        character_id,
+    char = DAO.getCharacterById(character_id)
+    logs = addCharWeapon(
+        char,
         dice=dice,
         die=die,
         divide_by=divide_by,
@@ -225,7 +226,6 @@ def addCharacterWeaponById(
         reliability=reliability,
         effect_radius=effect_radius
     )
-    logs = addCharWeapon(char)
     return logs
 
 def addChracterWeaponByName(character_name):

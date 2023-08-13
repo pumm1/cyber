@@ -374,6 +374,9 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
                 <Dmg/>
             </td>
             <td>
+                {weapon.reliability}
+            </td>
+            <td>
                 <span className='attackMod'>
                     <button className='weaponButton' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
                         setShotsFired(1)
@@ -438,6 +441,7 @@ const CharacterWeapons = (
                     <th>Weapon</th>
                     <th>Type</th>
                     <th>DMG</th>
+                    <th>Reliability</th>
                     <th>Action</th>
                     <th>Attack Type</th>
                     <th>Attack Range</th>
