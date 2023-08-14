@@ -3,6 +3,7 @@ import React, { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
+import AddChrome from './AddChrome'
 
 
 const roles = {
@@ -800,6 +801,7 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
             {allSkills && !edit && <SkillsByAttributes updateLogs={updateLogs} skills={allSkills} character={character} updateCharacter={updateCharacter}/>}
             <AddWeapon characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
+            <AddChrome allSkills={allSkills ?? []} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
             <CharacterChrome charChrome={character.chrome}/>
         </div>
     )

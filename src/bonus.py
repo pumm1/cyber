@@ -98,7 +98,7 @@ def addSkillBonuses() -> [SkillBonus]:
                 i = askInput()
                 bonus = safeCastToInt(i)
                 bonus_str = coloredText(Fore.GREEN, f'+{bonus}')
-                skill_bonus = SkillBonus(skill_id, bonus,item_bonus_id=0)
+                skill_bonus = SkillBonus(skill_id, bonus, item_bonus_id=0)
                 skill_bonuses.append(skill_bonus)
                 print(f"Skill {skill_name} ({bonus_str}) added")
 

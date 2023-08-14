@@ -35,6 +35,11 @@ export enum Attribute {
     TECH = 'TECH'
 }
 
+export interface AttributeBonus {
+    attribute: Attribute
+    bonus: number
+}
+
 export enum BodyPart {
     Head = 'head',
     Body = 'body',
@@ -61,6 +66,11 @@ export interface Skill {
     description: string
     id: number,
     skill: string
+}
+
+export interface SkillBonus {
+    skillId: number
+    bonus: number
 }
 
 export interface Armor {

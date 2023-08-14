@@ -156,7 +156,7 @@ export const AddWeapon = ({characterId, updateLogsAndCharacter}: AddWeaponProps)
     return (
         <div className='form'>
              <button onClick={() => setShowForm(!showForm)}>
-                {!showForm ? 'Add weapon' : 'Hide form'}
+                {!showForm ? 'Add weapon' : 'Hide weapon form'}
             </button>
             {showForm && 
                  <NewWeaponForm characterId={characterId} updateLogsAndCharacter={updateLogsAndCharacter}/>
