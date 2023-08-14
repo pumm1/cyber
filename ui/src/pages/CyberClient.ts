@@ -35,6 +35,11 @@ export enum Attribute {
     TECH = 'TECH'
 }
 
+export const attributes = [
+    Attribute.ATTR, Attribute.BODY, Attribute.COOL, Attribute.EMP, Attribute.INT, 
+    Attribute.LUCK, Attribute.MA, Attribute.REF, Attribute.TECH
+]
+
 export interface AttributeBonus {
     attribute: Attribute
     bonus: number
@@ -85,7 +90,7 @@ export enum WeaponType {
     Handgun = 'handgun',
     SMG = 'smg',
     Rifle = 'rifle',
-    Thrown = 'thrown',
+    Thrown = 'throwing',
     Shotgun = 'shotgun',
     Heavy = 'heavy'
 }
@@ -143,6 +148,7 @@ export interface CharacterSkill {
     attribute: Attribute
     id: number
     lvl: number
+    originalLvl: number
     skill: string
 }
 
@@ -181,8 +187,11 @@ export const rollDice = (r: RollReq) =>
 export const listSkills = () => 
     fetchDataAs<Skill[]>(`${pathBase}/list-skills`)
  
-export interface RollSkillReq {
+interface CharacterReq {
     charId: number
+}
+
+export interface RollSkillReq extends CharacterReq {
     skillId: number
     addedLuck: number
 }
@@ -201,8 +210,7 @@ interface WeaponReq {
     weaponId: number
 }
 
-export interface AttackReq extends WeaponReq {
-    charId: number
+export interface AttackReq extends WeaponReq, CharacterReq {
     attackType: AttackType
     attackRange: number
     attackModifier: number
@@ -235,8 +243,7 @@ export const reload = (reload: ReloadReq) =>
 export const repair = (charId: number) =>
     postDataAs<Log[]>(`${pathBase}/repair-sp`, charId)
 
-export interface LvlUpReq {
-    charId: number
+export interface LvlUpReq extends CharacterReq {
     skillId: number
     amount: number
 }
@@ -287,10 +294,6 @@ export interface UpdateIPReq {
 export const updateIP = (ipReq: UpdateIPReq) => 
     postDataAs<Log[]>(`${pathBase}/save-ip`, ipReq)
 
-    /** 
-     character_id, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None,
-    humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None
-    */
 export enum Con {
     Pocket = 'P',
     Jacket = 'J',
@@ -304,8 +307,7 @@ export enum Reliability {
     Unreliable = 'UR'
 }
 
-export interface AddWeaponReq {
-    charId: number
+export interface AddWeaponReq extends CharacterReq {
     item: string
     dice: number
     die: number
@@ -325,3 +327,27 @@ export interface AddWeaponReq {
 export const addWeapon = (a: AddWeaponReq) =>
     postDataAs<Log[]>(`${pathBase}/add-weapon`, a)
 
+export interface AddChromeReq extends CharacterReq {
+    item: string
+    description: string
+    attributeBonuses: AttributeBonus[]
+    skillBonuses: SkillBonus[]
+    humanityCost: number
+}
+
+export const addChrome = (c: AddChromeReq) =>
+    postDataAs<Log[]>(`${pathBase}/add-chrome`, c)
+
+
+export interface AddArmorReq extends CharacterReq {
+    item: string
+    sp: number
+    ev: number
+    bodyParts: BodyPart[]
+    attributeBonuses: AttributeBonus[]
+    skillBonuses: SkillBonus[]
+    humanityCost: number
+} 
+
+export const addArmor = (a: AddArmorReq) =>
+    postDataAs<Log[]>(`${pathBase}/add-armor`, a)

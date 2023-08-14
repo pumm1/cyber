@@ -4,7 +4,7 @@ import SearchOrCreateCharacter from "./SearchOrCreateCharacter"
 import './index.css'
 import LogViewer from "./LogViewer"
 import { useState } from "react"
-import { Log, LogType } from "./CyberClient"
+import { Log } from "./CyberClient"
 import GrenadeTable from "./GrenadeTable"
 
 
@@ -24,8 +24,8 @@ const IndexPage: React.FC<PageProps> = () => {
     <div className='main'>
       <h1>Welcome to the NET</h1>
       <div className='container'>
-        <SearchOrCreateCharacter updateLogs={updateLogs}/>
         <LogViewer logs={logs} addToLogs={addToLogs}/>
+        <SearchOrCreateCharacter updateLogs={updateLogs}/>
         <GrenadeTable />
       </div>
     </div>

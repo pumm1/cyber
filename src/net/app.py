@@ -17,7 +17,7 @@ sys.path.append(parent)
 
 # now we can import the module in the parent
 # directory.
-import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip, weapon
+import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip, weapon, chrome
 
 app = Flask(__name__)
 CORS(app)
@@ -174,11 +174,6 @@ def saveIP():
 
 @app.route('/add-weapon', methods = [post])
 def addWeapon():
-    """
-    character_id, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None,
-    humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None
-    :return:
-    """
     if request.method == post:
         data = request.get_json()
         char_id = data['charId']
@@ -205,3 +200,41 @@ def addWeapon():
     else:
         return "Invalid request", 400
 
+@app.route('/add-chrome', methods = [post])
+def addChrome():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        item = data['item']
+        description = data['description']
+        atr_bonuses = data['attributeBonuses']
+        skill_bonuses = data['skillBonuses']
+        humanity_cost = data['humanityCost']
+
+        res = chrome.addChromeByCharacterId(
+            char_id, item, description, humanity_cost, atr_bonuses, skill_bonuses
+        )
+        return jsonify(res)
+    else:
+        return "Invalid request", 400
+
+@app.route('/add-armor', methods = [post])
+def addArmor():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        item = data['item']
+        sp = data['sp']
+        ev = data['ev']
+        body_parts = data['bodyParts']
+        atr_bonuses = data['attributeBonuses']
+        skill_bonuses_dict = data['skillBonuses']
+        humanity_cost = data['humanityCost']
+        print(f'.....atr bonuses: {atr_bonuses}')
+
+        res = armor.addArmorForCharacterById(
+            char_id, item, ev, sp, body_parts, humanity_cost, atr_bonuses, skill_bonuses_dict
+        )
+        return jsonify(res)
+    else:
+        return "Invalid request", 400

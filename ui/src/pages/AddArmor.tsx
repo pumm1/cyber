@@ -1,31 +1,21 @@
 import React, { useState } from 'react'
-import { AddChromeReq, Attribute, AttributeBonus, Log, Skill, SkillBonus, addChrome, attributes } from './CyberClient'
-import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
+import { AddArmorReq, Attribute, AttributeBonus, BodyPart, Log, Skill, SkillBonus, addArmor, attributes } from './CyberClient'
 import './AddWeapon.css'
+import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
+import { AtrBonuses, SkillBonuses } from './AddChrome'
 
-interface AddChromeProps {
-    characterId: number
+export interface AddArmorProps {
     allSkills: Skill[]
+    characterId: number
     updateLogsAndCharacter: (logs: Log[]) => void
 }
 
-export interface AtrBonusesProps {
-    attributeBonuses: AttributeBonus[]
-}
-
-export const AtrBonuses = ({attributeBonuses}: AtrBonusesProps) =>
-    <>{attributeBonuses.map(b => <div>{b.attribute} {b.bonus}</div>) }</>
-
-export interface SkillBonusesProps {
-    allSkills: Skill[]
-    skillBonuses: SkillBonus[]
-}
-export const SkillBonuses = ({skillBonuses, allSkills}: SkillBonusesProps) =>
-    <>{skillBonuses.map(sb => <div>{allSkills.find(s => s.id === sb.skillId)?.skill || 'Not found'} {sb.bonus}</div>)}</>
-
-const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChromeProps) => {
+const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmorProps) => {
+    
     const [item, setItem] = useState('')
-    const [description, setDescription] = useState('')
+    const [sp, setSP] = useState(1)
+    const [bodyParts, setBodyParts] = useState<BodyPart[]>([])
+    const [ev, setEv] = useState(0)
     const [attributeBonuses, setAttributeBonuses] = useState<AttributeBonus[]>([])
     const [skillBonuses, setSkillBonuses] = useState<SkillBonus[]>([])
     const [attribute, setAtr] = useState(Attribute.INT)
@@ -34,62 +24,78 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
     const [skillBonus, setSkillBonus] = useState(0)
     const [humanityCost, setHumanityCost] = useState(0)
 
-    const setInitialBonuses = () => {
-        setAttributeBonuses([])
-        setSkillBonuses([])
-        setAtrBonus(0)
-        setSkillBonus(0)
-    }
-
+    const updateSP = (v: number) => updateNumWithLowerLimit(v, 1, setSP)
     const updateHumanityCost = (v: number) => updateNumWithLowerLimit(v, 0, setHumanityCost)
+
+    const bodyPartsOptions: BodyPart[] = [
+        BodyPart.Head,
+        BodyPart.Body,
+        BodyPart.R_arm,
+        BodyPart.L_arm,
+        BodyPart.R_leg,
+        BodyPart.L_leg
+    ]
 
     const newAtrBonus: AttributeBonus = {
         attribute,
         bonus: atrBonus
     }
+
     const newSkillBonus: SkillBonus = {
         skillId,
         bonus: skillBonus
     }
 
-    const addChromeReq: AddChromeReq = {
+    const addArmorReq: AddArmorReq = {
         charId: characterId,
         item,
-        description,
+        ev,
+        sp,
+        bodyParts,
         attributeBonuses,
         skillBonuses,
         humanityCost
     }
-
-    return(
+    return (
         <table>
             <tr>
-                <th>Add chrome</th>
+                <th>Add armor</th>
                 <th>Item</th>
-                <th>Descr.</th>
-                <th>HL</th>
+                <th>SP</th>
+                <th>EV</th>
+                <th>Covers</th>
+                <th>Body parts</th>
                 <th>Curr. atr. Bonuses</th>
                 <th>Add atr. bonus</th>
-                <th>Bonus attribute</th>
+                <th>Atr.</th>
                 <th>Atr. bonus</th>
                 <th>Curr. Skill bonuses</th>
                 <th>Add skill bonus</th>
                 <th>Bonus skill</th>
                 <th>Skill bonus</th>
+                <th>(Opt. HL)</th>
             </tr>
             <tr>
-                <td>
-                    <button onClick={() => addChrome(addChromeReq).then(updateLogsAndCharacter).then(setInitialBonuses)}>Add</button>
-                </td>
+                <td><button onClick={() => addArmor(addArmorReq).then(updateLogsAndCharacter)}>Add</button></td>
                 <td>
                     <input className='inputField' value={item} onChange={e => setItem(e.target.value)}/>
                 </td>
                 <td>
-                    <input value={description} onChange={e => setDescription(e.target.value)}/>
+                    <span className='attackMod'>{sp}<ValueChanger onChange={updateSP} baseValue={sp}/></span>
                 </td>
                 <td>
-                      <span className='attackMod'>{humanityCost}<ValueChanger onChange={updateHumanityCost} baseValue={humanityCost}/></span>
-                </td> 
+                    <span className='attackMod'>{ev}<ValueChanger onChange={setEv} baseValue={ev}/></span>
+                </td>
+                <td>
+                    [{bodyParts.join(', ')}]
+                </td>
+                <td>
+                    <select>
+                        {bodyPartsOptions.map(bp => 
+                            !bodyParts.includes(bp) && <option value={bp} onClick={() => setBodyParts([bp, ...bodyParts])}>{bp}</option>
+                        )}
+                    </select>
+                </td>
                 <td>
                     <AtrBonuses attributeBonuses={attributeBonuses}/>
                 </td>
@@ -99,15 +105,15 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
                 <td>
                     <select>
                         {attributes.map(atr => 
-                                 <option value={atr} onClick={() => setAtr(atr)}>{atr}</option>
-                            )}
+                            <option value={atr} onClick={() => setAtr(atr)}>{atr}</option>
+                        )}
                     </select>
                 </td>
                 <td>
                     <span className='attackMod'>{atrBonus}<ValueChanger onChange={setAtrBonus} baseValue={atrBonus}/></span>
                 </td>
                 <td>
-                    <SkillBonuses skillBonuses={skillBonuses} allSkills={allSkills}/>
+                    <SkillBonuses allSkills={allSkills} skillBonuses={skillBonuses}/>
                 </td>
                 <td>
                     <button onClick={() => setSkillBonuses([newSkillBonus, ...skillBonuses])}>Add bonus</button>
@@ -122,24 +128,26 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
                 <td>
                     <span className='attackMod'>{skillBonus}<ValueChanger onChange={setSkillBonus} baseValue={skillBonus}/></span>
                 </td>
+                <td>
+                    <span className='attackMod'>{humanityCost}<ValueChanger onChange={updateHumanityCost} baseValue={humanityCost}/></span>
+                </td>
             </tr>
         </table>
     )
 }
 
-const AddChrome = ({characterId, updateLogsAndCharacter, allSkills}: AddChromeProps) => {
+const AddArmor = ({characterId, updateLogsAndCharacter, allSkills}: AddArmorProps) => {
     const [showForm, setShowForm] = useState(false)
-
     return(
         <div className='form'>
              <button onClick={() => setShowForm(!showForm)}>
-                {!showForm ? 'Add chrome' : 'Hide chrome form'}
+                {!showForm ? 'Add armor' : 'Hide armor form'}
             </button>
             {showForm && 
-                 <NewChromeForm allSkills={allSkills} characterId={characterId} updateLogsAndCharacter={updateLogsAndCharacter}/>
+                 <NewArmorForm allSkills={allSkills} characterId={characterId} updateLogsAndCharacter={updateLogsAndCharacter}/>
             }
         </div>
     )
 }
 
-export default AddChrome
+export default AddArmor

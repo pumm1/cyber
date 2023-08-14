@@ -1,9 +1,10 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import AddChrome from './AddChrome'
+import AddArmor from './AddArmor'
 
 
 const roles = {
@@ -185,15 +186,16 @@ interface SkillRowProps extends UpdateCharacter {
     rollSkill: (r: RollSkillReq) => Promise<number>
     skill: Skill
     charSkillLvl: number
+    charOriginalSkillLvl: number
     roll: RollSkillReq
 }
 
-const SkillRow = ({skill, charSkillLvl, roll, charId, updateCharacter}: SkillRowProps) => {
+const SkillRow = ({skill, charSkillLvl, charOriginalSkillLvl, roll, charId, updateCharacter}: SkillRowProps) => {
     const [rollResult, setRollResult] = useState<undefined | number>(undefined)
     return(
         <div className='skill' key={skill.id}>
             <span>
-                {<button className='skillBtn' disabled={charSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(updateCharacter)}>+</button>}
+                {<button className='skillBtn' disabled={charOriginalSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(updateCharacter)}>+</button>}
                 <button className='skillBtn' onClick={() => rollSkill(roll).then(res => setRollResult(res))}>Roll</button>
                 {skill.skill.padEnd(30, '.')}[{charSkillLvl ?? ''}]
                 {rollResult && <>({rollResult})</>}
@@ -204,6 +206,7 @@ const SkillRow = ({skill, charSkillLvl, roll, charId, updateCharacter}: SkillRow
 
 const SkillRowByCharacterSkills = ({skill, characterSkills, charId, updateCharacter}: SkillProps) => {
     const charSkillLvl = characterSkills.find(s => s.id === skill.id)?.lvl ?? 0
+    const charOriginalSkillLvl = characterSkills.find(s => s.id === skill.id)?.originalLvl ?? 0
     const roll: RollSkillReq = {
         charId: charId,
         skillId: skill.id,
@@ -211,7 +214,7 @@ const SkillRowByCharacterSkills = ({skill, characterSkills, charId, updateCharac
     }
 
     return (
-        <SkillRow charSkillLvl={charSkillLvl} updateCharacter={updateCharacter} skill={skill} charId={charId} rollSkill={rollSkill} roll={roll} />
+        <SkillRow charSkillLvl={charSkillLvl} charOriginalSkillLvl={charOriginalSkillLvl} updateCharacter={updateCharacter} skill={skill} charId={charId} rollSkill={rollSkill} roll={roll} />
     )
 }
 
@@ -266,7 +269,7 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
             <div className='skills'>
                 <span>
                     <b>Special ability</b>
-                    <SkillRow roll={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={spceialSkill} />
+                    <SkillRow charOriginalSkillLvl={character.specialAbilityLvl} roll={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={spceialSkill} />
                 </span>
                 {attributesInOrder.map(atr => <SkillsByAttribute updateCharacter={updateCharacter} updateLogs={updateLogs} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
                 <StatValue field='REP' value={2}/>
@@ -284,13 +287,13 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
 }
 
 interface RangeProps {
-    weaponIsGun: boolean
+    show: boolean
     attackRange: number
     setAttackRange: (n: number) => void
 }
 
-const Range = ({weaponIsGun, attackRange, setAttackRange}: RangeProps) => 
-        weaponIsGun && <><input className='range' type='text' disabled={false} value={attackRange} onChange={e => setAttackRange(parseInt(e.target.value) || 0)}/></>
+const Range = ({show, attackRange, setAttackRange}: RangeProps) => 
+    show && <><input className='range' type='text' disabled={false} value={attackRange} onChange={e => setAttackRange(parseInt(e.target.value) || 0)}/></>
 
 interface WeaponProps extends UpdateCharacterAndLogs {
     weapon: Weapon, 
@@ -398,7 +401,7 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
                 <AttackTypes />
             </td>
             <td>
-                <Range weaponIsGun={weaponIsGun} attackRange={attackRange} setAttackRange={setAttackRange}/>
+                <Range show={weaponIsGun || weapon.weaponType === WeaponType.Thrown} attackRange={attackRange} setAttackRange={setAttackRange}/>
             </td>
             <td>
                 {isShotgunOrAutomatic && targets !== undefined && 
@@ -459,7 +462,41 @@ const CharacterWeapons = (
     )
 }
 
+interface CharacterArmorProps {
+    armors: Armor[] 
+}
 
+interface ArmorRowProps {
+    armor: Armor
+}
+const ArmorRow = ({armor}: ArmorRowProps) => {
+    return (
+        <tr>
+            <td>
+                {armor.item}
+            </td>
+            <td>
+                {armor.sp}
+            </td>
+            <td>
+                [{armor.bodyParts.join(', ')}]
+            </td>
+        </tr>
+    )
+}
+
+const CharacterArmor = ({armors}: CharacterArmorProps) => {
+    return(
+        <table>
+            <tr>
+                <th>Armor</th>
+                <th>SP</th>
+                <th>Covers</th>
+            </tr>
+            {armors.map(a => <ArmorRow armor={a}/>)}
+        </table>
+    )
+}
 
 interface ChromeRowProps {
     chrome: Chrome
@@ -801,6 +838,8 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
             {allSkills && !edit && <SkillsByAttributes updateLogs={updateLogs} skills={allSkills} character={character} updateCharacter={updateCharacter}/>}
             <AddWeapon characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
+            {allSkills && <AddArmor allSkills={allSkills} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>}
+            <CharacterArmor armors={character.armor}/>
             <AddChrome allSkills={allSkills ?? []} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
             <CharacterChrome charChrome={character.chrome}/>
         </div>

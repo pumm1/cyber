@@ -122,7 +122,7 @@ def start():
         elif command.startswith(add_armor_str):
             match command_parts:
                 case [_, name]:
-                    armor.addArmorForCharacter(name)
+                    armor.addArmorForCharacterByName(name)
                 case _:
                     print(f'{add_armor_help_str}')
         elif command.startswith(fumble_str):
@@ -208,7 +208,7 @@ def start():
         elif command.startswith(add_chrome_str):
             match command_parts:
                 case [_, name]:
-                    chrome.addChrome(name)
+                    chrome.addChromeByName(name)
                 case _:
                     print(add_chrome_help_str)
         elif command.startswith(attack_str):

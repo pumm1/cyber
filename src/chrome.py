@@ -6,6 +6,7 @@ import cyberdao as DAO
 from dice import roll
 from gameHelper import askInput, roll_str, askForRoll, safeCastToInt, EMP, printGreenLine, printRedLine, coloredText
 from bonus import handleBonuses, AtrBonus, SkillBonus
+from logger import Log
 
 
 class Chrome:
@@ -39,9 +40,8 @@ class Chrome:
 
         return resJson
 
-
-def addChrome(name):
-    character = DAO.getCharacterByName(name)
+def addChrome(character, name=None, descr=None) -> list[Log]:
+    logs = []
     if character is not None:
         print('Give name of cybernetic:')
         item = askInput()
@@ -52,11 +52,39 @@ def addChrome(name):
         printGreenLine(f'Chrome added for {character.name}')
 
 
-def addChromeWithHumanityCost(character, item, descr, item_bonus_id: int | None = None):
-    (atr_bonuses, skill_bonuses) = ({}, [])
-    if item_bonus_id is None:
+def addChromeByCharacterId(id, item, descr, humanity_cost, atr_bonuses, skill_bonuses_dict):
+    logs = []
+    atr_dict = dict([])
+    for atr_bonus in atr_bonuses:
+        atr = atr_bonus['attribute']
+        bonus = atr_bonus['bonus']
+        t_a_bonus = atr_dict.get(atr)
+        if t_a_bonus is None:
+            atr_dict[atr] = bonus
+        else:
+            bonus = t_a_bonus + bonus
+            atr_dict[atr] = bonus
+    character = DAO.getCharacterById(id)
+    skill_bonuses = []
+    for s in skill_bonuses_dict:
+        skill_bonus = SkillBonus(s['skillId'], s['bonus'], item_bonus_id=0)
+        skill_bonuses.append(skill_bonus)
+
+    if character is not None:
+        addChromeWithHumanityCost(character, item, descr, humanity_cost=humanity_cost, atr_bonuses=atr_dict, skill_bonuses=skill_bonuses)
+
+    return logs
+
+
+def addChromeByName(name):
+    character = DAO.getCharacterByName(name)
+    addChrome(character)
+
+def addChromeWithHumanityCost(character, item, descr, humanity_cost = None, item_bonus_id: int | None = None, atr_bonuses=None, skill_bonuses=None):
+    if atr_bonuses is None or skill_bonuses is None:
         (atr_bonuses, skill_bonuses) = handleBonuses()
-    humanity_cost = handleHumanity(character)
+    if humanity_cost is None:
+        humanity_cost = handleHumanity(character)
     DAO.addChrome(character.id, item, humanity_cost, descr, item_bonus_id, atr_bonuses, skill_bonuses)
 
 

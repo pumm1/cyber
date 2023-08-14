@@ -66,7 +66,7 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
     return(
         <table>
             <tr>
-                <th>Add</th>
+                <th>Add weapon</th>
                 <th>Item</th>
                 <th>Type</th>
                 <th># Dice</th>
@@ -87,7 +87,7 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
                     <button onClick={() => addWeapon(addWeaponReq).then(updateLogsAndCharacter)}>Add</button>
                 </td>
                 <td>
-                    <input value={item} onChange={e => setItem(e.target.value)}/>
+                    <input className='inputField' value={item} onChange={e => setItem(e.target.value)}/>
                 </td>
                 <td>
                     <select>

@@ -88,7 +88,7 @@ def getCharacter(char_row) -> Character | None:
             for skill_bonus in c.skill_bonuses:
                 cybernetic_skill_bonus_ids.append(skill_bonus.skill_id)
                 chrome_item_bonus_ids.append(skill_bonus.item_bonus_id)
-        skills = getCharacterSkillsById(id, cybernetic_skill_bonus_ids, chrome_item_bonus_ids)
+        skills = getCharacterSkillsById(id)
         rep_rows = getReputationRows(id)
         reputation = sum(map(lambda rep: (
             rep['rep_level']
@@ -313,14 +313,14 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
     print(f'Character {name} ({role}) added to game')
 
 
-def characterSkillsFromRows(skill_rows) -> list[SkillInfo]:
+def characterSkillsFromRows(is_original: bool, skill_rows) -> list[SkillInfo]:
     skills = list()
     for skill in skill_rows:
         skill_lvl = skill['skill_lvl']
         if skill_lvl is None:
             skill_lvl = 0
 
-        s = SkillInfo(skill['skill_id'], skill['skill'], skill_lvl, skill['attribute'])
+        s = SkillInfo(skill['skill_id'], skill['skill'], skill_lvl, skill['attribute'], is_original)
         skills.append(s)
 
     skill_groups = defaultdict(list)
@@ -368,7 +368,7 @@ def skillByName(s_name: str):
     return skill
 
 
-def getCharacterSkillsById(id, bonus_skill_ids: [int], item_bonus_ids: [int]) -> list[SkillInfo]:
+def getCharacterSkillsById(id) -> list[SkillInfo]:
     char_skills_q = f"""{character_skills_q} cs
     JOIN {table_skills} s ON cs.skill_id = s.id
     JOIN {table_characters} c ON cs.character_id = c.id
@@ -388,8 +388,14 @@ def getCharacterSkillsById(id, bonus_skill_ids: [int], item_bonus_ids: [int]) ->
     cur.execute(item_bonus_skills_q)
     item_bonus_skill_rows = cur.fetchall()
     conn.commit()
-    skills = characterSkillsFromRows(char_skill_rows)
-    item_bonus_skills = characterSkillsFromRows(item_bonus_skill_rows)
+    skills = characterSkillsFromRows(is_original=True, skill_rows=char_skill_rows)
+    item_bonus_skills = characterSkillsFromRows(is_original=False, skill_rows=item_bonus_skill_rows)
+
+    original_skill_lvl_dict = dict([])
+    for skill in skills:
+        t_skill = original_skill_lvl_dict.get(skill.id)
+        if t_skill is None:
+            original_skill_lvl_dict[skill.id] = skill.lvl
 
     all_skills = skills + item_bonus_skills
 
@@ -397,11 +403,17 @@ def getCharacterSkillsById(id, bonus_skill_ids: [int], item_bonus_ids: [int]) ->
 
     for skill in all_skills:
         t_skill = skill_dict.get(skill.id)
+        t_orig_skill_lvl = original_skill_lvl_dict.get(skill.id)
+        if t_orig_skill_lvl is not None:
+            skill.updateOriginalLevel(t_orig_skill_lvl)
+
         if t_skill is None:
             skill_dict[skill.id] = skill
         else:
             t_skill.updateSkill(skill.lvl)
             skill_dict[skill.id] = t_skill
+
+
 
     return skill_dict.values()
 
@@ -446,7 +458,7 @@ def addArmor(character_id, item, sp, body_parts, ev, atr_dict, skill_bonuses: li
     ), body_parts)
     bod_parts_str = ', '.join(bod_parts)
 
-    item_bonus_id = insertItemBonusesReturningBonusId(atr_dict, skill_bonuses)
+    item_bonus_id = insertItemBonusesReturningBonusId(dict(atr_dict), skill_bonuses)
 
     cur.execute(
         f"""{insert} {table_character_armors} (character_id, item, sp, body_parts, ev, item_bonus_id)

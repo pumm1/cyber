@@ -3,7 +3,6 @@ import { getCharacter , Character, listSkills, Log, Attributes, CharacterSP} fro
 import './SearchCharacter.css'
 import React from "react"
 import CharacterSheet from "./CharacterSheet"
-import Window from "floating-window-ui";
 
 interface SearchCharacterProps {
     updateLogs: (s: Log[]) => void
@@ -91,9 +90,7 @@ const SearchOrCreateCharacter = ({updateLogs}: SearchCharacterProps) => {
                 <button className='searchOrCreate' onClick={() => createCharacter()}>Create</button>
             </div>
             {!!character &&
-                <Window id={'character' + character.id} height={1400} width={1000} resizable={true} titleBar={titleBarProps()}>
-                    <div className="sheetContainer"><CharacterSheet editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
-                </Window>
+                 <div><CharacterSheet editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
             }
         </div>
     )

@@ -65,18 +65,6 @@ class Character:
         return roll + self.attributes['COOL'] + self.reputation
 
     def asJson(self):
-        """
-        {fieldName('Role')}: {self.role}
-        {fieldName('Body type')}: {body_type} (Save {self.attributes[BODY]})
-        {fieldName('Body type modifier')}: {body_type_mod} (-{self.bodyTypeModifier} to dmg)
-        {fieldName('Attributes')}: {self.attributes} {atr_affected}
-        {fieldName('Humanity')}: {self.humanity}
-        {fieldName('Encumbrance (Subtracted from REF)')}: {coloredText(Fore.RED, f"{self.ev}")}
-        {fieldName('Special ability')} ({roleSpecialAbility(self.role)}): {self.specialAbility}
-        {fieldName('Reputation')}: {self.reputation}
-        {fieldName('Health')}: 40 / {40 - self.dmg_taken} ({woundState(self.dmg_taken)})
-        {fieldName('SP')}: {self.sp}
-        """
         skills = map(lambda skill: (
             skill.asJson()
         ), self.skills)

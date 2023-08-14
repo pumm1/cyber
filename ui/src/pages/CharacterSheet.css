@@ -10,9 +10,9 @@ label {
 }
 
 .sheet {
-    min-width: 800px;
+    min-width: 850px;
     min-height: 1200px;
-    padding: 16px 8px;
+    padding: 16px 0 0 0;
     font-family: monospace;
 }
 

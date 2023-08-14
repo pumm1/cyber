@@ -22,7 +22,7 @@ const LogViewer = ({logs, addToLogs}: {logs: Log[], addToLogs: (s: Log) => void}
     
     const logsIdxLimit = logs.length - 1 
     return (
-        <div>
+        <div className='logViewer'>
             <div><b>Logs</b></div>
             <div className='logs' ref={fieldRef}>
                 {logs.map((log, idx) => {
@@ -38,7 +38,7 @@ const LogViewer = ({logs, addToLogs}: {logs: Log[], addToLogs: (s: Log) => void}
             <div><button onClick={() =>{
                  addToLogs({log: input, logType: LogType.neutral})
                  setInput('')
-            }}>Add log</button></div>
+            }}>Add to logs</button></div>
         </div>
     )
 } 

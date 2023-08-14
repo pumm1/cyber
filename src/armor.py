@@ -5,8 +5,8 @@ from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_part
     uniqueArr, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, atr_info, modifier_list, BODY_TYPE_MOD, yes_no, \
     body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg, printGreenLine, coloredText
 from chrome import addChromeWithHumanityCost
-from bonus import addAttributeBonuses, handleBonuses, AtrBonus
-from logger import log_event, log_pos, log_neg
+from bonus import addAttributeBonuses, handleBonuses, AtrBonus, SkillBonus
+from logger import log_event, log_pos, log_neg, Log
 
 
 class Armor:
@@ -53,52 +53,83 @@ def checkBodyPartNum(i):
         body_part = body_part_l_leg
     return body_part
 
-def addArmorForCharacter(name):
-    character = DAO.getCharacterByName(name)
+def addArmorForCharacter(character, item=None, ev=None, humanity_cost=None, sp=None, covered_parts=None, atr_bonuses=None, skill_bonuses_dict=None) -> list[Log]:
+    logs = []
     if character is not None:
-        print(f'Give armor name:')
-        item = askInput()
-        print(f'Is chrome? {yes_no}')
-        is_chrome = False
-        while True:
-            t_chrome = askInput()
-            if t_chrome == 'y':
-                is_chrome = True
-                break
-            elif t_chrome == 'n':
-                break
-        print(f'Give SP:')
-        sp = 0
-        while True:
-            sp_i = askInput()
-            sp = safeCastToInt(sp_i)
-            if sp > 0:
-                break;
-        (atr_bonuses, skill_bonuses) = handleBonuses()
-        print('Give encumbrance (EV):')
-        ev = -1
-        while ev < 0:
-            i = askInput()
-            ev = safeCastToInt(i)
-        print(f'Give covered body parts: (end with -1 if there is at least one body part)')
-        print(body_parts_armor_info)
-        covered_parts = []
-        while len(covered_parts) < 6:
-            input = askInput()
-            if (body_parts.__contains__(input)):
-                covered_parts = uniqueArr(covered_parts.append(input))
-            elif input == '-1' and len(covered_parts) > 0:
-                break
-            else:
-                input = checkBodyPartNum(input)
-                if input is not None:
-                    covered_parts.append(input)
-                    covered_parts = uniqueArr(covered_parts)
+        if item is None:
+            print(f'Give armor name:')
+            item = askInput()
 
+        is_chrome = False
+        if humanity_cost is not None:
+
+            if humanity_cost > 0:
+                is_chrome = True
+        else:
+            print(f'Is chrome? {yes_no}')
+            while True:
+                t_chrome = askInput()
+                if t_chrome == 'y':
+                    is_chrome = True
+                    break
+                elif t_chrome == 'n':
+                    break
+        if sp is None:
+            print(f'Give SP:')
+            sp = 0
+            while True:
+                sp_i = askInput()
+                sp = safeCastToInt(sp_i)
+                if sp > 0:
+                    break;
+        if atr_bonuses is None or skill_bonuses_dict is None:
+            (atr_bonuses, skill_bonuses) = handleBonuses()
+        if ev is None:
+            print('Give encumbrance (EV):')
+            ev = -1
+            while ev < 0:
+                i = askInput()
+                ev = safeCastToInt(i)
+
+        if covered_parts is None:
+            print(f'Give covered body parts: (end with -1 if there is at least one body part)')
+            print(body_parts_armor_info)
+            covered_parts = []
+            while len(covered_parts) < 6:
+                input = askInput()
+                if (body_parts.__contains__(input)):
+                    covered_parts = uniqueArr(covered_parts.append(input))
+                elif input == '-1' and len(covered_parts) > 0:
+                    break
+                else:
+                    input = checkBodyPartNum(input)
+                    if input is not None:
+                        covered_parts.append(input)
+                        covered_parts = uniqueArr(covered_parts)
+
+        skill_bonuses = []
+        for s in skill_bonuses_dict:
+            skill_bonus = SkillBonus(s['skillId'], s['bonus'], item_bonus_id=0)
+            skill_bonuses.append(skill_bonus)
         item_bonus_id = DAO.addArmor(character.id, item, sp, covered_parts, ev, atr_bonuses, skill_bonuses)
         if is_chrome:
-            addChromeWithHumanityCost(character, item, 'Added with armor', item_bonus_id=item_bonus_id)
-        printGreenLine(f'Armor added!')
+            addChromeWithHumanityCost(
+                character, item, 'Added with armor', item_bonus_id=item_bonus_id, humanity_cost=humanity_cost,
+                atr_bonuses=atr_bonuses, skill_bonuses=skill_bonuses
+            )
+        logs = log_event(logs, f'Armor added!', log_pos)
+    else:
+        logs = log_event(logs, 'Character not found for armor adding', log_neg)
+    return logs
+
+
+def addArmorForCharacterById(id, item, ev, sp, body_parts, humanity_cost, atr_bonuses, skill_bonuses_dict):
+    character = DAO.getCharacterById(id)
+    return addArmorForCharacter(character, item, ev, humanity_cost, sp, body_parts, atr_bonuses, skill_bonuses_dict)
+
+def addArmorForCharacterByName(name):
+    character = DAO.getCharacterByName(name)
+    return addArmorForCharacter(character)
 
 
 def repairCharSP(char) -> bool:

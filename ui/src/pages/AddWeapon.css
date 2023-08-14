@@ -1,3 +1,7 @@
 .form {
     margin-top: 4px;
 }
+
+.inputField {
+    max-width: 100px;
+}
