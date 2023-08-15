@@ -51,24 +51,19 @@ const characterToCreate: Character = {
 }
 
 const SearchOrCreateCharacter = ({updateLogs}: SearchCharacterProps) => {
-    const [name, setName] = useState('')
+    const [name, setName] = useState<string>('')
     const [characterEditable, setCharacterEditable] = useState(false)
     const [character, setCharacter] = useState<undefined | null | Character>(undefined)
     const [allSkills, setAllSkills] = useState<any[] | undefined>(undefined)
 
     useEffect(() => {
         listSkills().then(setAllSkills)
+        const queryParameters = new URLSearchParams(window.location.search)
+        const initialCharName = queryParameters.get("name") ?? ''
+        console.log(initialCharName) //name not set for some reason..?
+        setName(initialCharName)
     }, [])
 
-    const windowName = characterEditable ? 'New character' : character?.name ?? ''
-
-    const titleBarProps = () => ({
-        title: windowName,
-        buttons: {
-            close: () => setCharacter(undefined)
-        }
-    })
-    
     const updateCharacter = (): Promise<void> => {
         setCharacterEditable(false)
         return getCharacter(name).then(setCharacter)
@@ -83,9 +78,7 @@ const SearchOrCreateCharacter = ({updateLogs}: SearchCharacterProps) => {
         <div>
             <div className="search">
                 <label>Search</label>
-                <input type="text" onChange={(event) => {
-                            setName(event.target.value);
-                        }}/>
+                <input type="text" onChange={event => setName(event.target.value)}/>
                 <button className='searchOrCreate' onClick={() => updateCharacter()}>Search</button>
                 <button className='searchOrCreate' onClick={() => createCharacter()}>Create</button>
             </div>

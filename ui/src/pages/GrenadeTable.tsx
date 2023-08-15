@@ -26,7 +26,7 @@ const GrenadeTable = ({}) => {
             <div className='grenadeTable'>
                 {show && 
                     <div className='tableContainer'>
-                        {grids.map(g => <span>{g}</span>)}
+                        {grids.map(g => <span key={g}>{g}</span>)}
                     </div>
                 }
             </div>

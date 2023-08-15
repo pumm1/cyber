@@ -270,7 +270,7 @@ def start():
         elif command.startswith(remove_armor_str):
             match command_parts:
                 case [_, name, armor_id]:
-                    armor.removeArmor(name, armor_id)
+                    armor.removeArmorByName(name, armor_id)
                 case _:
                     print(f'{remove_armor_help_str}')
         elif command.startswith(add_status_str):

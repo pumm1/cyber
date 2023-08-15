@@ -33,6 +33,13 @@ character_q = f'{select_from} {table_characters} c '
 character_skills_q = f'{select_from} {table_character_skills}'
 character_weapons_q = f'{select_from} {table_character_weapons}'
 character_armors_q = f'{select_from} {table_character_armors}'
+character_armors_with_bonuses_q = f"""
+{character_armors_q} a
+JOIN {table_item_bonuses} b 
+ON a.item_bonus_id = b.id
+JOIN {table_item_atr_bonuses} ab
+ON b.item_atr_id = ab.id
+"""
 character_chrome_q = f'{select_from} {table_character_chrome}'
 character_statuses_q = f'{select_from} {table_character_statuses}'
 skills_q = f'{select_from} {table_skills}'
@@ -122,7 +129,7 @@ def getCharacter(char_row) -> Character | None:
             INT: int + item_modifier_bonuses[INT],
             REF: ref - ev_total + item_modifier_bonuses[REF],
             TECH: char_row['atr_tech'] + item_modifier_bonuses[TECH],
-            COOL: cool + item_modifier_bonuses[TECH],
+            COOL: cool + item_modifier_bonuses[COOL],
             ATTR: char_row['atr_attr'] + item_modifier_bonuses[ATTR],
             MA: char_row['atr_ma'] + item_modifier_bonuses[MA],
             BODY: char_row['atr_body'] + item_modifier_bonuses[BODY],
@@ -458,9 +465,6 @@ def addArmor(character_id, item, sp, body_parts, ev, atr_dict: dict, skill_bonus
     ), body_parts)
     bod_parts_str = ', '.join(bod_parts)
 
-    print(f'... atr_dict for addArmor: {atr_dict}')
-    print(f'... skill bonuses for addArmor: {skill_bonuses}')
-
     item_bonus_id = insertItemBonusesReturningBonusId(dict(atr_dict), skill_bonuses)
 
     cur.execute(
@@ -723,12 +727,12 @@ def characterEV(character_id) -> int:
 
 def getArmor(character_id, id):
     cur.execute(
-        f"""{character_armors_q} WHERE id = {id} AND character_id = {character_id};"""
+        f"""{character_armors_with_bonuses_q} WHERE armor_id = {id} AND character_id = {character_id};"""
     )
     row = cur.fetchone()
     conn.commit()
     if row is None:
-        print(f'Armor not found by id {id} for character {character_id}')
+        print(f'Armor not found by armor_id {id} for character {character_id}')
     return row
 
 
@@ -739,10 +743,37 @@ def deleteCharacterArmor(character_id, armor_id):
         for body_part in armor.body_parts:
             updateCharacterMaxSp(character_id, body_part, -1 * armor.sp)
         cur.execute(
-            f"""{delete_from} {table_character_armors} WHERE character_id = {character_id} AND id = {armor_id};"""
+            f"""
+            {delete_from} {table_character_armors} 
+            WHERE character_id = {character_id} AND armor_id = {armor_id}
+            RETURNING item_bonus_id;"""
         )
+        item_bonus = cur.fetchone()
+        item_bonus_id = item_bonus['item_bonus_id']
+
+        cur.execute(
+            f"""
+            {delete_from} {table_character_chrome} c
+            WHERE c.item_bonus_id = {item_bonus_id};
+            """
+        )
+
+        cur.execute(
+            f"""
+            {delete_from} {table_item_skill_bonus}
+            WHERE item_bonus_id = {item_bonus_id};
+            """
+        )
+
+        cur.execute(
+            f"""
+            {delete_from} {table_item_bonuses}
+            WHERE id = {item_bonus_id};
+            """
+        )
+
         conn.commit();
-        print(f'Character armor removed')
+
 
 
 def addCharacterStatus(character_id, status, effect):

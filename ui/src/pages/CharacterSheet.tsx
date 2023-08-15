@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -463,13 +463,22 @@ const CharacterWeapons = (
 }
 
 interface CharacterArmorProps {
+    characterId: number
     armors: Armor[] 
+    updateLogsAndCharacter: (resLogs: Log[]) => void
 }
 
 interface ArmorRowProps {
+    characterId: number
     armor: Armor
+    updateLogsAndCharacter: (resLogs: Log[]) => void
 }
-const ArmorRow = ({armor}: ArmorRowProps) => {
+const ArmorRow = ({armor, characterId, updateLogsAndCharacter}: ArmorRowProps) => {
+    const removeArmorReq: RemoveArmorReq = {
+        charId: characterId,
+        armorId: armor.id
+    }
+    
     return (
         <tr>
             <td>
@@ -481,19 +490,23 @@ const ArmorRow = ({armor}: ArmorRowProps) => {
             <td>
                 [{armor.bodyParts.join(', ')}]
             </td>
+            <td>
+                <button onClick={() => removeArmor(removeArmorReq).then(updateLogsAndCharacter)}>Remove [{armor.item}]</button>
+            </td>
         </tr>
     )
 }
 
-const CharacterArmor = ({armors}: CharacterArmorProps) => {
+const CharacterArmor = ({armors, updateLogsAndCharacter, characterId}: CharacterArmorProps) => {
     return(
         <table>
             <tr>
                 <th>Armor</th>
                 <th>SP</th>
                 <th>Covers</th>
+                <th>Remove</th>
             </tr>
-            {armors.map(a => <ArmorRow armor={a}/>)}
+            {armors.map(a => <ArmorRow characterId={characterId} armor={a} updateLogsAndCharacter={updateLogsAndCharacter}/>)}
         </table>
     )
 }
@@ -839,7 +852,7 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
             <AddWeapon characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
             <CharacterWeapons weapons={character.weapons} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
             {allSkills && <AddArmor allSkills={allSkills} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>}
-            <CharacterArmor armors={character.armor}/>
+            <CharacterArmor armors={character.armor} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id}/>
             <AddChrome allSkills={allSkills ?? []} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
             <CharacterChrome charChrome={character.chrome}/>
         </div>

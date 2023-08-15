@@ -65,7 +65,6 @@ def rollSkill():
         char_id = data['charId']
         skill_id = data['skillId']
         added_luck = data['addedLuck']
-        print(f'.... roll char {char_id} skill {skill_id} added luck {added_luck}')
         return jsonify(skills.rollCharacterSkillById(char_id, skill_id, 0, 0, added_luck))
     else:
         return "Invalid request", 400
@@ -89,7 +88,6 @@ def listSkills():
 def attack():
     if request.method == post:
         data = request.get_json()
-        print(f'..... data: {data}')
         weapon_id = data['weaponId']
         given_roll = data['givenRoll']
         char_id = data['charId']
@@ -155,7 +153,6 @@ def dmg():
         body_part = data['bodyPart']
         dmg = data['dmg']
         res = combat.hitCharacterById(char_id, body_part=body_part, dmg_str=dmg, pass_sp=False)
-        print(f'... res: {res}')
         return jsonify(res)
     else:
         return "Invalid request", 400
@@ -167,7 +164,6 @@ def saveIP():
         char_id = data['charId']
         ipAmount = data['ipAmount']
         res = ip.saveIP(char_id, ipAmount)
-        print(f'... res: {res}')
         return jsonify(res)
     else:
         return "Invalid request", 400
@@ -195,7 +191,6 @@ def addWeapon():
             char_id, dice_num, die, divide_by, dmg_bonus, item, clip_size, rof,
             humanity_cost, weapon_type, wa, con, weight, reliability, effect_radius
         )
-        print(f'... res: {res}')
         return jsonify(res)
     else:
         return "Invalid request", 400
@@ -233,6 +228,20 @@ def addArmor():
 
         res = armor.addArmorForCharacterById(
             char_id, item, ev, sp, body_parts, humanity_cost, atr_bonuses, skill_bonuses_dict
+        )
+        return jsonify(res)
+    else:
+        return "Invalid request", 400
+
+@app.route('/remove-armor', methods = [post])
+def removeArmor():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        armor_id = data['armorId']
+
+        res = armor.removeArmorByCharacterId(
+            char_id, armor_id
         )
         return jsonify(res)
     else:

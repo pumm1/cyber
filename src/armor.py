@@ -6,26 +6,27 @@ from gameHelper import askInput, safeCastToInt, body_parts_armor_info, body_part
     body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg, printGreenLine, coloredText
 from chrome import addChromeWithHumanityCost
 from bonus import addAttributeBonuses, handleBonuses, AtrBonus, SkillBonus
-from logger import log_event, log_pos, log_neg, Log
+from logger import log_event, log_pos, log_neg, Log, log_neutral
 
 
 class Armor:
     def __init__(self, row):
-        self.id = row['id']
+        self.id = row['armor_id']
         self.item = row['item']
         self.sp = row['sp']
         self.body_parts = row['body_parts']
         self.ev = row['ev']
         self.character_id = row['character_id']
-        attributes = AtrBonus(row)
-        self.atr_bonuses = attributes
+        atr_bonuses = AtrBonus(row)
+        self.atr_bonuses = atr_bonuses
 
     def asJson(self):
         resJson = {
             'id': self.id,
             'item': self.item,
             'sp': self.sp,
-            'bodyParts': self.body_parts
+            'bodyParts': self.body_parts,
+            'attributeBonuses': self.atr_bonuses.asJson()
         }
 
         return resJson
@@ -67,7 +68,8 @@ def addArmorForCharacter(character, item=None, ev=None, humanity_cost=None, sp=N
 
         is_chrome = False
         if humanity_cost is not None:
-            is_chrome = True
+            if len(skill_bonuses_dict) > 0:
+                is_chrome = True
         else:
             print(f'Is chrome? {yes_no}')
             while True:
@@ -116,6 +118,7 @@ def addArmorForCharacter(character, item=None, ev=None, humanity_cost=None, sp=N
             skill_bonuses.append(skill_bonus)
 
         item_bonus_id = DAO.addArmor(character.id, item, sp, covered_parts, ev, atr_bonuses, skill_bonuses)
+        chrome_logs = []
         if is_chrome:
             chrome_logs = addChromeWithHumanityCost(
                 character, item, 'Added with armor', item_bonus_id=item_bonus_id, humanity_cost=humanity_cost,
@@ -161,7 +164,21 @@ def repairSPByName(name) -> bool:
     return repairCharSP(char)
 
 
-def removeArmor(name, armor_id):
+def removeArmor(character, armor_id) -> list[Log]:
+    logs = []
+    if character is not None:
+        DAO.deleteCharacterArmor(character.id, armor_id)
+        logs = log_event(logs, f'Character armor removed', log_neutral)
+    else:
+        logs = log_event(logs, f'Character not found for armor removal', log_neg)
+    return logs
+
+
+def removeArmorByCharacterId(id, armor_id) -> list[Log]:
+    char = DAO.getCharacterById(id)
+    return removeArmor(char, armor_id)
+
+
+def removeArmorByName(name, armor_id):
     char = DAO.getCharacterByName(name)
-    if char is not None:
-        DAO.deleteCharacterArmor(char.id, armor_id)
+    removeArmor(char, armor_id)

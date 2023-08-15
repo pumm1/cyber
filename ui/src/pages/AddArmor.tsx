@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { AddArmorReq, Attribute, AttributeBonus, BodyPart, Log, Skill, SkillBonus, addArmor, attributes } from './CyberClient'
+import { AddArmorReq, Attribute, AttributeBTM, AttributeBonus, BodyPart, Log, Skill, SkillBonus, addArmor, attributes } from './CyberClient'
 import './AddWeapon.css'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import { AtrBonuses, SkillBonuses } from './AddChrome'
@@ -18,7 +18,7 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
     const [ev, setEv] = useState(0)
     const [attributeBonuses, setAttributeBonuses] = useState<AttributeBonus[]>([])
     const [skillBonuses, setSkillBonuses] = useState<SkillBonus[]>([])
-    const [attribute, setAtr] = useState(Attribute.INT)
+    const [attribute, setAtr] = useState<Attribute | AttributeBTM>(Attribute.INT)
     const [atrBonus, setAtrBonus] = useState(0)
     const [skillId, setSkillId] = useState(1)
     const [skillBonus, setSkillBonus] = useState(0)
@@ -76,7 +76,7 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
                 <th>(Opt. HL)</th>
             </tr>
             <tr>
-                <td><button onClick={() => addArmor(addArmorReq).then(updateLogsAndCharacter)}>Add</button></td>
+                <td><button disabled={bodyParts.length <= 0} onClick={() => addArmor(addArmorReq).then(updateLogsAndCharacter)}>Add</button></td>
                 <td>
                     <input className='inputField' value={item} onChange={e => setItem(e.target.value)}/>
                 </td>

@@ -35,13 +35,17 @@ export enum Attribute {
     TECH = 'TECH'
 }
 
+export enum AttributeBTM {
+    BTM = 'body_type_modifier'
+}
+
 export const attributes = [
     Attribute.ATTR, Attribute.BODY, Attribute.COOL, Attribute.EMP, Attribute.INT, 
-    Attribute.LUCK, Attribute.MA, Attribute.REF, Attribute.TECH
+    Attribute.LUCK, Attribute.MA, Attribute.REF, Attribute.TECH, AttributeBTM.BTM
 ]
 
 export interface AttributeBonus {
-    attribute: Attribute
+    attribute: Attribute | AttributeBTM
     bonus: number
 }
 
@@ -351,3 +355,10 @@ export interface AddArmorReq extends CharacterReq {
 
 export const addArmor = (a: AddArmorReq) =>
     postDataAs<Log[]>(`${pathBase}/add-armor`, a)
+
+export interface RemoveArmorReq extends CharacterReq {
+    armorId: number
+}
+
+export const removeArmor = (r: RemoveArmorReq) =>
+    postDataAs<Log[]>(`${pathBase}/remove-armor`, r)

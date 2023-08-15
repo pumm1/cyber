@@ -2,7 +2,7 @@ from colorama import Fore
 
 from gameHelper import INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, BODY_TYPE_MOD, askInput, yes_no, modifier_list, \
     atr_info, safeCastToInt, list_skills_helper_str, list_skills_str, split_at, coloredText, body_type_mod, atr_int, \
-    atr_emp, atr_luck, atr_body, atr_ma, atr_attr, atr_ref, atr_tech
+    atr_emp, atr_luck, atr_body, atr_ma, atr_attr, atr_ref, atr_tech, atr_cool
 import skills
 import cyberdao as DAO
 
@@ -13,7 +13,7 @@ class AtrBonus:
             INT: atr_row[atr_int],
             REF: atr_row[atr_ref],
             TECH: atr_row[atr_tech],
-            COOL: atr_row[atr_ref],
+            COOL: atr_row[atr_cool],
             ATTR: atr_row[atr_attr],
             MA: atr_row[atr_ma],
             BODY: atr_row[atr_body],

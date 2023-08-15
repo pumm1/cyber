@@ -233,4 +233,7 @@ ADD COLUMN ip integer not null default 0;
 ALTER TABLE cyberpunk.characters
 ALTER COLUMN ip DROP DEFAULT;
 
+ALTER TABLE cyberpunk.character_armor
+RENAME COLUMN id TO armor_id;
+
 COMMIT;
