@@ -230,7 +230,6 @@ def addArmor():
         atr_bonuses = data['attributeBonuses']
         skill_bonuses_dict = data['skillBonuses']
         humanity_cost = data['humanityCost']
-        print(f'.....atr bonuses: {atr_bonuses}')
 
         res = armor.addArmorForCharacterById(
             char_id, item, ev, sp, body_parts, humanity_cost, atr_bonuses, skill_bonuses_dict

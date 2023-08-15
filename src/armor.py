@@ -55,6 +55,11 @@ def checkBodyPartNum(i):
 
 def addArmorForCharacter(character, item=None, ev=None, humanity_cost=None, sp=None, covered_parts=None, atr_bonuses=None, skill_bonuses_dict=None) -> list[Log]:
     logs = []
+    """
+        small HAX: 
+        armor could use all bonuses, but it's not fetched now for armor (would be easy fix..),
+        but skill improvements feel more like chrome thing
+    """
     if character is not None:
         if item is None:
             print(f'Give armor name:')
@@ -62,9 +67,7 @@ def addArmorForCharacter(character, item=None, ev=None, humanity_cost=None, sp=N
 
         is_chrome = False
         if humanity_cost is not None:
-
-            if humanity_cost > 0:
-                is_chrome = True
+            is_chrome = True
         else:
             print(f'Is chrome? {yes_no}')
             while True:
@@ -81,7 +84,7 @@ def addArmorForCharacter(character, item=None, ev=None, humanity_cost=None, sp=N
                 sp_i = askInput()
                 sp = safeCastToInt(sp_i)
                 if sp > 0:
-                    break;
+                    break
         if atr_bonuses is None or skill_bonuses_dict is None:
             (atr_bonuses, skill_bonuses) = handleBonuses()
         if ev is None:
@@ -111,20 +114,26 @@ def addArmorForCharacter(character, item=None, ev=None, humanity_cost=None, sp=N
         for s in skill_bonuses_dict:
             skill_bonus = SkillBonus(s['skillId'], s['bonus'], item_bonus_id=0)
             skill_bonuses.append(skill_bonus)
+
         item_bonus_id = DAO.addArmor(character.id, item, sp, covered_parts, ev, atr_bonuses, skill_bonuses)
         if is_chrome:
-            addChromeWithHumanityCost(
+            chrome_logs = addChromeWithHumanityCost(
                 character, item, 'Added with armor', item_bonus_id=item_bonus_id, humanity_cost=humanity_cost,
-                atr_bonuses=atr_bonuses, skill_bonuses=skill_bonuses
+                atr_bonuses={}, skill_bonuses=skill_bonuses
             )
+        logs = logs + chrome_logs
         logs = log_event(logs, f'Armor added!', log_pos)
     else:
         logs = log_event(logs, 'Character not found for armor adding', log_neg)
     return logs
 
 
-def addArmorForCharacterById(id, item, ev, sp, body_parts, humanity_cost, atr_bonuses, skill_bonuses_dict):
+def addArmorForCharacterById(id, item, ev, sp, body_parts, humanity_cost, atr_bonuses_arr, skill_bonuses_dict):
     character = DAO.getCharacterById(id)
+    atr_bonuses = {}
+    for a in atr_bonuses_arr:
+        atr = a.pop('attribute')
+        atr_bonuses[atr] = a['bonus']
     return addArmorForCharacter(character, item, ev, humanity_cost, sp, body_parts, atr_bonuses, skill_bonuses_dict)
 
 def addArmorForCharacterByName(name):

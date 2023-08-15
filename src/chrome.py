@@ -6,7 +6,7 @@ import cyberdao as DAO
 from dice import roll
 from gameHelper import askInput, roll_str, askForRoll, safeCastToInt, EMP, printGreenLine, printRedLine, coloredText
 from bonus import handleBonuses, AtrBonus, SkillBonus
-from logger import Log
+from logger import Log, log_event, log_neutral, log_neg
 
 
 class Chrome:
@@ -71,26 +71,29 @@ def addChromeByCharacterId(id, item, descr, humanity_cost, atr_bonuses, skill_bo
         skill_bonuses.append(skill_bonus)
 
     if character is not None:
-        addChromeWithHumanityCost(character, item, descr, humanity_cost=humanity_cost, atr_bonuses=atr_dict, skill_bonuses=skill_bonuses)
+        chrome_logs = addChromeWithHumanityCost(character, item, descr, humanity_cost=humanity_cost, atr_bonuses=atr_dict, skill_bonuses=skill_bonuses)
 
-    return logs
+    return logs + chrome_logs
 
 
 def addChromeByName(name):
     character = DAO.getCharacterByName(name)
     addChrome(character)
 
-def addChromeWithHumanityCost(character, item, descr, humanity_cost = None, item_bonus_id: int | None = None, atr_bonuses=None, skill_bonuses=None):
+def addChromeWithHumanityCost(
+        character, item, descr, humanity_cost = None, item_bonus_id: int | None = None, atr_bonuses=None, skill_bonuses=None
+) -> list[Log]:
     if atr_bonuses is None or skill_bonuses is None:
         (atr_bonuses, skill_bonuses) = handleBonuses()
-    if humanity_cost is None:
-        humanity_cost = handleHumanity(character)
+    (humanity_cost, logs) = handleHumanity(character, humanity_cost)
     DAO.addChrome(character.id, item, humanity_cost, descr, item_bonus_id, atr_bonuses, skill_bonuses)
 
+    return logs
 
-def handleHumanity(char, humanity_cost=None):
-    print(f'Reduce humanity for chrome ({roll_str} or <amount>)')
+
+def handleHumanity(char, humanity_cost=None) -> list[Log]:
     if humanity_cost is None:
+        print(f'Reduce humanity for chrome ({roll_str} or <amount>)')
         humanity_cost = 0
         while True:
             i = askInput()
@@ -108,8 +111,9 @@ def handleHumanity(char, humanity_cost=None):
     curr_hum = char.humanity
     t_hum = curr_hum - humanity_cost
     emp = math.ceil(t_hum / 10)
-    print(f'Curr emp: {char.attributes[EMP]} - new emp: {emp}')
-    printRedLine(f'Current humanity: {curr_hum} - new humanity: {t_hum}')
+    logs = log_event([], f'Curr emp: {char.attributes[EMP]} - new emp: {emp}', log_neutral)
+    logs = log_event(logs, f'Current humanity: {curr_hum} - new humanity: {t_hum}', log_neg)
     DAO.reduceHumanity(char.id, t_hum, emp)
-    print(f'Updated humanity and empathy')
-    return humanity_cost
+    logs = log_event(logs, f'Updated humanity and empathy', log_neutral
+                     )
+    return (humanity_cost, logs)

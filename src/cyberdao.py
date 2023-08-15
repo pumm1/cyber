@@ -452,11 +452,14 @@ def listSkills():
     return skills
 
 
-def addArmor(character_id, item, sp, body_parts, ev, atr_dict, skill_bonuses: list = []):
+def addArmor(character_id, item, sp, body_parts, ev, atr_dict: dict, skill_bonuses: list = []):
     bod_parts = map(lambda bp: (
         f"'{bp}'"
     ), body_parts)
     bod_parts_str = ', '.join(bod_parts)
+
+    print(f'... atr_dict for addArmor: {atr_dict}')
+    print(f'... skill bonuses for addArmor: {skill_bonuses}')
 
     item_bonus_id = insertItemBonusesReturningBonusId(dict(atr_dict), skill_bonuses)
 
