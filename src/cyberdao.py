@@ -100,6 +100,8 @@ def getCharacter(char_row) -> Character | None:
         reputation = sum(map(lambda rep: (
             rep['rep_level']
         ), rep_rows))
+        print(f'.... rep rows: {rep_rows}')
+        print(f'.... reputation: {reputation}')
         sp_row = characterSpById(id)
         ev_total = characterEV(id)
         armors = getCharacterArmors(id)
@@ -234,7 +236,6 @@ def clearCombat():
         f"""{delete_from} {table_combat_session};"""
     )
     conn.commit()
-    print('Combat table cleared')
 
 
 def resetCurrentOrder():

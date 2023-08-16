@@ -23,6 +23,8 @@ import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
 import status
 import notice
+from initiative import Initiative
+from logger import Log, log_neutral, log_event, log_neg, log_pos
 
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
@@ -144,7 +146,7 @@ def start():
         elif command.startswith(add_reputation_str):
             match command_parts:
                 case [_, character, amount]:
-                    addReputation(character, amount)
+                    addReputationByName(character, amount)
                 case _:
                     print(f'{add_reputation_help_str}')
         elif command.startswith(list_rep_str):
@@ -160,7 +162,7 @@ def start():
         elif command.startswith(new_combat_initiative_str):  # nci = new combat initiative, add to combat sequence
             match command_parts:
                 case [_, name, initiative]:
-                    addToCombat(name, int(initiative))
+                    addToCombatByName(name, int(initiative))
                 case _:
                     print(new_combat_initiative_help_str)
         elif command.startswith(clear_combat_str):  # cc = clear combat
@@ -319,29 +321,55 @@ def listCombatInitiative():
     print(f"Turn order: \n{info}")
 
 
-def addReputation(char, rep_amount):
-    rep = safeCastToInt(rep_amount)
-    character = DAO.getCharacterByName(char)
+def combatInitiativeOrder() -> list[str]:
+    rows = DAO.listCombatInitiative(ascending=False)
+    initiative_arr = map(lambda row: (
+        Initiative(row).asJson()
+    ), rows)
+
+    return list(initiative_arr)
+
+
+def addReputation(character, rep, rep_for=None) -> list[Log]:
+    logs = []
+    def addRep(rep_for, rep) -> list[Log]:
+        DAO.addReputation(character.id, rep_for, rep)
+        return log_event(logs, f'Reputation added for {character.name}', log_pos)
+
     rep_type = 'positive'
     if rep < 0:
         rep_type = 'negative'
     if character is not None:
         tries = 0
-        print(f"Add {rep_type} reputation for {character.name}? {yes_no}")
-        while tries < 3:
-            command = askInput()
-            if command == 'y':
-                print(f'What is {character.name} gaining reputation for?')
-                info = askInputCaseSensitive()
-                DAO.addReputation(character.id, info, rep)
-                printGreenLine(f'Reputation added for {character.name}')
-                break
-            elif command == 'n':
-                print(f'Cancelling reputation add for {character.name}')
-                break
-            tries = tries + 1
+        if rep_for is None:
+            print(f"Add {rep_type} reputation for {character.name}? {yes_no}")
+            while tries < 3:
+                command = askInput()
+                if command == 'y':
+                    print(f'What is {character.name} gaining reputation for?')
+                    rep_for = askInputCaseSensitive()
+                    logs = addRep(rep_for, rep)
+                    break
+                elif command == 'n':
+                    logs = (logs, f'Cancelling reputation add for {character.name}', log_neutral)
+                    break
+                tries = tries + 1
+        else:
+            logs = addRep(rep_for, rep)
     else:
-        print(f'Character not found by name {char}')
+        logs = log_event(logs, f'Character not found', log_neg)
+    return logs
+
+
+def addReputationById(id, rep_amount, rep_for):
+    character = DAO.getCharacterById(id)
+    return addReputation(character, rep_amount, rep_for)
+
+
+def addReputationByName(char, rep_amount):
+    rep = safeCastToInt(rep_amount)
+    character = DAO.getCharacterByName(char)
+    return addReputation(character, rep)
 
 
 def listCharacterRep(name):
@@ -353,9 +381,10 @@ def listCharacterRep(name):
             print(f"{rep['known_for']} (level: {rep['rep_level']})")
 
 
-def advanceCombatSeq():
-    def printTurn(character):
-        print(f"{character}'s turn!")
+def advanceCombatSeq() -> list[Log]:
+    logs = []
+    def printTurn(character, logs):
+        return log_event(logs, f"{character}'s turn!", log_neutral)
 
     rows = DAO.listCombatInitiative(ascending=True)
     queue = deque(rows)
@@ -365,14 +394,14 @@ def advanceCombatSeq():
     notInOrder = True
     notStarted = all(v['current'] == False for v in rows)
     if not enough_in_combat:
-        print(f'Not enough characters in combat: {characters_in_combat}')
+        logs = log_event(logs, f'Not enough characters in combat: {characters_in_combat}', log_neutral)
         notInOrder = False
     elif notStarted:
         notInOrder = False
-        print('Starting combat sequence!')
+        logs = log_event(logs, 'Starting combat sequence!', log_neutral)
         c = queue.pop()
         DAO.setNextInOrder(c['character_id'])
-        printTurn(c['name'])
+        logs = printTurn(c['name'], logs)
 
     while notInOrder:
         c = queue.pop()
@@ -384,20 +413,36 @@ def advanceCombatSeq():
 
             DAO.resetCurrentOrder()
             DAO.setNextInOrder(next['character_id'])
-            printTurn(next['name'])
+            logs = printTurn(next['name'], logs)
         else:
             queue.appendleft(c)
+    return logs
 
 
-def clearCombat():
+def clearCombat() -> list[Log]:
     DAO.clearCombat()
+    return log_event([], 'Combat table cleared', log_neutral)
 
 
-def addToCombat(name, initiative):
-    character = DAO.getCharacterByName(name)
+
+def addToCombat(character, initiative) -> list[Log]:
+    logs = []
     if character is not None:
         DAO.addCharacterToCombat(character.id, initiative)
-        print(f'{character.name} added to combat session')
+        logs = log_event(logs, f'{character.name} added to combat session', log_neutral)
+    else:
+        logs = log_event(logs, 'character not found', log_neg)
+    return logs
+
+
+def addToCombatByid(id, initiative):
+    character = DAO.getCharacterById(id)
+    return addToCombat(character, initiative)
+
+
+def addToCombatByName(name, initiative):
+    character = DAO.getCharacterByName(name)
+    return addToCombat(character, initiative)
 
 
 #param = all/combat/info

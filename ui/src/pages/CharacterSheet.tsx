@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -21,8 +21,6 @@ const roles = {
 }
 
 //TODO:
-//tallenna IP..?
-//FA toimimaan
 //opt LUCK skilleihin
 //thrown toimimaan?
 
@@ -229,7 +227,7 @@ interface SkillsByAttributeProps extends SkillsProps{
 }
 
 const SkillsByAttribute = ({attribute, skills, characterSkills, character, updateCharacter}: SkillsByAttributeProps) => 
-    <span key={attribute}>
+    <span>
         <b>{attribute}</b>
         {skills.filter(s => s.attribute === attribute).map(s => <SkillRowByCharacterSkills skill={s} characterSkills={characterSkills} charId={character.id} updateCharacter={updateCharacter}/>)}
     </span>
@@ -240,7 +238,7 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
         updateCharacter()
     }
 
-    const spceialSkill: Skill = {
+    const specialSkill: Skill = {
         skill: character.specialAbility,
         attribute:  Attribute.REF, //TODO
         description: '', //TODO
@@ -249,7 +247,7 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
 
     const specialRollReq: RollSkillReq = {
         charId: character.id,
-        skillId: spceialSkill.id,
+        skillId: specialSkill.id,
         addedLuck: 0
     }
     const [ipToAdd, setIpToadd] = useState(0)
@@ -262,6 +260,15 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
         updateIP(ipReq).then(updateLogsAndCharacter).then(() => setIpToadd(0))
     }
 
+    const [showAddRep, setShowAddRep] = useState(false)
+    const [addRep, setAddRep] = useState(0)
+    const [repFor, setRepFor] = useState('')
+    const addRepReq: AddRepReq = {
+        charId: character.id,
+        rep: addRep,
+        repFor
+    }
+
    return (
     <>
         <label>Skills</label>
@@ -269,15 +276,29 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
             <div className='skills'>
                 <span>
                     <b>Special ability</b>
-                    <SkillRow charOriginalSkillLvl={character.specialAbilityLvl} roll={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={spceialSkill} />
+                    <SkillRow charOriginalSkillLvl={character.specialAbilityLvl} roll={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={specialSkill} />
                 </span>
-                {attributesInOrder.map(atr => <SkillsByAttribute updateCharacter={updateCharacter} updateLogs={updateLogs} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
-                <StatValue field='REP' value={2}/>
-                <span className='ipToAdd'>
+                {attributesInOrder.map(atr => <SkillsByAttribute key={'atr' + atr} updateCharacter={updateCharacter} updateLogs={updateLogs} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
+                <span className='valueToAdd'>
+                    <StatValue field='REP' value={character.reputation}/>
+                    <button onClick={() => setShowAddRep(!showAddRep)}>{showAddRep ? 'Hide' : 'Show'} REP form</button>
+                </span>
+                <div className='repForm'>
+                    {showAddRep &&
+                        <div>
+                            <span className='valueToAdd'>{addRep}<ValueChanger onChange={setAddRep} baseValue={addRep} /></span>
+                            <span className='valueToAdd'>
+                                <textarea placeholder={'Reputation gained for...'} value={repFor} onChange={e => setRepFor(e.target.value)}/>
+                                <button disabled={addRep === 0} className='formButton' onClick={() => addReputation(addRepReq).then(updateLogsAndCharacter)}>Add rep</button>
+                            </span>
+                        </div>   
+                    }
+                </div>
+                <span className='valueToAdd'>
                     <StatValue field='Current IP' value={character.ip}/>
                     ({ipToAdd})
                     <ValueChanger onChange={setIpToadd} baseValue={ipToAdd} />
-                    <button className='ipButton' disabled={ipToAdd === 0} onClick={updateIp}>Change IP</button>
+                    <button className='formButton' disabled={ipToAdd === 0} onClick={updateIp}>Change IP</button>
                 </span>
                 <StatValue field='Humanity' value={character.humanity}/>
             </div>
@@ -506,7 +527,7 @@ const CharacterArmor = ({armors, updateLogsAndCharacter, characterId}: Character
                 <th>Covers</th>
                 <th>Remove</th>
             </tr>
-            {armors.map(a => <ArmorRow characterId={characterId} armor={a} updateLogsAndCharacter={updateLogsAndCharacter}/>)}
+            {armors.map(a => <ArmorRow key={'armor' + a.id} characterId={characterId} armor={a} updateLogsAndCharacter={updateLogsAndCharacter}/>)}
         </table>
     )
 }
@@ -539,7 +560,7 @@ const CharacterChrome = ({charChrome}: CharacterChromeProps) => {
                     <th>Description</th>
                 </tr>
                 {charChrome.map(c => 
-                    <ChromeRow chrome={c}/>
+                    <ChromeRow key={'chrome' + c.id} chrome={c}/>
                 )}
             </table>
         </>
@@ -651,7 +672,7 @@ const FourDmgBoxes = ({upper, lower, boxesTicked}: FourDmgBoxesProps) => {
                             </div>
                         )
                     }
-                    return <div className='dmgBoxSet'>{arr}</div>;
+                    return <div key={'dmg'} className='dmgBoxSet'>{arr}</div>;
                 })()}
         </>
        <div className='dmgStun'>{lower}</div>
@@ -731,19 +752,34 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, updateC
     )
 }
 
-interface TextFieldProps {
-    fieldName: string
+interface HandleProps {
+    characterId?: number
     value: string
     edit: boolean
-    onUpdate: (n: string) => void 
+    onUpdate: (n: string) => void
+    updateLogsAndCharacter: (l: Log[]) => void
+    allowAddingToInitiative: boolean
 }
 
-const TextField = ({fieldName, value, edit, onUpdate}: TextFieldProps) => {
+const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, allowAddingToInitiative}: HandleProps) => {
+    const [initiative, setInitiative] = useState(0)
+    const [addedToCombat, setAddedToCombat] = useState(false)
+
+    const addToCombatReq: AddToCombatReq = {
+        charId: characterId || 0,
+        initiative,
+    }
     return(
         <div className='fieldContainer'>
             <span className='fieldContent'>
-                <label>{fieldName}</label>
+                <label>Handle</label>
                 <input disabled={!edit} className='fieldValue' value={value} onChange={e => onUpdate(e.target.value)} />
+                {characterId &&
+                    <>
+                        <button onClick={() => addToCombat(addToCombatReq).then(updateLogsAndCharacter).then(() => setAddedToCombat(true))} disabled={addedToCombat || !allowAddingToInitiative || initiative <= 0}>Add to combat</button>
+                        <input className='initiative' value={initiative} onChange={e => setInitiative(parseInt(e.target.value) || 0)}/>
+                    </>
+                }
             </span>
         </div>
     )
@@ -754,10 +790,11 @@ export interface CharacterSheetProps extends UpdateCharacterAndLogs{
     character: Character
     allSkills?: Skill[]
     editCharacter?: (c: Character) => void
+    allowAddingToInitiative: boolean
 }
 
 
-const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter, editCharacter}: CharacterSheetProps) => {
+const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter, editCharacter, allowAddingToInitiative}: CharacterSheetProps) => {
     const editCharacterInForm = (newCharacter: Character, isValid: boolean) => 
         editCharacter && isValid && editCharacter(newCharacter)
     
@@ -838,11 +875,10 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
         updateLogs(l)
         updateCharacter()
     }
-        
 
     return(
         <div className='sheet'>
-            <TextField edit={edit} fieldName='HANDLE' value={character.name} onUpdate={updateCharacterName}/>
+            <Handle allowAddingToInitiative={allowAddingToInitiative} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
             <RoleFiled updateChracterRole={updateCharacterRole} edit={edit} value={character.role}/>
             <Stats edit={edit} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>
             {!edit && <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter} updateLogs={updateLogs}/>}

@@ -246,3 +246,51 @@ def removeArmor():
         return jsonify(res)
     else:
         return "Invalid request", 400
+
+
+@app.route('/list-initiative', methods = [get])
+def initiativeOrder():
+    if request.method == get:
+        return jsonify(game.combatInitiativeOrder())
+    else:
+        return "Invalid request", 400
+
+
+@app.route('/add-to-combat', methods = [post])
+def addToCombat():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        initiative = data['initiative']
+
+        return jsonify(game.addToCombatByid(char_id, initiative))
+    else:
+        return "Invalid request", 400
+
+
+@app.route('/advance-combat-seq', methods = [post])
+def advanceCombatSeq():
+    if request.method == post:
+        return jsonify(game.advanceCombatSeq())
+    else:
+        return "Invalid request", 400
+
+
+@app.route('/clear-initiatives', methods = [post])
+def clearInitiative():
+    if request.method == post:
+        return jsonify(game.clearCombat())
+    else:
+        return "Invalid request", 400
+
+
+@app.route('/add-reputation', methods = [post])
+def addRep():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        rep = data['rep']
+        rep_for = data['repFor']
+        return jsonify(game.addReputationById(char_id, rep, rep_for))
+    else:
+        return "Invalid request", 400

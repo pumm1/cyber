@@ -1,12 +1,8 @@
 import { useState, useEffect } from "react"
-import { getCharacter , Character, listSkills, Log, Attributes, CharacterSP} from './CyberClient'
+import { getCharacter , Character, listSkills, Log, Attributes, CharacterSP, Skill, Initiative} from './CyberClient'
 import './SearchCharacter.css'
 import React from "react"
 import CharacterSheet from "./CharacterSheet"
-
-interface SearchCharacterProps {
-    updateLogs: (s: Log[]) => void
-}
 
 const initialAttributes: Attributes = {
     ATTR: 1,
@@ -50,11 +46,16 @@ const characterToCreate: Character = {
     humanity: initialAttributes.EMP * 10
 }
 
-const SearchOrCreateCharacter = ({updateLogs}: SearchCharacterProps) => {
+interface SearchCharacterProps {
+    initiatives: Initiative[]
+    updateLogs: (s: Log[]) => void
+}
+
+const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps) => {
     const [name, setName] = useState<string>('')
     const [characterEditable, setCharacterEditable] = useState(false)
     const [character, setCharacter] = useState<undefined | null | Character>(undefined)
-    const [allSkills, setAllSkills] = useState<any[] | undefined>(undefined)
+    const [allSkills, setAllSkills] = useState<Skill[] | undefined>(undefined)
 
     useEffect(() => {
         listSkills().then(setAllSkills)
@@ -74,6 +75,8 @@ const SearchOrCreateCharacter = ({updateLogs}: SearchCharacterProps) => {
         setCharacterEditable(true)
     }
 
+    const allowAddingToInitiative = character ? !initiatives.find(i => i.charId === character.id) : false
+
     return(
         <div>
             <div className="search">
@@ -81,9 +84,10 @@ const SearchOrCreateCharacter = ({updateLogs}: SearchCharacterProps) => {
                 <input type="text" onChange={event => setName(event.target.value)}/>
                 <button className='searchOrCreate' onClick={() => updateCharacter()}>Search</button>
                 <button className='searchOrCreate' onClick={() => createCharacter()}>Create</button>
+                {!!character && <button onClick={() => setCharacter(undefined)}>Hide character</button>}
             </div>
             {!!character &&
-                 <div><CharacterSheet editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
+                 <div><CharacterSheet allowAddingToInitiative={allowAddingToInitiative} editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
             }
         </div>
     )

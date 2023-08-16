@@ -9,11 +9,20 @@ label {
     font-weight: bold;
 }
 
+textarea {
+    resize: none;
+}
+
 .sheet {
     min-width: 850px;
     min-height: 1200px;
     padding: 16px 0 0 0;
     font-family: monospace;
+}
+
+.initiative {
+    margin-left: 4px;
+    width: 30px;
 }
 
 .fieldContainer {
@@ -260,11 +269,15 @@ label {
     margin-left: 2px;
 }
 
-.ipToAdd {
+.valueToAdd {
     display: flex;
 }
 
-.ipButton {
+.repForm {
+    margin: 4px 0px
+}
+
+.formButton {
     margin-left: 8px;
 }
 

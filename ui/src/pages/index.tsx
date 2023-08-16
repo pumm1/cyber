@@ -4,12 +4,15 @@ import SearchOrCreateCharacter from "./SearchOrCreateCharacter"
 import './index.css'
 import LogViewer from "./LogViewer"
 import { useState } from "react"
-import { Log } from "./CyberClient"
+import { Initiative, Log } from "./CyberClient"
 import GrenadeTable from "./GrenadeTable"
+import ListInitiative from "./ListInitiative"
+import DifficultyTable from "./DifficultyTable"
 
 
 const IndexPage: React.FC<PageProps> = () => {
   const [logs, setLogs] = useState<Log[]>([])
+  const [initiatives, setInitiatives] = useState<Initiative[]>([])
 
   const addToLogs = (l: Log) => {
     const newLogs: Log[] = logs
@@ -24,8 +27,10 @@ const IndexPage: React.FC<PageProps> = () => {
     <div className='main'>
       <h1>Welcome to the NET</h1>
       <div className='container'>
+        <ListInitiative initiatives={initiatives} setInitiatives={setInitiatives} updateLogs={updateLogs}/>
+        <SearchOrCreateCharacter initiatives={initiatives} updateLogs={updateLogs}/>
         <LogViewer logs={logs} addToLogs={addToLogs}/>
-        <SearchOrCreateCharacter updateLogs={updateLogs}/>
+        <DifficultyTable />
         <GrenadeTable />
       </div>
     </div>

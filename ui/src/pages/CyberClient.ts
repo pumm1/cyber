@@ -362,3 +362,33 @@ export interface RemoveArmorReq extends CharacterReq {
 
 export const removeArmor = (r: RemoveArmorReq) =>
     postDataAs<Log[]>(`${pathBase}/remove-armor`, r)
+
+
+export interface Initiative {
+    charId: number
+    name: string
+    initiative: number
+    current: boolean
+}
+export const listInitiative = () =>
+    fetchDataAs<Initiative[]>(`${pathBase}/list-initiative`)
+
+export interface AddToCombatReq extends CharacterReq {
+    initiative: number
+}
+
+export const addToCombat = (c: AddToCombatReq) =>
+    postDataAs<Log[]>(`${pathBase}/add-to-combat`, c)
+
+export const advanceCombatSeq = () => 
+    postDataAs<Log[]>(`${pathBase}/advance-combat-seq`, {})
+
+export const clearCombatSeq = () => 
+    postDataAs<Log[]>(`${pathBase}/clear-initiatives`, {})
+
+export interface AddRepReq extends CharacterReq {
+    rep: number
+    repFor: string
+}
+export const addReputation = (r: AddRepReq) =>
+    postDataAs<Log[]>(`${pathBase}/add-reputation`, r)
