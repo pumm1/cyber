@@ -27,9 +27,9 @@ const IndexPage: React.FC<PageProps> = () => {
     <div className='main'>
       <h1>Welcome to the NET</h1>
       <div className='container'>
-        <ListInitiative initiatives={initiatives} setInitiatives={setInitiatives} updateLogs={updateLogs}/>
         <SearchOrCreateCharacter initiatives={initiatives} updateLogs={updateLogs}/>
         <LogViewer logs={logs} addToLogs={addToLogs}/>
+        <ListInitiative initiatives={initiatives} setInitiatives={setInitiatives} updateLogs={updateLogs}/>
         <DifficultyTable />
         <GrenadeTable />
       </div>

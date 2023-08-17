@@ -33,9 +33,20 @@ const ListInitiative = ({updateLogs, setInitiatives, initiatives}: ListInitiativ
                     <button className='updateButton' onClick={() => updateInitiatives()}>Update</button>
                     {initiatives.length > 0 && <button className='updateButton' onClick={() => advanceCombatSeq().then(updateLogs).then(() => updateInitiatives())}>Advance combat</button>}
                     {initiatives.length > 0 && <button className='updateButton' onClick={() => clearCombatSeq().then(updateLogs).then(() => updateInitiatives())}>Clear initiatives</button>}
-                    <div>
-                        {initiatives.map((i, idx) => <div key={i.name + idx}>{i.name} ({i.initiative}) {i.current && '[current]'}</div>)}
-                    </div>
+                    <table>
+                        <tr>
+                            <th>Name</th>
+                            <th>Initiative</th>
+                            <th>Turn</th>
+                        </tr>
+                        {initiatives.map((i, idx) => 
+                            <tr>
+                                <td>{i.name}</td>
+                                <td>{i.initiative}</td>
+                                <td>{i.current ? "This character's turn" : ''}</td>
+                            </tr>
+                        )}
+                    </table>
                 </div>
             }
         </div>
