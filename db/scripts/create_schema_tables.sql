@@ -228,12 +228,18 @@ alter table cyberpunk.statuses
         references cyberpunk.item_atr_bonuses(id);
 
 ALTER TABLE cyberpunk.characters
-ADD COLUMN ip integer not null default 0;
+ADD COLUMN ip INTEGER NOT NULL DEFAULT 0;
 
 ALTER TABLE cyberpunk.characters
 ALTER COLUMN ip DROP DEFAULT;
 
 ALTER TABLE cyberpunk.character_armor
 RENAME COLUMN id TO armor_id;
+
+ALTER TABLE cyberpunk.characters
+ADD COLUMN initiative_bonus integer NOT NULL DEFAULT 0;
+
+ALTER TABLE cyberpunk.item_atr_bonuses
+ADD COLUMN initiative_bonus integer NOT NULL DEFAULT 0;
 
 COMMIT;

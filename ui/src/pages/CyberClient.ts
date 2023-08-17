@@ -35,17 +35,18 @@ export enum Attribute {
     TECH = 'TECH'
 }
 
-export enum AttributeBTM {
-    BTM = 'body_type_modifier'
+export enum AttributeExtra {
+    BTM = 'body_type_modifier',
+    InitiativeBonus = 'initiative_bonus'
 }
 
 export const attributes = [
     Attribute.ATTR, Attribute.BODY, Attribute.COOL, Attribute.EMP, Attribute.INT, 
-    Attribute.LUCK, Attribute.MA, Attribute.REF, Attribute.TECH, AttributeBTM.BTM
+    Attribute.LUCK, Attribute.MA, Attribute.REF, Attribute.TECH, AttributeExtra.BTM, AttributeExtra.InitiativeBonus
 ]
 
 export interface AttributeBonus {
-    attribute: Attribute | AttributeBTM
+    attribute: Attribute | AttributeExtra
     bonus: number
 }
 
@@ -191,13 +192,14 @@ export const rollDice = (r: RollReq) =>
 export const listSkills = () => 
     fetchDataAs<Skill[]>(`${pathBase}/list-skills`)
  
-interface CharacterReq {
+export interface CharacterReq {
     charId: number
 }
 
 export interface RollSkillReq extends CharacterReq {
     skillId: number
     addedLuck: number
+    modifier: number
 }
     //TODO: make POST with params
 export const rollSkill = (roll: RollSkillReq) =>
@@ -392,3 +394,6 @@ export interface AddRepReq extends CharacterReq {
 }
 export const addReputation = (r: AddRepReq) =>
     postDataAs<Log[]>(`${pathBase}/add-reputation`, r)
+
+export const rollInitiative = (r: CharacterReq) =>
+    postDataAs<number>(`${pathBase}/roll-initiative`, r)

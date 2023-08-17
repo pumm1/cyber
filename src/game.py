@@ -17,7 +17,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     help_info, heal_help_str, yes_no, heal_str, heal_calc_str, heal_calc_help_str, askInputCaseSensitive, \
     remove_status_help_str, remove_status_str, printGreenLine, fieldName, difficulty_check_str, coloredText, \
     notice_roll_str, notice_roll_help_str, add_character_for_notice_str, add_character_for_notice_help_str, \
-    clear_notice_str
+    clear_notice_str, REF
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
@@ -311,6 +311,19 @@ def fetchCharacter(name):
     else:
         character.info()
 
+def rollInitiativeByCharacterId(char_id):
+    character = DAO.getCharacterById(char_id)
+    if character is not None:
+        init_bonus = character.initiativeBonus
+        ref = character.attributes[REF]
+        (roll, _) = dice.rollWithCrit(True)
+        res = roll + ref + init_bonus
+        print(f'Initiative roll for {character.name} = {res} [roll = {roll} initiative_bonus = {init_bonus}, REF = {ref}]')
+
+        return res
+    else:
+        print(f'Character not found')
+        return 0
 
 def listCombatInitiative():
     rows = DAO.listCombatInitiative(ascending=False)

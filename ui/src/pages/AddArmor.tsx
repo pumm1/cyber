@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { AddArmorReq, Attribute, AttributeBTM, AttributeBonus, BodyPart, Log, Skill, SkillBonus, addArmor, attributes } from './CyberClient'
+import { AddArmorReq, Attribute, AttributeExtra, AttributeBonus, BodyPart, Log, Skill, SkillBonus, addArmor, attributes } from './CyberClient'
 import './AddWeapon.css'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import { AtrBonuses, SkillBonuses } from './AddChrome'
@@ -18,7 +18,7 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
     const [ev, setEv] = useState(0)
     const [attributeBonuses, setAttributeBonuses] = useState<AttributeBonus[]>([])
     const [skillBonuses, setSkillBonuses] = useState<SkillBonus[]>([])
-    const [attribute, setAtr] = useState<Attribute | AttributeBTM>(Attribute.INT)
+    const [attribute, setAtr] = useState<Attribute | AttributeExtra>(Attribute.INT)
     const [atrBonus, setAtrBonus] = useState(0)
     const [skillId, setSkillId] = useState(1)
     const [skillBonus, setSkillBonus] = useState(0)

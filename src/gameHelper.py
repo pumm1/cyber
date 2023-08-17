@@ -46,6 +46,7 @@ BODY = 'BODY'
 EMP = 'EMP'
 
 BODY_TYPE_MOD = 'BTM'
+INIT_BONUS = 'INIT_BONUS'
 
 
 exit_commands = ['/e', '/q', '/exit', '/quit']
@@ -118,6 +119,7 @@ atr_body = 'atr_body'
 atr_emp = 'atr_emp'
 
 body_type_mod = 'body_type_modifier'
+init_bonus = 'initiative_bonus'
 
 #these are for gear, including atr and body type modifiers
 modifier_list = [INT, REF, TECH, COOL, ATTR, LUCK, MA, BODY, EMP, body_type_mod]

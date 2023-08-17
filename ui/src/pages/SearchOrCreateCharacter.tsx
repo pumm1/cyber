@@ -59,10 +59,6 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps
 
     useEffect(() => {
         listSkills().then(setAllSkills)
-        const queryParameters = new URLSearchParams(window.location.search)
-        const initialCharName = queryParameters.get("name") ?? ''
-        console.log(initialCharName) //name not set for some reason..?
-        setName(initialCharName)
     }, [])
 
     const updateCharacter = (): Promise<void> => {
@@ -84,10 +80,10 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps
                 <input type="text" onChange={event => setName(event.target.value)}/>
                 <button className='searchOrCreate' onClick={() => updateCharacter()}>Search</button>
                 <button className='searchOrCreate' onClick={() => createCharacter()}>Create</button>
-                {!!character && <button onClick={() => setCharacter(undefined)}>Hide character</button>}
+                {character && <button className='searchOrCreate' onClick={() => setCharacter(undefined)}>Hide character</button>}
             </div>
             {!!character &&
-                 <div><CharacterSheet allowAddingToInitiative={allowAddingToInitiative} editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
+                 <div><CharacterSheet setNameOnCreate={setName} allowAddingToInitiative={allowAddingToInitiative} editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
             }
         </div>
     )

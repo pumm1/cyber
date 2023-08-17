@@ -35,7 +35,7 @@ const LogViewer = ({logs, addToLogs}: {logs: Log[], addToLogs: (s: Log) => void}
                 })}
             </div>
             <div className='input'><input type='text' value={input} onChange={e => setInput(e.target.value)} /></div>
-            <div><button onClick={() =>{
+            <div><button disabled={input.length <=0} onClick={() =>{
                  addToLogs({log: input, logType: LogType.neutral})
                  setInput('')
             }}>Add to logs</button></div>

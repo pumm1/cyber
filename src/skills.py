@@ -206,7 +206,7 @@ def udpateCharacterSkill(character, skill_id, lvl_up_amount) -> [Log]:
     if t_skill >= 0:
         if character is not None:
             if t_skill == 0:
-                DAO.updateCharSpecial(character.id, lvl_up_amount)
+                DAO.updateCharSpecial(character.id, character.role, lvl_up_amount)
                 special_log = Log(f'{character.name} special updated (+{lvl_up_amount})', log_pos)
                 event_logs.append(special_log.toJson())
             else:

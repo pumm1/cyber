@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { AddChromeReq, Attribute, AttributeBonus, Log, Skill, SkillBonus, addChrome, attributes } from './CyberClient'
+import { AddChromeReq, Attribute, AttributeExtra, AttributeBonus, Log, Skill, SkillBonus, addChrome, attributes } from './CyberClient'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import './AddWeapon.css'
 
@@ -28,7 +28,7 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
     const [description, setDescription] = useState('')
     const [attributeBonuses, setAttributeBonuses] = useState<AttributeBonus[]>([])
     const [skillBonuses, setSkillBonuses] = useState<SkillBonus[]>([])
-    const [attribute, setAtr] = useState(Attribute.INT)
+    const [attribute, setAtr] = useState<Attribute | AttributeExtra>(Attribute.INT)
     const [atrBonus, setAtrBonus] = useState(0)
     const [skillId, setSkillId] = useState(1)
     const [skillBonus, setSkillBonus] = useState(0)

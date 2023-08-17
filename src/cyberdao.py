@@ -11,8 +11,9 @@ from skill import SkillInfo
 from armor import Armor
 from gameHelper import EMP, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, woundEffect, calculateModifierBonus, \
     BODY_TYPE_MOD, t_thrown, coloredText, body_type_mod, atr_int, atr_tech, atr_ref, atr_cool, atr_attr, atr_luck, \
-    atr_ma, atr_body, atr_emp
+    atr_ma, atr_body, atr_emp, init_bonus, INIT_BONUS
 from chrome import Chrome
+from roles import solo
 from status import Status
 from weapon import Weapon
 
@@ -100,8 +101,6 @@ def getCharacter(char_row) -> Character | None:
         reputation = sum(map(lambda rep: (
             rep['rep_level']
         ), rep_rows))
-        print(f'.... rep rows: {rep_rows}')
-        print(f'.... reputation: {reputation}')
         sp_row = characterSpById(id)
         ev_total = characterEV(id)
         armors = getCharacterArmors(id)
@@ -112,8 +111,10 @@ def getCharacter(char_row) -> Character | None:
         (ref, int, cool) = woundEffect(dmg_taken, char_row['atr_ref'], char_row['atr_int'], char_row['atr_cool'])
 
         item_body_type_bonus = calculateModifierBonus(armors, cybernetics, BODY_TYPE_MOD)
+        item_init_bonus = calculateModifierBonus(armors, cybernetics, INIT_BONUS)
 
         bodyTypeModifier = char_row['body_type_modifier'] + item_body_type_bonus
+        initiativeBonus = char_row['initiative_bonus'] + item_init_bonus
 
         item_modifier_bonuses = {
             INT: calculateModifierBonus(armors, cybernetics, INT),
@@ -141,8 +142,10 @@ def getCharacter(char_row) -> Character | None:
 
         weapon_rows = characterWeapons(id, body=attributes[BODY])
 
-        character = Character(char_row, skills, reputation, sp_row, weapon_rows, ev_total, armors, statuses,
-                              bodyTypeModifier, attributes, cybernetics)
+        character = Character(
+            char_row, skills, reputation, sp_row, weapon_rows, ev_total, armors, statuses,
+            bodyTypeModifier, initiativeBonus, attributes, cybernetics
+        )
     else:
         print('No character found')
 
@@ -279,20 +282,30 @@ def updateCharSkill(char_id, skill_row, value):
     conn.commit()
 
 
-def updateCharSpecial(char_id, value):
+def updateCharSpecial(char_id, role, value):
+    initiative_bonus_added = 0
+    if role == solo:
+        initiative_bonus_added = value
     cur.execute(
-        f"""{update} {table_characters} SET special_ability = special_ability + {value}
+        f"""{update} {table_characters} 
+        SET 
+            special_ability = special_ability + {value},
+            initiative_bonus = initiative_bonus + {initiative_bonus_added}
         WHERE id = {char_id};"""
     )
+    conn.commit()
 
 
 def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr,
-                 atr_luck, atr_ma, atr_body, atr_emp):
+                 atr_luck, atr_ma, atr_body, atr_emp, initiative_bonus=0):
+    if role == solo:
+        initiative_bonus = special_ability
+
     cur.execute(
         f"""{insert} {table_characters} 
-            (name, role, special_ability, body_type_modifier, humanity, ip,
+            (name, role, special_ability, body_type_modifier, humanity, ip, initiative_bonus,
             atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken)
-            VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10}, 0,
+            VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10}, 0, {initiative_bonus},
             {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0)
             RETURNING id;
         """
@@ -482,9 +495,9 @@ def addArmor(character_id, item, sp, body_parts, ev, atr_dict: dict, skill_bonus
 def insertItemBonusesReturningBonusId(atr_bonuses_dict: dict, skill_bonuses: list):
     cur.execute(
         f"""{insert} {table_item_atr_bonuses} 
-        (body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr, 
+        (body_type_modifier, initiative_bonus, atr_int, atr_ref, atr_tech, atr_cool, atr_attr, 
         atr_luck, atr_ma, atr_body, atr_emp)
-        VALUES ({atr_bonuses_dict.get(body_type_mod, 0)}, {atr_bonuses_dict.get(INT, 0)},
+        VALUES ({atr_bonuses_dict.get(body_type_mod, 0)}, ({atr_bonuses_dict.get(init_bonus, 0)}), {atr_bonuses_dict.get(INT, 0)},
         {atr_bonuses_dict.get(REF, 0)}, {atr_bonuses_dict.get(TECH, 0)}, {atr_bonuses_dict.get(COOL, 0)}, 
         {atr_bonuses_dict.get(ATTR, 0)}, {atr_bonuses_dict.get(LUCK, 0)}, {atr_bonuses_dict.get(MA, 0)}, 
         {atr_bonuses_dict.get(BODY, 0)}, {atr_bonuses_dict.get(EMP, 0)})

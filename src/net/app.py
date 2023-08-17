@@ -65,7 +65,17 @@ def rollSkill():
         char_id = data['charId']
         skill_id = data['skillId']
         added_luck = data['addedLuck']
-        return jsonify(skills.rollCharacterSkillById(char_id, skill_id, 0, 0, added_luck))
+        modifier = data['modifier']
+        return jsonify(skills.rollCharacterSkillById(char_id, skill_id, 0, modifier, added_luck))
+    else:
+        return "Invalid request", 400
+
+@app.route('/roll-initiative', methods = [post])
+def rollInitiative():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        return jsonify(game.rollInitiativeByCharacterId(char_id))
     else:
         return "Invalid request", 400
 

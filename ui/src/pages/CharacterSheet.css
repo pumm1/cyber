@@ -16,11 +16,10 @@ textarea {
 .sheet {
     min-width: 850px;
     min-height: 1200px;
-    padding: 16px 0 0 0;
     font-family: monospace;
 }
 
-.initiative {
+.valueBox {
     margin-left: 4px;
     width: 30px;
 }
@@ -265,12 +264,13 @@ textarea {
     border-top: 5px solid grey;
 }
 
-.weaponButton {
-    margin-left: 2px;
+.sheetButton {
+    margin-right: 2px;
 }
 
 .valueToAdd {
     display: flex;
+    margin: 2px 0px;
 }
 
 .repForm {

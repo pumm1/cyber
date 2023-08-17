@@ -9,7 +9,7 @@ from flask import jsonify
 import json
 
 class Character:
-    def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses, bodyTypeModifier, attributes, cybernetics):
+    def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses, bodyTypeModifier, initiativeBonus, attributes, cybernetics):
         self.id = row['id']
         self.name = row['name']
         self.role = row['role']
@@ -25,6 +25,7 @@ class Character:
         self.weapons = weapons
         self.armors = armors
         self.bodyTypeModifier = bodyTypeModifier
+        self.initiativeBonus = initiativeBonus
 
         self.attributes = attributes
         self.dmg_taken = row['dmg_taken']
@@ -87,6 +88,7 @@ class Character:
             "attributes": self.attributes,
             "bodyType": bodytypes.bodyTypeByValue(self.attributes[BODY]),
             "btm": self.bodyTypeModifier,
+            "initiativeBonus": self.initiativeBonus,
             "woundState": woundStatePlain(self.dmg_taken),
             "dmgTaken": self.dmg_taken,
             "reputation": self.reputation,

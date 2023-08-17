@@ -2,7 +2,7 @@ from colorama import Fore
 
 from gameHelper import INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, BODY_TYPE_MOD, askInput, yes_no, modifier_list, \
     atr_info, safeCastToInt, list_skills_helper_str, list_skills_str, split_at, coloredText, body_type_mod, atr_int, \
-    atr_emp, atr_luck, atr_body, atr_ma, atr_attr, atr_ref, atr_tech, atr_cool
+    atr_emp, atr_luck, atr_body, atr_ma, atr_attr, atr_ref, atr_tech, atr_cool, init_bonus, INIT_BONUS
 import skills
 import cyberdao as DAO
 
@@ -19,7 +19,8 @@ class AtrBonus:
             BODY: atr_row[atr_body],
             LUCK: atr_row[atr_luck],
             EMP: atr_row[atr_emp],
-            BODY_TYPE_MOD: atr_row[body_type_mod]
+            BODY_TYPE_MOD: atr_row[body_type_mod],
+            INIT_BONUS: atr_row[init_bonus]
         }
 
     def asJson(self):
@@ -33,7 +34,8 @@ class AtrBonus:
             'BODY': self.attributes[BODY],
             'LUCK': self.attributes[LUCK],
             'EMP': self.attributes[INT],
-            'BTM': self.attributes[BODY_TYPE_MOD]
+            'BTM': self.attributes[BODY_TYPE_MOD],
+            'INIT': self.attributes[INIT_BONUS]
         }
 
         return resJson

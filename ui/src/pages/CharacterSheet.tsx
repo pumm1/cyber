@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -177,6 +177,7 @@ interface SkillProps {
     characterSkills: CharacterSkill[]
     charId: number
     updateCharacter: () => Promise<void>
+    modifier: number
 }
 
 interface SkillRowProps extends UpdateCharacter {
@@ -202,13 +203,14 @@ const SkillRow = ({skill, charSkillLvl, charOriginalSkillLvl, roll, charId, upda
     )
 }
 
-const SkillRowByCharacterSkills = ({skill, characterSkills, charId, updateCharacter}: SkillProps) => {
+const SkillRowByCharacterSkills = ({skill, characterSkills, charId, updateCharacter, modifier}: SkillProps) => {
     const charSkillLvl = characterSkills.find(s => s.id === skill.id)?.lvl ?? 0
     const charOriginalSkillLvl = characterSkills.find(s => s.id === skill.id)?.originalLvl ?? 0
     const roll: RollSkillReq = {
         charId: charId,
         skillId: skill.id,
-        addedLuck: 0
+        addedLuck: 0, //TODO
+        modifier
     }
 
     return (
@@ -224,12 +226,13 @@ interface SkillsProps extends UpdateCharacterAndLogs {
 interface SkillsByAttributeProps extends SkillsProps{
     attribute: Attribute
     characterSkills: CharacterSkill[]
+    modifier: number
 }
 
-const SkillsByAttribute = ({attribute, skills, characterSkills, character, updateCharacter}: SkillsByAttributeProps) => 
+const SkillsByAttribute = ({attribute, skills, characterSkills, character, updateCharacter, modifier}: SkillsByAttributeProps) => 
     <span>
         <b>{attribute}</b>
-        {skills.filter(s => s.attribute === attribute).map(s => <SkillRowByCharacterSkills skill={s} characterSkills={characterSkills} charId={character.id} updateCharacter={updateCharacter}/>)}
+        {skills.filter(s => s.attribute === attribute).map(s => <SkillRowByCharacterSkills modifier={modifier} skill={s} characterSkills={characterSkills} charId={character.id} updateCharacter={updateCharacter}/>)}
     </span>
 
 const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: SkillsProps ) => {
@@ -237,6 +240,8 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
         updateLogs(resLogs)
         updateCharacter()
     }
+
+    const [rollModifier, setRollModifier] = useState(0)
 
     const specialSkill: Skill = {
         skill: character.specialAbility,
@@ -248,7 +253,8 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
     const specialRollReq: RollSkillReq = {
         charId: character.id,
         skillId: specialSkill.id,
-        addedLuck: 0
+        addedLuck: 0,
+        modifier: rollModifier
     }
     const [ipToAdd, setIpToadd] = useState(0)
 
@@ -278,7 +284,10 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
                     <b>Special ability</b>
                     <SkillRow charOriginalSkillLvl={character.specialAbilityLvl} roll={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={specialSkill} />
                 </span>
-                {attributesInOrder.map(atr => <SkillsByAttribute key={'atr' + atr} updateCharacter={updateCharacter} updateLogs={updateLogs} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
+                {attributesInOrder.map(atr => <SkillsByAttribute modifier={rollModifier} key={'atr' + atr} updateCharacter={updateCharacter} updateLogs={updateLogs} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
+                <span className='valueToAdd'>
+                    <StatValue field='Roll modifier' value={rollModifier}/> <ValueChanger onChange={setRollModifier} baseValue={rollModifier} />
+                </span>
                 <span className='valueToAdd'>
                     <StatValue field='REP' value={character.reputation}/>
                     <button onClick={() => setShowAddRep(!showAddRep)}>{showAddRep ? 'Hide' : 'Show'} REP form</button>
@@ -403,7 +412,7 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
             </td>
             <td>
                 <span className='attackMod'>
-                    <button className='weaponButton' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
+                    <button className='sheetButton' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
                         setShotsFired(1)
                         setTargets(1)
                         setAttackModifier(0)
@@ -412,7 +421,7 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
                         Attack
                     </button>
                     {weaponIsGun && 
-                        <button className='weaponButton' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}>
+                        <button className='sheetButton' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}>
                             Reload
                         </button>
                     }
@@ -766,9 +775,14 @@ const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, all
     const [addedToCombat, setAddedToCombat] = useState(false)
 
     const addToCombatReq: AddToCombatReq = {
-        charId: characterId || 0,
+        charId: characterId ?? 0,
         initiative,
     }
+
+    const rollInitiativeRoll: CharacterReq = {
+        charId: characterId ?? 0
+    }
+
     return(
         <div className='fieldContainer'>
             <span className='fieldContent'>
@@ -776,8 +790,9 @@ const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, all
                 <input disabled={!edit} className='fieldValue' value={value} onChange={e => onUpdate(e.target.value)} />
                 {characterId &&
                     <>
-                        <button onClick={() => addToCombat(addToCombatReq).then(updateLogsAndCharacter).then(() => setAddedToCombat(true))} disabled={addedToCombat || !allowAddingToInitiative || initiative <= 0}>Add to combat</button>
-                        <input className='initiative' value={initiative} onChange={e => setInitiative(parseInt(e.target.value) || 0)}/>
+                        <button className='sheetButton' onClick={() => rollInitiative(rollInitiativeRoll).then(setInitiative)}>Roll initiative</button>
+                        <button className='sheetButton' onClick={() => addToCombat(addToCombatReq).then(updateLogsAndCharacter).then(() => setAddedToCombat(true))} disabled={addedToCombat || !allowAddingToInitiative || initiative <= 0}>Add to combat</button>
+                        <input className='valueBox' value={initiative} onChange={e => setInitiative(parseInt(e.target.value) || 0)}/>
                     </>
                 }
             </span>
@@ -791,10 +806,11 @@ export interface CharacterSheetProps extends UpdateCharacterAndLogs{
     allSkills?: Skill[]
     editCharacter?: (c: Character) => void
     allowAddingToInitiative: boolean
+    setNameOnCreate: (n: string) => void
 }
 
 
-const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter, editCharacter, allowAddingToInitiative}: CharacterSheetProps) => {
+const CharacterSheet = ({setNameOnCreate, edit, character, allSkills, updateLogs, updateCharacter, editCharacter, allowAddingToInitiative}: CharacterSheetProps) => {
     const editCharacterInForm = (newCharacter: Character, isValid: boolean) => 
         editCharacter && isValid && editCharacter(newCharacter)
     
@@ -806,6 +822,7 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
         const newCharacter: Character = {name: newName, ...rest}
 
         editCharacterInForm(newCharacter, true)
+        setNameOnCreate(newName)
     }
 
     const updateCharacterRole = (newRole: string) => {
@@ -866,7 +883,14 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
             createCharacter(createReq).then(updateLogs)
         return (
             <div className='saveCharacter'>
-                <button onClick={() => createCharacterAndLog()} disabled={!saveCharacterFormValid()}className='saveCharacterBtn'>Create character</button>
+                <button 
+                onClick={() => {
+                    createCharacterAndLog().then(() => setNameOnCreate(character.name)).then(() => updateCharacter())
+                }} 
+                disabled={!saveCharacterFormValid()}
+                className='saveCharacterBtn'>
+                    Create character
+                </button>
             </div>
         )
     }
