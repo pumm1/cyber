@@ -277,6 +277,8 @@ export interface DmgReq {
     charId: number
     dmg: number
     bodyPart: BodyPart
+    isAp?: boolean
+    passSp?: boolean
 }
 
 export const doDmg = (dmgReq: DmgReq) =>
@@ -329,6 +331,7 @@ export interface AddWeaponReq extends CharacterReq {
     con: Con
     weight: number
     reliability: Reliability
+    customRange?: number
 }
 
 export const addWeapon = (a: AddWeaponReq) =>
@@ -405,3 +408,17 @@ export interface UpdateMoneyReq extends CharacterReq {
 
 export const updateMoney = (m: UpdateMoneyReq) => 
     postDataAs<Log[]>(`${pathBase}/update-money`, m)
+
+export interface RemoveWeaponReq extends CharacterReq {
+    weaponId: number
+}
+
+export const removeWeapon = (w: RemoveWeaponReq) =>
+    postDataAs<Log[]>(`${pathBase}/remove-weapon`, w)
+
+export interface RemoveChromeReq extends CharacterReq {
+    chromeId: number
+}
+
+export const removeChrome = (c: RemoveChromeReq) =>
+    postDataAs<Log[]>(`${pathBase}/remove-chrome`, c)

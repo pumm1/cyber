@@ -470,7 +470,7 @@ def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill, mo
             total_dmg = 0
             logs = log_event(logs, f'{hits} hits to target!', log_pos)
             attack_info_str = f"""
-{character.name} selected {wep.item} [range = {wep.range}m]
+{character.name} selected {wep.item} [weapon range = {wep.range}m]
 (total = {total} vs roll to beat {roll_to_beat} - roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})
                 """
             logs = log_event(logs, attack_info_str, log_neutral)
@@ -530,7 +530,7 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
             logs = logs + dmg_logs
             logs = log_event(logs, f'DMG done: {dmg}', log_pos)
 
-        attack_info_str = f'{character.name} selected {wep.item} [range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})'
+        attack_info_str = f'{character.name} selected {wep.item} [weapon range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})'
         logs = log_event(logs, attack_info_str, log_neutral)
 
         range_info_str = f'{range_str} range attack ({attack_range}m) is {end_res} {rollToBeatStr(roll_to_beat, total)}'
@@ -679,7 +679,7 @@ def hitCharacter(character, body_part, dmg_str, is_ap, pass_sp):
             logs = damageCharacter(character, dmg)
         elif body_parts.__contains__(body_part):
             if is_ap:
-                logs = handleApHit(character, dmg, body_part)
+                logs = handleApHit(character, dmg, body_part, logs)
             else:
                 logs = handleNormalHit(character, dmg, body_part)
         else:
@@ -720,16 +720,19 @@ def handleNormalHit(character: Character, dmg, body_part) -> list[Log]:
     return logs
 
 
-def handleApHit(character: Character, dmg, body_part) -> list[Log]:
+def handleApHit(character: Character, dmg, body_part, logs) -> list[Log]:
     char_sp = character.sp[body_part]
     sp_left = math.ceil(char_sp / 2)
     dmg_done = math.floor((dmg - sp_left) / 2)
+    log_type = log_neg
+    if dmg_done > 1:
+        log_type = log_pos
+    logs = log_event(logs, f'{dmg_done} DMG done with AP shot', log_type)
     DAO.dmgCharacterSP(character.id, body_part, dmg)
-    return damageCharacter(character, dmg_done)
+    return damageCharacter(character, dmg_done, logs=logs)
 
 
-def damageCharacter(c: Character, dmg) -> list[Log]:
-    logs = []
+def damageCharacter(c: Character, dmg, logs: list[Log]=[]) -> list[Log]:
     dmgReduction = c.bodyTypeModifier
     total_dmg = dmg - dmgReduction
     if total_dmg > 0:

@@ -11,7 +11,7 @@ from logger import Log, log_event, log_neutral, log_neg
 
 class Chrome:
     def __init__(self, row):
-        self.id = row['id']
+        self.id = row['chrome_id']
         self.item = row['item']
         self.description = row['description']
         atr_bonuses = AtrBonus(row)
@@ -117,3 +117,14 @@ def handleHumanity(char, humanity_cost=None) -> list[Log]:
     logs = log_event(logs, f'Updated humanity and empathy', log_neutral
                      )
     return (humanity_cost, logs)
+
+
+def removeChromeByCharacterId(chararacter_id, chrome_id) -> list[Log]:
+    character = DAO.getCharacterById(chararacter_id)
+    logs = []
+    if character is not None:
+        DAO.deleteCharacterChrome(chararacter_id, chrome_id)
+        logs = log_event(logs, f'Chrome deleted from {character.name}', log_neutral)
+    else:
+        logs = log_event(logs, f'Character not found for chrome deletion', log_neg)
+    return logs

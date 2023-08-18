@@ -42,32 +42,16 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 - Add weapons (can be chrome, included in weapons), gear and chrome
     * For chrome, reduce humanity and empathy automatically
 
-
-## TODO:
-- Use some common attribute-table for weapons, armor, chrome and statuses
-(now it's very clumsy when doing bigger changes)
-
 # Setup
 
 * Install python 3.10+
-  * Dependencies:
+  * Python dependencies:
     - colorama
     - psycopg2
     - Flask
     - Flask-Cors
     
-  * NPM for the NET
-
-## secrets.json in /src for (PSQL) db config:
-```
-{
-    "DB_HOST": "<host>",
-    "DB_SCHEMA": "<db_schema>",
-    "DB_NAME": "<db_name>",
-    "DB_USER": "<db_user>",
-    "DB_PASSWORD": "<db_user_pw>"
-}
-```
+* NPM for the Web UI
 
 After setting up the PSQL database, run the following migration scripts:
   * `init.sql`
@@ -75,6 +59,24 @@ After setting up the PSQL database, run the following migration scripts:
   * `add_basic_skills.sql`
   * `grant_access.sql`
 
-Running the NET:
-- `flask --app src/net/app run`
-- `cd ui && npm start`
+## secrets.json in /src for (PSQL) db config:
+```
+{
+    "DB_HOST": "<host>",
+    "DB_SCHEMA": "<db_schema>", //a need to update migration script(s) if changed..
+    "DB_NAME": "<db_name>",
+    "DB_USER": "<db_user>",
+    "DB_PASSWORD": "<db_user_pw>"
+}
+```
+
+# Usage
+
+**Start terminal version:**
+* ``\src $ python main.py``
+
+**Start Web UI:**
+  * Backend: ``\src $ flask --app net/app run``
+  * NET: ``\ui $ npm start``
+  * Go to `http://localhost:8000/`
+  

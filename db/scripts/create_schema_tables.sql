@@ -245,4 +245,7 @@ ADD COLUMN initiative_bonus integer NOT NULL DEFAULT 0;
 ALTER TABLE cyberpunk.characters
 ADD COLUMN money integer NOT NULL DEFAULT 0;
 
+ALTER TABLE cyberpunk.character_chrome
+RENAME COLUMN id TO chrome_id;
+
 COMMIT;

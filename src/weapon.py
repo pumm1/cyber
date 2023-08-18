@@ -8,13 +8,14 @@ from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handg
 import dice
 import cyberdao as DAO
 from chrome import handleHumanity
-from logger import Log, log_event, log_pos, log_neg
+from logger import Log, log_event, log_pos, log_neg, log_neutral
 from character import Character
 
 
 class Weapon:
     def __init__(self, row, custom_range: int | None):
         self.weapon_id = row['id']
+        self.character_id = row['character_id']
         self.item = row['item']
         self.weapon_type = row['weapon_type']
         self.is_chrome = row['is_chrome']
@@ -121,6 +122,7 @@ class Weapon:
     def asJson(self):
         resJson = {
             'id': self.weapon_id,
+            'characterId': self.character_id,
             'item': self.item,
             'range': self.range,
             'dmg': self.dice_dmg,
@@ -158,15 +160,20 @@ class Weapon:
     def isThrown(self) -> bool:
         return self.weapon_type == t_thrown
 
-def addCharWeapon(char: Character, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None, humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None)-> list[Log]:
+def addCharWeapon(
+        char: Character, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None,
+        humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None,
+        custom_range=None
+)-> list[Log]:
     logs = []
+    print(f'... humanity cost for add weapon: {humanity_cost}')
     if char is not None:
         if weapon_name is None:
             print(f'Give weapon name:')
             weapon_name = askInput()
         if clip_size is None or weapon_t is None:
             (weapon_t, clip_size) = askWeaponType()
-        weapon_range = rangeByType(char, weapon_t)
+        weapon_range = rangeByType(char, weapon_t, custom_range=custom_range)
         is_chrome = False
         if humanity_cost is None:
             is_chrome = askForChrome()
@@ -195,7 +202,7 @@ def addCharWeapon(char: Character, dice=None, die=None, divide_by=None, bonus=0,
         DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, divide_by, bonus, weapon_range, rof, clip_size,
                       effect_radius, wa, con, reliability, weight)
         if is_chrome:
-            handleHumanity(char)
+            handleHumanity(char, humanity_cost=humanity_cost)
 
         logs = log_event(logs, 'Weapon added!', log_pos)
     else:
@@ -205,8 +212,9 @@ def addCharWeapon(char: Character, dice=None, die=None, divide_by=None, bonus=0,
 
 
 def addCharacterWeaponById(
-        character_id, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None,
-        humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None
+        character_id, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None,
+        rof=None, humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None,
+        effect_radius=None, custom_range=None
 ) -> list[Log]:
     char = DAO.getCharacterById(character_id)
     logs = addCharWeapon(
@@ -224,7 +232,8 @@ def addCharacterWeaponById(
         con=con,
         weight=weight,
         reliability=reliability,
-        effect_radius=effect_radius
+        effect_radius=effect_radius,
+        custom_range=custom_range
     )
     return logs
 
@@ -243,10 +252,24 @@ def askRof() -> int:
             break
     return rof
 
+def removeWeapon(character, weapon_id) -> list[Log]:
+    logs = []
+    if character is not None:
+        DAO.deleteCharacterWeapon(character.id, weapon_id)
+        logs = log_event(logs, f'Character weapon removed', log_neutral)
+    else:
+        logs = log_event(logs, f'Character not found for weapon removal', log_neg)
+    return logs
+
+def removeWeaponByCharacterId(character_id, weapon_id) -> list[Log]:
+    character = DAO.getCharacterById(character_id)
+    return removeWeapon(character, weapon_id)
 
 
-def rangeByType(char, weapon_t) -> int:
+def rangeByType(char, weapon_t, custom_range=None) -> int:
     range = 1
+    if custom_range is not None and custom_range > 0:
+        return custom_range
     if weapon_t == t_shotgun:
         return 10
     elif weapon_t == t_handgun:

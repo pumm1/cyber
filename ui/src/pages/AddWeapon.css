@@ -5,3 +5,7 @@
 .inputField {
     max-width: 100px;
 }
+
+.shortInput {
+    max-width: 30px;
+}

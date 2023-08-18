@@ -23,6 +23,7 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
     const [con, setCon] = useState(Con.Pocket)
     const [rof, setRof] = useState(1)
     const [weight, setWeight] = useState(1)
+    const [customRange, setCustomRange] = useState<number | undefined>(undefined)
 
     const updateDiceNum = (v: number) => updateNumWithLowerLimit(v, 1, setDiceNum)
     const updateDie = (v: number) => updateNumWithLowerLimit(v, 1, setDie)
@@ -51,6 +52,7 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
         humanityCost,
         effectRadius,
         clipSize,
+        customRange
     }
 
 
@@ -80,6 +82,7 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
                 <th>CON</th>
                 <th>Weight</th>
                 <th>Effect radius</th>
+                <th>(Opt. range)</th>
                 <th>(Opt. HL cost)</th>
             </tr>
             <tr>
@@ -141,6 +144,9 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
                 </td>
                 <td>
                     <FormRowWithValueChanger onChange={updateEffectRadius} value={effectRadius} baseValue={effectRadius}/>
+                </td>
+                <td>
+                     <input placeholder={'0'} className='shortInput' value={customRange} onChange={e => setCustomRange(parseInt(e.target.value) || 0)}/>
                 </td>
                 <td>
                     <FormRowWithValueChanger onChange={updateHlCost} value={humanityCost} baseValue={humanityCost}/>

@@ -162,7 +162,9 @@ def dmg():
         char_id = data['charId']
         body_part = data['bodyPart']
         dmg = data['dmg']
-        res = combat.hitCharacterById(char_id, body_part=body_part, dmg_str=dmg, pass_sp=False)
+        is_ap = data.get('isAp', False)
+        pass_sp = data.get('passSp', False)
+        res = combat.hitCharacterById(char_id, body_part=body_part, dmg_str=dmg, pass_sp=pass_sp, is_ap=is_ap)
         return jsonify(res)
     else:
         return "Invalid request", 400
@@ -197,9 +199,11 @@ def addWeapon():
         weight = data['weight']
         reliability = data['reliability']
         effect_radius = data['effectRadius']
+        custom_range = data.get('customRange', None)
+        print(f'....data: {data}')
         res = weapon.addCharacterWeaponById(
             char_id, dice_num, die, divide_by, dmg_bonus, item, clip_size, rof,
-            humanity_cost, weapon_type, wa, con, weight, reliability, effect_radius
+            humanity_cost, weapon_type, wa, con, weight, reliability, effect_radius, custom_range
         )
         return jsonify(res)
     else:
@@ -253,6 +257,33 @@ def removeArmor():
         res = armor.removeArmorByCharacterId(
             char_id, armor_id
         )
+        return jsonify(res)
+    else:
+        return "Invalid request", 400
+
+@app.route('/remove-weapon', methods = [post])
+def removeWeapon():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        weapon_id = data['weaponId']
+
+        res = weapon.removeWeaponByCharacterId(
+            char_id, weapon_id
+        )
+        return jsonify(res)
+    else:
+        return "Invalid request", 400
+
+
+@app.route('/remove-chrome', methods = [post])
+def removeChrome():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        chrome_id = data['chromeId']
+
+        res = chrome.removeChromeByCharacterId(char_id, chrome_id)
         return jsonify(res)
     else:
         return "Invalid request", 400

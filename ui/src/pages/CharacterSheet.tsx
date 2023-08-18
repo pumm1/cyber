@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -396,6 +396,11 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
         givenRoll
     }
 
+    const removeWeaponReq: RemoveWeaponReq = {
+        charId: characterId,
+        weaponId: weapon.id
+    }
+
     const reloadReq: ReloadReq = {
         weaponId: weapon.id,
         shots: weapon.clipSize
@@ -477,6 +482,9 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
                     {attackModifier} <ValueChanger onChange={updateModifier} baseValue={attackModifier} />
                 </span>
             </td>
+            <td>
+                <button onClick={() => removeWeapon(removeWeaponReq).then(updateLogsAndCharacter)}>Remove</button>
+            </td>
         </tr>
     )
 }
@@ -504,6 +512,7 @@ const CharacterWeapons = (
                     <th>(Opt: #shots)</th>
                     <th>(Opt: Roll)</th>
                     <th>(Opt: Modifier)</th>
+                    <th>Remove</th>
                 </tr>
                 {weapons.map(w => 
                     <WeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} updateCharacter={updateCharacter} />
@@ -563,34 +572,50 @@ const CharacterArmor = ({armors, updateLogsAndCharacter, characterId}: Character
 }
 
 interface ChromeRowProps {
+    characterId: number
     chrome: Chrome
+    updateLogsAndCharacter: (l: Log[]) => void
 }
 
-const ChromeRow = ({chrome}: ChromeRowProps) =>
-    <tr>
-        <td>
-            {chrome.item}
-        </td>
-        <td>
-            {chrome.description}
-        </td>
-    </tr>
+const ChromeRow = ({characterId, chrome, updateLogsAndCharacter}: ChromeRowProps) => {
+    const removeReq: RemoveChromeReq = {
+        charId: characterId,
+        chromeId: chrome.id
+    }
+    return(
+        <tr>
+            <td>
+                {chrome.item}
+            </td>
+            <td>
+                {chrome.description}
+            </td>
+            <td>
+                <button onClick={() => removeChrome(removeReq).then(updateLogsAndCharacter)}>Remove [{chrome.item}]</button>
+            </td>
+        </tr>
 
+    )
+}
+    
 
 interface CharacterChromeProps {
+    characterId: number
     charChrome: Chrome[]
+    updateLogsAndCharacter: (l: Log[]) => void
 }
 
-const CharacterChrome = ({charChrome}: CharacterChromeProps) => {
+const CharacterChrome = ({characterId, charChrome, updateLogsAndCharacter}: CharacterChromeProps) => {
     return (
         <>
             <table>
                 <tr>
                     <th>Cybernetic</th>
                     <th>Description</th>
+                    <th>Remove</th>
                 </tr>
                 {charChrome.map(c => 
-                    <ChromeRow key={'chrome' + c.id} chrome={c}/>
+                    <ChromeRow key={'chrome' + c.id} characterId={characterId} chrome={c} updateLogsAndCharacter={updateLogsAndCharacter}/>
                 )}
             </table>
         </>
@@ -620,9 +645,11 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
 
     interface DmgSetterProps {
         bodyPart: BodyPart
+        isAp?: boolean
+        passSp?: boolean
     }
 
-    const DmgSetter = ({bodyPart}: DmgSetterProps) => {
+    const DmgSetter = ({bodyPart, isAp, passSp}: DmgSetterProps) => {
         const [dmg, setDmg] = useState(0)
 
         const updateDmg = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setDmg)
@@ -630,7 +657,9 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
         const dmgReq = {
             charId: characterId,
             bodyPart,
-            dmg
+            dmg,
+            isAp,
+            passSp
         }
 
         return( //FIX DMG
@@ -652,8 +681,25 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
             {otherElement && <div>{otherElement}</div>}
         </div>
 
+    const [isAp, setIsAp] = useState<boolean | undefined>(false)
+    const [passSp, setPassSp] = useState<boolean | undefined>(undefined)
+
+    const handleApCheckBox = () => {
+        setIsAp(!isAp)
+        setPassSp(undefined)
+    }
+
+    const handleSpCheckBox = () => {
+        setIsAp(undefined)
+        setPassSp(!passSp)
+    }
+
     return(
         <div className='withVerticalSpace'>
+            <div className='withVerticalSpace'>
+                <input type='radio' checked={isAp} onClick={() => handleApCheckBox()}/> DMG is AP
+                <input type='radio' checked={passSp} onClick={() => handleSpCheckBox()}/> DMG passes SP
+            </div>
             <span className='armorRowContainer'>
                <Label label='Location'/>
                 <div className='armorContent'>
@@ -668,12 +714,12 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
             <span className='armorRowContainer'>
                 <Label label='Armor SP'/>
                 <div className='armorContent'>
-                    <GridBox value={sp.head} otherElement={<DmgSetter bodyPart={BodyPart.Head}/>}/>
-                    <GridBox value={sp.body} otherElement={<DmgSetter bodyPart={BodyPart.Body}/>}/>
-                    <GridBox value={sp.r_arm} otherElement={<DmgSetter bodyPart={BodyPart.R_arm}/>}/>
-                    <GridBox value={sp.l_arm} otherElement={<DmgSetter bodyPart={BodyPart.L_arm}/>}/>
-                    <GridBox value={sp.r_leg} otherElement={<DmgSetter bodyPart={BodyPart.R_leg}/>}/>
-                    <GridBox value={sp.l_leg} otherElement={<DmgSetter bodyPart={BodyPart.L_leg}/>}/>
+                    <GridBox value={sp.head} otherElement={<DmgSetter bodyPart={BodyPart.Head} isAp={isAp} passSp={passSp}/>}/>
+                    <GridBox value={sp.body} otherElement={<DmgSetter bodyPart={BodyPart.Body} isAp={isAp} passSp={passSp}/>}/>
+                    <GridBox value={sp.r_arm} otherElement={<DmgSetter bodyPart={BodyPart.R_arm} isAp={isAp} passSp={passSp}/>}/>
+                    <GridBox value={sp.l_arm} otherElement={<DmgSetter bodyPart={BodyPart.L_arm} isAp={isAp} passSp={passSp}/>}/>
+                    <GridBox value={sp.r_leg} otherElement={<DmgSetter bodyPart={BodyPart.R_leg} isAp={isAp} passSp={passSp}/>}/>
+                    <GridBox value={sp.l_leg} otherElement={<DmgSetter bodyPart={BodyPart.L_leg} isAp={isAp} passSp={passSp}/>}/>
                 </div>
                 <button className='withLeftSpace' onClick={() => repair(characterId).then(updateLogsAndCharacter)}>Repair</button>
             </span>
@@ -935,7 +981,7 @@ const CharacterSheet = ({setNameOnCreate, edit, character, allSkills, updateLogs
             {allSkills && <AddArmor allSkills={allSkills} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>}
             <CharacterArmor armors={character.armor} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id}/>
             <AddChrome allSkills={allSkills ?? []} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
-            <CharacterChrome charChrome={character.chrome}/>
+            <CharacterChrome updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} charChrome={character.chrome}/>
         </div>
     )
 }
