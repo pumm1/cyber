@@ -176,6 +176,7 @@ export interface Character {
     reputation: number
     humanity: number
     ip: number
+    money: number
 }
 
 export const getCharacter = (name: string) =>
@@ -397,3 +398,10 @@ export const addReputation = (r: AddRepReq) =>
 
 export const rollInitiative = (r: CharacterReq) =>
     postDataAs<number>(`${pathBase}/roll-initiative`, r)
+
+export interface UpdateMoneyReq extends CharacterReq {
+    money: number
+}
+
+export const updateMoney = (m: UpdateMoneyReq) => 
+    postDataAs<Log[]>(`${pathBase}/update-money`, m)

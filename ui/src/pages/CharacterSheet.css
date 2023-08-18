@@ -51,8 +51,16 @@ textarea {
     font-size: 22px;
 }
 
-.saveCharacter {
+.withLessLeftSpace {
+    margin-left: 2px;
+}
+
+.withLeftSpace {
     margin-left: 4px;
+}
+
+.withMoreLeftSpace {
+    margin-left: 8px
 }
 
 .saveCharacterBtn {
@@ -89,10 +97,6 @@ textarea {
     display: flex;
 }
 
-.armorSection {
-    margin: 4px 0px
-}
-
 .sp {
     border: solid;
 }
@@ -126,9 +130,6 @@ textarea {
 
 }
 
-.dmgTakenContainer {
-    margin-left: 8px
-}
 
 .dmgTakenOuterbox {
     display: flex;
@@ -149,7 +150,7 @@ textarea {
 }
 
 .dmgBox {
-    border: solid;
+    border: solid 2px;
     max-height: 12px;
     max-width: 12px;
     min-height: 12px;
@@ -216,7 +217,7 @@ textarea {
     margin-right: 4px;
 }
 
-.skillBtn {
+.withLessRightSpace {
     margin-right: 2px;
 }
 
@@ -231,12 +232,8 @@ textarea {
     margin-bottom: 4px;
 }
 
-.range {
+.shortInput {
     width: 24px;
-}
-
-.repair {
-    margin-left: 4px;
 }
 
 .triangleUp {
@@ -264,21 +261,13 @@ textarea {
     border-top: 5px solid grey;
 }
 
-.sheetButton {
-    margin-right: 2px;
-}
-
 .valueToAdd {
     display: flex;
     margin: 2px 0px;
 }
 
-.repForm {
+.withVerticalSpace {
     margin: 4px 0px
-}
-
-.formButton {
-    margin-left: 8px;
 }
 
 .attackMod {

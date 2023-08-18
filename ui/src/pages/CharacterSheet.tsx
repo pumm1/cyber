@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -194,10 +194,12 @@ const SkillRow = ({skill, charSkillLvl, charOriginalSkillLvl, roll, charId, upda
     return(
         <div className='skill' key={skill.id}>
             <span>
-                {<button className='skillBtn' disabled={charOriginalSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(updateCharacter)}>+</button>}
+                {<button className='withLessRightSpace' disabled={charOriginalSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(updateCharacter)}>+</button>}
                 <button className='skillBtn' onClick={() => rollSkill(roll).then(res => setRollResult(res))}>Roll</button>
-                {skill.skill.padEnd(30, '.')}[{charSkillLvl ?? ''}]
-                {rollResult && <>({rollResult})</>}
+                <span className='withLessLeftSpace'>
+                    {skill.skill.padEnd(30, '.')}[{charSkillLvl ?? ''}]
+                    {rollResult && <>({rollResult})</>}
+                </span>
             </span>
         </div>
     )
@@ -229,11 +231,15 @@ interface SkillsByAttributeProps extends SkillsProps{
     modifier: number
 }
 
+
+
 const SkillsByAttribute = ({attribute, skills, characterSkills, character, updateCharacter, modifier}: SkillsByAttributeProps) => 
     <span>
         <b>{attribute}</b>
         {skills.filter(s => s.attribute === attribute).map(s => <SkillRowByCharacterSkills modifier={modifier} skill={s} characterSkills={characterSkills} charId={character.id} updateCharacter={updateCharacter}/>)}
     </span>
+
+
 
 const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: SkillsProps ) => {
     const updateLogsAndCharacter = (resLogs: Log[]) => {
@@ -256,7 +262,14 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
         addedLuck: 0,
         modifier: rollModifier
     }
+
     const [ipToAdd, setIpToadd] = useState(0)
+    const [money, setMoney] = useState(character.money)
+
+    const updateMoneyReq: UpdateMoneyReq = {
+        charId: character.id,
+        money,
+    }
 
     const ipReq: UpdateIPReq = {
         charId: character.id,
@@ -287,29 +300,37 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
                 {attributesInOrder.map(atr => <SkillsByAttribute modifier={rollModifier} key={'atr' + atr} updateCharacter={updateCharacter} updateLogs={updateLogs} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
                 <span className='valueToAdd'>
                     <StatValue field='Roll modifier' value={rollModifier}/> <ValueChanger onChange={setRollModifier} baseValue={rollModifier} />
+                    <button onClick={() => setRollModifier(0)} className='withLeftSpace'>Reset</button>
                 </span>
                 <span className='valueToAdd'>
                     <StatValue field='REP' value={character.reputation}/>
                     <button onClick={() => setShowAddRep(!showAddRep)}>{showAddRep ? 'Hide' : 'Show'} REP form</button>
                 </span>
-                <div className='repForm'>
+                <div className='withVerticalSpace'>
                     {showAddRep &&
-                        <div>
-                            <span className='valueToAdd'>{addRep}<ValueChanger onChange={setAddRep} baseValue={addRep} /></span>
-                            <span className='valueToAdd'>
+                       <span className='valueToAdd'>
+                            <>{addRep}<ValueChanger onChange={setAddRep} baseValue={addRep} /></>
+                            <span className='withLeftSpace'>
                                 <textarea placeholder={'Reputation gained for...'} value={repFor} onChange={e => setRepFor(e.target.value)}/>
-                                <button disabled={addRep === 0} className='formButton' onClick={() => addReputation(addRepReq).then(updateLogsAndCharacter)}>Add rep</button>
+                                <button disabled={addRep === 0} className='withMoreLeftSpace' onClick={() => addReputation(addRepReq).then(updateLogsAndCharacter)}>Add rep</button>
                             </span>
-                        </div>   
+                        </span>   
                     }
                 </div>
                 <span className='valueToAdd'>
                     <StatValue field='Current IP' value={character.ip}/>
                     ({ipToAdd})
                     <ValueChanger onChange={setIpToadd} baseValue={ipToAdd} />
-                    <button className='formButton' disabled={ipToAdd === 0} onClick={updateIp}>Change IP</button>
+                    <button className='withLeftSpace' disabled={ipToAdd === 0} onClick={updateIp}>Change IP</button>
                 </span>
                 <StatValue field='Humanity' value={character.humanity}/>
+                <span className='valueToAdd'>
+                    <StatValue field='EB' value={character.money}/>
+                    <input className='valueBox' value={money} onChange={e => setMoney(parseInt(e.target.value) ?? 0)}/>
+                    <button className='withLeftSpace' onClick={() => updateMoney(updateMoneyReq).then(updateLogsAndCharacter)} disabled={character.money === money}>
+                        Update
+                    </button>
+                </span>
             </div>
         </div>
     </>
@@ -323,7 +344,7 @@ interface RangeProps {
 }
 
 const Range = ({show, attackRange, setAttackRange}: RangeProps) => 
-    show && <><input className='range' type='text' disabled={false} value={attackRange} onChange={e => setAttackRange(parseInt(e.target.value) || 0)}/></>
+    show && <><input className='shortInput' type='text' disabled={false} value={attackRange} onChange={e => setAttackRange(parseInt(e.target.value) || 0)}/></>
 
 interface WeaponProps extends UpdateCharacterAndLogs {
     weapon: Weapon, 
@@ -412,7 +433,7 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
             </td>
             <td>
                 <span className='attackMod'>
-                    <button className='sheetButton' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
+                    <button className='withLessRightSpace' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
                         setShotsFired(1)
                         setTargets(1)
                         setAttackModifier(0)
@@ -421,7 +442,7 @@ const WeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponPro
                         Attack
                     </button>
                     {weaponIsGun && 
-                        <button className='sheetButton' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}>
+                        <button className='withLessRightSpace' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}>
                             Reload
                         </button>
                     }
@@ -632,7 +653,7 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
         </div>
 
     return(
-        <div className='armorSection'>
+        <div className='withVerticalSpace'>
             <span className='armorRowContainer'>
                <Label label='Location'/>
                 <div className='armorContent'>
@@ -654,7 +675,7 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
                     <GridBox value={sp.r_leg} otherElement={<DmgSetter bodyPart={BodyPart.R_leg}/>}/>
                     <GridBox value={sp.l_leg} otherElement={<DmgSetter bodyPart={BodyPart.L_leg}/>}/>
                 </div>
-                <button className='repair' onClick={() => repair(characterId).then(updateLogsAndCharacter)}>Repair</button>
+                <button className='withLeftSpace' onClick={() => repair(characterId).then(updateLogsAndCharacter)}>Repair</button>
             </span>
         </div>
     )
@@ -732,7 +753,7 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, updateC
                         }
                     </div>
                 </div>
-                {!edit && <div className='dmgTakenContainer'>
+                {!edit && <div className='withMoreLeftSpace'>
                     <div className='dmgTakenOuterbox'>
                         <FourDmgBoxes upper='Light' lower='Stun 0' boxesTicked={resolveTicks(0, 4)}/>
                         <FourDmgBoxes upper='Serious' lower='Stun 1' boxesTicked={resolveTicks(4, 8)}/>
@@ -790,8 +811,8 @@ const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, all
                 <input disabled={!edit} className='fieldValue' value={value} onChange={e => onUpdate(e.target.value)} />
                 {characterId &&
                     <>
-                        <button className='sheetButton' onClick={() => rollInitiative(rollInitiativeRoll).then(setInitiative)}>Roll initiative</button>
-                        <button className='sheetButton' onClick={() => addToCombat(addToCombatReq).then(updateLogsAndCharacter).then(() => setAddedToCombat(true))} disabled={addedToCombat || !allowAddingToInitiative || initiative <= 0}>Add to combat</button>
+                        <button className='withLeftSpace' onClick={() => rollInitiative(rollInitiativeRoll).then(setInitiative)}>Roll initiative</button>
+                        <button className='withLeftSpace' onClick={() => addToCombat(addToCombatReq).then(updateLogsAndCharacter).then(() => setAddedToCombat(true))} disabled={addedToCombat || !allowAddingToInitiative || initiative <= 0}>Add to combat</button>
                         <input className='valueBox' value={initiative} onChange={e => setInitiative(parseInt(e.target.value) || 0)}/>
                     </>
                 }
@@ -882,13 +903,13 @@ const CharacterSheet = ({setNameOnCreate, edit, character, allSkills, updateLogs
         const createCharacterAndLog = () => 
             createCharacter(createReq).then(updateLogs)
         return (
-            <div className='saveCharacter'>
+            <div className='withLeftSpace'>
                 <button 
                 onClick={() => {
                     createCharacterAndLog().then(() => setNameOnCreate(character.name)).then(() => updateCharacter())
                 }} 
                 disabled={!saveCharacterFormValid()}
-                className='saveCharacterBtn'>
+                className='withLeftSpace'>
                     Create character
                 </button>
             </div>

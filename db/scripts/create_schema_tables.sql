@@ -242,4 +242,7 @@ ADD COLUMN initiative_bonus integer NOT NULL DEFAULT 0;
 ALTER TABLE cyberpunk.item_atr_bonuses
 ADD COLUMN initiative_bonus integer NOT NULL DEFAULT 0;
 
+ALTER TABLE cyberpunk.characters
+ADD COLUMN money integer NOT NULL DEFAULT 0;
+
 COMMIT;

@@ -343,6 +343,19 @@ def combatInitiativeOrder() -> list[str]:
     return list(initiative_arr)
 
 
+def updateCharacterMoneyByCharacterId(character_id, money):
+    logs = []
+    character = DAO.getCharacterById(character_id)
+    if character is not None:
+        money_before = character.money
+        DAO.updateCharacterMoney(character_id, money)
+        logs = log_event(logs, f'{character.name} money updated from {money_before} to {money}', log_neutral)
+    else:
+        logs = log_event(logs, f'Character not found', log_neg)
+
+    return logs
+
+
 def addReputation(character, rep, rep_for=None) -> list[Log]:
     logs = []
     def addRep(rep_for, rep) -> list[Log]:

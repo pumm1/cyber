@@ -172,6 +172,14 @@ def updateCharacterIp(character_id, ip_amount):
     )
     conn.commit()
 
+def updateCharacterMoney(character_id, money):
+    cur.execute(
+        f"""{update} {table_characters}
+                SET money = {money}
+                WHERE id = {character_id};"""
+    )
+    conn.commit()
+
 def healCharacter(character_id, new_dmg_taken):
     cur.execute(
         f"""{update} {table_characters}

@@ -304,3 +304,13 @@ def addRep():
         return jsonify(game.addReputationById(char_id, rep, rep_for))
     else:
         return "Invalid request", 400
+
+@app.route('/update-money', methods = [post])
+def updateMoney():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        money = data['money']
+        return jsonify(game.updateCharacterMoneyByCharacterId(char_id, money))
+    else:
+        return "Invalid request", 400

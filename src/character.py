@@ -17,6 +17,7 @@ class Character:
         self.specialAbility = row['special_ability']
         self.skills = skills
         self.humanity = row['humanity']
+        self.money = row['money']
 
         dmg_taken = row['dmg_taken']
         self.dmg_taken = dmg_taken
@@ -99,6 +100,7 @@ class Character:
             "armor": list(armor),
             "sp": self.sp,
             "ip": self.ip,
+            "money": self.money,
         }
 
         return resJson
