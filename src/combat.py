@@ -703,33 +703,37 @@ def hitCharacterByName(name, body_part, dmg_str, is_ap=False, pass_sp=False):
 def handleNormalHit(character: Character, dmg, body_part) -> list[Log]:
     logs = []
     char_sp = character.sp[body_part]
-    sp_left = 0
+    dmg_passing_sp = 0
     if char_sp > 0:
-        sp_left = char_sp - dmg
-        if sp_left >= 0:
-            logs = log_event(logs, f'Armor damaged at {body_part}', log_neg)
-            DAO.dmgCharacterSP(character.id, body_part, dmg)
+        dmg_passing_sp = char_sp - dmg
+        if dmg_passing_sp < 0:
+            passed_dmg = abs(dmg_passing_sp)
+            logs = log_event(logs, f'Armor damaged at {body_part} and {passed_dmg} DMG done to {character.name}', log_neg)
+            DAO.dmgCharacterSP(character.id, body_part)
+            damageCharacter(character, passed_dmg)
         else:
-            logs = log_event(logs, f'Armor broken at {body_part}', log_neg)
-            dmg_left = abs(sp_left)
-            DAO.dmgCharacterSP(character.id, body_part, char_sp)
-            dmg_logs = damageCharacter(character, dmg_left)
-            logs = logs + dmg_logs
+            logs = log_event(logs, f"{character.name}'s armor absorbed the hit", log_neutral)
     else:
-        logs = damageCharacter(character, dmg)
+        logs = log_event(logs, f'{character.name} has no armor left at {body_part}', log_neutral)
+        dmg_logs = damageCharacter(character, dmg)
+        logs = logs + dmg_logs
     return logs
 
 
 def handleApHit(character: Character, dmg, body_part, logs) -> list[Log]:
     char_sp = character.sp[body_part]
-    sp_left = math.ceil(char_sp / 2)
-    dmg_done = math.floor((dmg - sp_left) / 2)
-    log_type = log_neg
-    if dmg_done > 1:
-        log_type = log_pos
+    sp_left = math.floor(char_sp / 2)
+    dmg_done = dmg - sp_left
+    log_type = log_pos
+    if dmg_done > 0:
+        log_type = log_neg
+    else:
+        dmg_done = 0
     logs = log_event(logs, f'{dmg_done} DMG done with AP shot', log_type)
-    DAO.dmgCharacterSP(character.id, body_part, dmg)
-    return damageCharacter(character, dmg_done, logs=logs)
+    if dmg_done > 0:
+        DAO.dmgCharacterSP(character.id, body_part)
+        logs = damageCharacter(character, dmg_done, logs=logs)
+    return logs
 
 
 def damageCharacter(c: Character, dmg, logs: list[Log]=[]) -> list[Log]:

@@ -662,13 +662,17 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
             passSp
         }
 
+        const doDmgReq = () => 
+            doDmg(dmgReq).then(logs => {
+                setDmg(0)
+                updateLogsAndCharacter(logs)
+            })
+
         return( //FIX DMG
             <div className='dmgSetter'>
                 <ValueChanger onChange={updateDmg} baseValue={dmg}/>
-                <button className='dmgSetterButton' disabled={dmg === 0} onClick={() => doDmg(dmgReq).then(logs => {
-                    setDmg(0)
-                    updateLogsAndCharacter(logs)
-                })}>{dmg} DMG</button>
+                <button className='dmgSetterButton' disabled={dmg === 0} 
+                onClick={() => doDmgReq()}>{dmg} DMG</button>
             </div>
         )
     }

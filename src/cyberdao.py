@@ -268,9 +268,9 @@ def setNextInOrder(character_id):
     conn.commit()
 
 
-def dmgCharacterSP(character_id, body_part, dmg):
+def dmgCharacterSP(character_id, body_part):
     cur.execute(
-        f"""{update} {table_character_sp} SET {body_part} = {body_part} - {dmg}
+        f"""{update} {table_character_sp} SET {body_part} = {body_part} - {1}
             WHERE character_id = {character_id};
         """
     )
@@ -837,8 +837,17 @@ def deleteCharacterChrome(character_id, chrome_id):
                     WHERE character_id = {character_id} AND chrome_id = {chrome_id};""")
         chrome_row = cur.fetchone()
         item_bonus_id = chrome_row.get('item_bonus_id', None)
-
-        if item_bonus_id is not None:
+        connected_armor = None
+        cur.execute(
+            f"""{select_from} {table_character_armors} 
+            WHERE character_id = {character_id} AND item_bonus_id = {item_bonus_id}
+            """
+        )
+        connected_armor = cur.fetchone()
+        if connected_armor is not None:
+            armor_id = connected_armor['armor_id']
+            deleteCharacterArmor(character_id, armor_id)
+        elif item_bonus_id is not None:
             cur.execute(f"""
                {delete_from} {table_item_skill_bonus}
                WHERE item_bonus_id = {item_bonus_id};
@@ -857,14 +866,10 @@ def deleteCharacterChrome(character_id, chrome_id):
                 """
             )
             cur.execute(
-                f"""{delete_from} {table_character_armors} 
-                WHERE character_id = {character_id} AND item_bonus_id = {item_bonus_id}
-                """
-            )
-            cur.execute(
                 f"""{delete_from} {table_character_chrome} 
                     WHERE character_id = {character_id} AND chrome_id = {chrome_id}"""
             )
+
 
 
 def addCharacterStatus(character_id, status, effect):

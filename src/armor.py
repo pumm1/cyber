@@ -70,6 +70,9 @@ def addArmorForCharacter(character, item=None, ev=None, humanity_cost=None, sp=N
         if humanity_cost is not None:
             if len(skill_bonuses_dict) > 0:
                 is_chrome = True
+            elif humanity_cost is not None:
+                if humanity_cost > 0:
+                    is_chrome = True
         else:
             print(f'Is chrome? {yes_no}')
             while True:
@@ -119,6 +122,7 @@ def addArmorForCharacter(character, item=None, ev=None, humanity_cost=None, sp=N
 
         item_bonus_id = DAO.addArmor(character.id, item, sp, covered_parts, ev, atr_bonuses, skill_bonuses)
         chrome_logs = []
+        print(f'... is chrome: {is_chrome} ... humanity cost: {humanity_cost}')
         if is_chrome:
             chrome_logs = addChromeWithHumanityCost(
                 character, item, 'Added with armor', item_bonus_id=item_bonus_id, humanity_cost=humanity_cost,
