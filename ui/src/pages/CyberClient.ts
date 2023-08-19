@@ -204,7 +204,7 @@ export interface RollSkillReq extends CharacterReq {
 }
     //TODO: make POST with params
 export const rollSkill = (roll: RollSkillReq) =>
-    postDataAs<number>(`${pathBase}/roll-skill`, roll)
+    postDataAs<Log[]>(`${pathBase}/roll-skill`, roll)
 
 export enum AttackType {
     Single = 'single',

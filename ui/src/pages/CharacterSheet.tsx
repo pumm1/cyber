@@ -178,34 +178,34 @@ interface SkillProps {
     charId: number
     updateCharacter: () => Promise<void>
     modifier: number
+    updateLogsAndCharacter: (l: Log[]) => void
 }
 
 interface SkillRowProps extends UpdateCharacter {
     charId: number
-    rollSkill: (r: RollSkillReq) => Promise<number>
+    rollSkill: (r: RollSkillReq) => Promise<Log[]>
     skill: Skill
     charSkillLvl: number
     charOriginalSkillLvl: number
     roll: RollSkillReq
+    updateLogsAndCharacter: (l: Log[]) => void
 }
 
-const SkillRow = ({skill, charSkillLvl, charOriginalSkillLvl, roll, charId, updateCharacter}: SkillRowProps) => {
-    const [rollResult, setRollResult] = useState<undefined | number>(undefined)
+const SkillRow = ({skill, charSkillLvl, charOriginalSkillLvl, roll, charId, updateLogsAndCharacter, updateCharacter}: SkillRowProps) => {
     return(
         <div className='skill' key={skill.id}>
             <span>
                 {<button className='withLessRightSpace' disabled={charOriginalSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(updateCharacter)}>+</button>}
-                <button className='skillBtn' onClick={() => rollSkill(roll).then(res => setRollResult(res))}>Roll</button>
+                <button className='skillBtn' onClick={() => rollSkill(roll).then(updateLogsAndCharacter)}>Roll</button>
                 <span className='withLessLeftSpace'>
                     {skill.skill.padEnd(30, '.')}[{charSkillLvl ?? ''}]
-                    {rollResult && <>({rollResult})</>}
                 </span>
             </span>
         </div>
     )
 }
 
-const SkillRowByCharacterSkills = ({skill, characterSkills, charId, updateCharacter, modifier}: SkillProps) => {
+const SkillRowByCharacterSkills = ({skill, characterSkills, charId, updateCharacter, modifier, updateLogsAndCharacter}: SkillProps) => {
     const charSkillLvl = characterSkills.find(s => s.id === skill.id)?.lvl ?? 0
     const charOriginalSkillLvl = characterSkills.find(s => s.id === skill.id)?.originalLvl ?? 0
     const roll: RollSkillReq = {
@@ -216,7 +216,7 @@ const SkillRowByCharacterSkills = ({skill, characterSkills, charId, updateCharac
     }
 
     return (
-        <SkillRow charSkillLvl={charSkillLvl} charOriginalSkillLvl={charOriginalSkillLvl} updateCharacter={updateCharacter} skill={skill} charId={charId} rollSkill={rollSkill} roll={roll} />
+        <SkillRow updateLogsAndCharacter={updateLogsAndCharacter} charSkillLvl={charSkillLvl} charOriginalSkillLvl={charOriginalSkillLvl} updateCharacter={updateCharacter} skill={skill} charId={charId} rollSkill={rollSkill} roll={roll} />
     )
 }
 
@@ -225,7 +225,7 @@ interface SkillsProps extends UpdateCharacterAndLogs {
     character: Character
 }
 
-interface SkillsByAttributeProps extends SkillsProps{
+interface SkillsByAttributeProps extends SkillsProps {
     attribute: Attribute
     characterSkills: CharacterSkill[]
     modifier: number
@@ -233,11 +233,19 @@ interface SkillsByAttributeProps extends SkillsProps{
 
 
 
-const SkillsByAttribute = ({attribute, skills, characterSkills, character, updateCharacter, modifier}: SkillsByAttributeProps) => 
-    <span>
-        <b>{attribute}</b>
-        {skills.filter(s => s.attribute === attribute).map(s => <SkillRowByCharacterSkills modifier={modifier} skill={s} characterSkills={characterSkills} charId={character.id} updateCharacter={updateCharacter}/>)}
-    </span>
+const SkillsByAttribute = ({attribute, skills, characterSkills, character, updateCharacter, modifier, updateLogs}: SkillsByAttributeProps) => {
+    const updateLogsAndCharacter = (l: Log[]) => {
+        updateLogs(l)
+        updateCharacter()
+    }
+    
+    return(
+        <span>
+            <b>{attribute}</b>
+            {skills.filter(s => s.attribute === attribute).map(s => <SkillRowByCharacterSkills updateLogsAndCharacter={updateLogsAndCharacter} modifier={modifier} skill={s} characterSkills={characterSkills} charId={character.id} updateCharacter={updateCharacter}/>)}
+         </span>
+    )
+}
 
 
 
@@ -295,7 +303,7 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
             <div className='skills'>
                 <span>
                     <b>Special ability</b>
-                    <SkillRow charOriginalSkillLvl={character.specialAbilityLvl} roll={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={specialSkill} />
+                    <SkillRow updateLogsAndCharacter={updateLogsAndCharacter} charOriginalSkillLvl={character.specialAbilityLvl} roll={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={specialSkill} />
                 </span>
                 {attributesInOrder.map(atr => <SkillsByAttribute modifier={rollModifier} key={'atr' + atr} updateCharacter={updateCharacter} updateLogs={updateLogs} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
                 <span className='valueToAdd'>
@@ -571,6 +579,42 @@ const CharacterArmor = ({armors, updateLogsAndCharacter, characterId}: Character
     )
 }
 
+interface DmgSetterProps {
+    bodyPart: BodyPart
+    characterId: number,
+    isAp: boolean
+    passSp: boolean
+    updateLogsAndCharacter: (l: Log[]) => void
+}
+
+const DmgSetter = ({characterId, bodyPart, isAp, passSp, updateLogsAndCharacter}: DmgSetterProps) => {
+    const [dmg, setDmg] = useState(0)
+
+    const updateDmg = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setDmg)
+
+    const dmgReq = {
+        charId: characterId,
+        bodyPart,
+        dmg,
+        isAp,
+        passSp
+    }
+
+    const doDmgReq = () => 
+        doDmg(dmgReq).then(logs => {
+            setDmg(0)
+            updateLogsAndCharacter(logs)
+        })
+
+    return( //FIX DMG
+        <div className='dmgSetter'>
+            <ValueChanger onChange={updateDmg} baseValue={dmg}/>
+            <button className='dmgSetterButton' disabled={dmg === 0} 
+            onClick={() => doDmgReq()}>{dmg} DMG</button>
+        </div>
+    )
+}
+
 interface ChromeRowProps {
     characterId: number
     chrome: Chrome
@@ -634,67 +678,33 @@ interface GridBoxProps {
     otherElement?: JSX.Element
 }
 
+const BoldenVal = ({value}: GridBoxProps) => 
+    <div><b><i>{value}</i></b></div>
+
+const GridBox = ({value, otherValue, bolden, otherElement}: GridBoxProps) => 
+    <div className='sp'>
+        <div>{!!bolden ? <BoldenVal value={value}/> : value}</div>
+        {otherValue && !!bolden && <div><BoldenVal value={otherValue}/> </div>}
+        {otherElement && <div>{otherElement}</div>}
+    </div>
+
 const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFieldProps) => {
     const updateLogsAndCharacter = (resLogs: Log[]) => {
         updateLogs(resLogs)
         updateCharacter()
     }
     const Label = ({label}: {label: string}) => <label className='armorLabel'><i>{label}</i></label>
-    const BoldenVal = ({value}: GridBoxProps) => 
-        <div><b><i>{value}</i></b></div>
 
-    interface DmgSetterProps {
-        bodyPart: BodyPart
-        isAp?: boolean
-        passSp?: boolean
-    }
-
-    const DmgSetter = ({bodyPart, isAp, passSp}: DmgSetterProps) => {
-        const [dmg, setDmg] = useState(0)
-
-        const updateDmg = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setDmg)
-
-        const dmgReq = {
-            charId: characterId,
-            bodyPart,
-            dmg,
-            isAp,
-            passSp
-        }
-
-        const doDmgReq = () => 
-            doDmg(dmgReq).then(logs => {
-                setDmg(0)
-                updateLogsAndCharacter(logs)
-            })
-
-        return( //FIX DMG
-            <div className='dmgSetter'>
-                <ValueChanger onChange={updateDmg} baseValue={dmg}/>
-                <button className='dmgSetterButton' disabled={dmg === 0} 
-                onClick={() => doDmgReq()}>{dmg} DMG</button>
-            </div>
-        )
-    }
-
-
-    const GridBox = ({value, otherValue, bolden, otherElement}: GridBoxProps) => 
-        <div className='sp'>
-            <div>{!!bolden ? <BoldenVal value={value}/> : value}</div>
-            {otherValue && !!bolden && <div><BoldenVal value={otherValue}/> </div>}
-            {otherElement && <div>{otherElement}</div>}
-        </div>
-
-    const [isAp, setIsAp] = useState<boolean | undefined>(false)
-    const [passSp, setPassSp] = useState<boolean | undefined>(undefined)
+    const [isAp, setIsAp] = useState<boolean>(false)
+    const [passSp, setPassSp] = useState<boolean>(false)
 
     const handleApCheckBox = () => {
         setIsAp(!isAp)
-        setPassSp(undefined)
+        setPassSp(false)
     }
 
     const handleSpCheckBox = () => {
-        setIsAp(undefined)
+        setIsAp(false)
         setPassSp(!passSp)
     }
 
@@ -718,12 +728,12 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
             <span className='armorRowContainer'>
                 <Label label='Armor SP'/>
                 <div className='armorContent'>
-                    <GridBox value={sp.head} otherElement={<DmgSetter bodyPart={BodyPart.Head} isAp={isAp} passSp={passSp}/>}/>
-                    <GridBox value={sp.body} otherElement={<DmgSetter bodyPart={BodyPart.Body} isAp={isAp} passSp={passSp}/>}/>
-                    <GridBox value={sp.r_arm} otherElement={<DmgSetter bodyPart={BodyPart.R_arm} isAp={isAp} passSp={passSp}/>}/>
-                    <GridBox value={sp.l_arm} otherElement={<DmgSetter bodyPart={BodyPart.L_arm} isAp={isAp} passSp={passSp}/>}/>
-                    <GridBox value={sp.r_leg} otherElement={<DmgSetter bodyPart={BodyPart.R_leg} isAp={isAp} passSp={passSp}/>}/>
-                    <GridBox value={sp.l_leg} otherElement={<DmgSetter bodyPart={BodyPart.L_leg} isAp={isAp} passSp={passSp}/>}/>
+                    <GridBox value={sp.head} otherElement={<DmgSetter updateLogsAndCharacter={updateLogsAndCharacter} characterId={characterId} bodyPart={BodyPart.Head} isAp={isAp} passSp={passSp}/>}/>
+                    <GridBox value={sp.body} otherElement={<DmgSetter updateLogsAndCharacter={updateLogsAndCharacter} characterId={characterId} bodyPart={BodyPart.Body} isAp={isAp} passSp={passSp}/>}/>
+                    <GridBox value={sp.r_arm} otherElement={<DmgSetter updateLogsAndCharacter={updateLogsAndCharacter} characterId={characterId} bodyPart={BodyPart.R_arm} isAp={isAp} passSp={passSp}/>}/>
+                    <GridBox value={sp.l_arm} otherElement={<DmgSetter updateLogsAndCharacter={updateLogsAndCharacter} characterId={characterId} bodyPart={BodyPart.L_arm} isAp={isAp} passSp={passSp}/>}/>
+                    <GridBox value={sp.r_leg} otherElement={<DmgSetter updateLogsAndCharacter={updateLogsAndCharacter} characterId={characterId} bodyPart={BodyPart.R_leg} isAp={isAp} passSp={passSp}/>}/>
+                    <GridBox value={sp.l_leg} otherElement={<DmgSetter updateLogsAndCharacter={updateLogsAndCharacter} characterId={characterId} bodyPart={BodyPart.L_leg} isAp={isAp} passSp={passSp}/>}/>
                 </div>
                 <button className='withLeftSpace' onClick={() => repair(characterId).then(updateLogsAndCharacter)}>Repair</button>
             </span>

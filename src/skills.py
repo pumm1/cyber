@@ -3,7 +3,7 @@ from colorama import Fore, Style
 import dice, cyberdao as DAO
 from gameHelper import safeCastToInt, printGreenLine, coloredText, list_skills_helper_str, printRedLine, COOL, INT, REF
 from character import Character
-from logger import Log, log_pos, log_neg
+from logger import Log, log_pos, log_neg, log_event, log_neutral
 from roles import roleSpecialAbility, solo, rocker, netrunner, media, nomad, fixer, cop, corp, techie, meditechie
 from skill import SkillInfo
 
@@ -66,7 +66,7 @@ def rollCharacterMeleeDef(name, roll):
             printGreenLine(f"Melee def total: {roll} (hopefully the attacker rolled lower..)")
 
 
-def rollCharacterSkillById(id, skill_num, roll, modifier, added_luck):
+def rollCharacterSkillById(id, skill_num, roll, modifier, added_luck) -> list[Log]:
     character = DAO.getCharacterById(id)
     return rollCharacterSkill(character, skill_num, roll, modifier, added_luck)
 
@@ -115,7 +115,8 @@ def character_special_atr_bonus_on_skill(character: Character) -> (int, str):
 
 
 #TODO: handle special skill
-def rollCharacterSkill(character, skill_num, roll, modifier, added_luck=None):
+def rollCharacterSkill(character, skill_num, roll, modifier, added_luck=None) -> list[Log]:
+    logs = []
     skill_name = ''
     roll_modifier = safeCastToInt(modifier)
     skill_id = safeCastToInt(skill_num)
@@ -143,7 +144,8 @@ def rollCharacterSkill(character, skill_num, roll, modifier, added_luck=None):
             if t_roll <= 0:
                 if added_luck == None:
                     added_luck = dice.handleLuck()
-                (die_roll, logs) = dice.rollWithCritAndGivenLuck(added_luck)
+                (die_roll, dice_logs) = dice.rollWithCritAndGivenLuck(added_luck)
+                logs = logs + dice_logs
             else:
                 die_roll = t_roll
             skill_with_lvl = None
@@ -159,15 +161,17 @@ def rollCharacterSkill(character, skill_num, roll, modifier, added_luck=None):
                     char_skill_lvl = skill_with_lvl.lvl
             roll = die_roll + char_skill_lvl + atr_bonus + roll_modifier
 
-            printGreenLine(f"""{character.name} rolled {roll} for {skill_name}""")
-            print(
-                f"""(die roll = {die_roll} atr_bonus = {atr_bonus} skill_level = {char_skill_lvl} modifier = {roll_modifier})""")
+            logs = log_event(logs, f"""{character.name} rolled {roll} for {skill_name}""", log_neutral)
+            logs = log_event(
+                logs,
+                f"(die roll = {die_roll} atr_bonus = {atr_bonus} skill_level = {char_skill_lvl} modifier = {roll_modifier})",
+                log_neutral
+            )
 
         else:
-            printRedLine(f'SKILL NOT FOUND [skill_id = {skill_id}]')
+            logs = log_event(logs, f'SKILL NOT FOUND [skill_id = {skill_id}]', log_neg)
 
-
-    return roll
+    return logs
 
 def printCharSkillInfo(skills):
     if len(skills) > 0:

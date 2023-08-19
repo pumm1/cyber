@@ -85,6 +85,6 @@ def rollWithCrit(skip_luck=False) -> (int, list[Log]):
         res = t_res + res
         logs = logs + added_logs
     elif res == 1:
-        logs = log_event(logs, 'Fumble! For automatic weapons skip fumble table and roll jam', log_neg)
+        logs = log_event(logs, 'Fumble or Critical failure! For automatic weapons skip fumble table and roll jam', log_neg)
 
     return (res, logs)

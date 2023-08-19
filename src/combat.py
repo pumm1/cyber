@@ -723,15 +723,16 @@ def handleNormalHit(character: Character, dmg, body_part) -> list[Log]:
 def handleApHit(character: Character, dmg, body_part, logs) -> list[Log]:
     char_sp = character.sp[body_part]
     sp_left = math.floor(char_sp / 2)
-    dmg_done = dmg - sp_left
+    dmg_done = math.ceil((dmg - sp_left) / 2)
     log_type = log_pos
     if dmg_done > 0:
         log_type = log_neg
     else:
         dmg_done = 0
-    logs = log_event(logs, f'{dmg_done} DMG done with AP shot', log_type)
+    logs = log_event(logs, f'{dmg_done} DMG done with AP shot [original dmg = {dmg}]', log_type)
     if dmg_done > 0:
-        DAO.dmgCharacterSP(character.id, body_part)
+        if char_sp > 0:
+            DAO.dmgCharacterSP(character.id, body_part)
         logs = damageCharacter(character, dmg_done, logs=logs)
     return logs
 
