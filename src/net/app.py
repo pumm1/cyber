@@ -79,6 +79,20 @@ def rollInitiative():
     else:
         return "Invalid request", 400
 
+@app.route('/roll-melee-dmg', methods = [post])
+def rollMeleeDmg():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        weapon_id = data['weaponId']
+        method = data['method']
+        print(f'... data: {data} ... method: {method}')
+        return jsonify(combat.handleMeleeDmgByCharacterId(char_id, roll=0, wep_id=weapon_id, method=method))
+    else:
+        return "Invalid request", 400
+
+
+
 @app.route('/char', methods = [get])
 def getChar():
     if request.method == get:

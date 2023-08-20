@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { AddArmorReq, Attribute, AttributeExtra, AttributeBonus, BodyPart, Log, Skill, SkillBonus, addArmor, attributes } from './CyberClient'
+import { AddArmorReq, Attribute, AttributeExtra, AttributeBonus, BodyPart, Log, Skill, SkillBonus, addArmor, attributes, sortedSkills } from './CyberClient'
 import './AddWeapon.css'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import { AtrBonuses, SkillBonuses } from './AddChrome'
@@ -120,7 +120,7 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
                 </td>
                 <td>
                     <select>
-                        {allSkills.map(s => 
+                        {sortedSkills(allSkills).map(s => 
                             <option value={s.description} onClick={() => setSkillId(s.id)}>{s.skill}</option>
                         )}
                     </select>

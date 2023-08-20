@@ -15,7 +15,7 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
     const [dmgBonus, setDmgBonus] = useState(0)
     const [divideBy, setDivideBy] = useState(1)
     const [clipSize, setClipSize] = useState(1)
-    const [weaponType, setWeaponType] = useState<WeaponType>(WeaponType.Handgun)
+    const [weaponType, setWeaponType] = useState<WeaponType>(WeaponType.Melee)
     const [reliability, setReliabilty] = useState<Reliability>(Reliability.Standard)
     const [humanityCost, setHumanityCost] = useState(0)
     const [wa, setWa] = useState(0)

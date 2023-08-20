@@ -45,21 +45,28 @@ def weaponByAttackTypeAndWeaponId(character, weapon_id, attack_type):
 
 
 
-def weaponByAttackType(attack_type, character):
+def weaponByAttackType(attack_type, character, wep_id=None):
     weapons = weaponsByAttackType(attack_type, character.weapons)
-    idx = 0
     if len(weapons) > 0:
-        print(f'Select weapon num: ')
-        for w in weapons:
-            i = weapons.index(w)
-            print(f'{i} - {w.item}')
-        while True:
-            input = askInput()
-            idx = safeCastToInt(input)
-            if 0 <= idx < len(weapons):
-                break
-        wep: Weapon = weapons[idx]
-        return wep
+        if wep_id is None:
+            idx = 0
+            print(f'Select weapon num: ')
+            for w in weapons:
+                i = weapons.index(w)
+                print(f'{i} - {w.item}')
+            while True:
+                input = askInput()
+                idx = safeCastToInt(input)
+                if 0 <= idx < len(weapons):
+                    break
+            wep: Weapon = weapons[idx]
+            return wep
+        else:
+            wep = None
+            for w in weapons:
+                if w.weapon_id == wep_id:
+                    wep = w
+            return wep
     else:
         printRedLine(f'No weapons found for {attack_type}')
         return None
@@ -259,31 +266,34 @@ def handleMelee(character, wep, given_roll, skill_bonus, skill, modifiers_total)
         (roll, _) = dice.rollWithCrit(skip_luck=True)
     total = roll + ref_bonus + skill_bonus + modifiers_total
     logs = log_event(logs, f'{character.name} attacks with {wep.item} (Roll total = {total})', log_pos)
-    logs = log_event(logs, "Defend against melee attack by rolling opponent's REF + dodge skill + 1D10", log_neg)
+    logs = log_event(logs, "Defend against melee attack by rolling opponent's dodge skill", log_neg)
     logs = log_event(logs, f'If attack is successful, calculate damage for roll (or automatically roll dmg) with {melee_dmg_help_str}', log_neutral)
     logs = log_event(logs, f'(dice roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), modifiers = {modifiers_total})', log_neutral)
 
     return logs
 
-
-def handleMeleeDmg(name, roll):
+def handleMeleeDmg(character, roll, wep_id=None, method=None) -> list[Log]:
+    logs = []
     dmg_roll = safeCastToInt(roll)
-    character = DAO.getCharacterByName(name)
     if character is not None:
         dmg_bonus = bodytypes.meleeDmgBonusByModifier(character.bodyTypeModifier)
         different_melee_attacks = ', '.join(melee_attacks)
         dmg = 0
-        print(f'Give attack method ({different_melee_attacks}):')
         while True:
-            method = askInput()
+            if method is None:
+                print(f'Give attack method ({different_melee_attacks}):')
+                method = askInput()
             match method:
                 case 'weapon':
-                    wep = weaponByAttackType(attack_type_melee, character)
-                    if dmg_roll == 0:
-                        dmg_roll = dice.roll(wep.dice_num, wep.dice_dmg, divide_by=wep.divide_by, bonus=wep.dmg_bonus)
+                    wep = weaponByAttackType(attack_type_melee, character, wep_id)
                     if wep is not None:
+                        if dmg_roll == 0:
+                            dmg_roll = dice.roll(wep.dice_num, wep.dice_dmg, divide_by=wep.divide_by, bonus=wep.dmg_bonus)
                         dmg = dmg_roll + dmg_bonus
                         method = wep.item
+                        break
+                    else:
+                        logs = log_event(logs, f'Weapon not found', log_neg)
                         break
                 case 'strike':
                     if dmg_roll == 0:
@@ -292,21 +302,38 @@ def handleMeleeDmg(name, roll):
                     break
                 case 'kick':
                     if dmg_roll == 0:
-                        dice.roll(1, 6)
+                        dmg_roll = dice.roll(1, 6)
                     dmg = dmg_roll + dmg_bonus
                     break
                 case 'throw':
                     if dmg_roll == 0:
-                        dice.roll(1, 6)
+                        dmg_roll = dice.roll(1, 6)
                     dmg = dmg_roll + dmg_bonus
                     break
                 case 'choke':
                     if dmg_roll == 0:
-                        dice.roll(1, 6)
+                        dmg_roll = dice.roll(1, 6)
                     dmg = dmg_roll
                     break
         hit_loc = determineHitLocation()
-        printGreenLine(f'{character.name} did {dmg} DMG to {hit_loc} using {method}')
+        if dmg < 0:
+            dmg = 0
+        logs = log_event(
+            logs,
+            f'{character.name} did {dmg} DMG to {hit_loc} using {method} [dmg roll = {dmg_roll}, dmg_bonus = {dmg_bonus}]',
+            log_neutral
+        )
+    else:
+        logs = log_event(logs, f'Character not found for melee dmg', log_neg)
+    return logs
+
+def handleMeleeDmgByCharacterId(character_id, roll, wep_id, method=None):
+    character = DAO.getCharacterById(character_id)
+    return handleMeleeDmg(character, roll, wep_id, method)
+
+def handleMeleeDmgByCharacterName(name, roll, method=None):
+    character = DAO.getCharacterByName(name)
+    return handleMeleeDmg(character, roll, method)
 
 
 def characterSkillBonusForWeapon(character, wep_t) -> (int, str):

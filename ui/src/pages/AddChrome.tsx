@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { AddChromeReq, Attribute, AttributeExtra, AttributeBonus, Log, Skill, SkillBonus, addChrome, attributes } from './CyberClient'
+import { AddChromeReq, Attribute, AttributeExtra, AttributeBonus, Log, Skill, SkillBonus, addChrome, attributes, sortedSkills } from './CyberClient'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import './AddWeapon.css'
 
@@ -114,7 +114,7 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
                 </td>
                 <td>
                     <select>
-                        {allSkills.map(s => 
+                        {sortedSkills(allSkills).map(s => 
                             <option value={s.description} onClick={() => setSkillId(s.id)}>{s.skill}</option>
                         )}
                     </select>

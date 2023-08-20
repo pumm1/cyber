@@ -78,6 +78,15 @@ export interface Skill {
     skill: string
 }
 
+export const sortedSkills = (skills: Skill[]) => 
+    skills.sort((a,b) => {
+        if(a.skill < b.skill) {
+            return -1
+        } else if (a.skill > b.skill) {
+            return 1
+        } else return 0
+    })
+
 export interface SkillBonus {
     skillId: number
     bonus: number
@@ -422,3 +431,18 @@ export interface RemoveChromeReq extends CharacterReq {
 
 export const removeChrome = (c: RemoveChromeReq) =>
     postDataAs<Log[]>(`${pathBase}/remove-chrome`, c)
+
+export enum MeleeAttackMethod {
+    weapon = 'weapon',
+    strike = 'strike',
+    kick = 'kick',
+    throw = 'throw',
+    choke = 'choke',
+}
+export interface MeleeDmgRollReq extends CharacterReq {
+    weaponId: number,
+    method: MeleeAttackMethod
+}
+
+export const rollMeleeDmg = (m: MeleeDmgRollReq) =>
+    postDataAs<Log[]>(`${pathBase}/roll-melee-dmg`, m)

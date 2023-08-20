@@ -27,7 +27,7 @@ def meleeDmgBonusByModifier(modifier) -> int:
     modifier_str = bodyTypeModifiersByValue(modifier)
     print(f'Determining melee DMG bonus for {modifier_str} ({modifier})')
     if modifier <= 4:
-        return modifier -2
+        return modifier - 2
     elif 4 < modifier <= 6:
         return 4
     elif 6 < modifier <= 8:
