@@ -16,13 +16,14 @@ const ListInitiative = ({updateLogs, setInitiatives, initiatives}: ListInitiativ
      when using python as backend, one might end up in a weird race condition.
      now this app fetches all the skills initially and we could already fetch also the initaitives.
      though if we fetch both at around the same time, there's some kind of sql transaction and python not being 
-     threaded, fetching initatives returns actually the skills
-     fetches actually the skills.. 
+     threaded, fetching initatives returns actually the skills...
      took some time to debug
+
+     there might be some simple fix for this
      */
 
     return(
-        <div className='listInitiative'>
+        <div>
             <button className='showButton' onClick={() => {
                 setShowInitiative(!showInitiative)
                 updateInitiatives()

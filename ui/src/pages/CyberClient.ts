@@ -209,6 +209,7 @@ export interface CharacterReq {
 export interface RollSkillReq extends CharacterReq {
     skillId: number
     addedLuck: number
+    roll?: number
     modifier: number
 }
     //TODO: make POST with params

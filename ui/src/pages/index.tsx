@@ -22,13 +22,16 @@ const IndexPage: React.FC<PageProps> = () => {
   const updateLogs = (newLogs: Log[]) => 
     setLogs([...logs, ...newLogs])
 
+  const emptyLogs = () => 
+    setLogs([])
+
 
   return (
     <div className='main'>
       <h1>Welcome to the NET</h1>
       <div className='container'>
         <SearchOrCreateCharacter initiatives={initiatives} updateLogs={updateLogs}/>
-        <LogViewer logs={logs} addToLogs={addToLogs}/>
+        <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogs}/>
         <ListInitiative initiatives={initiatives} setInitiatives={setInitiatives} updateLogs={updateLogs}/>
         <DifficultyTable />
         <GrenadeTable />

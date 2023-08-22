@@ -9,7 +9,7 @@ interface ValueChangerProps {
 export const updateNumWithLowerLimit = (newValue: number, limit: number, setter: (i: number) => void) => {
     if (newValue >= limit) {
         setter(newValue)
-    }
+    } else setter(limit)
 }
 
 export const ValueChanger = ({onChange, baseValue}: ValueChangerProps) =>

@@ -177,6 +177,7 @@ interface SkillProps {
     characterSkills: CharacterSkill[]
     charId: number
     updateCharacter: () => Promise<void>
+    roll?: number
     modifier: number
     updateLogsAndCharacter: (l: Log[]) => void
 }
@@ -187,16 +188,16 @@ interface SkillRowProps extends UpdateCharacter {
     skill: Skill
     charSkillLvl: number
     charOriginalSkillLvl: number
-    roll: RollSkillReq
+    rollReq: RollSkillReq
     updateLogsAndCharacter: (l: Log[]) => void
 }
 
-const SkillRow = ({skill, charSkillLvl, charOriginalSkillLvl, roll, charId, updateLogsAndCharacter, updateCharacter}: SkillRowProps) => {
+const SkillRow = ({skill, charSkillLvl, charOriginalSkillLvl, rollReq, charId, updateLogsAndCharacter, updateCharacter}: SkillRowProps) => {
     return(
         <div className='skill' key={skill.id}>
             <span>
                 {<button className='withLessRightSpace' disabled={charOriginalSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(updateCharacter)}>+</button>}
-                <button className='skillBtn' onClick={() => rollSkill(roll).then(updateLogsAndCharacter)}>Roll</button>
+                <button className='skillBtn' onClick={() => rollSkill(rollReq).then(updateLogsAndCharacter)}>Roll</button>
                 <span className='withLessLeftSpace'>
                     {skill.skill.padEnd(30, '.')}[{charSkillLvl ?? ''}]
                 </span>
@@ -205,18 +206,19 @@ const SkillRow = ({skill, charSkillLvl, charOriginalSkillLvl, roll, charId, upda
     )
 }
 
-const SkillRowByCharacterSkills = ({skill, characterSkills, charId, updateCharacter, modifier, updateLogsAndCharacter}: SkillProps) => {
+const SkillRowByCharacterSkills = ({skill, characterSkills, charId, updateCharacter, roll, modifier, updateLogsAndCharacter}: SkillProps) => {
     const charSkillLvl = characterSkills.find(s => s.id === skill.id)?.lvl ?? 0
     const charOriginalSkillLvl = characterSkills.find(s => s.id === skill.id)?.originalLvl ?? 0
-    const roll: RollSkillReq = {
+    const rollReq: RollSkillReq = {
         charId: charId,
         skillId: skill.id,
         addedLuck: 0, //TODO
+        roll,
         modifier
     }
 
     return (
-        <SkillRow updateLogsAndCharacter={updateLogsAndCharacter} charSkillLvl={charSkillLvl} charOriginalSkillLvl={charOriginalSkillLvl} updateCharacter={updateCharacter} skill={skill} charId={charId} rollSkill={rollSkill} roll={roll} />
+        <SkillRow updateLogsAndCharacter={updateLogsAndCharacter} charSkillLvl={charSkillLvl} charOriginalSkillLvl={charOriginalSkillLvl} updateCharacter={updateCharacter} skill={skill} charId={charId} rollSkill={rollSkill} rollReq={rollReq} />
     )
 }
 
@@ -228,12 +230,13 @@ interface SkillsProps extends UpdateCharacterAndLogs {
 interface SkillsByAttributeProps extends SkillsProps {
     attribute: Attribute
     characterSkills: CharacterSkill[]
+    roll?: number
     modifier: number
 }
 
 
 
-const SkillsByAttribute = ({attribute, skills, characterSkills, character, updateCharacter, modifier, updateLogs}: SkillsByAttributeProps) => {
+const SkillsByAttribute = ({attribute, skills, characterSkills, character, updateCharacter, roll, modifier, updateLogs}: SkillsByAttributeProps) => {
     const updateLogsAndCharacter = (l: Log[]) => {
         updateLogs(l)
         updateCharacter()
@@ -242,7 +245,7 @@ const SkillsByAttribute = ({attribute, skills, characterSkills, character, updat
     return(
         <span>
             <b>{attribute}</b>
-            {skills.filter(s => s.attribute === attribute).map(s => <SkillRowByCharacterSkills updateLogsAndCharacter={updateLogsAndCharacter} modifier={modifier} skill={s} characterSkills={characterSkills} charId={character.id} updateCharacter={updateCharacter}/>)}
+            {skills.filter(s => s.attribute === attribute).map(s => <SkillRowByCharacterSkills roll={roll} updateLogsAndCharacter={updateLogsAndCharacter} modifier={modifier} skill={s} characterSkills={characterSkills} charId={character.id} updateCharacter={updateCharacter}/>)}
          </span>
     )
 }
@@ -255,6 +258,7 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
         updateCharacter()
     }
 
+    const [roll, setRoll] = useState(0)
     const [rollModifier, setRollModifier] = useState(0)
 
     const specialSkill: Skill = {
@@ -268,6 +272,7 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
         charId: character.id,
         skillId: specialSkill.id,
         addedLuck: 0,
+        roll,
         modifier: rollModifier
     }
 
@@ -303,9 +308,13 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
             <div className='skills'>
                 <span>
                     <b>Special ability</b>
-                    <SkillRow updateLogsAndCharacter={updateLogsAndCharacter} charOriginalSkillLvl={character.specialAbilityLvl} roll={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={specialSkill} />
+                    <SkillRow updateLogsAndCharacter={updateLogsAndCharacter} charOriginalSkillLvl={character.specialAbilityLvl} rollReq={specialRollReq} charId={character.id} updateCharacter={updateCharacter} rollSkill={rollSkill} charSkillLvl={character.specialAbilityLvl} skill={specialSkill} />
                 </span>
-                {attributesInOrder.map(atr => <SkillsByAttribute modifier={rollModifier} key={'atr' + atr} updateCharacter={updateCharacter} updateLogs={updateLogs} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
+                {attributesInOrder.map(atr => <SkillsByAttribute roll={roll} modifier={rollModifier} key={'atr' + atr} updateCharacter={updateCharacter} updateLogs={updateLogs} attribute={atr} skills={skills} characterSkills={character.skills} character={character}/>)}
+                <span className='valueToAdd'>
+                    <StatValue field='Given roll' value={roll}/> <ValueChanger onChange={setRoll} baseValue={roll} />
+                    <button onClick={() => setRoll(0)} className='withLeftSpace'>Reset</button>
+                </span>
                 <span className='valueToAdd'>
                     <StatValue field='Roll modifier' value={rollModifier}/> <ValueChanger onChange={setRollModifier} baseValue={rollModifier} />
                     <button onClick={() => setRollModifier(0)} className='withLeftSpace'>Reset</button>
@@ -314,17 +323,15 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
                     <StatValue field='REP' value={character.reputation}/>
                     <button onClick={() => setShowAddRep(!showAddRep)}>{showAddRep ? 'Hide' : 'Show'} REP form</button>
                 </span>
-                <div className='withVerticalSpace'>
-                    {showAddRep &&
+                {showAddRep &&
                        <span className='valueToAdd'>
                             <>{addRep}<ValueChanger onChange={setAddRep} baseValue={addRep} /></>
                             <span className='withLeftSpace'>
-                                <textarea placeholder={'Reputation gained for...'} value={repFor} onChange={e => setRepFor(e.target.value)}/>
+                                <textarea placeholder={'Reputation received for...'} value={repFor} onChange={e => setRepFor(e.target.value)}/>
                                 <button disabled={addRep === 0} className='withMoreLeftSpace' onClick={() => addReputation(addRepReq).then(updateLogsAndCharacter)}>Add rep</button>
                             </span>
                         </span>   
                     }
-                </div>
                 <span className='valueToAdd'>
                     <StatValue field='Current IP' value={character.ip}/>
                     ({ipToAdd})
@@ -500,7 +507,7 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
             </td>
             <td>
                 <span className='attackMod'>
-                    {givenRoll} <ValueChanger onChange={updateGivenRoll} baseValue={givenRoll} />
+                    <input value={givenRoll} className='valueBox' onChange={e => updateGivenRoll(parseInt(e.target.value))}/>
                 </span>
                 
             </td>
@@ -559,8 +566,8 @@ const MeleeWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Weap
     const defaultAttackMethod: MeleeAttackMethod = isUnarmed ? MeleeAttackMethod.strike : MeleeAttackMethod.weapon
     const [attackMethod, setAttackMethod] = useState<MeleeAttackMethod>(defaultAttackMethod)
 
-    const updateGivenRoll = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setGivenRoll)
     const updateModifier = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setAttackModifier) 
+    const updateGivenRoll = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setGivenRoll)
 
     const updateLogsAndCharacter = (resLogs: Log[]) => {
         updateLogs(resLogs)
@@ -629,9 +636,8 @@ const MeleeWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Weap
             <td>{ammoInfo}</td>
             <td>
                 <span className='attackMod'>
-                    {givenRoll} <ValueChanger onChange={updateGivenRoll} baseValue={givenRoll} />
+                    <input value={givenRoll} className='valueBox' onChange={e => updateGivenRoll(parseInt(e.target.value))}/>
                 </span>
-                
             </td>
             <td>
                 <span className='attackMod'>
@@ -1141,3 +1147,20 @@ const CharacterSheet = ({setNameOnCreate, edit, character, allSkills, updateLogs
 }
 
 export default CharacterSheet
+
+/** if I want to include image..? (replace Handle-Stats)
+        <div className='fieldContent'>
+            <div>
+                <Handle allowAddingToInitiative={allowAddingToInitiative} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
+                <RoleFiled updateChracterRole={updateCharacterRole} edit={edit} value={character.role}/>
+                <Stats edit={edit} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>
+            </div>
+            <div className='image'>
+                <div >
+                
+                </div>
+                
+            </div>
+            <button>Add image</button>
+        </div>
+ */

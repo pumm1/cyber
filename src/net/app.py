@@ -66,7 +66,8 @@ def rollSkill():
         skill_id = data['skillId']
         added_luck = data['addedLuck']
         modifier = data['modifier']
-        return jsonify(skills.rollCharacterSkillById(char_id, skill_id, 0, modifier, added_luck))
+        roll = data['roll']
+        return jsonify(skills.rollCharacterSkillById(char_id, skill_id, roll, modifier, added_luck))
     else:
         return "Invalid request", 400
 

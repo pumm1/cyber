@@ -19,6 +19,15 @@ textarea {
     font-family: monospace;
 }
 
+.image {
+    margin: 4px;
+    width: 100%;
+    max-width: 300px;
+    max-height: 600px;
+    border: solid 4px;
+    border-radius: 16px;
+}
+
 .valueBox {
     margin-left: 4px;
     width: 30px;

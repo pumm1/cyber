@@ -14,11 +14,11 @@ const GrenadeTable = ({}) => {
             {show && 
                 <div className='missContainer'>
                     <span className='miss'>
-                        Distance
+                        Direction
                         <Dice numberOfDice={1} dDie={10}></Dice>
                     </span>
                     <span className='miss'>
-                        Direction
+                        Distance
                         <Dice numberOfDice={1} dDie={10}></Dice>
                     </span>
                 </div>

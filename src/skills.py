@@ -115,13 +115,12 @@ def character_special_atr_bonus_on_skill(character: Character) -> (int, str):
 
 
 #TODO: handle special skill
-def rollCharacterSkill(character, skill_num, roll, modifier, added_luck=None) -> list[Log]:
+def rollCharacterSkill(character, skill_num, roll=0, modifier=0, added_luck=None) -> list[Log]:
     logs = []
     skill_name = ''
     roll_modifier = safeCastToInt(modifier)
     skill_id = safeCastToInt(skill_num)
     skill = None
-    roll = 0
     if character is not None:
         t_roll = safeCastToInt(roll)
         atr_bonus = 0
@@ -151,7 +150,7 @@ def rollCharacterSkill(character, skill_num, roll, modifier, added_luck=None) ->
             skill_with_lvl = None
             if skill_id == 0:
                 atr_bonus = special_atr_bonus
-                skill_with_lvl = SkillInfo(skill_id, skill['skill'], character.specialAbility, skill['attribute'])
+                skill_with_lvl = SkillInfo(skill_id, skill['skill'], character.specialAbility, skill['attribute'], is_original=True)
             else:
                 skill_with_lvl_arr = [s for s in character.skills if s.skill == skill_name]
                 skill_atr = skill['attribute']
