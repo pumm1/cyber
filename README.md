@@ -78,8 +78,18 @@ After setting up the PSQL database, run the following migration scripts:
 # Usage
 
 **Start Web UI:**
-  * Backend: ``\src $ flask --app net/app run``
-  * NET: ``\ui $ npm start``
+  * Backend: ``/src $ flask --app net/app run`` 
+    * if you see the following in logs when trying to start backend,
+    you can try to start from project root `/cyber`
+    ``/cyber $ flask --app src/net/app.py run``.
+    Behaviour might change a little depending on the OS you run this from - 
+    first example was tested on Windows 10, the latter on Ubuntu.
+    ```
+    //the mentioned logs on start up
+    db = secrets['DB_NAME']
+    KeyError: 'DB_NAME'
+    ```
+  * NET: ``/ui $ npm start``
   * Go to `http://localhost:8000/`
   
 **Start terminal version:**
