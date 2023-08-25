@@ -22,7 +22,7 @@ const ListInitiative = ({updateLogs, setInitiatives, initiatives}: ListInitiativ
      */
 
      const initiativesProps = 
-        <div>
+        <div className='initiatives'>
             Initiatives
             <button className='updateButton' onClick={() => updateInitiatives()}>Update</button>
             {initiatives.length > 0 && <button className='updateButton' onClick={() => advanceCombatSeq().then(updateLogs).then(() => updateInitiatives())}>Advance combat</button>}
