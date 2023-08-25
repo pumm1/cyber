@@ -25,6 +25,7 @@ import status
 import notice
 from initiative import Initiative
 from logger import Log, log_neutral, log_event, log_neg, log_pos
+from character import CharacterShort
 
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
@@ -405,6 +406,15 @@ def listCharacterRep(name):
         print(f'{c.name} is known for:')
         for rep in rep_rows:
             print(f"{rep['known_for']} (level: {rep['rep_level']})")
+
+
+def listCharacters() -> list[CharacterShort]:
+    characters: list[CharacterShort] = DAO.listCharacters()
+
+    res_json = map(lambda c: (
+        c.asJson()
+    ), characters)
+    return list(res_json)
 
 
 def advanceCombatSeq() -> list[Log]:

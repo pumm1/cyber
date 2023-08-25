@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Initiative, Log, advanceCombatSeq, clearCombatSeq, listInitiative } from './CyberClient'
 import './ListInitiative.css'
+import Hideable from './Hideable'
 
 export interface ListInitiativeProps {
     updateLogs: (l: Log[]) => void
@@ -9,8 +10,6 @@ export interface ListInitiativeProps {
 }
 
 const ListInitiative = ({updateLogs, setInitiatives, initiatives}: ListInitiativeProps) => {
-    const [showInitiative, setShowInitiative] = useState(false)
-
     const updateInitiatives = () => listInitiative().then(setInitiatives)
     /**
      when using python as backend, one might end up in a weird race condition.
@@ -22,34 +21,31 @@ const ListInitiative = ({updateLogs, setInitiatives, initiatives}: ListInitiativ
      there might be some simple fix for this
      */
 
+     const initiativesProps = 
+        <div>
+            Initiatives
+            <button className='updateButton' onClick={() => updateInitiatives()}>Update</button>
+            {initiatives.length > 0 && <button className='updateButton' onClick={() => advanceCombatSeq().then(updateLogs).then(() => updateInitiatives())}>Advance combat</button>}
+            {initiatives.length > 0 && <button className='updateButton' onClick={() => clearCombatSeq().then(updateLogs).then(() => updateInitiatives())}>Clear initiatives</button>}
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>Initiative</th>
+                    <th>Turn</th>
+                </tr>
+                {initiatives.map((i, idx) => 
+                    <tr>
+                        <td>{i.name}</td>
+                        <td>{i.initiative}</td>
+                        <td>{i.current ? "This character's turn" : ''}</td>
+                    </tr>
+                )}
+            </table>
+        </div>
+
     return(
         <div>
-            <button className='showButton' onClick={() => {
-                setShowInitiative(!showInitiative)
-                updateInitiatives()
-            }}>{showInitiative ? 'Hide' : 'Show'} initiaitives</button>
-            {showInitiative && 
-                <div>
-                    Initiatives
-                    <button className='updateButton' onClick={() => updateInitiatives()}>Update</button>
-                    {initiatives.length > 0 && <button className='updateButton' onClick={() => advanceCombatSeq().then(updateLogs).then(() => updateInitiatives())}>Advance combat</button>}
-                    {initiatives.length > 0 && <button className='updateButton' onClick={() => clearCombatSeq().then(updateLogs).then(() => updateInitiatives())}>Clear initiatives</button>}
-                    <table>
-                        <tr>
-                            <th>Name</th>
-                            <th>Initiative</th>
-                            <th>Turn</th>
-                        </tr>
-                        {initiatives.map((i, idx) => 
-                            <tr>
-                                <td>{i.name}</td>
-                                <td>{i.initiative}</td>
-                                <td>{i.current ? "This character's turn" : ''}</td>
-                            </tr>
-                        )}
-                    </table>
-                </div>
-            }
+            <Hideable text='initiatives' props={initiativesProps}/>
         </div>
     )
 }

@@ -1,3 +1,5 @@
+import { get } from "http"
+
 const pathBase = "http://127.0.0.1:5000" //TODO: some env?
 
 const fetchData = (path: string) =>
@@ -78,13 +80,22 @@ export interface Skill {
     skill: string
 }
 
+const stringSortFn = (a: string, b: string) => {
+    if(a < b) {
+        return -1
+    } else if (a > b) {
+        return 1
+    } else return 0
+}
+
 export const sortedSkills = (skills: Skill[]) => 
     skills.sort((a,b) => {
-        if(a.skill < b.skill) {
-            return -1
-        } else if (a.skill > b.skill) {
-            return 1
-        } else return 0
+        return stringSortFn(a.skill, b.skill)
+    })
+
+export const sortedCharacters = (characters: CharacterShort[]) =>
+    characters.sort((a,b) => {
+        return stringSortFn(a.name, b.name)
     })
 
 export interface SkillBonus {
@@ -166,10 +177,13 @@ export interface CharacterSkill {
     skill: string
 }
 
-export interface Character {
+export interface CharacterShort {
     id: number
     name: string
     role: string
+}
+
+export interface Character extends CharacterShort{
     specialAbility: string, //TODO: enum?
     specialAbilityLvl: number
     bodyType: string
@@ -447,3 +461,6 @@ export interface MeleeDmgRollReq extends CharacterReq {
 
 export const rollMeleeDmg = (m: MeleeDmgRollReq) =>
     postDataAs<Log[]>(`${pathBase}/roll-melee-dmg`, m)
+
+export const listCharacters = () => 
+    fetchDataAs<CharacterShort[]>(`${pathBase}/list-characters`)

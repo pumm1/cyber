@@ -3,11 +3,16 @@
 ## In progress
 
 The goal of this project is to have a tool for the referee of Cyberpunk 2020 game
-that helps to keep track of things in a better way than just pen and paper.
-Different helpful things are e.g. quick rolls for characters 
-(especially NPC characters and keeping track of them), 
-keeping track of character statuses and equipment. This project also contains
-some changes to the game logic from the original rules.
+that helps to keep track of things in a better way than just pen and paper. Different helpful 
+things are e.g. quick rolls for characters (especially NPC characters and keeping track of them), 
+keeping track of character statuses and equipment. 
+
+This project also contains some changes to the game logic from the original rules - 
+mostly to simplify some things for the tool itself. I've tried to make things so that a referee can
+use their own judgement to decide how to change e.g. character health, improvement points,
+level up character skills etc., while also trying to keep track of some things automatically
+based on other factors (e.g. character taking hit to a leg and seeing the result on SP/health 
+right away or seeing if character gets stunned).
 
 This is not a replacement for the original game's source books.
 
@@ -63,7 +68,7 @@ After setting up the PSQL database, run the following migration scripts:
 ```
 {
     "DB_HOST": "<host>",
-    "DB_SCHEMA": "<db_schema>", //a need to update migration script(s) if changed..
+    "DB_SCHEMA": "cyberpunk", //need to update migration script(s) if changed..
     "DB_NAME": "<db_name>",
     "DB_USER": "<db_user>",
     "DB_PASSWORD": "<db_user_pw>"
@@ -72,11 +77,10 @@ After setting up the PSQL database, run the following migration scripts:
 
 # Usage
 
-**Start terminal version:**
-* ``\src $ python main.py``
-
 **Start Web UI:**
   * Backend: ``\src $ flask --app net/app run``
   * NET: ``\ui $ npm start``
   * Go to `http://localhost:8000/`
   
+**Start terminal version:**
+* ``\src $ python main.py``

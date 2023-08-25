@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, addCharacterNoticeRolls, AddNoticesReq } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -324,14 +324,14 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
                     <button onClick={() => setShowAddRep(!showAddRep)}>{showAddRep ? 'Hide' : 'Show'} REP form</button>
                 </span>
                 {showAddRep &&
-                       <span className='valueToAdd'>
-                            <>{addRep}<ValueChanger onChange={setAddRep} baseValue={addRep} /></>
-                            <span className='withLeftSpace'>
-                                <textarea placeholder={'Reputation received for...'} value={repFor} onChange={e => setRepFor(e.target.value)}/>
-                                <button disabled={addRep === 0} className='withMoreLeftSpace' onClick={() => addReputation(addRepReq).then(updateLogsAndCharacter)}>Add rep</button>
-                            </span>
-                        </span>   
-                    }
+                    <span className='valueToAdd'>
+                        <>{addRep}<ValueChanger onChange={setAddRep} baseValue={addRep} /></>
+                        <span className='withLeftSpace'>
+                            <textarea placeholder={'Reputation received for...'} value={repFor} onChange={e => setRepFor(e.target.value)}/>
+                            <button disabled={addRep === 0} className='withMoreLeftSpace' onClick={() => addReputation(addRepReq).then(updateLogsAndCharacter)}>Add rep</button>
+                        </span>
+                    </span>   
+                }
                 <span className='valueToAdd'>
                     <StatValue field='Current IP' value={character.ip}/>
                     ({ipToAdd})
@@ -1032,11 +1032,11 @@ export interface CharacterSheetProps extends UpdateCharacterAndLogs{
     allSkills?: Skill[]
     editCharacter?: (c: Character) => void
     allowAddingToInitiative: boolean
-    setNameOnCreate: (n: string) => void
+    setNameInSearch: (n: string) => void
 }
 
 
-const CharacterSheet = ({setNameOnCreate, edit, character, allSkills, updateLogs, updateCharacter, editCharacter, allowAddingToInitiative}: CharacterSheetProps) => {
+const CharacterSheet = ({setNameInSearch, edit, character, allSkills, updateLogs, updateCharacter, editCharacter, allowAddingToInitiative}: CharacterSheetProps) => {
     const editCharacterInForm = (newCharacter: Character, isValid: boolean) => 
         editCharacter && isValid && editCharacter(newCharacter)
     
@@ -1048,7 +1048,7 @@ const CharacterSheet = ({setNameOnCreate, edit, character, allSkills, updateLogs
         const newCharacter: Character = {name: newName, ...rest}
 
         editCharacterInForm(newCharacter, true)
-        setNameOnCreate(newName)
+        setNameInSearch(newName)
     }
 
     const updateCharacterRole = (newRole: string) => {
@@ -1111,7 +1111,7 @@ const CharacterSheet = ({setNameOnCreate, edit, character, allSkills, updateLogs
             <div className='withLeftSpace'>
                 <button 
                 onClick={() => {
-                    createCharacterAndLog().then(() => setNameOnCreate(character.name)).then(() => updateCharacter())
+                    createCharacterAndLog().then(() => setNameInSearch(character.name)).then(() => updateCharacter())
                 }} 
                 disabled={!saveCharacterFormValid()}
                 className='withLeftSpace'>
@@ -1148,7 +1148,7 @@ const CharacterSheet = ({setNameOnCreate, edit, character, allSkills, updateLogs
 
 export default CharacterSheet
 
-/** if I want to include image..? (replace Handle-Stats)
+/** if one wants to include image..? (replace Handle-Stats)
         <div className='fieldContent'>
             <div>
                 <Handle allowAddingToInitiative={allowAddingToInitiative} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
@@ -1157,7 +1157,7 @@ export default CharacterSheet
             </div>
             <div className='image'>
                 <div >
-                
+                 //image uploading stuff here
                 </div>
                 
             </div>

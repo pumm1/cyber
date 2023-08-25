@@ -5,8 +5,8 @@ from colorama import Fore
 from cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
     table_events, table_character_chrome, table_character_statuses, table_character_quick_notice, \
-    table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus
-from character import Character
+    table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus, table_character_notice_rolls
+from character import Character, CharacterShort
 from skill import SkillInfo
 from armor import Armor
 from gameHelper import EMP, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, woundEffect, calculateModifierBonus, \
@@ -164,6 +164,18 @@ def getCharacterByName(name: str):
     char = getCharacter(char_row)
 
     return char
+
+def listCharacters() -> list[CharacterShort]:
+    cur.execute(
+        f""" {select_from} {table_characters};"""
+    )
+    rows = cur.fetchall()
+    conn.commit()
+    characters = map(lambda c_row: (
+        CharacterShort(c_row)
+    ), rows)
+
+    return characters
 
 
 def updateCharacterIp(character_id, ip_amount):

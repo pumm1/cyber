@@ -2,8 +2,10 @@ import cyberdao as DAO
 from skills import awarenessSkill
 from dice import rollWithCrit
 from gameHelper import printGreenLine, printRedLine, safeCastToInt
+#from logger import Log, log_event, log_neutral, log_neg
 
 
+#TODO: remove these old ones..?
 def addCharacterToQuickNotice(name):
     c = DAO.getCharacterByName(name)
     if c is not None:

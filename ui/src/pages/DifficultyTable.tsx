@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './DifficultyTable.css'
+import Hideable from './Hideable'
 
 interface Difficulty {
     label: string
@@ -215,22 +216,14 @@ const Table = ({items}: TableProps) =>
             )}
     </table>
 
-const DifficultyTable = ({}) => {
-    const [showDifficulties, setShowDifficulties] = useState(false)
-    const [showModifiers, setShowModifiers] = useState(false)
-
-    return(
+const DifficultyTable = ({}) =>
+    <div className='difficulties'>
         <div className='difficulties'>
-            <div>
-                <button className='difficulties' onClick={() => setShowDifficulties(!showDifficulties)}>{showDifficulties ? 'Hide' : 'Show'} difficulties</button>
-                {showDifficulties && <Table items={difficulties}/>}
-            </div>
-            <div>
-                <button className='difficulties' onClick={() => setShowModifiers(!showModifiers)}>{showModifiers ? 'Hide' : 'Show'} modifiers</button>
-                {showModifiers && <Table items={difficultyModifiers}/>}
-            </div>
+            <Hideable text='difficulties' props={<Table items={difficulties}/>}/>
         </div>
-    )
-}
+        <div className='difficulties'>
+            <Hideable text='modifiers' props={<Table items={difficultyModifiers}/>}/>
+        </div>
+    </div>
 
 export default DifficultyTable

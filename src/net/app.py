@@ -5,6 +5,7 @@ import os
 
 # getting the name of the directory
 # where the this file is present.
+
 current = os.path.dirname(os.path.realpath(__file__))
 
 # Getting the parent directory name
@@ -17,7 +18,7 @@ sys.path.append(parent)
 
 # now we can import the module in the parent
 # directory.
-import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip, weapon, chrome
+import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip, weapon, chrome, notice
 
 app = Flask(__name__)
 CORS(app)
@@ -108,6 +109,15 @@ def listSkills():
         return jsonify(skills.fetchAllSkils())
     else:
         return "Invalid request", 400
+
+
+@app.route('/list-characters', methods = [get])
+def listCharacters():
+    if request.method == get:
+        return jsonify(game.listCharacters())
+    else:
+        return "Invalid request", 400
+
 
 @app.route('/attack', methods = [post])
 def attack():
@@ -311,7 +321,6 @@ def initiativeOrder():
     else:
         return "Invalid request", 400
 
-
 @app.route('/add-to-combat', methods = [post])
 def addToCombat():
     if request.method == post:
@@ -336,6 +345,13 @@ def advanceCombatSeq():
 def clearInitiative():
     if request.method == post:
         return jsonify(game.clearCombat())
+    else:
+        return "Invalid request", 400
+
+@app.route('/list-quick-notice', methods = [get])
+def listQuickNotice():
+    if request.method == get:
+        return "TODO"
     else:
         return "Invalid request", 400
 

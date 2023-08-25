@@ -150,7 +150,7 @@ alter table cyberpunk.character_chrome
 
 create table cyberpunk.events(
      id bigserial not null PRIMARY KEY,
-    event varchar not null
+     event varchar not null
 );
 
 create table cyberpunk.character_statuses(
@@ -168,9 +168,6 @@ alter table cyberpunk.character_notice_quick_checks
     add constraint character_notice__character_fk
         foreign key(character_id)
         references cyberpunk.characters(id);
-
---TODO: use later for weapons/chrome/armor
---then have foreign key to here from where ever
 
 create table cyberpunk.item_atr_bonuses(
     id bigserial not null primary key,

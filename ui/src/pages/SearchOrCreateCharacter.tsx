@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react"
-import { getCharacter , Character, listSkills, Log, Attributes, CharacterSP, Skill, Initiative} from './CyberClient'
+import { getCharacter , Character, listSkills, Log, Attributes, CharacterSP, Skill, Initiative, CharacterShort, listCharacters, sortedCharacters} from './CyberClient'
 import './SearchCharacter.css'
 import React from "react"
 import CharacterSheet from "./CharacterSheet"
+import Hideable from "./Hideable"
 
 const initialAttributes: Attributes = {
     ATTR: 1,
@@ -43,7 +44,8 @@ const characterToCreate: Character = {
     chrome: [],
     sp: initialSp,
     reputation: 0,
-    humanity: initialAttributes.EMP * 10
+    humanity: initialAttributes.EMP * 10,
+    money: 0
 }
 
 interface SearchCharacterProps {
@@ -51,41 +53,91 @@ interface SearchCharacterProps {
     updateLogs: (s: Log[]) => void
 }
 
+interface ListCharactersProps {
+    characters: CharacterShort[]
+    setCharacterName: (n: string) => Promise<void>
+}
+
+const ListCharacters = ({characters, setCharacterName}: ListCharactersProps) => {
+    const [nameFilter, setNameFilter] = useState('')
+    const charactersSorted = sortedCharacters(characters)
+    const filteredCharacters = 
+        nameFilter.length > 0 ? 
+            charactersSorted.filter(c => c.name.toLocaleLowerCase().startsWith(nameFilter)) 
+            : charactersSorted
+
+    const characterTable = 
+        <>
+            <input placeholder='Search by..' className='filter' value={nameFilter} onChange={e => setNameFilter(e.target.value)}/>
+            <table>
+                    <tr>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th></th>
+                </tr>
+                {filteredCharacters.map(c => 
+                    <tr>
+                        <td>{c.name}</td>
+                        <td>{c.role}</td>
+                        <td>
+                            <button onClick={() => setCharacterName(c.name)}>Show</button>
+                        </td>
+                    </tr>    
+                )}
+            </table>
+        </>
+    return(
+        <div className='listCharacters'>
+            <Hideable text='characters' props={characterTable} />
+        </div>
+    )
+}
+
 const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps) => {
     const [name, setName] = useState<string>('')
     const [characterEditable, setCharacterEditable] = useState(false)
     const [character, setCharacter] = useState<undefined | null | Character>(undefined)
     const [allSkills, setAllSkills] = useState<Skill[] | undefined>(undefined)
+    const [allCharacters, setAllCharacters] = useState<CharacterShort[] | undefined>(undefined)
 
     useEffect(() => {
-        listSkills().then(setAllSkills)
+        listSkills().then(setAllSkills).then(() => 
+            listCharacters().then(setAllCharacters)
+        )
+        
     }, [])
 
-    const updateCharacter = (): Promise<void> => {
+    const updateCharacter = (n?: string): Promise<void> => {
         setCharacterEditable(false)
-        return getCharacter(name).then(setCharacter)
+        return getCharacter(n ?? name).then(setCharacter)
     }
+
 
     const createCharacter = () => {
         setCharacter(characterToCreate)
         setCharacterEditable(true)
     }
 
+    const setCharacterFn = (n: string) => 
+         getCharacter(n).then(setCharacter).then(() => setName(n))
+
     const allowAddingToInitiative = character ? !initiatives.find(i => i.charId === character.id) : false
 
+    //why using form breaks this in backend?
     return(
-        <div>
+        <>
+            <ListCharacters characters={allCharacters ?? []} setCharacterName={setCharacterFn}/>
             <div className="search">
                 <label>Search</label>
-                <input type="text" onChange={event => setName(event.target.value)}/>
+                <input type="text" value={name} onChange={event => setName(event.target.value)}/>
                 <button className='searchOrCreate' onClick={() => updateCharacter()}>Search</button>
                 <button className='searchOrCreate' onClick={() => createCharacter()}>Create</button>
                 {character && <button className='searchOrCreate' onClick={() => setCharacter(undefined)}>Hide character</button>}
             </div>
             {!!character &&
-                 <div><CharacterSheet setNameOnCreate={setName} allowAddingToInitiative={allowAddingToInitiative} editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
+                 <div><CharacterSheet setNameInSearch={setName} allowAddingToInitiative={allowAddingToInitiative} editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
             }
-        </div>
+        </>
     )
 }
 

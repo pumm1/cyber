@@ -8,6 +8,21 @@ from colorama import Fore, Style
 from flask import jsonify
 import json
 
+class CharacterShort:
+    def __init__(self, row):
+        self.id = row['id']
+        self.name = row['name']
+        self.role = row['role']
+
+    def asJson(self):
+        res = {
+            "id": self.id,
+            "name": self.name,
+            "role": self.role
+        }
+
+        return res
+
 class Character:
     def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses, bodyTypeModifier, initiativeBonus, attributes, cybernetics):
         self.id = row['id']

@@ -3,6 +3,7 @@ import { AddArmorReq, Attribute, AttributeExtra, AttributeBonus, BodyPart, Log, 
 import './AddWeapon.css'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import { AtrBonuses, SkillBonuses } from './AddChrome'
+import Hideable from './Hideable'
 
 export interface AddArmorProps {
     allSkills: Skill[]
@@ -136,18 +137,9 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
     )
 }
 
-const AddArmor = ({characterId, updateLogsAndCharacter, allSkills}: AddArmorProps) => {
-    const [showForm, setShowForm] = useState(false)
-    return(
-        <div className='form'>
-             <button onClick={() => setShowForm(!showForm)}>
-                {!showForm ? 'Add armor' : 'Hide armor form'}
-            </button>
-            {showForm && 
-                 <NewArmorForm allSkills={allSkills} characterId={characterId} updateLogsAndCharacter={updateLogsAndCharacter}/>
-            }
-        </div>
-    )
-}
+const AddArmor = ({characterId, updateLogsAndCharacter, allSkills}: AddArmorProps) => 
+    <div className='form'>
+        <Hideable text='armor form' props={<NewArmorForm allSkills={allSkills} characterId={characterId} updateLogsAndCharacter={updateLogsAndCharacter}/>}/>
+    </div>
 
 export default AddArmor

@@ -418,12 +418,13 @@ def handleFullAuto(character, wep, skill_bonus, skill, attack_range=0, num_of_ta
                 range_bonus = -1 * range_bonus
             #last minus is balancing test. more targts = more sway in aiming
             sway_balance = 3 * target
-            roll_total = roll_total - sway_balance
+            range_penalty = math.floor(num_of_shots / 10)
+            roll_total = roll_total - sway_balance - range_penalty
             num_of_hits = 0
             logs = log_event(
                 logs,
                 f'{rollToBeatStr(roll_to_beat, roll_total)} '
-                f'[roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), range bonus = {range_bonus}, WA = {wep.wa}, target sway_balance = {sway_balance}]',
+                f'[roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), range bonus = {range_bonus}, WA = {wep.wa}, range_penalty={range_penalty}, target sway_balance = {sway_balance}]',
                 log_neutral
             )
 

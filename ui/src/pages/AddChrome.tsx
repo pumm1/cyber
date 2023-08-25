@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { AddChromeReq, Attribute, AttributeExtra, AttributeBonus, Log, Skill, SkillBonus, addChrome, attributes, sortedSkills } from './CyberClient'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import './AddWeapon.css'
+import Hideable from './Hideable'
 
 interface AddChromeProps {
     characterId: number
@@ -127,19 +128,9 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
     )
 }
 
-const AddChrome = ({characterId, updateLogsAndCharacter, allSkills}: AddChromeProps) => {
-    const [showForm, setShowForm] = useState(false)
-
-    return(
-        <div className='form'>
-             <button onClick={() => setShowForm(!showForm)}>
-                {!showForm ? 'Add chrome' : 'Hide chrome form'}
-            </button>
-            {showForm && 
-                 <NewChromeForm allSkills={allSkills} characterId={characterId} updateLogsAndCharacter={updateLogsAndCharacter}/>
-            }
-        </div>
-    )
-}
+const AddChrome = ({characterId, updateLogsAndCharacter, allSkills}: AddChromeProps) => 
+    <div className='form'>
+        <Hideable text='chrome form' props={<NewChromeForm allSkills={allSkills} characterId={characterId} updateLogsAndCharacter={updateLogsAndCharacter}/>} />
+    </div>
 
 export default AddChrome

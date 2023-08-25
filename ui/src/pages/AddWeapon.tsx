@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { AddWeaponReq, Con, Log, Reliability, WeaponType, addWeapon } from './CyberClient'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import './AddWeapon.css'
+import Hideable from './Hideable'
 
 interface AddWeaponProps {
     characterId: number
@@ -156,17 +157,7 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
     )
 }
 
-export const AddWeapon = ({characterId, updateLogsAndCharacter}: AddWeaponProps) => {
-    const [showForm, setShowForm] = useState(false)
-
-    return (
-        <div className='form'>
-             <button onClick={() => setShowForm(!showForm)}>
-                {!showForm ? 'Add weapon' : 'Hide weapon form'}
-            </button>
-            {showForm && 
-                 <NewWeaponForm characterId={characterId} updateLogsAndCharacter={updateLogsAndCharacter}/>
-            }
-        </div>
-    )
-}   
+export const AddWeapon = ({characterId, updateLogsAndCharacter}: AddWeaponProps) => 
+    <div className='form'>
+        <Hideable text='weapon form' props={<NewWeaponForm characterId={characterId} updateLogsAndCharacter={updateLogsAndCharacter}/>}/>
+    </div>
