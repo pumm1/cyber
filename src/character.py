@@ -1,13 +1,30 @@
 import dice
 from roles import roleSpecialAbility
 import bodytypes
-from gameHelper import woundState, body_part_head, body_part_body, \
+from gameHelper import woundState, woundStatePlain, body_part_head, body_part_body, \
     body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr, fieldName, coloredText, \
     no_dmg, light_dmg, BODY
 from colorama import Fore, Style
+from flask import jsonify
+import json
+
+class CharacterShort:
+    def __init__(self, row):
+        self.id = row['id']
+        self.name = row['name']
+        self.role = row['role']
+
+    def asJson(self):
+        res = {
+            "id": self.id,
+            "name": self.name,
+            "role": self.role
+        }
+
+        return res
 
 class Character:
-    def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses, bodyTypeModifier, attributes, cybernetics):
+    def __init__(self, row, skills, rep, sp_row, weapons, ev_total, armors, statuses, bodyTypeModifier, initiativeBonus, attributes, cybernetics):
         self.id = row['id']
         self.name = row['name']
         self.role = row['role']
@@ -15,6 +32,7 @@ class Character:
         self.specialAbility = row['special_ability']
         self.skills = skills
         self.humanity = row['humanity']
+        self.money = row['money']
 
         dmg_taken = row['dmg_taken']
         self.dmg_taken = dmg_taken
@@ -23,6 +41,7 @@ class Character:
         self.weapons = weapons
         self.armors = armors
         self.bodyTypeModifier = bodyTypeModifier
+        self.initiativeBonus = initiativeBonus
 
         self.attributes = attributes
         self.dmg_taken = row['dmg_taken']
@@ -34,6 +53,7 @@ class Character:
             body_part_r_leg: sp_row['r_leg'],
             body_part_l_leg: sp_row['l_leg']
         }
+        self.ip = row['ip']
         self.ev = ev_total
         self.statuses = statuses
 
@@ -58,10 +78,47 @@ class Character:
     def rollFaceDown(self, r):
         roll = safeCastToInt(r)
         if roll <= 0:
-            roll = dice.rollWithCrit()
+            (roll, _) = dice.rollWithCrit()
         return roll + self.attributes['COOL'] + self.reputation
 
+    def asJson(self):
+        skills = map(lambda skill: (
+            skill.asJson()
+        ), self.skills)
+        armor = map(lambda a: (
+            a.asJson()
+        ), self.armors)
+        weapons = map(lambda w: (
+            w.asJson()
+        ), self.weapons)
+        chrome = map(lambda c: (
+            c.asJson()
+        ), self.cybernetics)
 
+        resJson = {
+            "id": self.id,
+            "name": self.name,
+            "role": self.role,
+            "specialAbilityLvl": self.specialAbility,
+            "specialAbility": roleSpecialAbility(self.role),
+            "attributes": self.attributes,
+            "bodyType": bodytypes.bodyTypeByValue(self.attributes[BODY]),
+            "btm": self.bodyTypeModifier,
+            "initiativeBonus": self.initiativeBonus,
+            "woundState": woundStatePlain(self.dmg_taken),
+            "dmgTaken": self.dmg_taken,
+            "reputation": self.reputation,
+            "humanity": self.humanity,
+            "skills": list(skills),
+            "chrome": list(chrome),
+            'weapons': list(weapons),
+            "armor": list(armor),
+            "sp": self.sp,
+            "ip": self.ip,
+            "money": self.money,
+        }
+
+        return resJson
 
     def info(self):
         weapons_infos = map(lambda w: (

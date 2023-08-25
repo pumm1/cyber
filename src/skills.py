@@ -1,7 +1,11 @@
 from colorama import Fore, Style
 
 import dice, cyberdao as DAO
-from gameHelper import safeCastToInt, printGreenLine, coloredText, list_skills_helper_str
+from gameHelper import safeCastToInt, printGreenLine, coloredText, list_skills_helper_str, printRedLine, COOL, INT, REF
+from character import Character
+from logger import Log, log_pos, log_neg, log_event, log_neutral
+from roles import roleSpecialAbility, solo, rocker, netrunner, media, nomad, fixer, cop, corp, techie, meditechie
+from skill import SkillInfo
 
 skill_athletics = 'athletics'
 skill_first_aid = 'first aid'
@@ -45,7 +49,7 @@ def rollCharacterMeleeDef(name, roll):
         if skill is not None:
             die_roll = safeCastToInt(roll)
             if die_roll <= 0:
-                die_roll = dice.rollWithCrit(True)
+                (die_roll, _) = dice.rollWithCrit(True)
 
             atr_bonus = character.attributes[skill['attribute']]
 
@@ -62,40 +66,111 @@ def rollCharacterMeleeDef(name, roll):
             printGreenLine(f"Melee def total: {roll} (hopefully the attacker rolled lower..)")
 
 
-def rollCharacterSkill(name, skill_num, roll, modifier):
-    skill_name = ''
+def rollCharacterSkillById(id, skill_num, roll, modifier, added_luck) -> list[Log]:
+    character = DAO.getCharacterById(id)
+    return rollCharacterSkill(character, skill_num, roll, modifier, added_luck)
+
+
+def rollCharacterSkillByName(name, skill_num, roll, modifier):
     character = DAO.getCharacterByName(name)
+    return rollCharacterSkill(character, skill_num, roll, modifier, added_luck=None)
+
+
+def character_special_atr_bonus_on_skill(character: Character) -> (int, str):
+    role = character.role
+    atr_bonus = 0
+    atr = INT
+    if role == solo:
+        atr_bonus = 0
+        atr = REF
+    elif role == rocker:
+        atr_bonus = character.attributes[COOL]
+        atr = COOL
+    elif role == netrunner:
+        atr_bonus = character.attributes[INT]
+        atr = INT
+    elif role == media:
+        atr_bonus = character.attributes[INT]
+        atr = INT
+    elif role == nomad:
+        atr_bonus = character.attributes[INT]
+        atr = INT
+    elif role == fixer:
+        atr_bonus = character.attributes[COOL]
+        atr = COOL
+    elif role == cop:
+        atr_bonus = character.attributes[COOL]
+        atr = COOL
+    elif role == corp:
+        atr_bonus = character.attributes[INT]
+        atr = INT
+    elif role == techie:
+        atr_bonus = 0
+        atr = INT
+    elif role == meditechie:
+        atr_bonus = 0
+        atr = INT
+
+    return (atr_bonus, atr)
+
+
+#TODO: handle special skill
+def rollCharacterSkill(character, skill_num, roll=0, modifier=0, added_luck=None) -> list[Log]:
+    logs = []
+    skill_name = ''
     roll_modifier = safeCastToInt(modifier)
     skill_id = safeCastToInt(skill_num)
-    skill = DAO.getSkillById(skill_id)
-    if skill is not None:
-            skill_name = skill['skill']
+    skill = None
     if character is not None:
         t_roll = safeCastToInt(roll)
         atr_bonus = 0
         char_skill_lvl = 0
         die_roll = 0
-        if t_roll <= 0:
-            die_roll = dice.rollWithCrit() + roll_modifier
+        (special_atr_bonus, special_atr) = character_special_atr_bonus_on_skill(character)
+        if skill_id == 0:
+            skill = {
+                'id': 0,
+                'skill': roleSpecialAbility(character.role),
+                'attribute': special_atr,  # TODO: define for all special skills
+                'description': 'TODO'
+            }
         else:
-            die_roll = t_roll + roll_modifier
-        skill = [s for s in character.skills if s.skill == skill_name]
-        if len(skill) > 0:
-            char_skill = skill[0]
-            char_skill_lvl = char_skill.lvl
-            skill_atr = char_skill.attribute
-            atr_bonus = character.attributes[skill_atr]
-            roll = die_roll + char_skill_lvl + atr_bonus
-        else:
-            skill = DAO.getSkillByName(skill_name)
-            if skill is not None:
+            skill = DAO.getSkillById(skill_id)
+
+        if skill is not None:
+            skill_name = skill['skill']
+
+            if t_roll <= 0:
+                if added_luck == None:
+                    added_luck = dice.handleLuck()
+                (die_roll, dice_logs) = dice.rollWithCritAndGivenLuck(added_luck)
+                logs = logs + dice_logs
+            else:
+                die_roll = t_roll
+            skill_with_lvl = None
+            if skill_id == 0:
+                atr_bonus = special_atr_bonus
+                skill_with_lvl = SkillInfo(skill_id, skill['skill'], character.specialAbility, skill['attribute'], is_original=True)
+            else:
+                skill_with_lvl_arr = [s for s in character.skills if s.skill == skill_name]
                 skill_atr = skill['attribute']
                 atr_bonus = character.attributes[skill_atr]
-                roll = die_roll + atr_bonus
+                if len(skill_with_lvl_arr) > 0:
+                    skill_with_lvl = skill_with_lvl_arr[0]
+                    char_skill_lvl = skill_with_lvl.lvl
+            roll = die_roll + char_skill_lvl + atr_bonus + roll_modifier
 
-        printGreenLine(f"""{name} rolled {roll} for {skill_name}""")
-        print(f"""(die roll = {die_roll} atr_bonus = {atr_bonus} skill_level = {char_skill_lvl} modifier = {roll_modifier})""")
+            logs = log_event(logs, f"""{character.name} rolled {roll} for {skill_name}""", log_neutral)
+            logs = log_event(
+                logs,
+                f"(die roll = {die_roll} atr_bonus = {atr_bonus} skill_level = {char_skill_lvl} modifier = {roll_modifier})",
+                log_neutral
+            )
 
+        else:
+            logs = log_event(logs, f'SKILL NOT FOUND [skill_id = {skill_id}]', log_neg)
+
+    return logs
 
 def printCharSkillInfo(skills):
     if len(skills) > 0:
@@ -120,28 +195,47 @@ def awarenessSkill():
     return DAO.skillByName('awareness')
 
 
+def fetchAllSkils():
+    skills = allSkills().values()
+    return list(skills)
+
 def listAllSkills():
     all_skills = allSkills()
     printSkillInfo(all_skills)
 
-
-def updateCharSkill(name, skill_id, lvl_up_amount):
+def udpateCharacterSkill(character, skill_id, lvl_up_amount) -> [Log]:
+    event_logs = []
     t_skill = safeCastToInt(skill_id)
     if t_skill >= 0:
-        character = DAO.getCharacterByName(name)
         if character is not None:
             if t_skill == 0:
-                DAO.updateCharSpecial(character.id, lvl_up_amount)
-                printGreenLine(f'{character.name} special updated (+{lvl_up_amount})')
+                DAO.updateCharSpecial(character.id, character.role, lvl_up_amount)
+                special_log = Log(f'{character.name} special updated (+{lvl_up_amount})', log_pos)
+                event_logs.append(special_log.toJson())
             else:
                 skill = DAO.getSkillById(skill_id)
                 if skill is not None:
                     DAO.updateCharSkill(character.id, skill, lvl_up_amount)
-                    printGreenLine(f"Skill {skill['skill']} (+{lvl_up_amount}) updated for {name}")
+                    skill_updated_log = Log(f"Skill {skill['skill']} (+{lvl_up_amount}) updated for {character.name}", log_pos)
+                    event_logs.append(skill_updated_log.toJson())
                 else:
-                    print(f'Skill not found by id ({skill_id})')
+                    not_found_log = Log(f'Skill not found by id ({skill_id})', log_neg)
+                    event_logs.append(not_found_log.toJson())
     else:
-        print(f"'{skill_id}' not a valid skill id")
+        not_valid_skill_log = Log(f"'{skill_id}' not a valid skill id", log_neg)
+        event_logs.append(not_valid_skill_log.toJson())
+
+    return event_logs
+
+
+def updateCharSkillById(char_id, skill_id, lvl_up_amount):
+    character = DAO.getCharacterById(char_id)
+    return udpateCharacterSkill(character, skill_id, lvl_up_amount)
+
+
+def updateCharSkill(name, skill_id, lvl_up_amount):
+    character = DAO.getCharacterByName(name)
+    return udpateCharacterSkill(character, skill_id, lvl_up_amount)
 
 
 def printCharacterSkills(name):

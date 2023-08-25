@@ -46,6 +46,7 @@ BODY = 'BODY'
 EMP = 'EMP'
 
 BODY_TYPE_MOD = 'BTM'
+INIT_BONUS = 'INIT_BONUS'
 
 
 exit_commands = ['/e', '/q', '/exit', '/quit']
@@ -118,6 +119,7 @@ atr_body = 'atr_body'
 atr_emp = 'atr_emp'
 
 body_type_mod = 'body_type_modifier'
+init_bonus = 'initiative_bonus'
 
 #these are for gear, including atr and body type modifiers
 modifier_list = [INT, REF, TECH, COOL, ATTR, LUCK, MA, BODY, EMP, body_type_mod]
@@ -197,12 +199,19 @@ remove_status_help_str = f'{remove_status_str} {char_name} <status_id>'
 
 difficulty_check_str = '/diff'
 
-no_dmg = coloredText(Fore.GREEN, 'No damage')
-light_dmg = coloredText(Fore.WHITE, 'Light damage')
-serious_dmg = coloredText(Fore.YELLOW, 'Serious damage')
-critical_dmg = coloredText(Fore.LIGHTRED_EX, 'Critical damage')
-mortally_wounded = coloredText(Fore.RED, 'Mortally wounded')
-flatlined = coloredText(Fore.RED, 'Flatlined')
+no_dmg_str = 'No damage'
+light_dmg_str = 'Light damage'
+serious_dmg_str = 'Serious_dmg'
+critical_dmg_str = 'Critical damage'
+mortally_wounded_str = 'Mortally wounded'
+flatlined_str = 'Flatlined'
+
+no_dmg = coloredText(Fore.GREEN, no_dmg_str)
+light_dmg = coloredText(Fore.WHITE, light_dmg_str)
+serious_dmg = coloredText(Fore.YELLOW, serious_dmg_str)
+critical_dmg = coloredText(Fore.LIGHTRED_EX, critical_dmg_str)
+mortally_wounded = coloredText(Fore.RED, mortally_wounded_str)
+flatlined = coloredText(Fore.RED, flatlined_str)
 
 attack_type_single = 'single'
 attack_type_burst = 'burst'
@@ -318,6 +327,20 @@ def uniqueArr(arr):
 def stunPenalty(dmg: int):
     return floor(dmg / 4)
 
+def woundStatePlain(dmg_taken: int):
+    stun_penalty = stunPenalty(dmg_taken)
+    if dmg_taken == 0:
+        return no_dmg_str
+    elif stun_penalty == 0:
+        return light_dmg_str
+    elif stun_penalty == 1:
+        return serious_dmg_str
+    elif stun_penalty == 2:
+        return critical_dmg_str
+    elif dmg_taken < 40:
+        return mortally_wounded_str
+    else:
+        return flatlined_str
 
 def woundState(dmg_taken: int):
     stun_penalty = stunPenalty(dmg_taken)

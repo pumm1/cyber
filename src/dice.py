@@ -2,9 +2,10 @@ import math
 import random
 
 from gameHelper import safeCastToInt, askInput, roll_str, printGreenLine, printRedLine
+from logger import Log, log_event, log_pos, log_neg
 
 
-def roll(n, d_die, divide_by=1, bonus=0):
+def roll(n, d_die, divide_by=1, bonus=0) -> int:
     if divide_by == 0:
         divide_by = 1
     res = 0
@@ -28,19 +29,46 @@ def diceToStr(n, d_die, divide_by, bonus) -> str:
 
     return str
 
-def resolveAutoOrManualRollWithCrit():
-    print(f'{roll_str} or give roll:')
+def resolveAutoOrManualRollWithCrit(auto_roll=False, skip_luck=False):
     roll = 0
+    i = ''
     while roll <= 0:
-        i = askInput()
+        if auto_roll is False:
+            print(f'{roll_str} or give roll:')
+            i = askInput()
+        else:
+            i = roll_str
         if i == roll_str:
-            roll = rollWithCrit()
+            (roll, _) = rollWithCrit(skip_luck)
         else:
             roll = safeCastToInt(i)
     return roll
 
 
-def rollWithCrit(skip_luck=False):
+def handleLuck(skip_luck=False):
+    added_luck = 0
+    if skip_luck == False:
+        print('Add luck? [0-10]')
+        while True:
+            i = askInput()
+            t_lck = safeCastToInt(i)
+            if 0 <= t_lck <= 10:
+                added_luck = t_lck
+                break
+    return added_luck
+
+def rollWithCritAndGivenLuck(added_luck=0) -> (int, list[Log]):
+    (res, added_logs) = rollWithCrit(skip_luck=True)
+    logs = added_logs
+    if res == 10:
+        logs = log_event(logs, 'Critical success roll!', log_pos)
+        res = res + rollWithCrit(skip_luck=True)
+
+    return (res + added_luck, logs)
+
+
+def rollWithCrit(skip_luck=False) -> (int, list[Log]):
+    logs = []
     added_luck = 0
     if skip_luck == False:
         print('Add luck? [0-10]')
@@ -52,9 +80,11 @@ def rollWithCrit(skip_luck=False):
                 break
     res = roll(1, 10) + added_luck
     if res == 10:
-        printGreenLine('Critical success roll!')
-        res = res + rollWithCrit(skip_luck=True)
+        logs = log_event(logs, 'Critical success roll!', log_pos)
+        (t_res, added_logs) = rollWithCrit(skip_luck=True)
+        res = t_res + res
+        logs = logs + added_logs
     elif res == 1:
-        printRedLine('Fumble! For automatic weapons skip fumble table and roll jam')
+        logs = log_event(logs, 'Fumble or Critical failure! For automatic weapons skip fumble table and roll jam', log_neg)
 
-    return res
+    return (res, logs)

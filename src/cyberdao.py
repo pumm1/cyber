@@ -5,14 +5,15 @@ from colorama import Fore
 from cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
     table_events, table_character_chrome, table_character_statuses, table_character_quick_notice, \
-    table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus
-from character import Character
+    table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus, table_character_notice_rolls
+from character import Character, CharacterShort
 from skill import SkillInfo
 from armor import Armor
 from gameHelper import EMP, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, woundEffect, calculateModifierBonus, \
     BODY_TYPE_MOD, t_thrown, coloredText, body_type_mod, atr_int, atr_tech, atr_ref, atr_cool, atr_attr, atr_luck, \
-    atr_ma, atr_body, atr_emp
+    atr_ma, atr_body, atr_emp, init_bonus, INIT_BONUS
 from chrome import Chrome
+from roles import solo
 from status import Status
 from weapon import Weapon
 
@@ -33,6 +34,13 @@ character_q = f'{select_from} {table_characters} c '
 character_skills_q = f'{select_from} {table_character_skills}'
 character_weapons_q = f'{select_from} {table_character_weapons}'
 character_armors_q = f'{select_from} {table_character_armors}'
+character_armors_with_bonuses_q = f"""
+{character_armors_q} a
+JOIN {table_item_bonuses} b 
+ON a.item_bonus_id = b.id
+JOIN {table_item_atr_bonuses} ab
+ON b.item_atr_id = ab.id
+"""
 character_chrome_q = f'{select_from} {table_character_chrome}'
 character_statuses_q = f'{select_from} {table_character_statuses}'
 skills_q = f'{select_from} {table_skills}'
@@ -88,7 +96,7 @@ def getCharacter(char_row) -> Character | None:
             for skill_bonus in c.skill_bonuses:
                 cybernetic_skill_bonus_ids.append(skill_bonus.skill_id)
                 chrome_item_bonus_ids.append(skill_bonus.item_bonus_id)
-        skills = getCharacterSkillsById(id, cybernetic_skill_bonus_ids, chrome_item_bonus_ids)
+        skills = getCharacterSkillsById(id)
         rep_rows = getReputationRows(id)
         reputation = sum(map(lambda rep: (
             rep['rep_level']
@@ -103,8 +111,10 @@ def getCharacter(char_row) -> Character | None:
         (ref, int, cool) = woundEffect(dmg_taken, char_row['atr_ref'], char_row['atr_int'], char_row['atr_cool'])
 
         item_body_type_bonus = calculateModifierBonus(armors, cybernetics, BODY_TYPE_MOD)
+        item_init_bonus = calculateModifierBonus(armors, cybernetics, INIT_BONUS)
 
         bodyTypeModifier = char_row['body_type_modifier'] + item_body_type_bonus
+        initiativeBonus = char_row['initiative_bonus'] + item_init_bonus
 
         item_modifier_bonuses = {
             INT: calculateModifierBonus(armors, cybernetics, INT),
@@ -122,7 +132,7 @@ def getCharacter(char_row) -> Character | None:
             INT: int + item_modifier_bonuses[INT],
             REF: ref - ev_total + item_modifier_bonuses[REF],
             TECH: char_row['atr_tech'] + item_modifier_bonuses[TECH],
-            COOL: cool + item_modifier_bonuses[TECH],
+            COOL: cool + item_modifier_bonuses[COOL],
             ATTR: char_row['atr_attr'] + item_modifier_bonuses[ATTR],
             MA: char_row['atr_ma'] + item_modifier_bonuses[MA],
             BODY: char_row['atr_body'] + item_modifier_bonuses[BODY],
@@ -132,8 +142,10 @@ def getCharacter(char_row) -> Character | None:
 
         weapon_rows = characterWeapons(id, body=attributes[BODY])
 
-        character = Character(char_row, skills, reputation, sp_row, weapon_rows, ev_total, armors, statuses,
-                              bodyTypeModifier, attributes, cybernetics)
+        character = Character(
+            char_row, skills, reputation, sp_row, weapon_rows, ev_total, armors, statuses,
+            bodyTypeModifier, initiativeBonus, attributes, cybernetics
+        )
     else:
         print('No character found')
 
@@ -146,11 +158,42 @@ def getCharacterById(id):
 
     return char
 
+
 def getCharacterByName(name: str):
     char_row = getCharacterRowByName(name)
     char = getCharacter(char_row)
 
     return char
+
+def listCharacters() -> list[CharacterShort]:
+    cur.execute(
+        f""" {select_from} {table_characters};"""
+    )
+    rows = cur.fetchall()
+    conn.commit()
+    characters = map(lambda c_row: (
+        CharacterShort(c_row)
+    ), rows)
+
+    return characters
+
+
+def updateCharacterIp(character_id, ip_amount):
+    cur.execute(
+        f"""{update} {table_characters}
+                SET ip = ip + {ip_amount}
+                WHERE id = {character_id};"""
+    )
+    conn.commit()
+
+
+def updateCharacterMoney(character_id, money):
+    cur.execute(
+        f"""{update} {table_characters}
+                SET money = {money}
+                WHERE id = {character_id};"""
+    )
+    conn.commit()
 
 
 def healCharacter(character_id, new_dmg_taken):
@@ -160,6 +203,7 @@ def healCharacter(character_id, new_dmg_taken):
             WHERE id = {character_id};"""
     )
     conn.commit()
+
 
 def characterSpById(character_id):
     cur.execute(
@@ -220,7 +264,6 @@ def clearCombat():
         f"""{delete_from} {table_combat_session};"""
     )
     conn.commit()
-    print('Combat table cleared')
 
 
 def resetCurrentOrder():
@@ -237,9 +280,9 @@ def setNextInOrder(character_id):
     conn.commit()
 
 
-def dmgCharacterSP(character_id, body_part, dmg):
+def dmgCharacterSP(character_id, body_part):
     cur.execute(
-        f"""{update} {table_character_sp} SET {body_part} = {body_part} - {dmg}
+        f"""{update} {table_character_sp} SET {body_part} = {body_part} - {1}
             WHERE character_id = {character_id};
         """
     )
@@ -264,20 +307,30 @@ def updateCharSkill(char_id, skill_row, value):
     conn.commit()
 
 
-def updateCharSpecial(char_id, value):
+def updateCharSpecial(char_id, role, value):
+    initiative_bonus_added = 0
+    if role == solo:
+        initiative_bonus_added = value
     cur.execute(
-        f"""{update} {table_characters} SET special_ability = special_ability + {value}
+        f"""{update} {table_characters} 
+        SET 
+            special_ability = special_ability + {value},
+            initiative_bonus = initiative_bonus + {initiative_bonus_added}
         WHERE id = {char_id};"""
     )
+    conn.commit()
 
 
 def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr,
-                 atr_luck, atr_ma, atr_body, atr_emp):
+                 atr_luck, atr_ma, atr_body, atr_emp, initiative_bonus=0):
+    if role == solo:
+        initiative_bonus = special_ability
+
     cur.execute(
         f"""{insert} {table_characters} 
-            (name, role, special_ability, body_type_modifier, humanity,
+            (name, role, special_ability, body_type_modifier, humanity, ip, initiative_bonus,
             atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken)
-            VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10},
+            VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10}, 0, {initiative_bonus},
             {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0)
             RETURNING id;
         """
@@ -297,23 +350,23 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
     cur.execute(
         f"""{insert} {table_character_weapons} 
         (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, 
-        clip_size, shots_left, effect_radius, wa, con, reliability, weight)
+        clip_size, shots_left, effect_radius, wa, con, reliability, weight, divide_by)
         VALUES
-        ({new_char['id']}, 'unarmed', 'melee', false, 1, 6, 0, 1, 1, 1, 1, 0, 0, 'P', 'ST', 0);
+        ({new_char['id']}, 'unarmed', 'melee', false, 1, 6, 0, 1, 1, 1, 1, 0, 0, 'P', 'ST', 0, 1);
         """
     )
     conn.commit()
     print(f'Character {name} ({role}) added to game')
 
 
-def characterSkillsFromRows(skill_rows) -> list[SkillInfo]:
+def characterSkillsFromRows(is_original: bool, skill_rows) -> list[SkillInfo]:
     skills = list()
     for skill in skill_rows:
         skill_lvl = skill['skill_lvl']
         if skill_lvl is None:
             skill_lvl = 0
 
-        s = SkillInfo(skill['skill_id'], skill['skill'], skill_lvl, skill['attribute'])
+        s = SkillInfo(skill['skill_id'], skill['skill'], skill_lvl, skill['attribute'], is_original)
         skills.append(s)
 
     skill_groups = defaultdict(list)
@@ -361,7 +414,7 @@ def skillByName(s_name: str):
     return skill
 
 
-def getCharacterSkillsById(id, bonus_skill_ids: [int], item_bonus_ids: [int]) -> list[SkillInfo]:
+def getCharacterSkillsById(id) -> list[SkillInfo]:
     char_skills_q = f"""{character_skills_q} cs
     JOIN {table_skills} s ON cs.skill_id = s.id
     JOIN {table_characters} c ON cs.character_id = c.id
@@ -381,8 +434,14 @@ def getCharacterSkillsById(id, bonus_skill_ids: [int], item_bonus_ids: [int]) ->
     cur.execute(item_bonus_skills_q)
     item_bonus_skill_rows = cur.fetchall()
     conn.commit()
-    skills = characterSkillsFromRows(char_skill_rows)
-    item_bonus_skills = characterSkillsFromRows(item_bonus_skill_rows)
+    skills = characterSkillsFromRows(is_original=True, skill_rows=char_skill_rows)
+    item_bonus_skills = characterSkillsFromRows(is_original=False, skill_rows=item_bonus_skill_rows)
+
+    original_skill_lvl_dict = dict([])
+    for skill in skills:
+        t_skill = original_skill_lvl_dict.get(skill.id)
+        if t_skill is None:
+            original_skill_lvl_dict[skill.id] = skill.lvl
 
     all_skills = skills + item_bonus_skills
 
@@ -390,6 +449,10 @@ def getCharacterSkillsById(id, bonus_skill_ids: [int], item_bonus_ids: [int]) ->
 
     for skill in all_skills:
         t_skill = skill_dict.get(skill.id)
+        t_orig_skill_lvl = original_skill_lvl_dict.get(skill.id)
+        if t_orig_skill_lvl is not None:
+            skill.updateOriginalLevel(t_orig_skill_lvl)
+
         if t_skill is None:
             skill_dict[skill.id] = skill
         else:
@@ -433,13 +496,13 @@ def listSkills():
     return skills
 
 
-def addArmor(character_id, item, sp, body_parts, ev, atr_dict, skill_bonuses: list = []):
+def addArmor(character_id, item, sp, body_parts, ev, atr_dict: dict, skill_bonuses: list = []):
     bod_parts = map(lambda bp: (
         f"'{bp}'"
     ), body_parts)
     bod_parts_str = ', '.join(bod_parts)
 
-    item_bonus_id = insertItemBonusesReturningBonusId(atr_dict, skill_bonuses)
+    item_bonus_id = insertItemBonusesReturningBonusId(dict(atr_dict), skill_bonuses)
 
     cur.execute(
         f"""{insert} {table_character_armors} (character_id, item, sp, body_parts, ev, item_bonus_id)
@@ -455,9 +518,9 @@ def addArmor(character_id, item, sp, body_parts, ev, atr_dict, skill_bonuses: li
 def insertItemBonusesReturningBonusId(atr_bonuses_dict: dict, skill_bonuses: list):
     cur.execute(
         f"""{insert} {table_item_atr_bonuses} 
-        (body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr, 
+        (body_type_modifier, initiative_bonus, atr_int, atr_ref, atr_tech, atr_cool, atr_attr, 
         atr_luck, atr_ma, atr_body, atr_emp)
-        VALUES ({atr_bonuses_dict.get(body_type_mod, 0)}, {atr_bonuses_dict.get(INT, 0)},
+        VALUES ({atr_bonuses_dict.get(body_type_mod, 0)}, ({atr_bonuses_dict.get(init_bonus, 0)}), {atr_bonuses_dict.get(INT, 0)},
         {atr_bonuses_dict.get(REF, 0)}, {atr_bonuses_dict.get(TECH, 0)}, {atr_bonuses_dict.get(COOL, 0)}, 
         {atr_bonuses_dict.get(ATTR, 0)}, {atr_bonuses_dict.get(LUCK, 0)}, {atr_bonuses_dict.get(MA, 0)}, 
         {atr_bonuses_dict.get(BODY, 0)}, {atr_bonuses_dict.get(EMP, 0)})
@@ -483,8 +546,7 @@ def insertItemBonusesReturningBonusId(atr_bonuses_dict: dict, skill_bonuses: lis
     return bonus_id
 
 
-
-#potentially bonuses could be for multiple skills, each being own row
+# potentially bonuses could be for multiple skills, each being own row
 def getItemSkillBonuses(bonus_id):
     cur.execute(
         f"""
@@ -499,7 +561,7 @@ def getItemSkillBonuses(bonus_id):
     return skill_bonus_rows
 
 
-#all bonuses are in single row for item
+# all bonuses are in single row for item
 def getItemAtrBonuses(bonus_id):
     cur.execute(
         f"""
@@ -512,8 +574,6 @@ def getItemAtrBonuses(bonus_id):
     conn.commit()
 
     return atr_bonuses
-
-
 
 
 def getCharacterArmors(character_id):
@@ -597,8 +657,8 @@ def listEvents():
     return rows
 
 
-def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, divide_by, dmg_bonus, range, rof, clip_size,
-              effect_radius, wa, con, reliability, weight):
+def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, divide_by,
+              dmg_bonus, range, rof, clip_size, effect_radius, wa, con, reliability, weight):
     cur.execute(
         f"""{insert} {table_character_weapons} 
             (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, divide_by, dmg_bonus, range, rof, clip_size, 
@@ -611,7 +671,8 @@ def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg,
     conn.commit()
 
 
-def addChrome(character_id, item, humanity_cost, description, item_bonus_id: int | None, atr_dict, skill_bonuses: list = []):
+def addChrome(character_id, item, humanity_cost, description, item_bonus_id: int | None, atr_dict,
+              skill_bonuses: list = []):
     if item_bonus_id is None:
         item_bonus_id = insertItemBonusesReturningBonusId(atr_dict, skill_bonuses)
 
@@ -667,7 +728,7 @@ def characterWeapons(character_id, body: int) -> list:
             weight = w['weight'] - 1
             if weight < 0:
                 weight = 0
-            range = body*3
+            range = body * 3
             reduce_range = weight * 10
             range = range - reduce_range
             if range < 0:
@@ -699,28 +760,128 @@ def characterEV(character_id) -> int:
     return ev_total
 
 
-def getArmor(character_id, id):
+def getArmorById(character_id, id):
     cur.execute(
-        f"""{character_armors_q} WHERE id = {id} AND character_id = {character_id};"""
+        f"""{character_armors_with_bonuses_q} WHERE armor_id = {id} AND character_id = {character_id};"""
     )
     row = cur.fetchone()
     conn.commit()
     if row is None:
-        print(f'Armor not found by id {id} for character {character_id}')
+        print(f'Armor not found by armor_id {id} for character {character_id}')
     return row
 
 
 def deleteCharacterArmor(character_id, armor_id):
-    a_row = getArmor(character_id, armor_id)
+    a_row = getArmorById(character_id, armor_id)
     if a_row is not None:
         armor = Armor(a_row)
         for body_part in armor.body_parts:
             updateCharacterMaxSp(character_id, body_part, -1 * armor.sp)
         cur.execute(
-            f"""{delete_from} {table_character_armors} WHERE character_id = {character_id} AND id = {armor_id};"""
+            f"""
+            {delete_from} {table_character_armors} 
+            WHERE character_id = {character_id} AND armor_id = {armor_id}
+            RETURNING item_bonus_id;"""
         )
+        item_bonus = cur.fetchone()
+        item_bonus_id = item_bonus['item_bonus_id']
+
+        cur.execute(
+            f"""
+            {delete_from} {table_character_chrome} c
+            WHERE c.item_bonus_id = {item_bonus_id};
+            """
+        )
+
+        cur.execute(
+            f"""
+            {delete_from} {table_item_skill_bonus}
+            WHERE item_bonus_id = {item_bonus_id};
+            """
+        )
+
+        cur.execute(
+            f"""
+            {delete_from} {table_item_bonuses}
+            WHERE id = {item_bonus_id};
+            """
+        )
+
         conn.commit();
-        print(f'Character armor removed')
+
+
+def deleteCharacterWeapon(character_id, weapon_id):
+    weapon = getWeaponById(weapon_id)
+    if weapon is not None:
+        cur.execute(f"""{delete_from} {table_character_weapons} 
+            WHERE character_id = {character_id} AND id = {weapon_id}
+            RETURNING item_bonus_id;""")
+        item_bonus = cur.fetchone()
+        item_bonus_id = item_bonus.get('item_bonus_id', None)
+
+        if item_bonus_id is not None:
+            cur.execute(f"""
+               {delete_from} {table_character_chrome} c
+               WHERE c.item_bonus_id = {item_bonus_id};
+               """)
+
+            cur.execute(f"""
+               {delete_from} {table_item_skill_bonus}
+               WHERE item_bonus_id = {item_bonus_id};
+               """)
+
+            cur.execute(f"""
+               {delete_from} {table_item_bonuses}
+               WHERE id = {item_bonus_id};
+               """)
+
+        conn.commit();
+
+
+def deleteCharacterChrome(character_id, chrome_id):
+    chrome_rows = getCharacterChrome(character_id)
+    chrome = None
+    for row in chrome_rows:
+        if row.id == chrome_id:
+            chrome = row
+    if chrome is not None:
+        cur.execute(f"""{select_from} {table_character_chrome} 
+                    WHERE character_id = {character_id} AND chrome_id = {chrome_id};""")
+        chrome_row = cur.fetchone()
+        item_bonus_id = chrome_row.get('item_bonus_id', None)
+        connected_armor = None
+        cur.execute(
+            f"""{select_from} {table_character_armors} 
+            WHERE character_id = {character_id} AND item_bonus_id = {item_bonus_id}
+            """
+        )
+        connected_armor = cur.fetchone()
+        if connected_armor is not None:
+            armor_id = connected_armor['armor_id']
+            deleteCharacterArmor(character_id, armor_id)
+        elif item_bonus_id is not None:
+            cur.execute(f"""
+               {delete_from} {table_item_skill_bonus}
+               WHERE item_bonus_id = {item_bonus_id};
+               """
+            )
+
+            cur.execute(
+                f"""
+               {delete_from} {table_item_bonuses}
+               WHERE id = {item_bonus_id};
+               """
+            )
+            cur.execute(
+                f"""{delete_from} {table_character_weapons} 
+                WHERE character_id = {character_id} AND item_bonus_id = {item_bonus_id}
+                """
+            )
+            cur.execute(
+                f"""{delete_from} {table_character_chrome} 
+                    WHERE character_id = {character_id} AND chrome_id = {chrome_id}"""
+            )
+
 
 
 def addCharacterStatus(character_id, status, effect):
@@ -763,6 +924,7 @@ def addCharacterForQuickNoticeCheck(character_id, name):
     )
     conn.commit()
     print(f'{coloredText(Fore.GREEN, name)} added to quick notice check')
+
 
 def charactersForQuickNoticeCheck():
     cur.execute(

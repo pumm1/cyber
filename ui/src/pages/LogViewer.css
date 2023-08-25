@@ -1,0 +1,39 @@
+.logViewer {
+    margin-bottom: 8px;
+}
+
+.logs {
+    margin-top: 8px;
+    padding: 4px;
+    border: solid;
+    min-height: 100px;
+    max-height: 100px;
+    overflow-y: auto;
+    background-color: black;
+}
+
+.log {
+    color: white;
+    margin-top: 2px;
+    font-size: 12px;
+}
+
+.logPos {
+    color: green;
+    margin-top: 2px;
+    font-size: 12px;
+}
+
+.logNeg {
+    color: red;
+    margin-top: 2px;
+    font-size: 12px;
+}
+
+.input {
+    margin: 4px 0px;
+}
+
+.btn {
+    margin-right: 4px;
+}

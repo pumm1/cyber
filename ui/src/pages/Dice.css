@@ -1,0 +1,12 @@
+.diceContainer {
+    padding-bottom: 8px;
+    margin-left: 4px;
+}
+
+.dice {
+    display: inline-flex;
+}
+
+.result {
+    padding-left: 8px;
+}

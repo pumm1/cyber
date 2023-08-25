@@ -17,12 +17,15 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     help_info, heal_help_str, yes_no, heal_str, heal_calc_str, heal_calc_help_str, askInputCaseSensitive, \
     remove_status_help_str, remove_status_str, printGreenLine, fieldName, difficulty_check_str, coloredText, \
     notice_roll_str, notice_roll_help_str, add_character_for_notice_str, add_character_for_notice_help_str, \
-    clear_notice_str
+    clear_notice_str, REF
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
 import status
 import notice
+from initiative import Initiative
+from logger import Log, log_neutral, log_event, log_neg, log_pos
+from character import CharacterShort
 
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
@@ -77,11 +80,11 @@ def start():
                     location = combat.determineHitLocation()
                     print(f'Hit {location}')
                 case [_, 'skill', name, skill]:
-                    skills.rollCharacterSkill(name, skill, roll=0, modifier=0)
+                    skills.rollCharacterSkillByName(name, skill, roll=0, modifier=0)
                 case [_, 'skill', name, skill, roll]:
-                    skills.rollCharacterSkill(name, skill, roll=roll, modifier=0)
+                    skills.rollCharacterSkillByName(name, skill, roll=roll, modifier=0)
                 case[_, 'skill', name, skill, roll, modifier]:
-                    skills.rollCharacterSkill(name, skill, roll=roll, modifier=modifier)
+                    skills.rollCharacterSkillByName(name, skill, roll=roll, modifier=modifier)
                 case _:
                     print(roll_help_str)
         elif command.startswith(notice_roll_str):
@@ -122,7 +125,7 @@ def start():
         elif command.startswith(add_armor_str):
             match command_parts:
                 case [_, name]:
-                    armor.addArmorForCharacter(name)
+                    armor.addArmorForCharacterByName(name)
                 case _:
                     print(f'{add_armor_help_str}')
         elif command.startswith(fumble_str):
@@ -144,7 +147,7 @@ def start():
         elif command.startswith(add_reputation_str):
             match command_parts:
                 case [_, character, amount]:
-                    addReputation(character, amount)
+                    addReputationByName(character, amount)
                 case _:
                     print(f'{add_reputation_help_str}')
         elif command.startswith(list_rep_str):
@@ -160,7 +163,7 @@ def start():
         elif command.startswith(new_combat_initiative_str):  # nci = new combat initiative, add to combat sequence
             match command_parts:
                 case [_, name, initiative]:
-                    addToCombat(name, int(initiative))
+                    addToCombatByName(name, int(initiative))
                 case _:
                     print(new_combat_initiative_help_str)
         elif command.startswith(clear_combat_str):  # cc = clear combat
@@ -180,19 +183,19 @@ def start():
         elif command.startswith(dmg_str):
             match command_parts:
                 case[_, name, dmg, 'fire']:
-                    combat.hitCharacter(name, body_part='body', dmg_str=dmg, pass_sp=True)
+                    combat.hitCharacterByName(name, body_part='body', dmg_str=dmg, pass_sp=True)
                 case [_, name, body_part, dmg]:
-                    combat.hitCharacter(name, body_part, dmg)
+                    combat.hitCharacterByName(name, body_part, dmg)
                 case [_, name, body_part, dmg, 'ap']:
-                    combat.hitCharacter(name, body_part, dmg, is_ap=True)
+                    combat.hitCharacterByName(name, body_part, dmg, is_ap=True)
                 case _:
                     print(dmg_helper_str)
         elif command.startswith(melee_dmg_str):
             match command_parts:
                 case [_, attacker_name]:
-                    combat.handleMeleeDmg(attacker_name, 0)
+                    combat.handleMeleeDmgByCharacterName(attacker_name, 0)
                 case [_, attacker_name, dmg]:
-                    combat.handleMeleeDmg(attacker_name, dmg)
+                    combat.handleMeleeDmgByCharacterName(attacker_name, dmg)
                 case _:
                     print(f'{melee_dmg_help_str}')
         elif command.startswith(add_event_str):
@@ -202,31 +205,31 @@ def start():
         elif command.startswith(add_weapon_str):
             match command_parts:
                 case [_, name]:
-                    weapon.addChracterWeapon(name)
+                    weapon.addChracterWeaponByName(name)
                 case _:
                     print(add_weapon_help_str)
         elif command.startswith(add_chrome_str):
             match command_parts:
                 case [_, name]:
-                    chrome.addChrome(name)
+                    chrome.addChromeByName(name)
                 case _:
                     print(add_chrome_help_str)
         elif command.startswith(attack_str):
             match command_parts:
                 case [_, name, 'melee']:
-                    combat.characterAttack(name, attack_type_melee, range_str='1', given_roll=0)
+                    combat.characterAttackByName(name, attack_type_melee, range_str='1', given_roll=0)
                 case [_, name, 'melee', roll]:
-                    combat.characterAttack(name, attack_type_melee, range_str='1', given_roll=roll)
+                    combat.characterAttackByName(name, attack_type_melee, range_str='1', given_roll=roll)
                 case [_, name, 'burst', range]:
-                    combat.characterAttack(name, attack_type_burst, range, given_roll=0)
+                    combat.characterAttackByName(name, attack_type_burst, range, given_roll=0)
                 case [_, name, 'burst', range, roll]:
-                    combat.characterAttack(name, attack_type_burst, range, given_roll=roll)
+                    combat.characterAttackByName(name, attack_type_burst, range, given_roll=roll)
                 case [_, name, 'single', range]:
-                    combat.characterAttack(name, attack_type_single, range, given_roll=0)
+                    combat.characterAttackByName(name, attack_type_single, range, given_roll=0)
                 case [_, name, 'single', range, roll]:
-                    combat.characterAttack(name, attack_type_single, range, given_roll=roll)
+                    combat.characterAttackByName(name, attack_type_single, range, given_roll=roll)
                 case [_, name, 'fa']:
-                    combat.characterAttack(name, attack_type_full_auto, range_str='99', given_roll=0)
+                    combat.characterAttackByName(name, attack_type_full_auto, range_str='99', given_roll=0)
                 case _:
                     print(f'{attack_help_str}')
         elif command.startswith(reload_str):
@@ -258,19 +261,19 @@ def start():
         elif command.startswith(heal_str):
             match command_parts:
                 case [_, name, amount]:
-                    healing.healCharacter(name, amount)
+                    healing.healCharacterByName(name, amount)
                 case _:
                     print(heal_help_str)
         elif command.startswith(repair_sp_str):
             match command_parts:
                 case [_, name]:
-                    armor.repairSP(name)
+                    armor.repairSPByName(name)
                 case _:
                     print(f'{repair_sp_help_str}')
         elif command.startswith(remove_armor_str):
             match command_parts:
                 case [_, name, armor_id]:
-                    armor.removeArmor(name, armor_id)
+                    armor.removeArmorByName(name, armor_id)
                 case _:
                     print(f'{remove_armor_help_str}')
         elif command.startswith(add_status_str):
@@ -294,6 +297,13 @@ def faceOffRoll(name, roll):
         res = character.rollFaceDown(roll)
         print(f'{character.name} face off result: {res}')
 
+def getCharacter(name):
+    character = DAO.getCharacterByName(name)
+    if character is None:
+        print(f'Character not found by the name of {name}')
+        return None
+    else:
+        return character.asJson()
 
 def fetchCharacter(name):
     character = DAO.getCharacterByName(name)
@@ -302,6 +312,19 @@ def fetchCharacter(name):
     else:
         character.info()
 
+def rollInitiativeByCharacterId(char_id):
+    character = DAO.getCharacterById(char_id)
+    if character is not None:
+        init_bonus = character.initiativeBonus
+        ref = character.attributes[REF]
+        (roll, _) = dice.rollWithCrit(True)
+        res = roll + ref + init_bonus
+        print(f'Initiative roll for {character.name} = {res} [roll = {roll} initiative_bonus = {init_bonus}, REF = {ref}]')
+
+        return res
+    else:
+        print(f'Character not found')
+        return 0
 
 def listCombatInitiative():
     rows = DAO.listCombatInitiative(ascending=False)
@@ -312,29 +335,68 @@ def listCombatInitiative():
     print(f"Turn order: \n{info}")
 
 
-def addReputation(char, rep_amount):
-    rep = safeCastToInt(rep_amount)
-    character = DAO.getCharacterByName(char)
+def combatInitiativeOrder() -> list[str]:
+    rows = DAO.listCombatInitiative(ascending=False)
+    initiative_arr = map(lambda row: (
+        Initiative(row).asJson()
+    ), rows)
+
+    return list(initiative_arr)
+
+
+def updateCharacterMoneyByCharacterId(character_id, money):
+    logs = []
+    character = DAO.getCharacterById(character_id)
+    if character is not None:
+        money_before = character.money
+        DAO.updateCharacterMoney(character_id, money)
+        logs = log_event(logs, f'{character.name} money updated from {money_before} to {money}', log_neutral)
+    else:
+        logs = log_event(logs, f'Character not found', log_neg)
+
+    return logs
+
+
+def addReputation(character, rep, rep_for=None) -> list[Log]:
+    logs = []
+    def addRep(rep_for, rep) -> list[Log]:
+        DAO.addReputation(character.id, rep_for, rep)
+        return log_event(logs, f'Reputation added for {character.name}', log_pos)
+
     rep_type = 'positive'
     if rep < 0:
         rep_type = 'negative'
     if character is not None:
         tries = 0
-        print(f"Add {rep_type} reputation for {character.name}? {yes_no}")
-        while tries < 3:
-            command = askInput()
-            if command == 'y':
-                print(f'What is {character.name} gaining reputation for?')
-                info = askInputCaseSensitive()
-                DAO.addReputation(character.id, info, rep)
-                printGreenLine(f'Reputation added for {character.name}')
-                break
-            elif command == 'n':
-                print(f'Cancelling reputation add for {character.name}')
-                break
-            tries = tries + 1
+        if rep_for is None:
+            print(f"Add {rep_type} reputation for {character.name}? {yes_no}")
+            while tries < 3:
+                command = askInput()
+                if command == 'y':
+                    print(f'What is {character.name} gaining reputation for?')
+                    rep_for = askInputCaseSensitive()
+                    logs = addRep(rep_for, rep)
+                    break
+                elif command == 'n':
+                    logs = (logs, f'Cancelling reputation add for {character.name}', log_neutral)
+                    break
+                tries = tries + 1
+        else:
+            logs = addRep(rep_for, rep)
     else:
-        print(f'Character not found by name {char}')
+        logs = log_event(logs, f'Character not found', log_neg)
+    return logs
+
+
+def addReputationById(id, rep_amount, rep_for):
+    character = DAO.getCharacterById(id)
+    return addReputation(character, rep_amount, rep_for)
+
+
+def addReputationByName(char, rep_amount):
+    rep = safeCastToInt(rep_amount)
+    character = DAO.getCharacterByName(char)
+    return addReputation(character, rep)
 
 
 def listCharacterRep(name):
@@ -346,9 +408,19 @@ def listCharacterRep(name):
             print(f"{rep['known_for']} (level: {rep['rep_level']})")
 
 
-def advanceCombatSeq():
-    def printTurn(character):
-        print(f"{character}'s turn!")
+def listCharacters() -> list[CharacterShort]:
+    characters: list[CharacterShort] = DAO.listCharacters()
+
+    res_json = map(lambda c: (
+        c.asJson()
+    ), characters)
+    return list(res_json)
+
+
+def advanceCombatSeq() -> list[Log]:
+    logs = []
+    def printTurn(character, logs):
+        return log_event(logs, f"{character}'s turn!", log_neutral)
 
     rows = DAO.listCombatInitiative(ascending=True)
     queue = deque(rows)
@@ -358,14 +430,14 @@ def advanceCombatSeq():
     notInOrder = True
     notStarted = all(v['current'] == False for v in rows)
     if not enough_in_combat:
-        print(f'Not enough characters in combat: {characters_in_combat}')
+        logs = log_event(logs, f'Not enough characters in combat: {characters_in_combat}', log_neutral)
         notInOrder = False
     elif notStarted:
         notInOrder = False
-        print('Starting combat sequence!')
+        logs = log_event(logs, 'Starting combat sequence!', log_neutral)
         c = queue.pop()
         DAO.setNextInOrder(c['character_id'])
-        printTurn(c['name'])
+        logs = printTurn(c['name'], logs)
 
     while notInOrder:
         c = queue.pop()
@@ -377,20 +449,36 @@ def advanceCombatSeq():
 
             DAO.resetCurrentOrder()
             DAO.setNextInOrder(next['character_id'])
-            printTurn(next['name'])
+            logs = printTurn(next['name'], logs)
         else:
             queue.appendleft(c)
+    return logs
 
 
-def clearCombat():
+def clearCombat() -> list[Log]:
     DAO.clearCombat()
+    return log_event([], 'Combat table cleared', log_neutral)
 
 
-def addToCombat(name, initiative):
-    character = DAO.getCharacterByName(name)
+
+def addToCombat(character, initiative) -> list[Log]:
+    logs = []
     if character is not None:
         DAO.addCharacterToCombat(character.id, initiative)
-        print(f'{character.name} added to combat session')
+        logs = log_event(logs, f'{character.name} added to combat session', log_neutral)
+    else:
+        logs = log_event(logs, 'character not found', log_neg)
+    return logs
+
+
+def addToCombatByid(id, initiative):
+    character = DAO.getCharacterById(id)
+    return addToCombat(character, initiative)
+
+
+def addToCombatByName(name, initiative):
+    character = DAO.getCharacterByName(name)
+    return addToCombat(character, initiative)
 
 
 #param = all/combat/info

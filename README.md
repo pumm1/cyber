@@ -3,11 +3,16 @@
 ## In progress
 
 The goal of this project is to have a tool for the referee of Cyberpunk 2020 game
-that helps to keep track of things in a better way than just pen and paper.
-Different helpful things are e.g. quick rolls for characters 
-(especially NPC characters and keeping track of them), 
-keeping track of character statuses and equipment. This project also contains
-some changes to the game logic from the original rules.
+that helps to keep track of things in a better way than just pen and paper. Different helpful 
+things are e.g. quick rolls for characters (especially NPC characters and keeping track of them), 
+keeping track of character statuses and equipment. 
+
+This project also contains some changes to the game logic from the original rules - 
+mostly to simplify some things for the tool itself. I've tried to make things so that a referee can
+use their own judgement to decide how to change e.g. character health, improvement points,
+level up character skills etc., while also trying to keep track of some things automatically
+based on other factors (e.g. character taking hit to a leg and seeing the result on SP/health 
+right away or seeing if character gets stunned).
 
 This is not a replacement for the original game's source books.
 
@@ -42,31 +47,50 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 - Add weapons (can be chrome, included in weapons), gear and chrome
     * For chrome, reduce humanity and empathy automatically
 
-
-## TODO:
-- Use some common attribute-table for weapons, armor, chrome and statuses
-(now it's very clumsy when doing bigger changes)
-
 # Setup
 
 * Install python 3.10+
-  * Dependencies:
+  * Python dependencies:
     - colorama
     - psycopg2
-
-## secrets.json in /src for (PSQL) db config:
-```
-{
-    "DB_HOST": "<host>",
-    "DB_SCHEMA": "<db_schema>",
-    "DB_NAME": "<db_name>",
-    "DB_USER": "<db_user>",
-    "DB_PASSWORD": "<db_user_pw>"
-}
-```
+    - Flask
+    - Flask-Cors
+    
+* NPM for the Web UI
 
 After setting up the PSQL database, run the following migration scripts:
   * `init.sql`
   * `create_schema_tables.sql`
   * `add_basic_skills.sql`
   * `grant_access.sql`
+
+## secrets.json in /src for (PSQL) db config:
+```
+{
+    "DB_HOST": "<host>",
+    "DB_SCHEMA": "cyberpunk", //need to update migration script(s) if changed..
+    "DB_NAME": "<db_name>",
+    "DB_USER": "<db_user>",
+    "DB_PASSWORD": "<db_user_pw>"
+}
+```
+
+# Usage
+
+**Start Web UI:**
+  * Backend: ``/src $ flask --app net/app run`` 
+    * if you see the following in logs when trying to start backend,
+    you can try to start from project root `/cyber`
+    ``/cyber $ flask --app src/net/app.py run``.
+    Behaviour might change a little depending on the OS you run this from - 
+    first example was tested on Windows 10, the latter on Ubuntu.
+    ```
+    //the mentioned logs on start up
+    db = secrets['DB_NAME']
+    KeyError: 'DB_NAME'
+    ```
+  * NET: ``/ui $ npm start``
+  * Go to `http://localhost:8000/`
+  
+**Start terminal version:**
+* ``\src $ python main.py``
