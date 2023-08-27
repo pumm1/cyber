@@ -47,6 +47,7 @@ def createCharacter():
     else:
         return "Invalid request", 400
 
+
 @app.route('/roll', methods = [post])
 def roll():
     if request.method == post:
@@ -72,6 +73,7 @@ def rollSkill():
     else:
         return "Invalid request", 400
 
+
 @app.route('/roll-initiative', methods = [post])
 def rollInitiative():
     if request.method == post:
@@ -80,6 +82,7 @@ def rollInitiative():
         return jsonify(game.rollInitiativeByCharacterId(char_id))
     else:
         return "Invalid request", 400
+
 
 @app.route('/roll-melee-dmg', methods = [post])
 def rollMeleeDmg():
@@ -93,6 +96,15 @@ def rollMeleeDmg():
     else:
         return "Invalid request", 400
 
+
+@app.route('/roll-face-off', methods = [post])
+def rollFaceOff():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        return jsonify(game.faceOffRollById(char_id))
+    else:
+        return "Invalid request", 400
 
 
 @app.route('/char', methods = [get])

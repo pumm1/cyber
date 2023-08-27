@@ -464,3 +464,6 @@ export const rollMeleeDmg = (m: MeleeDmgRollReq) =>
 
 export const listCharacters = () => 
     fetchDataAs<CharacterShort[]>(`${pathBase}/list-characters`)
+
+export const faceOffRoll = (c: CharacterReq) =>
+    postDataAs<Log[]>(`${pathBase}/roll-face-off`, c)

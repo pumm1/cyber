@@ -69,9 +69,9 @@ def start():
                     res = dice.roll(dice_num, die, divide_by, bonus)
                     printGreenLine(f'Rolled {res}')
                 case [_, 'face_off', character]:
-                    faceOffRoll(character, roll=0)
+                    faceOffRollByName(character, roll=0)
                 case [_, 'face_off', character, roll]:
-                    faceOffRoll(character, roll)
+                    faceOffRollByName(character, roll)
                 case [_, 'melee_def', name]:
                     skills.rollCharacterMeleeDef(name, roll=0)
                 case [_, 'melee_def', name, roll]:
@@ -290,12 +290,25 @@ def start():
                     print(remove_status_help_str)
 
 
-
-def faceOffRoll(name, roll):
-    character = DAO.getCharacterByName(name)
+def faceOffRoll(character, roll=0):
+    logs = []
     if character is not None:
         res = character.rollFaceDown(roll)
-        print(f'{character.name} face off result: {res}')
+        logs = log_event(logs, f'{character.name} face off result = {res}', log_neutral)
+    else:
+        logs = log_event(logs, 'Character not found', log_neg)
+    return logs
+
+
+def faceOffRollById(character_id):
+    character = DAO.getCharacterById(character_id)
+    return faceOffRoll(character)
+
+
+def faceOffRollByName(name, roll):
+    character = DAO.getCharacterByName(name)
+    faceOffRoll(character, roll)
+
 
 def getCharacter(name):
     character = DAO.getCharacterByName(name)
@@ -304,6 +317,7 @@ def getCharacter(name):
         return None
     else:
         return character.asJson()
+
 
 def fetchCharacter(name):
     character = DAO.getCharacterByName(name)

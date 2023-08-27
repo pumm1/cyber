@@ -68,7 +68,7 @@ const ListCharacters = ({characters, setCharacterName}: ListCharactersProps) => 
 
     const characterTable = 
         <>
-            <input placeholder='Search by..' className='filter' value={nameFilter} onChange={e => setNameFilter(e.target.value)}/>
+            <input placeholder='Search by...' className='filter' value={nameFilter} onChange={e => setNameFilter(e.target.value)}/>
             <table>
                     <tr>
                     <th>Name</th>

@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, addCharacterNoticeRolls, AddNoticesReq } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, addCharacterNoticeRolls, AddNoticesReq, faceOffRoll } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -301,6 +301,10 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
         repFor
     }
 
+    const faceOffReq: CharacterReq = {
+        charId: character.id
+    }
+
    return (
     <>
         <label>Skills</label>
@@ -322,6 +326,7 @@ const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: Sk
                 <span className='valueToAdd'>
                     <StatValue field='REP' value={character.reputation}/>
                     <button onClick={() => setShowAddRep(!showAddRep)}>{showAddRep ? 'Hide' : 'Show'} REP form</button>
+                    <button onClick={() => faceOffRoll(faceOffReq).then(updateLogsAndCharacter)} className='withLeftSpace'>Roll Faceoff</button>
                 </span>
                 {showAddRep &&
                     <span className='valueToAdd'>
