@@ -159,7 +159,7 @@ def createCharacterWithRandomAtr(name):
     )
 
 
-def createRandomCharacter(name):
+def createRandomCharacter(name, generate_gear=True):
     role = rollRole()
     special = rollSpecial(role)
     body_type = rollBodyType()
@@ -179,7 +179,8 @@ def createRandomCharacter(name):
         atr_body=atr_body,
         atr_emp=atr_emp,
     )
-    generateGear(name)
+    if generate_gear:
+        generateGear(name)
 
 
 low_q_armor_set = [
@@ -407,25 +408,28 @@ def rollAtributes():
 
     return (atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp)
 
-def createCharacterFromReq(name, role, given_body_type, attributes):
+def createCharacterFromReq(name, role, given_body_type, attributes, randomize=False):
     logs = []
-    body_Type = addBodyType(given_body_type)
-    special = 0
-    DAO.addCharacter(
-        name,
-        role,
-        special,
-        body_Type,
-        atr_int=attributes[INT],
-        atr_ref=attributes[REF],
-        atr_tech=attributes[TECH],
-        atr_cool=attributes[COOL],
-        atr_attr=attributes[ATTR],
-        atr_luck=attributes[LUCK],
-        atr_ma=attributes[MA],
-        atr_body=attributes[BODY],
-        atr_emp=attributes[EMP]
-    )
+    if randomize:
+        createRandomCharacter(name, generate_gear=False)
+    else:
+        body_Type = addBodyType(given_body_type)
+        special = 0
+        DAO.addCharacter(
+            name,
+            role,
+            special,
+            body_Type,
+            atr_int=attributes[INT],
+            atr_ref=attributes[REF],
+            atr_tech=attributes[TECH],
+            atr_cool=attributes[COOL],
+            atr_attr=attributes[ATTR],
+            atr_luck=attributes[LUCK],
+            atr_ma=attributes[MA],
+            atr_body=attributes[BODY],
+            atr_emp=attributes[EMP]
+        )
     logs = log_event(logs, f'Character {name} created', log_pos)
 
     return logs

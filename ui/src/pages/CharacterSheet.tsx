@@ -923,10 +923,11 @@ const FourDmgBoxes = ({upper, lower, boxesTicked}: FourDmgBoxesProps) => {
 interface SaveAndHealthProps extends UpdateCharacterAndLogs{
     character: Character
     edit: boolean
+    randomize: boolean
     updateCharacterBTM: (n: number) => void
 }
 
-const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, updateCharacterBTM}: SaveAndHealthProps) => {
+const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomize, updateCharacterBTM}: SaveAndHealthProps) => {
     const { dmgTaken } = character
     const save = character.attributes.BODY
     const btm = character.btm
@@ -958,7 +959,7 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, updateC
                     <div className='boxLabel'>BTM</div>
                     <div className='boxValue'>
                         {btm}
-                        {edit &&
+                        {edit && !randomize &&
                             <ValueChanger onChange={updateCharacterBTM} baseValue={btm}/>
                         }
                     </div>
@@ -1079,6 +1080,8 @@ const CharacterSheet = ({setNameInSearch, edit, character, allSkills, updateLogs
 
         return validAttributes.every(v => v === true)
     }
+    
+    const [randomize, setRandomize] = useState(false)
 
     const updateCharacterAttributes = (newAttributes: Attributes) => {
         const {attributes, ...rest} = character
@@ -1107,7 +1110,7 @@ const CharacterSheet = ({setNameInSearch, edit, character, allSkills, updateLogs
             role: character.role,
             attributes: character.attributes,
             btm: character.btm,
-            randomize: false
+            randomize
         }
 
         const createCharacterAndLog = () => 
@@ -1131,22 +1134,29 @@ const CharacterSheet = ({setNameInSearch, edit, character, allSkills, updateLogs
         updateCharacter()
     }
 
+    const editWithRandomize = edit && !randomize
+
     return(
         <div className='sheet'>
             <Handle allowAddingToInitiative={allowAddingToInitiative} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
-            <RoleFiled updateChracterRole={updateCharacterRole} edit={edit} value={character.role}/>
-            <Stats edit={edit} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>
+            {edit && <><input type="checkbox" checked={randomize} onClick={() => setRandomize(!randomize)}/> Randomize</>}
+            <RoleFiled updateChracterRole={updateCharacterRole} edit={editWithRandomize} value={character.role}/>
+            <Stats edit={editWithRandomize} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>
             {!edit && <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter} updateLogs={updateLogs}/>}
-            <SaveAndHealthRow updateCharacterBTM={updateCharacterBTM} edit={edit} character={character} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
+            <SaveAndHealthRow updateCharacterBTM={updateCharacterBTM} randomize={randomize} edit={edit} character={character} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
             {edit && <SaveNewCharacter />}
             {allSkills && !edit && <SkillsByAttributes updateLogs={updateLogs} skills={allSkills} character={character} updateCharacter={updateCharacter}/>}
-            <AddWeapon characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
-            <CharacterMeleeWeapons  weapons={meleeWeapons(character.weapons)} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
-            <CharacterRangedWeapons weapons={rangedWeapons(character.weapons)} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
-            {allSkills && <AddArmor allSkills={allSkills} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>}
-            <CharacterArmor armors={character.armor} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id}/>
-            <AddChrome allSkills={allSkills ?? []} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
-            <CharacterChrome updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} charChrome={character.chrome}/>
+            {!edit && 
+                <>
+                    <AddWeapon characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
+                    <CharacterMeleeWeapons  weapons={meleeWeapons(character.weapons)} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
+                    <CharacterRangedWeapons weapons={rangedWeapons(character.weapons)} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>
+                    {allSkills && <AddArmor allSkills={allSkills} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>}
+                    <CharacterArmor armors={character.armor} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id}/>
+                    <AddChrome allSkills={allSkills ?? []} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
+                    <CharacterChrome updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} charChrome={character.chrome}/>
+                </>
+            }
         </div>
     )
 }

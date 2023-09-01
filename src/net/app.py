@@ -36,14 +36,20 @@ def hello():
 def createCharacter():
     if request.method == post:
         data = request.get_json()
-        attributes = data['attributes']
         name = data['name']
-        role = data['role']
-        body_type = data['btm']
+        randomize = data['randomize']
+        if randomize:
+            return jsonify(
+                characterBuilder.createCharacterFromReq(name, role='', given_body_type='', attributes=[], randomize=True)
+            )
+        else:
+            attributes = data['attributes']
+            role = data['role']
+            body_type = data['btm']
 
-        return jsonify(
-            characterBuilder.createCharacterFromReq(name, role, body_type, attributes)
-        )
+            return jsonify(
+                characterBuilder.createCharacterFromReq(name, role, body_type, attributes)
+            )
     else:
         return "Invalid request", 400
 
