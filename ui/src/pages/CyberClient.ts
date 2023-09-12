@@ -467,3 +467,9 @@ export const listCharacters = () =>
 
 export const faceOffRoll = (c: CharacterReq) =>
     postDataAs<Log[]>(`${pathBase}/roll-face-off`, c)
+
+export interface RestoreEMPReq extends CharacterReq {
+    emp: number
+}
+export const restoreCharEMP = (e: RestoreEMPReq) =>
+    postDataAs<Log[]>(`${pathBase}/restore-emp`, e)

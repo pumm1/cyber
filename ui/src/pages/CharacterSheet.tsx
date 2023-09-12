@@ -1,4 +1,4 @@
-import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, addCharacterNoticeRolls, AddNoticesReq, faceOffRoll } from './CyberClient'
+import { Character, Attributes, listSkills, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, addCharacterNoticeRolls, AddNoticesReq, faceOffRoll, RestoreEMPReq, restoreCharEMP } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -80,13 +80,14 @@ const StatValue = ({field, value, props}: StatValueProps) =>
         <span className='statValue'> <b>{field} [{value}{props}]</b></span>
 
 
-interface StatsProps {
+interface StatsProps extends UpdateCharacterAndLogs {
+    characterId: number
     attributes: Attributes
     updateCharacterAttributes: (a: Attributes) => void
     edit: boolean
 }
 
-const Stats = ( {attributes, updateCharacterAttributes, edit}: StatsProps) => {
+const Stats = ( {characterId, attributes, updateCharacter, updateLogs, updateCharacterAttributes, edit}: StatsProps) => {
     
     const run = attributes.MA * 3
     const leap = Math.floor(run / 4)
@@ -141,6 +142,22 @@ const Stats = ( {attributes, updateCharacterAttributes, edit}: StatsProps) => {
          )
     }
 
+    const [empToRestore, setEmpToRestore] = useState(0)
+    const empRestoreDisabled: boolean = empToRestore <= 0
+    const restoreEMPReq: RestoreEMPReq = {
+        charId: characterId,
+        emp: empToRestore
+    }
+
+    const updateEmpToRestore = (v: number) => updateNumWithLowerLimit(v, 0, setEmpToRestore)
+    const updateCharacterAndLogs = (logs: Log[]) => {
+        updateLogs(logs)
+        updateCharacter()
+    }
+    const restoreEMP = () => {
+        restoreCharEMP(restoreEMPReq).then(updateCharacterAndLogs)
+    }
+
     return (
         <div className='fieldContainer'>
              <label>STATS</label>
@@ -158,6 +175,10 @@ const Stats = ( {attributes, updateCharacterAttributes, edit}: StatsProps) => {
                 <StatValue field='Leap' value={leap} />
                 <StatValue field='Lift' value={liftKg} />
             </div>
+            {!edit && <div className='fieldContent'>
+                <ValueChanger baseValue={empToRestore} onChange={updateEmpToRestore}/>{empToRestore}
+                <button disabled={empRestoreDisabled} onClick={() => restoreEMP()}>Restore EMP</button>
+            </div>}
         </div>
     )
 }
@@ -1080,7 +1101,7 @@ const CharacterSheet = ({setNameInSearch, edit, character, allSkills, updateLogs
 
         return validAttributes.every(v => v === true)
     }
-    
+
     const [randomize, setRandomize] = useState(false)
 
     const updateCharacterAttributes = (newAttributes: Attributes) => {
@@ -1141,12 +1162,12 @@ const CharacterSheet = ({setNameInSearch, edit, character, allSkills, updateLogs
             <Handle allowAddingToInitiative={allowAddingToInitiative} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
             {edit && <><input type="checkbox" checked={randomize} onClick={() => setRandomize(!randomize)}/> Randomize</>}
             <RoleFiled updateChracterRole={updateCharacterRole} edit={editWithRandomize} value={character.role}/>
-            <Stats edit={editWithRandomize} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>
+             <Stats characterId={character.id} edit={edit} updateCharacter={updateCharacter} updateLogs={updateLogs} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>
             {!edit && <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter} updateLogs={updateLogs}/>}
             <SaveAndHealthRow updateCharacterBTM={updateCharacterBTM} randomize={randomize} edit={edit} character={character} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
             {edit && <SaveNewCharacter />}
             {allSkills && !edit && <SkillsByAttributes updateLogs={updateLogs} skills={allSkills} character={character} updateCharacter={updateCharacter}/>}
-            {!edit && 
+            {!edit &&
                 <>
                     <AddWeapon characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
                     <CharacterMeleeWeapons  weapons={meleeWeapons(character.weapons)} characterId={character.id} updateLogs={updateLogs} updateCharacter={updateCharacter}/>

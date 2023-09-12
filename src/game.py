@@ -17,7 +17,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     help_info, heal_help_str, yes_no, heal_str, heal_calc_str, heal_calc_help_str, askInputCaseSensitive, \
     remove_status_help_str, remove_status_str, printGreenLine, fieldName, difficulty_check_str, coloredText, \
     notice_roll_str, notice_roll_help_str, add_character_for_notice_str, add_character_for_notice_help_str, \
-    clear_notice_str, REF
+    clear_notice_str, REF, EMP
 from characterBuilder import createCharacter
 import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
 import healing
@@ -494,6 +494,33 @@ def addToCombatByName(name, initiative):
     character = DAO.getCharacterByName(name)
     return addToCombat(character, initiative)
 
+
+def restoreEMP(character_id, emp):
+    logs = []
+    char = DAO.getCharacterById(character_id)
+    if char is not None:
+        if emp < 0:
+            emp = 0
+
+        char_emp = char.attributes[EMP]
+        emp_res = char_emp + emp
+        if emp_res > 10:
+            emp_res = 10
+        elif emp_res > char.max_emp:
+            emp_res = char.max_emp
+
+        emp_restored = (emp_res - char_emp)
+        if emp_restored < 0:
+            emp_restored = 0
+        humanity_to_restore = emp_restored * 10
+
+        humanity_res = char.humanity + humanity_to_restore
+        DAO.changeHumanityAndEmp(character_id, humanity_res, emp_res)
+        logs = log_event(logs, f" {emp_restored} empathy restored for {char.name}", log_pos)
+    else:
+        logs = log_event(logs, "Character not found", log_neg)
+
+    return logs
 
 #param = all/combat/info
 def help(param):

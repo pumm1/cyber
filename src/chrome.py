@@ -113,7 +113,7 @@ def handleHumanity(char, humanity_cost=None) -> list[Log]:
     emp = math.ceil(t_hum / 10)
     logs = log_event([], f'Curr emp: {char.attributes[EMP]} - new emp: {emp}', log_neutral)
     logs = log_event(logs, f'Current humanity: {curr_hum} - new humanity: {t_hum}', log_neg)
-    DAO.reduceHumanity(char.id, t_hum, emp)
+    DAO.changeHumanityAndEmp(char.id, t_hum, emp)
     logs = log_event(logs, f'Updated humanity and empathy', log_neutral
                      )
     return (humanity_cost, logs)

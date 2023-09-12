@@ -329,9 +329,9 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
     cur.execute(
         f"""{insert} {table_characters} 
             (name, role, special_ability, body_type_modifier, humanity, ip, initiative_bonus,
-            atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken)
+            atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken, emp_max)
             VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10}, 0, {initiative_bonus},
-            {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0)
+            {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0, {atr_emp})
             RETURNING id;
         """
     )
@@ -631,7 +631,7 @@ def updateCharacterMaxSp(character_id, body_part, amount):
     conn.commit()
 
 
-def reduceHumanity(character_id, humanity, emp):
+def changeHumanityAndEmp(character_id, humanity, emp):
     cur.execute(
         f"""{update} {table_characters} SET humanity = {humanity}, atr_emp = {emp}
             WHERE id = {character_id};

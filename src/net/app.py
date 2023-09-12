@@ -223,6 +223,17 @@ def saveIP():
     else:
         return "Invalid request", 400
 
+@app.route('/restore-emp', methods = [post])
+def restoreEMP():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        emp = data['emp']
+        res = game.restoreEMP(char_id, emp)
+        return jsonify(res)
+    else:
+        return "Invalid request", 400
+
 @app.route('/add-weapon', methods = [post])
 def addWeapon():
     if request.method == post:

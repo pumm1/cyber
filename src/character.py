@@ -44,6 +44,7 @@ class Character:
         self.initiativeBonus = initiativeBonus
 
         self.attributes = attributes
+        self.max_emp = row['emp_max']
         self.dmg_taken = row['dmg_taken']
         self.sp = {
             body_part_head: sp_row['head'],
