@@ -64,6 +64,9 @@ After setting up the PSQL database, run the following migration scripts:
   * `add_basic_skills.sql`
   * `grant_access.sql`
 
+Also run all the versioned update sql-scripts in order inside `updates` 
+directory (V001_.., V002_.., ... etc.)
+
 ## secrets.json in /src for (PSQL) db config:
 ```
 {
