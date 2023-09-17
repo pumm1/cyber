@@ -776,7 +776,7 @@ def damageCharacter(c: Character, dmg, logs: list[Log]=[]) -> list[Log]:
         if updated_character.dmg_taken >= max_health:
             logs = log_event(logs, f'{c.name} has flatlined', log_neg)
         else:
-            logs = logs + stunCheck(updated_character.name)
+            logs = logs + stunCheckById(updated_character.id)
     else:
         logs = log_event(logs, f'The hit did not damage target (DMG = {dmg}, DMG reduced by = {dmgReduction})', log_neutral)
 
@@ -834,22 +834,36 @@ def stunCheckToBeat(dmg_taken, body) -> (int, list[Log]):
     return (save_against, logs)
 
 
+def stunCheck(c: Character) -> list[Log]:
+    logs = []
+    (save_against, stun_logs) = stunCheckToBeat(c.dmg_taken, c.attributes['BODY'])
+    logs = logs + stun_logs
+    roll = dice.roll(1, 10)
+    is_stunned = roll > save_against
 
-def stunCheck(name) -> list[Log]:
+    if is_stunned:
+        logs = log_event(logs, f'{c.name} fails stun check!', log_neg)
+        logs = log_event(logs, rollStunOverActingEffect(c.name), log_neg)
+    else:
+        logs = log_event(logs, f"{c.name} wasn't stunned!", log_pos)
+    logs = log_event(logs, f'[Stun save against = {save_against} < roll = {roll}]', log_neutral)
+    return logs
+
+
+def stunCheckById(character_id) -> list[Log]:
+    logs = []
+    c = DAO.getCharacterById(character_id)
+    if c is not None:
+        logs = stunCheck(c)
+    else:
+        logs = log_event(logs, f'Character not found [id = {character_id}]', log_neg)
+    return logs
+
+def stunCheckByName(name) -> list[Log]:
     logs = []
     c = DAO.getCharacterByName(name)
     if c is not None:
-        (save_against, stun_logs) = stunCheckToBeat(c.dmg_taken, c.attributes['BODY'])
-        logs = logs + stun_logs
-        roll = dice.roll(1, 10)
-        is_stunned = roll > save_against
-
-        if is_stunned:
-            logs = log_event(logs, f'{name} fails stun check!', log_neg)
-            logs = log_event(logs, rollStunOverActingEffect(c.name), log_neg)
-        else:
-            logs = log_event(logs, f"{c.name} wasn't stunned!", log_pos)
-        logs = log_event(logs, f'[Stun save against = {save_against} < roll = {roll}]', log_neutral)
+        logs = stunCheck(c)
     else:
         logs = log_event(logs, f'Character not found [name = {name}]', log_neg)
     return logs

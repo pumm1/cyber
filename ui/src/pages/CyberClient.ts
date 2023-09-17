@@ -473,3 +473,9 @@ export interface RestoreEMPReq extends CharacterReq {
 }
 export const restoreCharEMP = (e: RestoreEMPReq) =>
     postDataAs<Log[]>(`${pathBase}/restore-emp`, e)
+
+export const stuncheck = (c: CharacterReq) =>
+    postDataAs<Log[]>(`${pathBase}/stun-check`, c)
+
+export const deleteCharacter = (c: CharacterReq) =>
+    postDataAs<Log[]>(`${pathBase}/delete-character`, c)

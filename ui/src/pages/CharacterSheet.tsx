@@ -1,4 +1,4 @@
-import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP } from './CyberClient'
+import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -175,10 +175,11 @@ const Stats = ( {characterId, attributes, updateCharacter, updateLogs, updateCha
                 <StatValue field='Leap' value={leap} />
                 <StatValue field='Lift' value={liftKg} />
             </div>
-            {!edit && <div className='fieldContent'>
+            {!edit && 
+            <span className='valueToAdd'>
                 <ValueChanger baseValue={empToRestore} onChange={updateEmpToRestore}/>{empToRestore}
-                <button disabled={empRestoreDisabled} onClick={() => restoreEMP()}>Restore EMP</button>
-            </div>}
+                <button className='withLeftSpace' disabled={empRestoreDisabled} onClick={() => restoreEMP()}>Restore EMP</button>
+            </span>}
         </div>
     )
 }
@@ -445,7 +446,7 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
             <InputRow weapon={weapon} show={isMelee} onClick={() => setAttackType(AttackType.Melee)} checked={attackType === AttackType.Melee} label='Melee' />
             <InputRow weapon={weapon} show={!isMelee} onClick={() => setAttackType(AttackType.Single)} checked={attackType === AttackType.Single} label='*' />
             <InputRow weapon={weapon} show={isFullAuto} onClick={() => setAttackType(AttackType.Burst)} checked={attackType === AttackType.Burst} label='***' />
-            <InputRow weapon={weapon} show={isFullAuto} onClick={() => setAttackType(AttackType.FullAuto)} checked={attackType === AttackType.FullAuto} label='FA' />
+            <InputRow weapon={weapon} show={isFullAuto} onClick={() => setAttackType(AttackType.FullAuto)} checked={attackType === AttackType.FullAuto} label='A' />
         </span>
 
     const defaultAttackRange = weaponIsGun ? 10 : 1
@@ -563,7 +564,7 @@ const CharacterRangedWeapons = (
                 <th>Ranged weapon</th>
                 <th>Type</th>
                 <th>DMG</th>
-                <th>Reliability</th>
+                <th>Rel.</th>
                 <th>Action</th>
                 <th>Attack Type</th>
                 <th>Attack Range</th>
@@ -1008,6 +1009,7 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
                         }}>
                             Heal {healAmount}
                         </button>
+                        <button className='withLeftSpace' onClick={() => stuncheck({charId: character.id}).then(updateLogsAndCharacter)}>Stun check</button>
                     </div>
                 </div>}
         </div>

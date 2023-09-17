@@ -171,7 +171,7 @@ def start():
         elif command.startswith(stun_check_str):
             match command_parts:
                 case [_, name]:
-                    combat.stunCheck(name)
+                    combat.stunCheckByName(name)
                 case _:
                     print(stun_check_help_str)
         elif command.startswith(character_str):
@@ -494,6 +494,15 @@ def addToCombatByName(name, initiative):
     character = DAO.getCharacterByName(name)
     return addToCombat(character, initiative)
 
+def deleteCharacter(character_id) -> list[Log]:
+    logs = []
+    c = DAO.getCharacterById(character_id)
+    if c is not None:
+        DAO.deleteCharacter(c)
+        logs = log_event(logs, f'Character {c.name} deleted', log_neutral)
+    else:
+        logs = log_event(logs, f"Character not found [id = {character_id}]", log_neg)
+    return logs
 
 def restoreEMP(character_id, emp):
     logs = []

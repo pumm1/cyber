@@ -771,6 +771,26 @@ def getArmorById(character_id, id):
     return row
 
 
+def deleteCharacter(c: Character):
+    for chrome in c.cybernetics:
+        deleteCharacterChrome(c.id, chrome.id)
+    for weapon in c.weapons:
+        deleteCharacterWeapon(c.id, weapon.weapon_id)
+    for armor in c.armors:
+        deleteCharacterArmor(c.id, armor.id)
+
+    cur.execute(
+        f"""{delete_from} {table_combat_session} WHERE character_id = {c.id};"""
+    )
+    cur.execute(
+        f"""{delete_from} {table_reputation} WHERE character_id = {c.id};"""
+    )
+    cur.execute(
+        f'{delete_from} {table_characters} WHERE id = {c.id};'
+    )
+    conn.commit()
+
+
 def deleteCharacterArmor(character_id, armor_id):
     a_row = getArmorById(character_id, armor_id)
     if a_row is not None:

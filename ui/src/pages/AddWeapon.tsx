@@ -79,7 +79,7 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
                 <th>ROF</th>
                 <th>WA</th>
                 <th>Clip size</th>
-                <th>Reliability</th>
+                <th>Rel.</th>
                 <th>CON</th>
                 <th>Weight</th>
                 <th>Effect radius</th>

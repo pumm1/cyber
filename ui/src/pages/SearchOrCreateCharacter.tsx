@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { getCharacter , Character, listSkills, Log, Attributes, CharacterSP, Skill, Initiative, CharacterShort, listCharacters, sortedCharacters} from './CyberClient'
+import { getCharacter , Character, listSkills, Log, Attributes, CharacterSP, Skill, Initiative, CharacterShort, listCharacters, sortedCharacters, deleteCharacter} from './CyberClient'
 import './SearchCharacter.css'
 import React from "react"
 import CharacterSheet from "./CharacterSheet"
@@ -56,15 +56,19 @@ interface SearchCharacterProps {
 interface ListCharactersProps {
     characters: CharacterShort[]
     setCharacterName: (n: string) => Promise<void>
+    updateLogs: (l: Log[]) => void
+    setAllCharacters: (c: CharacterShort[]) => void
 }
 
-const ListCharacters = ({characters, setCharacterName}: ListCharactersProps) => {
+const ListCharacters = ({characters, setCharacterName, updateLogs, setAllCharacters}: ListCharactersProps) => {
     const [nameFilter, setNameFilter] = useState('')
     const charactersSorted = sortedCharacters(characters)
     const filteredCharacters = 
         nameFilter.length > 0 ? 
             charactersSorted.filter(c => c.name.toLocaleLowerCase().startsWith(nameFilter)) 
             : charactersSorted
+    const removeCharacter = (charId: number) => 
+        deleteCharacter({charId})
 
     const characterTable = 
         <>
@@ -73,7 +77,8 @@ const ListCharacters = ({characters, setCharacterName}: ListCharactersProps) => 
                     <tr>
                     <th>Name</th>
                     <th>Role</th>
-                    <th></th>
+                    <th>Show</th>
+                    <th>Remove</th>
                 </tr>
                 {filteredCharacters.map(c => 
                     <tr>
@@ -81,6 +86,11 @@ const ListCharacters = ({characters, setCharacterName}: ListCharactersProps) => 
                         <td>{c.role}</td>
                         <td>
                             <button onClick={() => setCharacterName(c.name)}>Show</button>
+                        </td>
+                        <td>
+                        <button onClick={() => {
+                                removeCharacter(c.id).then(updateLogs).then(() => listCharacters().then(setAllCharacters))
+                            }}>Delete</button>
                         </td>
                     </tr>    
                 )}
@@ -126,7 +136,7 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps
     //why using form breaks this in backend?
     return(
         <>
-            <ListCharacters characters={allCharacters ?? []} setCharacterName={setCharacterFn}/>
+            <ListCharacters characters={allCharacters ?? []} setCharacterName={setCharacterFn} updateLogs={updateLogs} setAllCharacters={setAllCharacters}/>
             <div className="search">
                 <label>Search</label>
                 <input type="text" value={name} onChange={event => setName(event.target.value)}/>

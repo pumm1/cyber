@@ -234,6 +234,17 @@ def restoreEMP():
     else:
         return "Invalid request", 400
 
+@app.route('/stun-check', methods = [post])
+def stunCheck():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        res = combat.stunCheckById(char_id)
+        return jsonify(res)
+    else:
+        return "Invalid request", 400
+
+
 @app.route('/add-weapon', methods = [post])
 def addWeapon():
     if request.method == post:
@@ -403,5 +414,15 @@ def updateMoney():
         char_id = data['charId']
         money = data['money']
         return jsonify(game.updateCharacterMoneyByCharacterId(char_id, money))
+    else:
+        return "Invalid request", 400
+
+
+@app.route('/delete-character', methods = [post])
+def deleteCharacter():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        return jsonify(game.deleteCharacter(char_id))
     else:
         return "Invalid request", 400

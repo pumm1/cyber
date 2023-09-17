@@ -42,6 +42,9 @@ table {
     border: 2px solid black;
     border-collapse: collapse;
 }
+table tr:nth-child(odd) td{
+    background-color: lightgrey;
+}
 
 th {
     border-bottom: 1px solid black;
