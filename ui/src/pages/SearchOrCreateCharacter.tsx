@@ -90,7 +90,7 @@ const ListCharacters = ({characters, setCharacterName, updateLogs, setAllCharact
                         <td>
                         <button onClick={() => {
                                 removeCharacter(c.id).then(updateLogs).then(() => listCharacters().then(setAllCharacters))
-                            }}>Delete</button>
+                            }}>Delete</button>  
                         </td>
                     </tr>    
                 )}
