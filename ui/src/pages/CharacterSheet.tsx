@@ -1,4 +1,4 @@
-import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck } from './CyberClient'
+import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName } from './CyberClient'
 import React, { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -25,7 +25,7 @@ const roles = {
 //thrown toimimaan?
 
 interface UpdateCharacter {
-    updateCharacter: () => Promise<void>
+    updateCharacter: (i: number) => Promise<void>
 }
 
 interface UpdateCharacterAndLogs extends UpdateCharacter {
@@ -152,7 +152,7 @@ const Stats = ( {characterId, attributes, updateCharacter, updateLogs, updateCha
     const updateEmpToRestore = (v: number) => updateNumWithLowerLimit(v, 0, setEmpToRestore)
     const updateCharacterAndLogs = (logs: Log[]) => {
         updateLogs(logs)
-        updateCharacter()
+        updateCharacter(characterId)
     }
     const restoreEMP = () => {
         restoreCharEMP(restoreEMPReq).then(updateCharacterAndLogs)
@@ -198,7 +198,7 @@ interface SkillProps {
     skill: Skill
     characterSkills: CharacterSkill[]
     charId: number
-    updateCharacter: () => Promise<void>
+    updateCharacter: (i: number) => Promise<void>
     roll?: number
     modifier: number
     updateLogsAndCharacter: (l: Log[]) => void
@@ -218,7 +218,7 @@ const SkillRow = ({skill, charSkillLvl, charOriginalSkillLvl, rollReq, charId, u
     return(
         <div className='skill' key={skill.id}>
             <span>
-                {<button className='withLessRightSpace' disabled={charOriginalSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(updateCharacter)}>+</button>}
+                {<button className='withLessRightSpace' disabled={charOriginalSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(() => updateCharacter(charId))}>+</button>}
                 <button className='skillBtn' onClick={() => rollSkill(rollReq).then(updateLogsAndCharacter)}>Roll</button>
                 <span className='withLessLeftSpace'>
                     {skill.skill.padEnd(30, '.')}[{charSkillLvl ?? ''}]
@@ -261,7 +261,7 @@ interface SkillsByAttributeProps extends SkillsProps {
 const SkillsByAttribute = ({attribute, skills, characterSkills, character, updateCharacter, roll, modifier, updateLogs}: SkillsByAttributeProps) => {
     const updateLogsAndCharacter = (l: Log[]) => {
         updateLogs(l)
-        updateCharacter()
+        updateCharacter(character.id)
     }
     
     return(
@@ -277,7 +277,7 @@ const SkillsByAttribute = ({attribute, skills, characterSkills, character, updat
 const SkillsByAttributes = ({skills, character, updateCharacter, updateLogs}: SkillsProps ) => {
     const updateLogsAndCharacter = (resLogs: Log[]) => {
         updateLogs(resLogs)
-        updateCharacter()
+        updateCharacter(character.id)
     }
 
     const [roll, setRoll] = useState(0)
@@ -475,7 +475,7 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
 
     const updateLogsAndCharacter = (resLogs: Log[]) => {
         updateLogs(resLogs)
-        updateCharacter()
+        updateCharacter(characterId)
     }
 
     const updateTargets = (newVal: number) => updateNumWithLowerLimit(newVal, 1, setTargets)
@@ -598,7 +598,7 @@ const MeleeWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Weap
 
     const updateLogsAndCharacter = (resLogs: Log[]) => {
         updateLogs(resLogs)
-        updateCharacter()
+        updateCharacter(characterId)
     }
     
     const removeWeaponReq: RemoveWeaponReq = {
@@ -863,7 +863,7 @@ const GridBox = ({value, otherValue, bolden, otherElement}: GridBoxProps) =>
 const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFieldProps) => {
     const updateLogsAndCharacter = (resLogs: Log[]) => {
         updateLogs(resLogs)
-        updateCharacter()
+        updateCharacter(characterId)
     }
     const Label = ({label}: {label: string}) => <label className='armorLabel'><i>{label}</i></label>
 
@@ -958,7 +958,7 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
 
     const updateLogsAndCharacter = (resLogs: Log[]) => {
         updateLogs(resLogs)
-        updateCharacter()
+        updateCharacter(character.id)
     }
 
     const resolveTicks = (lowerLimit:number, upperLimit: number): number => 
@@ -1028,6 +1028,7 @@ interface HandleProps {
 const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, allowAddingToInitiative}: HandleProps) => {
     const [initiative, setInitiative] = useState(0)
     const [addedToCombat, setAddedToCombat] = useState(false)
+    const [nameEditable, setNameEditable] = useState(false)
 
     const addToCombatReq: AddToCombatReq = {
         charId: characterId ?? 0,
@@ -1038,11 +1039,14 @@ const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, all
         charId: characterId ?? 0
     }
 
+    const updateName = (charId: number) => 
+        updateCharacterName({charId, name: value})
+
     return(
         <div className='fieldContainer'>
             <span className='fieldContent'>
                 <label>Handle</label>
-                <input disabled={!edit} className='fieldValue' value={value} onChange={e => onUpdate(e.target.value)} />
+                <input disabled={!edit && !nameEditable} className='fieldValue' value={value} onChange={e => onUpdate(e.target.value)} />
                 {characterId &&
                     <>
                         <button className='withLeftSpace' onClick={() => rollInitiative(rollInitiativeRoll).then(setInitiative)}>Roll initiative</button>
@@ -1051,6 +1055,11 @@ const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, all
                     </>
                 }
             </span>
+            {characterId && <span>
+                <input type='checkbox' checked={nameEditable} onClick={() => setNameEditable(!nameEditable)}/> Edit handle
+                <button disabled={!nameEditable} onClick={() => updateName(characterId).then(updateLogsAndCharacter)} className='withLeftSpace'>Update handle</button>
+            </span>
+            }
         </div>
     )
 }
@@ -1142,7 +1151,7 @@ const CharacterSheet = ({setNameInSearch, edit, character, allSkills, updateLogs
             <div className='withLeftSpace'>
                 <button 
                 onClick={() => {
-                    createCharacterAndLog().then(() => setNameInSearch(character.name)).then(() => updateCharacter())
+                    createCharacterAndLog().then(() => setNameInSearch(character.name)).then(() => updateCharacter(character.id))
                 }} 
                 disabled={!saveCharacterFormValid()}
                 className='withLeftSpace'>
@@ -1154,7 +1163,7 @@ const CharacterSheet = ({setNameInSearch, edit, character, allSkills, updateLogs
 
     const updateLogsAndCharacter = (l: Log[]) => {
         updateLogs(l)
-        updateCharacter()
+        updateCharacter(character.id)
     }
 
     const editWithRandomize = edit && !randomize

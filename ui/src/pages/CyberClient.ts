@@ -202,8 +202,8 @@ export interface Character extends CharacterShort{
     money: number
 }
 
-export const getCharacter = (name: string) =>
-    fetchData(`${pathBase}/char?name=${name}`).then(res => res as Character)
+export const getCharacter = (id: number) =>
+    fetchData(`${pathBase}/char?id=${id}`).then(res => res as Character)
 
 export interface RollReq {
     numberOfDice: number
@@ -479,3 +479,10 @@ export const stuncheck = (c: CharacterReq) =>
 
 export const deleteCharacter = (c: CharacterReq) =>
     postDataAs<Log[]>(`${pathBase}/delete-character`, c)
+
+export interface UpdateCharNameReq extends CharacterReq {
+    name: string
+}
+
+export const updateCharacterName = (c: UpdateCharNameReq) => 
+    postDataAs<Log[]>(`${pathBase}/update-name`, c)

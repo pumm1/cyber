@@ -55,12 +55,12 @@ interface SearchCharacterProps {
 
 interface ListCharactersProps {
     characters: CharacterShort[]
-    setCharacterName: (n: string) => Promise<void>
+    setCharacterById: (i: number) => Promise<void>
     updateLogs: (l: Log[]) => void
     setAllCharacters: (c: CharacterShort[]) => void
 }
 
-const ListCharacters = ({characters, setCharacterName, updateLogs, setAllCharacters}: ListCharactersProps) => {
+const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharacters}: ListCharactersProps) => {
     const [nameFilter, setNameFilter] = useState('')
     const charactersSorted = sortedCharacters(characters)
     const filteredCharacters = 
@@ -85,7 +85,7 @@ const ListCharacters = ({characters, setCharacterName, updateLogs, setAllCharact
                         <td>{c.name}</td>
                         <td>{c.role}</td>
                         <td>
-                            <button onClick={() => setCharacterName(c.name)}>Show</button>
+                            <button onClick={() => setCharacterById(c.id)}>Show</button>
                         </td>
                         <td>
                         <button onClick={() => {
@@ -117,9 +117,9 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps
         
     }, [])
 
-    const updateCharacter = (n?: string): Promise<void> => {
+    const updateCharacter = (i: number): Promise<void> => {
         setCharacterEditable(false)
-        return getCharacter(n ?? name).then(setCharacter)
+        return getCharacter(i).then(setCharacter)
     }
 
 
@@ -128,19 +128,16 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps
         setCharacterEditable(true)
     }
 
-    const setCharacterFn = (n: string) => 
-         getCharacter(n).then(setCharacter).then(() => setName(n))
+    const setCharacterFn = (i: number) => 
+         getCharacter(i).then(setCharacter)
 
     const allowAddingToInitiative = character ? !initiatives.find(i => i.charId === character.id) : false
 
     //why using form breaks this in backend?
     return(
         <>
-            <ListCharacters characters={allCharacters ?? []} setCharacterName={setCharacterFn} updateLogs={updateLogs} setAllCharacters={setAllCharacters}/>
+            <ListCharacters characters={allCharacters ?? []} setCharacterById={setCharacterFn} updateLogs={updateLogs} setAllCharacters={setAllCharacters}/>
             <div className="search">
-                <label>Search</label>
-                <input type="text" value={name} onChange={event => setName(event.target.value)}/>
-                <button className='searchOrCreate' onClick={() => updateCharacter()}>Search</button>
                 <button className='searchOrCreate' onClick={() => createCharacter()}>Create</button>
                 {character && <button className='searchOrCreate' onClick={() => setCharacter(undefined)}>Hide character</button>}
             </div>

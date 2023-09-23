@@ -116,8 +116,8 @@ def rollFaceOff():
 @app.route('/char', methods = [get])
 def getChar():
     if request.method == get:
-        name = request.args.get('name')
-        return jsonify(game.getCharacter(name))
+        id = request.args.get('id')
+        return jsonify(game.getCharacterById(id))
     else:
         return "Invalid request", 400
 
@@ -426,3 +426,11 @@ def deleteCharacter():
         return jsonify(game.deleteCharacter(char_id))
     else:
         return "Invalid request", 400
+
+@app.route('/update-name', methods = [post])
+def updateName():
+    if request.method == post:
+        data = request.get_json()
+        char_id = data['charId']
+        name = data['name']
+        return jsonify(game.updateCharacterName(char_id, name))

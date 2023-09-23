@@ -461,6 +461,11 @@ def getCharacterSkillsById(id) -> list[SkillInfo]:
 
     return skill_dict.values()
 
+def updateCharacterName(character_id, name):
+    cur.execute(
+        f"""{update} {table_characters} SET name = '{name}' WHERE id = {character_id};"""
+    )
+    conn.commit()
 
 def listSkillsByAttribute(atr: str):
     cur.execute(

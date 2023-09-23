@@ -310,6 +310,14 @@ def faceOffRollByName(name, roll):
     faceOffRoll(character, roll)
 
 
+def getCharacterById(character_id):
+    c = DAO.getCharacterById(character_id)
+    if c is None:
+        print(f'Character not found by id of {character_id}')
+        return None
+    else:
+        return c.asJson()
+
 def getCharacter(name):
     character = DAO.getCharacterByName(name)
     if character is None:
@@ -503,6 +511,18 @@ def deleteCharacter(character_id) -> list[Log]:
     else:
         logs = log_event(logs, f"Character not found [id = {character_id}]", log_neg)
     return logs
+
+
+def updateCharacterName(character_id, name) -> list[Log]:
+    logs = []
+    c = DAO.getCharacterById(character_id)
+    if c is not None:
+        DAO.updateCharacterName(character_id, name)
+        logs = log_event(logs, f'{c.name} handle changed to {name}', log_neutral)
+    else:
+        logs = log_event(logs, f"Character not found [id = {character_id}]", log_neg)
+    return logs
+
 
 def restoreEMP(character_id, emp):
     logs = []
