@@ -10,7 +10,9 @@ const Hideable = ({text, props}: HideableProps) => {
 
     return(
         <div>
-            <button onClick={() => setShow(!show)}>{show ? 'Hide' : 'Show'} {text}</button>
+            <button onClick={() => {
+                    setShow(!show)
+                }}>{show ? 'Hide' : 'Show'} {text}</button>
             {show && props}
         </div>
     )

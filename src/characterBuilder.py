@@ -171,7 +171,7 @@ def createRandomCharacter(name, generate_gear=True):
     special = rollSpecial(role)
     body_type = rollBodyType()
     (atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp) = rollAtributes()
-    DAO.addCharacter(
+    character_id = DAO.addCharacter(
         name,
         role,
         special,
@@ -188,6 +188,7 @@ def createRandomCharacter(name, generate_gear=True):
     )
     if generate_gear:
         generateGear(name)
+    return character_id
 
 
 low_q_armor_set = [
@@ -417,8 +418,9 @@ def rollAtributes():
 
 def createCharacterFromReq(name, role, given_body_type, attributes, randomize=False):
     logs = []
+    character_id = 0
     if randomize:
-        createRandomCharacter(name, generate_gear=False)
+        character_id = createRandomCharacter(name, generate_gear=False)
     else:
         body_Type = addBodyType(given_body_type)
         special = 0

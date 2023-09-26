@@ -70,6 +70,9 @@ const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharact
     const removeCharacter = (charId: number) => 
         deleteCharacter({charId})
 
+    const updateCharacters = () => 
+        listCharacters().then(setAllCharacters)
+
     const characterTable = 
         <>
             <input placeholder='Search by...' className='filter' value={nameFilter} onChange={e => setNameFilter(e.target.value)}/>
@@ -89,7 +92,7 @@ const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharact
                         </td>
                         <td>
                         <button onClick={() => {
-                                removeCharacter(c.id).then(updateLogs).then(() => listCharacters().then(setAllCharacters))
+                                removeCharacter(c.id).then(updateLogs).then(() => updateCharacters())
                             }}>Delete</button>  
                         </td>
                     </tr>    
@@ -109,9 +112,12 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps
     const [allSkills, setAllSkills] = useState<Skill[] | undefined>(undefined)
     const [allCharacters, setAllCharacters] = useState<CharacterShort[] | undefined>(undefined)
 
+    const updateCharacterList = () => 
+        listCharacters().then(setAllCharacters)
+
     useEffect(() => {
         listSkills().then(setAllSkills).then(() => 
-            listCharacters().then(setAllCharacters)
+            updateCharacterList()
         )
         
     }, [])
@@ -134,9 +140,6 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps
         })
 
     const allowAddingToInitiative = character ? !initiatives.find(i => i.charId === character.id) : false
-
-    const updateCharacterList = () => 
-        listCharacters().then(setAllCharacters)
     
     //why using form breaks this in backend?
     return(

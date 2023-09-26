@@ -31,7 +31,7 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
     const updateDmgBonus = (v: number) => updateNumWithLowerLimit(v, 0, setDmgBonus)
     const updateClipSize = (v: number) => updateNumWithLowerLimit(v, 1, setClipSize)
     const updateHlCost = (v: number) => updateNumWithLowerLimit(v, 0, setHumanityCost)
-    const updateWa = (v: number) => updateNumWithLowerLimit(v, 0, setWa)
+    const updateWa = (v: number) => updateNumWithLowerLimit(v, -5, setWa)
     const updateEffectRadius = (v: number) => updateNumWithLowerLimit(v, 0, setEffectRadius)
     const updateDivideBy = (v: number) => updateNumWithLowerLimit(v, 1, setDivideBy)
     const updateRof = (v: number) => updateNumWithLowerLimit(v, 1, setRof)

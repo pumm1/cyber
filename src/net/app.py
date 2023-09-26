@@ -39,9 +39,13 @@ def createCharacter():
         name = data['name']
         randomize = data['randomize']
         if randomize:
-            return jsonify(
-                characterBuilder.createCharacterFromReq(name, role='', given_body_type='', attributes=[], randomize=True)
-            )
+            (logs, character_id) = characterBuilder.createCharacterFromReq(name, role='', given_body_type='', attributes=[], randomize=True)
+            resJson = {
+                'logs': logs,
+                'charId': character_id
+            }
+
+            return jsonify(resJson)
         else:
             attributes = data['attributes']
             role = data['role']

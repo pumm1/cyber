@@ -1095,7 +1095,7 @@ export interface CharacterSheetProps extends UpdateCharacterAndLogs{
 }
 
 
-const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter, editCharacter, allowAddingToInitiative}: CharacterSheetProps) => {
+const CharacterSheet = ({edit, updateCharacterList, character, allSkills, updateLogs, updateCharacter, editCharacter, allowAddingToInitiative}: CharacterSheetProps) => {
     const editCharacterInForm = (newCharacter: Character, isValid: boolean) => 
         editCharacter && isValid && editCharacter(newCharacter)
     
@@ -1154,7 +1154,7 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
         character.role != '' && character.name != ''
 
     const saveCharacterFormValid = (): boolean =>
-        edit && characterAttributesValid(character) && roleAndNameIsValid()
+        randomize ? true : edit && characterAttributesValid(character) && roleAndNameIsValid()
 
     const SaveNewCharacter = ({}) => {
         const createReq: CreateCharacterReq = {
@@ -1168,7 +1168,7 @@ const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter
         const createCharacterAndLog = () => 
             createCharacter(createReq).then(res => {
                 updateLogs(res.logs)
-                updateCharacter(res.charId)
+                updateCharacter(res.charId).then(() => updateCharacterList())
             })
         return (
             <div className='withLeftSpace'>
