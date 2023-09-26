@@ -34,7 +34,7 @@ textarea {
 
 .fieldContainer {
     margin-top: 4px;
-    max-width: 600px;
+    max-width: 632px;
 }
 
 .fieldContent {
@@ -129,13 +129,26 @@ textarea {
     padding-left: 2px;
 }
 
-.boxValue {
+.boxValueFlex {
     display: flex;
     margin-top: auto;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: auto;
+}
 
+.boxValue {
+    margin-top: auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: auto;
+
+}
+
+.btmLabel {
+    width: 100%;
+    padding: 2px;
+    font-size: 8px;
 }
 
 

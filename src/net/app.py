@@ -46,9 +46,16 @@ def createCharacter():
             attributes = data['attributes']
             role = data['role']
             body_type = data['btm']
+            print(f'body type req: {body_type}')
+            (logs, character_id) = characterBuilder.createCharacterFromReq(name, role, body_type, attributes)
+
+            resJson = {
+                'logs': logs,
+                'charId': character_id
+            }
 
             return jsonify(
-                characterBuilder.createCharacterFromReq(name, role, body_type, attributes)
+                resJson
             )
     else:
         return "Invalid request", 400

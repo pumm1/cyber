@@ -28,7 +28,7 @@ const initialSp: CharacterSP = {
 
 const characterToCreate: Character = {
     id: -1,
-    role: 'solo',
+    role: '',
     name: '',
     specialAbility: '',
     specialAbilityLvl: 0,
@@ -104,7 +104,6 @@ const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharact
 }
 
 const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps) => {
-    const [name, setName] = useState<string>('')
     const [characterEditable, setCharacterEditable] = useState(false)
     const [character, setCharacter] = useState<undefined | null | Character>(undefined)
     const [allSkills, setAllSkills] = useState<Skill[] | undefined>(undefined)
@@ -129,10 +128,16 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps
     }
 
     const setCharacterFn = (i: number) => 
-         getCharacter(i).then(setCharacter)
+         getCharacter(i).then(char => {
+            setCharacter(char)
+            setCharacterEditable(false)
+        })
 
     const allowAddingToInitiative = character ? !initiatives.find(i => i.charId === character.id) : false
 
+    const updateCharacterList = () => 
+        listCharacters().then(setAllCharacters)
+    
     //why using form breaks this in backend?
     return(
         <>
@@ -142,7 +147,7 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps
                 {character && <button className='searchOrCreate' onClick={() => setCharacter(undefined)}>Hide character</button>}
             </div>
             {!!character &&
-                 <div><CharacterSheet setNameInSearch={setName} allowAddingToInitiative={allowAddingToInitiative} editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
+                 <div><CharacterSheet updateCharacterList={updateCharacterList} allowAddingToInitiative={allowAddingToInitiative} editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
             }
         </>
     )

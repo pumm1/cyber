@@ -94,29 +94,36 @@ def rollBodyType():
 def addBodyType(given_body_type=None) -> int:
     print(f'<give body type> or {roll_str} random body type ({list_str} to show all)')
     body_type = 0
-    ans = 0
+    if given_body_type is not None:
+        ans = given_body_type
+        body_type = safeCastToInt(ans)
+        if body_type > 4:
+            print(print(f'Body type {bodytypes.superhuman} is only achievable through cybernetics'))
+            body_type = 0
+    else:
+        body_type = handleManualBodyType()
+    print(f'Body type modifier = {body_type} ({bodytypes.bodyTypeModifiersByValue(body_type)})')
+    return body_type
+
+def handleManualBodyType():
+    body_type = None
     while True:
-        if given_body_type is not None:
-            ans = given_body_type
-            break
-        else:
-            ans = askInput()
+        ans = askInput()
         if checkListCommand(ans):
             bodytypes.listAvailableModifiers()
         elif checkRollCommand(ans):
             body_type = rollBodyType()
             break
         else:
-            t_bod_type = safeCastToInt(ans)
-            if t_bod_type > 4:
+            body_type_value = safeCastToInt(ans)
+            print(f'.... ans: {ans} vs body_type_value {body_type_value}')
+            if body_type_value > 4:
                 print(print(f'Body type {bodytypes.superhuman} is only achievable through cybernetics'))
             else:
-                body_type = t_bod_type
+                body_type = body_type_value
                 break
 
-    print(f'Body type modifier = {body_type} ({bodytypes.bodyTypeModifiersByValue(body_type)})')
     return body_type
-
 
 def handleRole(is_random: bool):
     role = ''
@@ -124,7 +131,7 @@ def handleRole(is_random: bool):
         role = rollRole()
     else:
         role = addRole()
-    return role
+    return roles
 
 
 def createCharacter(name: str, roll_all=False, roll_atr=False):
@@ -415,7 +422,7 @@ def createCharacterFromReq(name, role, given_body_type, attributes, randomize=Fa
     else:
         body_Type = addBodyType(given_body_type)
         special = 0
-        DAO.addCharacter(
+        character_id = DAO.addCharacter(
             name,
             role,
             special,
@@ -432,7 +439,7 @@ def createCharacterFromReq(name, role, given_body_type, attributes, randomize=Fa
         )
     logs = log_event(logs, f'Character {name} created', log_pos)
 
-    return logs
+    return (logs, character_id)
 
 def createManualCharacter(name):
     role = addRole()

@@ -356,7 +356,9 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
         """
     )
     conn.commit()
+    character_id = new_char['id']
     print(f'Character {name} ({role}) added to game')
+    return character_id
 
 
 def characterSkillsFromRows(is_original: bool, skill_rows) -> list[SkillInfo]:

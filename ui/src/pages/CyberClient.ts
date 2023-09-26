@@ -316,8 +316,12 @@ export interface CreateCharacterReq {
     randomize: boolean
 }
 
+export interface CreateCharacterRes extends CharacterReq {
+    logs: Log[]
+}
+
 export const createCharacter = (c: CreateCharacterReq) =>
-    postDataAs<Log[]>(`${pathBase}/create-character`, c)
+    postDataAs<CreateCharacterRes>(`${pathBase}/create-character`, c)
 
 export interface UpdateIPReq {
     charId: number

@@ -971,20 +971,41 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
         amount: healAmount
     }
 
+    const btmByValue = (btm: number) => {
+        switch(btm) {
+            case 0:
+                return 'V. Weak'
+            case 1:
+                return 'Weak'
+            case 2:
+                return 'Average'
+            case 3:
+                return 'Strong'
+            case 4:
+                return 'V. strong'
+            default:
+                return 'Superhuman'
+        }
+    }
+
+
     return(
         <div className='boxContainer'>
              <div className='outerBox'>
                     <div className='boxLabel'>Save</div>
-                    <div className='boxValue'>{save}</div>
+                    <div className='boxValueFlex'>{save}</div>
                 </div>
                 <div className='outerBox'>
                     <div className='boxLabel'>BTM</div>
                     <div className='boxValue'>
-                        {btm}
-                        {edit && !randomize &&
-                            <ValueChanger onChange={updateCharacterBTM} baseValue={btm}/>
-                        }
+                        <div className='boxValueFlex'>
+                            {-1 * btm}
+                            {edit && !randomize &&
+                                <ValueChanger onChange={updateCharacterBTM} baseValue={btm}/>
+                            }
+                        </div>
                     </div>
+                    <div className='btmLabel'>{btmByValue(btm)}</div>
                 </div>
                 {!edit && <div className='withMoreLeftSpace'>
                     <div className='dmgTakenOuterbox'>
@@ -1070,11 +1091,11 @@ export interface CharacterSheetProps extends UpdateCharacterAndLogs{
     allSkills?: Skill[]
     editCharacter?: (c: Character) => void
     allowAddingToInitiative: boolean
-    setNameInSearch: (n: string) => void
+    updateCharacterList: () => Promise<void>
 }
 
 
-const CharacterSheet = ({setNameInSearch, edit, character, allSkills, updateLogs, updateCharacter, editCharacter, allowAddingToInitiative}: CharacterSheetProps) => {
+const CharacterSheet = ({edit, character, allSkills, updateLogs, updateCharacter, editCharacter, allowAddingToInitiative}: CharacterSheetProps) => {
     const editCharacterInForm = (newCharacter: Character, isValid: boolean) => 
         editCharacter && isValid && editCharacter(newCharacter)
     
@@ -1086,7 +1107,6 @@ const CharacterSheet = ({setNameInSearch, edit, character, allSkills, updateLogs
         const newCharacter: Character = {name: newName, ...rest}
 
         editCharacterInForm(newCharacter, true)
-        setNameInSearch(newName)
     }
 
     const updateCharacterRole = (newRole: string) => {
@@ -1146,12 +1166,15 @@ const CharacterSheet = ({setNameInSearch, edit, character, allSkills, updateLogs
         }
 
         const createCharacterAndLog = () => 
-            createCharacter(createReq).then(updateLogs)
+            createCharacter(createReq).then(res => {
+                updateLogs(res.logs)
+                updateCharacter(res.charId)
+            })
         return (
             <div className='withLeftSpace'>
                 <button 
                 onClick={() => {
-                    createCharacterAndLog().then(() => setNameInSearch(character.name)).then(() => updateCharacter(character.id))
+                    createCharacterAndLog()
                 }} 
                 disabled={!saveCharacterFormValid()}
                 className='withLeftSpace'>
