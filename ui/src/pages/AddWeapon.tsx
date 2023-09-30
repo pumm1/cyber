@@ -26,6 +26,23 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
     const [weight, setWeight] = useState(1)
     const [customRange, setCustomRange] = useState<number | undefined>(undefined)
 
+    const emptyForm = () => {
+        setItem('')
+        setDiceNum(1)
+        setDie(6)
+        setDmgBonus(0)
+        setDivideBy(1)
+        setClipSize(1)
+        setReliabilty(Reliability.Standard)
+        setHumanityCost(0)
+        setWa(0)
+        setEffectRadius(0)
+        setCon(Con.Pocket)
+        setRof(1)
+        setWeight(1)
+        setCustomRange(undefined)
+    }
+
     const updateDiceNum = (v: number) => updateNumWithLowerLimit(v, 1, setDiceNum)
     const updateDie = (v: number) => updateNumWithLowerLimit(v, 1, setDie)
     const updateDmgBonus = (v: number) => updateNumWithLowerLimit(v, 0, setDmgBonus)
@@ -88,7 +105,7 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
             </tr>
             <tr>
                 <td>
-                    <button onClick={() => addWeapon(addWeaponReq).then(updateLogsAndCharacter)}>Add</button>
+                    <button onClick={() => addWeapon(addWeaponReq).then(updateLogsAndCharacter).then(emptyForm)}>Add</button>
                 </td>
                 <td>
                     <input className='inputField' value={item} onChange={e => setItem(e.target.value)}/>

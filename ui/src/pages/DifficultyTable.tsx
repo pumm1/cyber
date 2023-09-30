@@ -71,7 +71,7 @@ const underStress: Difficulty = {
 }
 
 const underAttack: Difficulty = {
-    label: 'Under attac',
+    label: 'Under attack',
     added: true,
     difficulty: '3 to 4'
 }

@@ -35,6 +35,18 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
     const [skillBonus, setSkillBonus] = useState(0)
     const [humanityCost, setHumanityCost] = useState(0)
 
+    const emptyForm = () => {
+        setItem('')
+        setDescription('')
+        setAttributeBonuses([])
+        setSkillBonuses([])
+        setAtr(Attribute.INT)
+        setAtrBonus(0)
+        setSkillId(1)
+        setSkillBonus(0)
+        setHumanityCost(0)
+    }
+
     const setInitialBonuses = () => {
         setAttributeBonuses([])
         setSkillBonuses([])
@@ -80,7 +92,7 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
             </tr>
             <tr>
                 <td>
-                    <button onClick={() => addChrome(addChromeReq).then(updateLogsAndCharacter).then(setInitialBonuses)}>Add</button>
+                    <button onClick={() => addChrome(addChromeReq).then(updateLogsAndCharacter).then(setInitialBonuses).then(emptyForm)}>Add</button>
                 </td>
                 <td>
                     <input className='inputField' value={item} onChange={e => setItem(e.target.value)}/>

@@ -25,6 +25,20 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
     const [skillBonus, setSkillBonus] = useState(0)
     const [humanityCost, setHumanityCost] = useState(0)
 
+    const emptyForm = () => {
+        setItem('')
+        setSP(0)
+        setBodyParts([])
+        setEv(0)
+        setAttributeBonuses([])
+        setSkillBonuses([])
+        setAtr(Attribute.INT)
+        setAtrBonus(0)
+        setSkillId(1)
+        setSkillBonus(0)
+        setHumanityCost(0)
+    }
+
     const updateSP = (v: number) => updateNumWithLowerLimit(v, 1, setSP)
     const updateHumanityCost = (v: number) => updateNumWithLowerLimit(v, 0, setHumanityCost)
 
@@ -77,7 +91,7 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
                 <th>(Opt. HL)</th>
             </tr>
             <tr>
-                <td><button disabled={bodyParts.length <= 0} onClick={() => addArmor(addArmorReq).then(updateLogsAndCharacter)}>Add</button></td>
+                <td><button disabled={bodyParts.length <= 0} onClick={() => addArmor(addArmorReq).then(updateLogsAndCharacter).then(emptyForm)}>Add</button></td>
                 <td>
                     <input className='inputField' value={item} onChange={e => setItem(e.target.value)}/>
                 </td>
