@@ -6,11 +6,10 @@ import Hideable from './Hideable'
 export interface ListInitiativeProps {
     updateLogs: (l: Log[]) => void
     initiatives: Initiative[]
-    setInitiatives: (i: Initiative[]) => void
+    updateInitiatives: () => Promise<void>
 }
 
-const ListInitiative = ({updateLogs, setInitiatives, initiatives}: ListInitiativeProps) => {
-    const updateInitiatives = () => listInitiative().then(setInitiatives)
+const ListInitiative = ({updateLogs, initiatives, updateInitiatives}: ListInitiativeProps) => {
     /**
      when using python as backend, one might end up in a weird race condition.
      now this app fetches all the skills initially and we could already fetch also the initaitives.
@@ -25,8 +24,8 @@ const ListInitiative = ({updateLogs, setInitiatives, initiatives}: ListInitiativ
         <div className='initiatives'>
             Initiatives
             <button className='updateButton' onClick={() => updateInitiatives()}>Update</button>
-            {initiatives.length > 0 && <button className='updateButton' onClick={() => advanceCombatSeq().then(updateLogs).then(() => updateInitiatives())}>Advance combat</button>}
-            {initiatives.length > 0 && <button className='updateButton' onClick={() => clearCombatSeq().then(updateLogs).then(() => updateInitiatives())}>Clear initiatives</button>}
+            {initiatives.length > 0 && <button className='updateButton' onClick={() => advanceCombatSeq().then(() => updateInitiatives())}>Advance combat</button>}
+            {initiatives.length > 0 && <button className='updateButton' onClick={() => clearCombatSeq().then(() => updateInitiatives())}>Clear initiatives</button>}
             <table>
                 <tr>
                     <th>Name</th>

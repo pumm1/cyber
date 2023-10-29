@@ -334,12 +334,16 @@ def fetchCharacter(name):
     else:
         character.info()
 
-def rollInitiativeByCharacterId(char_id):
+def rollInitiativeByCharacterId(char_id, initiative=None):
     character = DAO.getCharacterById(char_id)
     if character is not None:
         init_bonus = character.initiativeBonus
         ref = character.attributes[REF]
-        (roll, _) = dice.rollWithCrit(True)
+        roll = 0
+        if initiative is None:
+            (roll, _) = dice.rollWithCrit(True)
+        else:
+            roll = initiative
         res = roll + ref + init_bonus
         print(f'Initiative roll for {character.name} = {res} [roll = {roll} initiative_bonus = {init_bonus}, REF = {ref}]')
 

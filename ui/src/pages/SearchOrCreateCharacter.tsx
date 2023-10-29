@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { getCharacter , Character, listSkills, Log, Attributes, CharacterSP, Skill, Initiative, CharacterShort, listCharacters, sortedCharacters, deleteCharacter} from './CyberClient'
+import { getCharacter , Character, listSkills, Log, Attributes, CharacterSP, Skill, Initiative, CharacterShort, listCharacters, sortedCharacters, deleteCharacter, AddToCombatReq, rollInitiative, addToCombat} from './CyberClient'
 import './SearchCharacter.css'
 import React from "react"
 import CharacterSheet from "./CharacterSheet"
@@ -51,6 +51,7 @@ const characterToCreate: Character = {
 interface SearchCharacterProps {
     initiatives: Initiative[]
     updateLogs: (s: Log[]) => void
+    updateInitiatives: () => Promise<void>
 }
 
 interface ListCharactersProps {
@@ -58,9 +59,53 @@ interface ListCharactersProps {
     setCharacterById: (i: number) => Promise<void>
     updateLogs: (l: Log[]) => void
     setAllCharacters: (c: CharacterShort[]) => void
+    initiatives: Initiative[]
+    updateInitiatives: () => Promise<void>
+    updateCharacterList: () => Promise<void>
 }
 
-const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharacters}: ListCharactersProps) => {
+interface CharacterListRowProps {
+    character: CharacterShort
+    setCharacterById: (i: number) => void
+    addToCombatReq: (i: number, ini: number) => AddToCombatReq
+    updateCharIni: (i: number, ini: number) => void
+    removeCharacter: (i: number) => Promise<Log[]>
+    updateLogs: (l: Log[]) => void
+    updateCharacters: () => void
+    updateInitiatives: () => void
+    isAlreadyInCombat: (i: number) => boolean
+}
+const CharacterListRow = ({character: c, isAlreadyInCombat, setCharacterById, addToCombatReq, updateCharIni, removeCharacter, updateLogs, updateCharacters, updateInitiatives}: CharacterListRowProps) => {
+    const [initiative, setInitiative] = useState<number | undefined>(undefined)
+
+    return(
+        <tr>
+                        <td>{c.name}</td>
+                        <td>{c.role}</td>
+                        <td>
+                            <span>
+                                <input className='valueBox' type="text" onChange={e => setInitiative(parseInt(e.target.value))}/>
+                                <button onClick={() => rollInitiative({charId: c.id, initiative}).then(i => updateCharIni(c.id, i))}>Roll</button> 
+                            </span>
+                           </td>
+                        <td>{c.initiative ?? ''}</td>
+                        <td>
+                            <button onClick={() => c.initiative && addToCombat(addToCombatReq(c.id, c.initiative)).then(() => updateInitiatives())} disabled={!c.initiative || isAlreadyInCombat(c.id)}>
+                                Add
+                            </button></td>
+                        <td>
+                            <button onClick={() => setCharacterById(c.id)}>Show</button>
+                        </td>
+                        <td>
+                        <button onClick={() => {
+                                removeCharacter(c.id).then(updateLogs).then(() => updateCharacters())
+                            }}>Delete</button>  
+                        </td>
+                    </tr>    
+    )
+}
+
+const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharacters, initiatives, updateInitiatives, updateCharacterList}: ListCharactersProps) => {
     const [nameFilter, setNameFilter] = useState('')
     const charactersSorted = sortedCharacters(characters)
     const filteredCharacters = 
@@ -73,29 +118,46 @@ const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharact
     const updateCharacters = () => 
         listCharacters().then(setAllCharacters)
 
+    const addToCombatReq = (charId: number, initiative: number): AddToCombatReq => {
+        return {
+            charId,
+            initiative
+        }
+    }
+
+    const updateCharIni = (charId: number, init: number) => {
+        const updatedCharacters = characters.map(c => {
+            if (charId === c.id) {
+                const res: CharacterShort = {initiative: init, ...c}
+                console.log(`${init} and res ${JSON.stringify(res)}`)
+                return res
+            } else {
+                return c
+            }
+        })
+
+        setAllCharacters(updatedCharacters)
+    }
+
+    const isAlreadyInCombat = (charId: number): boolean =>
+        !!initiatives.find(i => i.charId === charId)
+
     const characterTable = 
         <>
             <input placeholder='Search by...' className='filter' value={nameFilter} onChange={e => setNameFilter(e.target.value)}/>
+            <button className='withLeftSpace' onClick={() => updateCharacterList()}>Reset</button>
             <table>
                     <tr>
                     <th>Name</th>
                     <th>Role</th>
+                    <th>Roll ini.</th>
+                    <th>Initiative</th>
+                    <th>Add to combat</th>
                     <th>Show</th>
                     <th>Remove</th>
                 </tr>
                 {filteredCharacters.map(c => 
-                    <tr>
-                        <td>{c.name}</td>
-                        <td>{c.role}</td>
-                        <td>
-                            <button onClick={() => setCharacterById(c.id)}>Show</button>
-                        </td>
-                        <td>
-                        <button onClick={() => {
-                                removeCharacter(c.id).then(updateLogs).then(() => updateCharacters())
-                            }}>Delete</button>  
-                        </td>
-                    </tr>    
+                    <CharacterListRow character={c} isAlreadyInCombat={isAlreadyInCombat} updateCharacters={updateCharacters} updateLogs={updateLogs} removeCharacter={removeCharacter} updateCharIni={updateCharIni} updateInitiatives={updateInitiatives} setCharacterById={setCharacterById} addToCombatReq={addToCombatReq}/>
                 )}
             </table>
         </>
@@ -106,7 +168,7 @@ const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharact
     )
 }
 
-const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps) => {
+const SearchOrCreateCharacter = ({updateLogs, initiatives, updateInitiatives}: SearchCharacterProps) => {
     const [characterEditable, setCharacterEditable] = useState(false)
     const [character, setCharacter] = useState<undefined | null | Character>(undefined)
     const [allSkills, setAllSkills] = useState<Skill[] | undefined>(undefined)
@@ -144,7 +206,7 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives}: SearchCharacterProps
     //why using form breaks this in backend?
     return(
         <>
-            <ListCharacters characters={allCharacters ?? []} setCharacterById={setCharacterFn} updateLogs={updateLogs} setAllCharacters={setAllCharacters}/>
+            <ListCharacters updateCharacterList={updateCharacterList} updateInitiatives={updateInitiatives} initiatives={initiatives} characters={allCharacters ?? []} setCharacterById={setCharacterFn} updateLogs={updateLogs} setAllCharacters={setAllCharacters}/>
             <div className="search">
                 <button className='searchOrCreate' onClick={() => createCharacter()}>Create</button>
                 {character && <button className='searchOrCreate' onClick={() => setCharacter(undefined)}>Hide character</button>}

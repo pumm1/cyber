@@ -181,6 +181,7 @@ export interface CharacterShort {
     id: number
     name: string
     role: string
+    initiative?: number
 }
 
 export interface Character extends CharacterShort{
@@ -427,7 +428,11 @@ export interface AddRepReq extends CharacterReq {
 export const addReputation = (r: AddRepReq) =>
     postDataAs<Log[]>(`${pathBase}/add-reputation`, r)
 
-export const rollInitiative = (r: CharacterReq) =>
+export interface RollInitiativeReq extends CharacterReq {
+    initiative?: number
+}
+
+export const rollInitiative = (r: RollInitiativeReq) =>
     postDataAs<number>(`${pathBase}/roll-initiative`, r)
 
 export interface UpdateMoneyReq extends CharacterReq {

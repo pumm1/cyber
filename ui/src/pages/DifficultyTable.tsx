@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import './DifficultyTable.css'
 import Hideable from './Hideable'
 
 interface Difficulty {

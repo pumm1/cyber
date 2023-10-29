@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-
+import './Hideable.css'
 export interface HideableProps {
     text: string
     props: JSX.Element
@@ -10,7 +10,7 @@ const Hideable = ({text, props}: HideableProps) => {
 
     return(
         <div>
-            <button onClick={() => {
+            <button className='hideable' onClick={() => {
                     setShow(!show)
                 }}>{show ? 'Hide' : 'Show'} {text}</button>
             {show && props}
