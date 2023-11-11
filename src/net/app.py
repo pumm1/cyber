@@ -96,7 +96,8 @@ def rollInitiative():
     if request.method == post:
         data = request.get_json()
         char_id = data['charId']
-        return jsonify(game.rollInitiativeByCharacterId(char_id))
+        initiative = data.get('initiative', None)
+        return jsonify(game.rollInitiativeByCharacterId(char_id, initiative))
     else:
         return "Invalid request", 400
 

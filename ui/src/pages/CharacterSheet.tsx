@@ -1048,13 +1048,8 @@ interface HandleProps {
 
 const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, allowAddingToInitiative}: HandleProps) => {
     const [initiative, setInitiative] = useState(0)
-    const [addedToCombat, setAddedToCombat] = useState(false)
+    const [addedToCombat, setAddedToCombat] = useState(!allowAddingToInitiative)
     const [nameEditable, setNameEditable] = useState(false)
-
-    const addToCombatReq: AddToCombatReq = {
-        charId: characterId ?? 0,
-        initiative,
-    }
 
     const rollInitiativeRoll: CharacterReq = {
         charId: characterId ?? 0
@@ -1068,13 +1063,6 @@ const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, all
             <span className='fieldContent'>
                 <label>Handle</label>
                 <input disabled={!edit && !nameEditable} className='fieldValue' value={value} onChange={e => onUpdate(e.target.value)} />
-                {characterId &&
-                    <>
-                        <button className='withLeftSpace' onClick={() => rollInitiative(rollInitiativeRoll).then(setInitiative)}>Roll initiative</button>
-                        <button className='withLeftSpace' onClick={() => addToCombat(addToCombatReq).then(updateLogsAndCharacter).then(() => setAddedToCombat(true))} disabled={addedToCombat || !allowAddingToInitiative || initiative <= 0}>Add to combat</button>
-                        <input className='valueBox' value={initiative} onChange={e => setInitiative(parseInt(e.target.value) || 0)}/>
-                    </>
-                }
             </span>
             {characterId && <span>
                 <input type='checkbox' checked={nameEditable} onClick={() => setNameEditable(!nameEditable)}/> Edit handle
