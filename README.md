@@ -52,7 +52,7 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 * Install python 3.10+
   * Python dependencies:
     - colorama
-    - psycopg2
+    - psycopg
     - Flask
     - Flask-Cors
     
