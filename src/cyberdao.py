@@ -161,17 +161,16 @@ def getCharacterByName(name: str):
     return char
 
 def listCharacters() -> list[CharacterShort]:
+    characters = []
     with conn.cursor() as cur:
-        with conn.transaction():
-            cur.execute(
-                f""" {select_from} {table_characters};"""
-            )
-            rows = cur.fetchall()
-            characters = map(lambda c_row: (
-                CharacterShort(c_row)
-            ), rows)
-
-        return characters
+        cur.execute(
+            f""" {select_from} {table_characters};"""
+        )
+        rows = cur.fetchall()
+        characters = map(lambda c_row: (
+            CharacterShort(c_row)
+        ), rows)
+    return characters
 
 
 def updateCharacterIp(character_id, ip_amount):
@@ -241,8 +240,8 @@ def listCombatInitiative(ascending: bool):
     if ascending:
         ordering = 'ASC'
 
-    with conn.cursor() as cur:
-        with conn.transaction():
+    with conn.transaction():
+        with conn.cursor() as cur:
             cur.execute(
                 f"""{select_from} {table_combat_session} cs 
                     JOIN {table_characters} c ON cs.character_id = c.id
@@ -251,7 +250,7 @@ def listCombatInitiative(ascending: bool):
             )
             rows = cur.fetchall()
 
-        return rows
+            return rows
 
 
 def addCharacterToCombat(character, initiative):
@@ -402,8 +401,6 @@ def getSkillById(id):
 
 
 def skillsFromRows(skill_rows):
-    for skill in skill_rows:
-        print(f'... skill row: {skill}')
     skills = map(lambda skill: (
         skill['id'], skill
     ), skill_rows)
@@ -488,14 +485,14 @@ def updateCharacterName(character_id, name):
             )
 
 def listSkillsByAttribute(atr: str):
+    skills = []
     with conn.cursor() as cur:
-        with conn.transaction():
-            cur.execute(
-                f"""{skills_q} WHERE attribute = '{atr.upper()}';"""
-            )
-            skill_rows = cur.fetchall()
-            skills = skillsFromRows(skill_rows)
-        return skills
+        cur.execute(
+            f"""{skills_q} WHERE attribute = '{atr.upper()}';"""
+        )
+        skill_rows = cur.fetchall()
+        skills = skillsFromRows(skill_rows)
+    return skills
 
 
 def getSkillByName(skill_name):
@@ -512,14 +509,14 @@ def getSkillByName(skill_name):
 
 
 def listSkills():
+    skills = []
     with conn.cursor() as cur:
-        with conn.transaction():
-            cur.execute(
-                f"""{skills_q};"""
-            )
-            skill_rows = cur.fetchall()
-            skills = skillsFromRows(skill_rows)
-        return skills
+        cur.execute(
+            f"""{skills_q};"""
+        )
+        skill_rows = cur.fetchall()
+        skills = skillsFromRows(skill_rows)
+    return skills
 
 
 def addArmor(character_id, item, sp, body_parts, ev, atr_dict: dict, skill_bonuses: list = []):
@@ -683,6 +680,7 @@ def addEvent(event):
 
 
 def listEvents():
+    rows = []
     with conn.cursor() as cur:
         with conn.transaction():
             cur.execute(
@@ -690,7 +688,7 @@ def listEvents():
             )
             rows = cur.fetchall()
 
-        return rows
+    return rows
 
 
 def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, divide_by,

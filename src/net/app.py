@@ -366,14 +366,14 @@ def removeChrome():
         return "Invalid request", 400
 
 
-@app.route('/list-initiative', methods = [get])
+@app.route('/list-initiative', methods=[get])
 def initiativeOrder():
     if request.method == get:
         return jsonify(game.combatInitiativeOrder())
     else:
         return "Invalid request", 400
 
-@app.route('/add-to-combat', methods = [post])
+@app.route('/add-to-combat', methods=[post])
 def addToCombat():
     if request.method == post:
         data = request.get_json()

@@ -265,7 +265,7 @@ const SkillsByAttribute = ({attribute, skills, characterSkills, character, updat
     }
     
     return(
-        <span key={attribute}>
+        <span key={attribute + character.id}>
             <b>{attribute}</b>
             {skills.filter(s => s.attribute === attribute).map(s => <SkillRowByCharacterSkills roll={roll} updateLogsAndCharacter={updateLogsAndCharacter} modifier={modifier} skill={s} characterSkills={characterSkills} charId={character.id} updateCharacter={updateCharacter}/>)}
          </span>
@@ -560,20 +560,22 @@ const CharacterRangedWeapons = (
 ) => {
     return (
         <table>
-            <tr>
-                <th>Ranged weapon</th>
-                <th>Type</th>
-                <th>DMG</th>
-                <th>Rel.</th>
-                <th>Action</th>
-                <th>Attack Type</th>
-                <th>Attack Range</th>
-                <th>(Opt. targets)</th>
-                <th>(Opt. #shots)</th>
-                <th>(Opt. Roll)</th>
-                <th>(Opt. Modifier)</th>
-                <th>Remove</th>
-            </tr>
+            <tbody>
+                <tr>
+                    <th>Ranged weapon</th>
+                    <th>Type</th>
+                    <th>DMG</th>
+                    <th>Rel.</th>
+                    <th>Action</th>
+                    <th>Attack Type</th>
+                    <th>Attack Range</th>
+                    <th>(Opt. targets)</th>
+                    <th>(Opt. #shots)</th>
+                    <th>(Opt. Roll)</th>
+                    <th>(Opt. Modifier)</th>
+                    <th>Remove</th>
+                </tr>
+            </tbody>
             {weapons.map(w => 
                 <RangedWeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} updateCharacter={updateCharacter} />
             )}
@@ -583,7 +585,6 @@ const CharacterRangedWeapons = (
 
 const MeleeWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponProps) => {
     const isMelee = weaponIsMelee(weapon)
-    const defaultAttackType = isMelee ? AttackType.Melee : AttackType.Single
     //ammoinfo for weapons with e.g. charges - electric baton etc.
     const ammoInfo = weapon.clipSize <= 1 ? '' : `(${weapon.shotsLeft} / ${weapon.clipSize})`
     const canBeReloaded: boolean = weapon.clipSize > 1
@@ -637,44 +638,46 @@ const MeleeWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Weap
         </span>
 
     return (
-        <tr>
-            <td>{weapon.item}</td>
-            <td><Dmg weapon={weapon} /></td>
-            <td>{weapon.reliability}</td>
-            <td>
-                <span className='attackMod'>
-                    <button className='withLessRightSpace' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
-                        setAttackModifier(0)
-                        setGivenRoll(0)
-                    })}>
-                        Attack
-                    </button>
-                    {canBeReloaded && 
-                        <button className='withLessRightSpace' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}>
-                            Reload
+        <tbody>
+            <tr>
+                <td>{weapon.item}</td>
+                <td><Dmg weapon={weapon} /></td>
+                <td>{weapon.reliability}</td>
+                <td>
+                    <span className='attackMod'>
+                        <button className='withLessRightSpace' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
+                            setAttackModifier(0)
+                            setGivenRoll(0)
+                        })}>
+                            Attack
                         </button>
-                    }
-                </span>
-            </td>
-            <td>
-                <button onClick={() => rollMeleeDmg(meleeDmgRollReq).then(updateLogsAndCharacter)}>Roll DMG</button>
-            </td>
-            <td><AttackMethods /></td>
-            <td>{ammoInfo}</td>
-            <td>
-                <span className='attackMod'>
-                    <input value={givenRoll} className='valueBox' onChange={e => updateGivenRoll(parseInt(e.target.value))}/>
-                </span>
-            </td>
-            <td>
-                <span className='attackMod'>
-                    {attackModifier} <ValueChanger onChange={updateModifier} baseValue={attackModifier} />
-                </span>
-            </td>
-            <td>
-                <button disabled={weapon.item === 'unarmed'} onClick={() => removeWeapon(removeWeaponReq).then(updateLogsAndCharacter)}>Remove</button>
-            </td>
-        </tr>
+                        {canBeReloaded && 
+                            <button className='withLessRightSpace' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}>
+                                Reload
+                            </button>
+                        }
+                    </span>
+                </td>
+                <td>
+                    <button onClick={() => rollMeleeDmg(meleeDmgRollReq).then(updateLogsAndCharacter)}>Roll DMG</button>
+                </td>
+                <td><AttackMethods /></td>
+                <td>{ammoInfo}</td>
+                <td>
+                    <span className='attackMod'>
+                        <input value={givenRoll} className='valueBox' onChange={e => updateGivenRoll(parseInt(e.target.value))}/>
+                    </span>
+                </td>
+                <td>
+                    <span className='attackMod'>
+                        {attackModifier} <ValueChanger onChange={updateModifier} baseValue={attackModifier} />
+                    </span>
+                </td>
+                <td>
+                    <button disabled={weapon.item === 'unarmed'} onClick={() => removeWeapon(removeWeaponReq).then(updateLogsAndCharacter)}>Remove</button>
+                </td>
+            </tr>
+        </tbody>
     )
 }
 
@@ -683,18 +686,20 @@ const CharacterMeleeWeapons = (
 ) => {
     return(
         <table>
-            <tr>
-                <th>Melee weapon</th>
-                <th>DMG</th>
-                <th>Reliability</th>
-                <th>Action</th>
-                <th>Roll DMG</th>
-                <th>Attack methods</th>
-                <th>(Opt. Shots left)</th>
-                <th>(Opt. Roll)</th>
-                <th>(Opt. Modifier)</th>
-                <th>Remove</th>
-            </tr>
+            <tbody>
+                <tr>
+                    <th>Melee weapon</th>
+                    <th>DMG</th>
+                    <th>Reliability</th>
+                    <th>Action</th>
+                    <th>Roll DMG</th>
+                    <th>Attack methods</th>
+                    <th>(Opt. Shots left)</th>
+                    <th>(Opt. Roll)</th>
+                    <th>(Opt. Modifier)</th>
+                    <th>Remove</th>
+                </tr>
+            </tbody>
             {weapons.map(w => 
                 <MeleeWeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} updateCharacter={updateCharacter} />
             )}
@@ -740,12 +745,14 @@ const ArmorRow = ({armor, characterId, updateLogsAndCharacter}: ArmorRowProps) =
 const CharacterArmor = ({armors, updateLogsAndCharacter, characterId}: CharacterArmorProps) => {
     return(
         <table>
-            <tr>
-                <th>Armor</th>
-                <th>SP</th>
-                <th>Covers</th>
-                <th>Remove</th>
-            </tr>
+            <tbody>
+                <tr>
+                    <th>Armor</th>
+                    <th>SP</th>
+                    <th>Covers</th>
+                    <th>Remove</th>
+                </tr>
+            </tbody>
             {armors.map(a => <ArmorRow key={'armor' + a.id} characterId={characterId} armor={a} updateLogsAndCharacter={updateLogsAndCharacter}/>)}
         </table>
     )
@@ -1043,17 +1050,10 @@ interface HandleProps {
     edit: boolean
     onUpdate: (n: string) => void
     updateLogsAndCharacter: (l: Log[]) => void
-    allowAddingToInitiative: boolean
 }
 
-const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, allowAddingToInitiative}: HandleProps) => {
-    const [initiative, setInitiative] = useState(0)
-    const [addedToCombat, setAddedToCombat] = useState(!allowAddingToInitiative)
+const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter}: HandleProps) => {
     const [nameEditable, setNameEditable] = useState(false)
-
-    const rollInitiativeRoll: CharacterReq = {
-        charId: characterId ?? 0
-    }
 
     const updateName = (charId: number) => 
         updateCharacterName({charId, name: value})
@@ -1181,7 +1181,7 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
 
     return(
         <div className='sheet'>
-            <Handle allowAddingToInitiative={allowAddingToInitiative} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
+            <Handle updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
             {edit && <><input type="checkbox" checked={randomize} onClick={() => setRandomize(!randomize)}/> Randomize</>}
             <RoleFiled updateChracterRole={updateCharacterRole} edit={editWithRandomize} value={character.role}/>
              <Stats characterId={character.id} edit={edit} updateCharacter={updateCharacter} updateLogs={updateLogs} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>

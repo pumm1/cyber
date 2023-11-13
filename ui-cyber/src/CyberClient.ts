@@ -1,5 +1,3 @@
-import { get } from "http"
-
 const pathBase = "http://127.0.0.1:5000" //TODO: some env?
 
 const fetchData = (path: string) =>

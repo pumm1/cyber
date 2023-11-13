@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import './Hideable.css'
+
 export interface HideableProps {
     text: string
     props: JSX.Element

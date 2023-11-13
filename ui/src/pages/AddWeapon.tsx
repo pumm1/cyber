@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
-import { AddWeaponReq, Con, Log, Reliability, WeaponType, addWeapon } from './CyberClient'
-import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import './AddWeapon.css'
+import { AddWeaponReq, Con, Log, Reliability, WeaponType, addWeapon } from './CyberClient'
 import Hideable from './Hideable'
+import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 
 interface AddWeaponProps {
     characterId: number
