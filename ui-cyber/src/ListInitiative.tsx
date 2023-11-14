@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import { Initiative, Log, advanceCombatSeq, clearCombatSeq, listInitiative } from './CyberClient'
+import { Initiative, advanceCombatSeq, clearCombatSeq } from './CyberClient'
 import './ListInitiative.css'
 import Hideable from './Hideable'
 

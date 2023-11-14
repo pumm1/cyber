@@ -1,5 +1,5 @@
-import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, addToCombat, AddToCombatReq, AddRepReq, addReputation, rollInitiative, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName } from './CyberClient'
-import React, { useState } from "react"
+import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, AddRepReq, addReputation, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName } from './CyberClient'
+import { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
