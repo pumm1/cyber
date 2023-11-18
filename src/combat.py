@@ -12,7 +12,7 @@ from gameHelper import stunPenalty, body_part_body, body_part_head, body_part_l_
     t_heavy_weapon, printColorLine, printRedLine, printGreenLine, coloredText, t_smg
 from skills import skillBonusForSkill, skill_athletics
 from logger import Log, log_neg, log_pos, log_neutral, log_event
-from weapon import Weapon
+from weapon import Weapon, manualWeaponFromReq
 from colorama import Fore, Style
 
 def weaponsByAttackType(attack_type, weapons):
@@ -388,74 +388,88 @@ def handleFullAuto(character, wep, skill_bonus, skill, attack_range=0, num_of_ta
                 if num_of_targets > 0:
                     break
         ref_bonus = character.attributes[REF]
-        range_bonus = math.ceil(num_of_shots / 10)
-        shots_per_target = math.floor(num_of_shots / num_of_targets)
 
         shots_left_after_firing = wep.shots_left - num_of_shots
-
-        targets_hit = 0
-        total_hits = 0
         #test one roll for whole full auto attack
         if roll <= 0:
             roll = dice.resolveAutoOrManualRollWithCrit(auto_roll=auto_roll, skip_luck=skip_luck)
-        roll_total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa
-        for target in range(num_of_targets):
-            t = target + 1
-            logs = log_event(logs, f'Rolling attack for target {t} / {num_of_targets}', log_neutral)
-            if attack_range <= 0:
-                print(f'Give range for target {t}:')
-                while True:
-                    i = askInput()
-                    attack_range = safeCastToInt(i)
-                    if attack_range > 0:
-                        break
+        roll_total = roll + ref_bonus + skill_bonus + modifiers_total + wep.wa
+        full_auto_logs = fullAutoRoll(roll_total, wep, skill, skill_bonus, roll, ref_bonus, attack_range, num_of_targets, num_of_shots, modifiers_total, auto_roll, skip_luck)
+        logs = logs + full_auto_logs
 
-            if modifiers_total is None:
-                modifiers_total = modifiersForTarget(t)
-            target_total_dmg = 0
-            (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
-            if not (r == close_range_str or r == point_blank_range_str):
-                range_bonus = -1 * range_bonus
-            #last minus is balancing test. more targts = more sway in aiming
-            sway_balance = 3 * target
-            range_penalty = math.floor(num_of_shots / 10)
-            roll_total = roll_total - sway_balance - range_penalty
-            num_of_hits = 0
-            logs = log_event(
-                logs,
-                f'{rollToBeatStr(roll_to_beat, roll_total)} '
-                f'[roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), range bonus = {range_bonus}, WA = {wep.wa}, range_penalty={range_penalty}, target sway_balance = {sway_balance}]',
-                log_neutral
-            )
-
-            if roll_total >= roll_to_beat:
-                targets_hit = targets_hit + 1
-                num_of_hits = roll_total - roll_to_beat
-                if num_of_hits >= shots_per_target:
-                    num_of_hits = shots_per_target
-                if num_of_hits <= 0:
-                    num_of_hits = 1
-
-                total_hits = total_hits + num_of_hits
-
-                logs = log_event(logs, f'Target {t} hit {num_of_hits} times!', log_pos)
-
-                for i in range(num_of_hits):
-                    (dmg, dmg_logs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
-                    logs = logs + dmg_logs
-                    target_total_dmg = target_total_dmg + dmg
-                logs = log_event(logs, f'Total dmg done to target [{t}]: {target_total_dmg}', log_pos)
-
-            else:
-                logs = log_event(logs, f'Full auto missed target {t}!', log_neg)
-
-            DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
-        logs = log_event(logs, f'{num_of_shots} shots fired in full auto with {wep.item} hitting {total_hits} times', log_neutral)
+        DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
     else:
         logs = log_event(logs, f"Can't attack with {wep.item} [{wep.shots_left} / {wep.clip_size}]", log_neg)
 
     return logs
 
+
+def weaponToolResultFromReq(roll_total, weapon_type, wa, attack_range, num_of_targets=1, num_of_shots=1):
+    wep = manualWeaponFromReq(weapon_type=weapon_type, rof=50, wa=wa, clip_size=50, shots_left=50, custom_range=None)
+    logs = fullAutoRoll(roll_total, wep, '<manual check>', roll=roll_total,
+                 attack_range=attack_range, num_of_targets=num_of_targets, num_of_shots=num_of_shots,
+                 modifiers_total=0, auto_roll=True, skip_luck=True)
+    return logs
+
+
+#TODO: think about some balancing changes?
+def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, attack_range=0, num_of_targets=0, num_of_shots=0, modifiers_total=None, auto_roll=False, skip_luck=False) -> list[Log]:
+    logs = []
+    total_hits = 0
+    targets_hit = 0
+    range_bonus = math.ceil(num_of_shots / 10)
+    shots_per_target = math.floor(num_of_shots / num_of_targets)
+    for target_num in range(num_of_targets):
+        t = target_num + 1
+        logs = log_event(logs, f'Rolling attack for target {t} / {num_of_targets}', log_neutral)
+        if attack_range <= 0:
+            print(f'Give range for target {t}:')
+            while True:
+                i = askInput()
+                attack_range = safeCastToInt(i)
+                if attack_range > 0:
+                    break
+
+        if modifiers_total is None:
+            modifiers_total = modifiersForTarget(t)
+        target_total_dmg = 0
+        (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
+        if not (r == close_range_str or r == point_blank_range_str):
+            range_bonus = -1 * range_bonus
+        # last minus is balancing test. more targts = more sway in aiming
+        sway_balance = 3 * target_num
+        range_penalty = math.floor(num_of_shots / 10)
+        roll_total = roll_total - sway_balance - range_penalty + range_bonus
+        num_of_hits = 0
+        logs = log_event(
+            logs,
+            f'{rollToBeatStr(roll_to_beat, roll_total)} '
+            f'[roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), range bonus = {range_bonus}, WA = {wep.wa}, range_penalty={range_penalty}, target sway_balance = {sway_balance}]',
+            log_neutral
+        )
+
+        if roll_total >= roll_to_beat:
+            targets_hit = targets_hit + 1
+            num_of_hits = roll_total - roll_to_beat
+            if num_of_hits >= shots_per_target:
+                num_of_hits = shots_per_target
+            if num_of_hits <= 0:
+                num_of_hits = 1
+
+            total_hits = total_hits + num_of_hits
+
+            logs = log_event(logs, f'Target {t} hit {num_of_hits} times!', log_pos)
+
+            for i in range(num_of_hits):
+                (dmg, dmg_logs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
+                logs = logs + dmg_logs
+                target_total_dmg = target_total_dmg + dmg
+            logs = log_event(logs, f'Total dmg done to target [{t}]: {target_total_dmg}', log_pos)
+            logs = log_event(logs, f'{num_of_shots} shots fired in full auto with {wep.item} hitting {total_hits} times', log_neutral)
+
+        else:
+            logs = log_event(logs, f'Full auto missed target {t}!', log_neg)
+    return logs
 
 def rollToBeatStr(to_beat, total):
     return f'[roll to beat ({to_beat}) vs total ({total})]'

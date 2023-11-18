@@ -493,3 +493,15 @@ export interface UpdateCharNameReq extends CharacterReq {
 
 export const updateCharacterName = (c: UpdateCharNameReq) => 
     postDataAs<Log[]>(`${pathBase}/update-name`, c)
+
+export interface ManualWeaponRollReq {
+    rollTotal: number
+    weaponType: WeaponType,
+    wa: number,
+    attackRange: number,
+    targets: number
+    shots: number
+}
+
+export const manualWeaponRoll = (r: ManualWeaponRollReq) =>
+    postDataAs<Log[]>(`${pathBase}/manual-weapon-roll`, r)

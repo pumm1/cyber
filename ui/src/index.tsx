@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
+import WeaponTool from './WeaponTool';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -15,8 +16,12 @@ const router = createBrowserRouter([
     element: <App/>
   },
   {
-    path: "/test",
-    element: <div>toinen sivu</div>
+    path: "/weapon-tool",
+    element: <WeaponTool />
+  },
+  {
+    path: '*',
+    element: <div>Not found</div>
   }
 ])
 
