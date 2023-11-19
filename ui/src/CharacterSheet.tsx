@@ -433,7 +433,7 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
     const ammoInfo = isMelee ? '' : `(${weapon.shotsLeft} / ${weapon.clipSize})`
     const [attackType, setAttackType] = useState<AttackType>(defaultAttackType)
     const isFullAuto: boolean = weaponIsGun && weapon.rof >= 3
-    const isShotgunOrAutomatic = weaponIsGun && weapon.weaponType === WeaponType.Shotgun || weapon.rof >= 3
+    const isShotgunOrAutomatic = (weaponIsGun && weapon.weaponType === WeaponType.Shotgun )|| weapon.rof >= 3
     const defaultTargets = isShotgunOrAutomatic ? 1 : undefined
     const [targets, setTargets] = useState<number | undefined>(defaultTargets)
     const defaultShotsFired = isFullAuto ? 1 : undefined
@@ -584,7 +584,6 @@ const CharacterRangedWeapons = (
 }
 
 const MeleeWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: WeaponProps) => {
-    const isMelee = weaponIsMelee(weapon)
     //ammoinfo for weapons with e.g. charges - electric baton etc.
     const ammoInfo = weapon.clipSize <= 1 ? '' : `(${weapon.shotsLeft} / ${weapon.clipSize})`
     const canBeReloaded: boolean = weapon.clipSize > 1
@@ -1139,7 +1138,7 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
     }
 
     const roleAndNameIsValid = (): boolean =>
-        character.role != '' && character.name != ''
+        character.role !== '' && character.name !== ''
 
     const saveCharacterFormValid = (): boolean =>
         randomize ? true : edit && characterAttributesValid(character) && roleAndNameIsValid()
