@@ -62,6 +62,7 @@ def getCharacterRowByName(name: str):
             f"""{character_q} WHERE c.name = '{name}';"""
         )
         char_row = cur.fetchone()
+        conn.commit()
     return char_row
 
 
@@ -71,6 +72,7 @@ def getCharcaterRowById(id):
             f"""{character_q} WHERE c.id = {id};"""
         )
         char_row = cur.fetchone()
+        conn.commit()
 
         return char_row
 
@@ -166,6 +168,7 @@ def listCharacters() -> list[CharacterShort]:
         characters = map(lambda c_row: (
             CharacterShort(c_row)
         ), rows)
+        conn.commit()
     return characters
 
 
@@ -176,6 +179,7 @@ def updateCharacterIp(character_id, ip_amount):
            SET ip = ip + {ip_amount}
            WHERE id = {character_id};"""
         )
+        conn.commit()
 
 
 def updateCharacterMoney(character_id, money):
@@ -185,6 +189,7 @@ def updateCharacterMoney(character_id, money):
             SET money = {money}
             WHERE id = {character_id};"""
         )
+        conn.commit()
 
 
 def healCharacter(character_id, new_dmg_taken):
@@ -194,6 +199,7 @@ def healCharacter(character_id, new_dmg_taken):
             SET dmg_taken = {new_dmg_taken}
             WHERE id = {character_id};"""
         )
+        conn.commit()
 
 
 def characterSpById(character_id):
@@ -203,6 +209,7 @@ def characterSpById(character_id):
                             """
         )
         sp_row = cur.fetchone()
+        conn.commit()
 
         return sp_row
 
@@ -214,6 +221,7 @@ def addReputation(character_id, info, rep_level):
             f"""{insert} {table_reputation} (character_id, known_for, rep_level)
                 VALUES ({character_id}, '{info}', {rep_level});"""
         )
+        conn.commit()
 
 
 def getReputationRows(character_id):
@@ -222,6 +230,7 @@ def getReputationRows(character_id):
             f'{select_from} {table_reputation} where character_id = {character_id};'
         )
         rows = cur.fetchall()
+        conn.commit()
         return rows
 
 
@@ -238,6 +247,7 @@ def listCombatInitiative(ascending: bool):
                 """
         )
         rows = cur.fetchall()
+        conn.commit()
 
         return rows
 
@@ -248,6 +258,7 @@ def addCharacterToCombat(character, initiative):
             f"""{insert} {table_combat_session} (character_id, initiative, current)
                             VALUES ('{character}', {initiative}, {False});"""
         )
+        conn.commit()
 
 
 def clearCombat():
@@ -255,6 +266,7 @@ def clearCombat():
         cur.execute(
             f"""{delete_from} {table_combat_session};"""
         )
+        conn.commit()
 
 
 def resetCurrentOrder():
@@ -262,6 +274,7 @@ def resetCurrentOrder():
         cur.execute(
             f"""{update} {table_combat_session} SET current = {False} WHERE current = {True};"""
         )
+        conn.commit()
 
 
 def setNextInOrder(character_id):
@@ -269,6 +282,7 @@ def setNextInOrder(character_id):
         cur.execute(
             f"""{update} {table_combat_session} SET current = {True} WHERE character_id = '{character_id}';"""
         )
+        conn.commit()
 
 
 def dmgCharacterSP(character_id, body_part):
@@ -278,6 +292,7 @@ def dmgCharacterSP(character_id, body_part):
                 WHERE character_id = {character_id};
                             """
         )
+        conn.commit()
 
 
 def dmgCharacter(character_id, dmg):
@@ -285,17 +300,19 @@ def dmgCharacter(character_id, dmg):
         cur.execute(
             f"""{update} {table_characters} SET dmg_taken = dmg_taken + {dmg} WHERE id = {character_id};"""
         )
+        conn.commit()
 
 
 def updateCharSkill(char_id, skill_row, value):
     with conn.cursor() as cur:
         cur.execute(
             f"""{insert} {table_character_skills} (character_id, skill_id, skill_lvl)
-                            VALUES ({char_id}, {skill_row['id']}, {value})
-                            ON CONFLICT(character_id, skill_id)
-                            DO
-                                UPDATE SET skill_lvl = cyberpunk.character_skills.skill_lvl + {value};"""
+                VALUES ({char_id}, {skill_row['id']}, {value})
+                ON CONFLICT(character_id, skill_id)
+                DO
+                UPDATE SET skill_lvl = cyberpunk.character_skills.skill_lvl + {value};"""
         )
+        conn.commit()
 
 
 def updateCharSpecial(char_id, role, value):
@@ -310,6 +327,7 @@ def updateCharSpecial(char_id, role, value):
                                 initiative_bonus = initiative_bonus + {initiative_bonus_added}
                             WHERE id = {char_id};"""
         )
+        conn.commit()
 
 
 
@@ -321,12 +339,11 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
     with conn.cursor() as cur:
         cur.execute(
             f"""{insert} {table_characters} 
-                                (name, role, special_ability, body_type_modifier, humanity, ip, initiative_bonus,
-                                atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken, emp_max)
-                                VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10}, 0, {initiative_bonus},
-                                {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0, {atr_emp})
-                                RETURNING id;
-                            """
+            (name, role, special_ability, body_type_modifier, humanity, ip, initiative_bonus,
+            atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken, emp_max)
+            VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10}, 0, {initiative_bonus},
+            {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0, {atr_emp})
+            RETURNING id;"""
         )
         new_char = cur.fetchone()
 
@@ -348,6 +365,7 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
                             ({new_char['id']}, 'unarmed', 'melee', false, 1, 6, 0, 1, 1, 1, 1, 0, 0, 'P', 'ST', 0, 1);
                             """
         )
+        conn.commit()
     character_id = new_char['id']
     print(f'Character {name} ({role}) added to game')
     return character_id
@@ -378,6 +396,7 @@ def getSkillById(id):
         row = cur.fetchone()
         if row is None:
             print(f'Skill not found by id = {id}')
+        conn.commit()
         return row
 
 
@@ -396,6 +415,7 @@ def skillsByFuzzyLogic(string: str):
         )
         rows = cur.fetchall()
         skills = skillsFromRows(rows)
+        conn.commit()
         return skills
 
 
@@ -405,6 +425,7 @@ def skillByName(s_name: str):
             f"{skills_q} WHERE skill = '{s_name}';"
         )
         skill = cur.fetchone()
+        conn.commit()
         return skill
 
 
@@ -452,6 +473,7 @@ def getCharacterSkillsById(id) -> list[SkillInfo]:
             else:
                 t_skill.updateSkill(skill.lvl)
                 skill_dict[skill.id] = t_skill
+    conn.commit()
 
     return skill_dict.values()
 
@@ -460,6 +482,7 @@ def updateCharacterName(character_id, name):
         cur.execute(
             f"""{update} {table_characters} SET name = '{name}' WHERE id = {character_id};"""
         )
+        conn.commit()
 
 def listSkillsByAttribute(atr: str):
     skills = []
@@ -469,6 +492,7 @@ def listSkillsByAttribute(atr: str):
         )
         skill_rows = cur.fetchall()
         skills = skillsFromRows(skill_rows)
+        conn.commit()
     return skills
 
 
@@ -481,6 +505,7 @@ def getSkillByName(skill_name):
 
         if skill_row is None:
             print(f'Skill not found by name {skill_name}')
+        conn.commit()
         return skill_row
 
 
@@ -492,6 +517,7 @@ def listSkills():
         )
         skill_rows = cur.fetchall()
         skills = skillsFromRows(skill_rows)
+    conn.commit()
     return skills
 
 
@@ -510,7 +536,7 @@ def addArmor(character_id, item, sp, body_parts, ev, atr_dict: dict, skill_bonus
         )
         for body_part in body_parts:
             updateCharacterMaxSp(character_id, body_part, sp)
-
+        conn.commit()
         return item_bonus_id
 
 
@@ -541,7 +567,7 @@ def insertItemBonusesReturningBonusId(atr_bonuses_dict: dict, skill_bonuses: lis
                     VALUES ({bonus_id}, {skill_bonus.skill_id}, {skill_bonus.bonus})
                     """
             )
-
+    conn.commit()
     return bonus_id
 
 
@@ -555,7 +581,7 @@ def getItemSkillBonuses(bonus_id):
             """
         )
         skill_bonus_rows = cur.fetchall()
-
+    conn.commit()
     return skill_bonus_rows
 
 
@@ -570,6 +596,7 @@ def getItemAtrBonuses(bonus_id):
             """
         )
         atr_bonuses = cur.fetchone()
+        conn.commit()
         return atr_bonuses
 
 
@@ -588,6 +615,7 @@ def getCharacterArmors(character_id):
         for row in rows:
             armor = Armor(row)
             armors.append(armor)
+    conn.commit()
     return armors
 
 
@@ -602,6 +630,7 @@ def getCharacterChrome(character_id):
             WHERE character_id = {character_id};"""
         )
         rows = cur.fetchall()
+        conn.commit()
         cybernetics = []
         for row in rows:
             chrome = Chrome(row)
@@ -617,24 +646,25 @@ def repairCharacterSP(character_id):
                 WHERE character_id = {character_id};
                 """
         )
+        conn.commit()
 
 
 def updateCharacterMaxSp(character_id, body_part, amount):
     with conn.cursor() as cur:
         cur.execute(
             f"""{update} {table_character_sp} SET {body_part}_max = {body_part}_max + {amount}, {body_part} = {body_part} + {amount}
-                            WHERE character_id = {character_id};
-                            """
+            WHERE character_id = {character_id};
+            """
         )
+        conn.commit()
 
 
 def changeHumanityAndEmp(character_id, humanity, emp):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{update} {table_characters} SET humanity = {humanity}, atr_emp = {emp}
-                               WHERE id = {character_id};
-                           """
+            f"""{update} {table_characters} SET humanity = {humanity}, atr_emp = {emp} WHERE id = {character_id};"""
         )
+        conn.commit()
 
 
 def addEvent(event):
@@ -642,6 +672,7 @@ def addEvent(event):
         cur.execute(
             f"""{insert} {table_events} (event) VALUES ('{event}');"""
         )
+        conn.commit()
 
 
 def listEvents():
@@ -651,6 +682,7 @@ def listEvents():
             f"""{select_from} {table_events};"""
         )
         rows = cur.fetchall()
+        conn.commit()
 
     return rows
 
@@ -667,6 +699,7 @@ def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg,
                 {rof}, {clip_size}, {clip_size}, {effect_radius}, {wa}, '{con}', '{reliability}', {weight});
             """
         )
+        conn.commit()
 
 
 def addChrome(character_id, item, humanity_cost, description, item_bonus_id: int | None, atr_dict,
@@ -681,6 +714,7 @@ def addChrome(character_id, item, humanity_cost, description, item_bonus_id: int
             VALUES ({character_id}, '{item}', {humanity_cost}, '{description}', {item_bonus_id});
             """
         )
+        conn.commit()
 
 
 def getWeaponById(weapon_id):
@@ -689,6 +723,7 @@ def getWeaponById(weapon_id):
             f"""{character_weapons_q} WHERE id = {weapon_id}"""
         )
         row = cur.fetchone()
+        conn.commit()
         weapon = None
         if row is None:
             print(f'Weapon not found by id = {weapon_id}')
@@ -703,6 +738,7 @@ def updateShotsInClip(wpn_id, shots_in_clip):
         cur.execute(
             f"""{update} {table_character_weapons} SET shots_left = {shots_in_clip} WHERE id = {wpn_id};"""
         )
+        conn.commit()
 
 
 def deleteThrown(wpn_id):
@@ -710,6 +746,7 @@ def deleteThrown(wpn_id):
         cur.execute(
             f"""{delete_from} {table_character_weapons} WHERE id = {wpn_id};"""
         )
+        conn.commit()
 
 
 def characterWeapons(character_id, body: int) -> list:
@@ -717,6 +754,7 @@ def characterWeapons(character_id, body: int) -> list:
         cur.execute(
             f"""{character_weapons_q} WHERE character_id = {character_id};"""
         )
+        conn.commit()
         rows = cur.fetchall()
 
         def weaponMapFn(w):
@@ -748,6 +786,7 @@ def characterEV(character_id) -> int:
             """
         )
         rows = cur.fetchall()
+        conn.commit()
         evs = map(lambda a: (
             a['ev']
         ), rows)
@@ -762,6 +801,7 @@ def getArmorById(character_id, id):
             f"""{character_armors_with_bonuses_q} WHERE armor_id = {id} AND character_id = {character_id};"""
         )
         row = cur.fetchone()
+        conn.commit()
         if row is None:
             print(f'Armor not found by armor_id {id} for character {character_id}')
         return row
@@ -785,6 +825,7 @@ def deleteCharacter(c: Character):
         cur.execute(
             f'{delete_from} {table_characters} WHERE id = {c.id};'
         )
+        conn.commit()
 
 
 def deleteCharacterArmor(character_id, armor_id):
@@ -823,6 +864,7 @@ def deleteCharacterArmor(character_id, armor_id):
                     WHERE id = {item_bonus_id};
                     """
             )
+            conn.commit()
 
 
 def deleteCharacterWeapon(character_id, weapon_id):
@@ -850,6 +892,7 @@ def deleteCharacterWeapon(character_id, weapon_id):
                        {delete_from} {table_item_bonuses}
                        WHERE id = {item_bonus_id};
                        """)
+                conn.commit()
 
 
 def deleteCharacterChrome(character_id, chrome_id):
@@ -896,6 +939,7 @@ def deleteCharacterChrome(character_id, chrome_id):
                     f"""{delete_from} {table_character_chrome} 
                             WHERE character_id = {character_id} AND chrome_id = {chrome_id}"""
                 )
+                conn.commit()
 
 
 def addCharacterStatus(character_id, status, effect):
@@ -904,6 +948,7 @@ def addCharacterStatus(character_id, status, effect):
             f"""{insert} {table_character_statuses} (character_id, status, effect)
                 VALUES ({character_id}, '{status}', '{effect}');"""
         )
+        conn.commit()
     print('Status added')
 
 
@@ -914,6 +959,7 @@ def getCharacterStatuses(character_id):
                             WHERE character_id = {character_id};"""
         )
         rows = cur.fetchall()
+        conn.commit()
 
         statuses = map(lambda row: (
             Status(row)
@@ -928,6 +974,7 @@ def removeStatus(status_id, character_id):
             WHERE id = {status_id} AND character_id = {character_id};
             """
         )
+        conn.commit()
         print('Status removed')
 
 
@@ -937,6 +984,7 @@ def addCharacterForQuickNoticeCheck(character_id, name):
             f"""{insert} {table_character_quick_notice} (character_id)
                             VALUES ({character_id});"""
         )
+        conn.commit()
         print(f'{coloredText(Fore.GREEN, name)} added to quick notice check')
 
 
@@ -946,6 +994,7 @@ def charactersForQuickNoticeCheck():
             f"""{select_from} {table_character_quick_notice};"""
         )
         rows = cur.fetchall()
+        conn.commit()
 
         characters = []
         for row in rows:
@@ -959,4 +1008,5 @@ def clearQuickNoticeCheck():
         cur.execute(
             f"""{delete_from} {table_character_quick_notice};"""
         )
+        conn.commit()
         print(f'Quick notice checks cleared')

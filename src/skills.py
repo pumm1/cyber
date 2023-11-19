@@ -203,7 +203,7 @@ def listAllSkills():
     all_skills = allSkills()
     printSkillInfo(all_skills)
 
-def udpateCharacterSkill(character, skill_id, lvl_up_amount) -> [Log]:
+def udpateCharacterSkill(character, skill_id, lvl_up_amount) -> list[Log]:
     event_logs = []
     t_skill = safeCastToInt(skill_id)
     if t_skill >= 0:
@@ -214,10 +214,19 @@ def udpateCharacterSkill(character, skill_id, lvl_up_amount) -> [Log]:
                 event_logs.append(special_log.toJson())
             else:
                 skill = DAO.getSkillById(skill_id)
+                char_skills: list[SkillInfo] = character.skills
+                curr_skill_lvl = 0
+                for s in char_skills:
+                    if s.id == skill_id:
+                        curr_skill_lvl = s.lvl
+                can_update = curr_skill_lvl + lvl_up_amount <= 10
                 if skill is not None:
-                    DAO.updateCharSkill(character.id, skill, lvl_up_amount)
-                    skill_updated_log = Log(f"Skill {skill['skill']} (+{lvl_up_amount}) updated for {character.name}", log_pos)
-                    event_logs.append(skill_updated_log.toJson())
+                    if can_update:
+                        DAO.updateCharSkill(character.id, skill, lvl_up_amount)
+                        skill_updated_log = Log(f"Skill {skill['skill']} (+{lvl_up_amount}) updated for {character.name}", log_pos)
+                        event_logs.append(skill_updated_log.toJson())
+                    else:
+                        event_logs.append(Log("Skill can't get above 10", log_neg).toJson())
                 else:
                     not_found_log = Log(f'Skill not found by id ({skill_id})', log_neg)
                     event_logs.append(not_found_log.toJson())
