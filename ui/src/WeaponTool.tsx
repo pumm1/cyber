@@ -5,13 +5,12 @@ import LogViewer from './LogViewer'
 //TODO: set parameters
 const WeaponTool = ({}) => {
     const [wa, setWa] = useState(0)
-    const [attackRange, setAttackRange] = useState(1)
     const [weaponType, setWeaponType] = useState<WeaponType>(WeaponType.SMG)
     const [logs, setLogs] = useState<Log[]>([])
     const [rollTotal, setRollTotal] = useState(1)
     const [targets, setTargets] = useState(1)
     const [shots, setShots] = useState(1)
-    const [range, setRange] = useState(1)
+    const [attackRange, setAttackRange] = useState(1)
     const addToLogs = (l: Log) => 
         setLogs(logs.concat(l))
     const req: ManualWeaponRollReq = {
@@ -68,7 +67,7 @@ const WeaponTool = ({}) => {
                         <input className='valueBox' onChange={e => setTargets(parseInt(e.target.value) || 0)} value={targets}/>
                     </td>
                     <td>
-                        <input className='valueBox' onChange={e => setRange(parseInt(e.target.value) || 0)} value={range}/>
+                        <input className='valueBox' onChange={e => setAttackRange(parseInt(e.target.value) || 0)} value={attackRange}/>
                     </td>
                     <td>
                         <button className="btn" onClick={() => wepRoll()}>Roll</button>
