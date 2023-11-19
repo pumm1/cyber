@@ -204,8 +204,8 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives, skills, updateInitiat
         <>
             <ListCharacters updateCharacters={updateCharacterList} updateCharacterList={updateCharacterList} updateInitiatives={updateInitiatives} initiatives={initiatives} characters={allCharacters ?? []} setCharacterById={setCharacterFn} updateLogs={updateLogs} setAllCharacters={setAllCharacters}/>
             <div className="search">
-                <button className='searchOrCreate' onClick={() => createCharacter()}>Create</button>
-                {character && <button className='searchOrCreate' onClick={() => setCharacter(undefined)}>Hide character</button>}
+                <button onClick={() => createCharacter()}>Create</button>
+                {character && <button className='withLeftSpace' onClick={() => setCharacter(undefined)}>Hide character</button>}
             </div>
             {!!character &&
                  <div><CharacterSheet updateCharacterList={updateCharacterList} allowAddingToInitiative={allowAddingToInitiative} editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>

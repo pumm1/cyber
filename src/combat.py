@@ -405,10 +405,18 @@ def handleFullAuto(character, wep, skill_bonus, skill, attack_range=0, num_of_ta
 
 
 def weaponToolResultFromReq(roll_total, weapon_type, wa, attack_range, num_of_targets=1, num_of_shots=1):
+    logs = []
     wep = manualWeaponFromReq(weapon_type=weapon_type, rof=50, wa=wa, clip_size=50, shots_left=50, custom_range=None)
-    logs = fullAutoRoll(roll_total, wep, '<manual check>', roll=roll_total,
-                 attack_range=attack_range, num_of_targets=num_of_targets, num_of_shots=num_of_shots,
-                 modifiers_total=0, auto_roll=True, skip_luck=True)
+
+    if num_of_shots == 3:
+        logs = burstRoll(roll_total, attack_range=attack_range, shots_fired=3, shots_left=50, wep=wep,
+                         skill='<manual check>', roll=0, auto_roll=True)
+    elif num_of_shots > 3:
+        logs = fullAutoRoll(roll_total, wep, '<manual check>', roll=roll_total,
+                            attack_range=attack_range, num_of_targets=num_of_targets, num_of_shots=num_of_shots,
+                            modifiers_total=0, auto_roll=True, skip_luck=True)
+    else:
+        logs = [] #TODO
     return logs
 
 
@@ -471,6 +479,35 @@ def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, att
             logs = log_event(logs, f'Full auto missed target {t}!', log_neg)
     return logs
 
+
+def burstRoll(roll_total, attack_range, shots_fired, shots_left, wep, skill, roll, skill_bonus=0, ref_bonus=0, auto_roll=False) -> [Log]:
+    logs = []
+    (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
+    if roll_total >= roll_to_beat:
+        hits = 1
+        if roll_total - roll_to_beat > 4:
+            hits = 3
+        elif roll_total - roll_to_beat > 2:
+            hits = 2
+
+        if shots_fired < 3 and hits == 3:
+            hits = shots_left
+        total_dmg = 0
+        logs = log_event(logs, f'{hits} hits to target!', log_pos)
+        attack_info_str = f"""
+    Character selected {wep.item} for BURST fire [weapon range = {wep.range}m]
+    (total = {roll_total} vs roll to beat {roll_to_beat} - roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})
+                    """
+        logs = log_event(logs, attack_info_str, log_neutral)
+        for i in range(hits):
+            (dmg, hitLogs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
+            logs = logs + hitLogs
+            total_dmg = total_dmg + dmg
+        logs = log_event(logs, f'Total dmg done to target: {total_dmg}', log_pos)
+    else:
+        logs = log_event(logs, f'Burst attack misses target!', log_neg)
+    return logs
+
 def rollToBeatStr(to_beat, total):
     return f'[roll to beat ({to_beat}) vs total ({total})]'
 
@@ -504,27 +541,10 @@ def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill, mo
         shots_left_after_firing = wep.shots_left - shots_fired
 
         total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa
-        print(rollToBeatStr(roll_to_beat, total))
-        if total >= roll_to_beat:
-            hits = dice.roll(1, 6, divide_by=2)
-            if shots_fired < 3 and hits == 3:
-                hits = shots_left
-            total_dmg = 0
-            logs = log_event(logs, f'{hits} hits to target!', log_pos)
-            attack_info_str = f"""
-{character.name} selected {wep.item} [weapon range = {wep.range}m]
-(total = {total} vs roll to beat {roll_to_beat} - roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})
-                """
-            logs = log_event(logs, attack_info_str, log_neutral)
-            for i in range(hits):
-                (dmg, hitLogs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
-                logs = logs + hitLogs
-                total_dmg = total_dmg + dmg
-            logs = log_event(logs, f'Total dmg done to target: {total_dmg}', log_pos)
-        else:
-            logs = log_event(logs, f'Burst attack misses target!', log_neg)
+        burst_logs = burstRoll(roll_total=total, attack_range=attack_range, shots_fired=shots_fired, shots_left=shots_left,
+                         wep=wep, skill=skill, roll=roll, skill_bonus=skill_bonus, ref_bonus=ref_bonus, auto_roll=auto_roll)
+        logs = logs + burst_logs
         DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
-
     else:
         logs = log_event(logs, f"Unable to do burst attack with {wep.item} ({wep.weapon_type}) [{wep.shots_left} / {wep.clip_size}] ROF: {wep.rof}", log_neg)
 
@@ -860,7 +880,7 @@ def stunCheck(c: Character) -> list[Log]:
         logs = log_event(logs, rollStunOverActingEffect(c.name), log_neg)
     else:
         logs = log_event(logs, f"{c.name} wasn't stunned!", log_pos)
-    logs = log_event(logs, f'[Stun save against = {save_against} < roll = {roll}]', log_neutral)
+    logs = log_event(logs, f'[Stun save against = {save_against} > roll = {roll}]', log_neutral)
     return logs
 
 
