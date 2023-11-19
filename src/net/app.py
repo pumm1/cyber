@@ -366,14 +366,14 @@ def removeChrome():
         return "Invalid request", 400
 
 
-@app.route('/list-initiative', methods = [get])
+@app.route('/list-initiative', methods=[get])
 def initiativeOrder():
     if request.method == get:
         return jsonify(game.combatInitiativeOrder())
     else:
         return "Invalid request", 400
 
-@app.route('/add-to-combat', methods = [post])
+@app.route('/add-to-combat', methods=[post])
 def addToCombat():
     if request.method == post:
         data = request.get_json()
@@ -446,3 +446,22 @@ def updateName():
         char_id = data['charId']
         name = data['name']
         return jsonify(game.updateCharacterName(char_id, name))
+    else:
+        return "Invalid request", 400
+
+@app.route('/manual-weapon-roll', methods = [post])
+def manualWeaponCheck():
+    if request.method == post:
+        data = request.get_json()
+        roll_total = data['rollTotal']
+        weapon_type = data['weaponType']
+        wa = data['wa']
+        attack_range = data['attackRange']
+        num_of_targets = data['targets']
+        num_of_shots = data['shots']
+
+        return jsonify(combat.weaponToolResultFromReq(
+            roll_total, weapon_type, wa, attack_range, num_of_targets, num_of_shots
+        ))
+    else:
+        return "Invalid request", 400

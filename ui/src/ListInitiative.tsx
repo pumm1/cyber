@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import { Initiative, Log, advanceCombatSeq, clearCombatSeq, listInitiative } from './CyberClient'
+import { Initiative, advanceCombatSeq, clearCombatSeq } from './CyberClient'
 import './ListInitiative.css'
 import Hideable from './Hideable'
 
 export interface ListInitiativeProps {
-    updateLogs: (l: Log[]) => void
     initiatives: Initiative[]
     updateInitiatives: () => Promise<void>
 }
 
-const ListInitiative = ({updateLogs, initiatives, updateInitiatives}: ListInitiativeProps) => {
+const ListInitiative = ({initiatives, updateInitiatives}: ListInitiativeProps) => {
     /**
      when using python as backend, one might end up in a weird race condition.
      now this app fetches all the skills initially and we could already fetch also the initaitives.
@@ -33,7 +31,7 @@ const ListInitiative = ({updateLogs, initiatives, updateInitiatives}: ListInitia
                     <th>Turn</th>
                 </tr>
                 {initiatives.map((i, idx) => 
-                    <tr>
+                    <tr key={idx}>
                         <td>{i.name}</td>
                         <td>{i.initiative}</td>
                         <td>{i.current ? "This character's turn" : ''}</td>

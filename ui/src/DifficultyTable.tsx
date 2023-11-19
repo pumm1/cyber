@@ -1,4 +1,3 @@
-import React, { useState } from 'react'
 import Hideable from './Hideable'
 
 interface Difficulty {

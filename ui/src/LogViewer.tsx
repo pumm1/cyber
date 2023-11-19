@@ -13,8 +13,8 @@ const LogViewer = ({logs, addToLogs, emptyLogs}: LogViewerProps) => {
     const [input, setInput] = useState<string>('')
     var fieldRef = React.useRef<HTMLInputElement>(null)
 
-    const LogRow = ({log}: {log: Log}) =>
-        <div className={log.logType == LogType.pos ? 'logPos' : log.logType === LogType.neg ? 'logNeg' : 'log'}>
+    const LogRow = ({log, idx}: {log: Log, idx: number}) =>
+        <div key={idx} className={log.logType === LogType.pos ? 'logPos' : log.logType === LogType.neg ? 'logNeg' : 'log'}>
             {'>'} {log.log}
         </div>
 
@@ -34,7 +34,7 @@ const LogViewer = ({logs, addToLogs, emptyLogs}: LogViewerProps) => {
                 {logs.map((log, idx) => {
                     return(
                         <>
-                            <LogRow log={log} />
+                            <LogRow log={log} idx={idx}/>
                             {logsIdxLimit === idx && <div ref={fieldRef}/>}
                         </>
                     )

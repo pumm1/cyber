@@ -3,8 +3,9 @@ import math
 from colorama import Fore
 
 from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handgun, t_smg, t_rifle, t_thrown, BODY, \
-    guns, EMP, point_blank_range_str, close_range_str, medium_range_str, long_range_str, extreme_range_str, \
-    impossible_range_str, askForRoll, all_con, wep_all_reliabilities, yes_no, coloredText
+    guns, point_blank_range_str, close_range_str, medium_range_str, long_range_str, extreme_range_str, \
+    impossible_range_str, askForRoll, all_con, wep_all_reliabilities, yes_no, coloredText, con_pocket, \
+    wep_standard_reliability
 import dice
 import cyberdao as DAO
 from chrome import handleHumanity
@@ -160,6 +161,32 @@ class Weapon:
     def isThrown(self) -> bool:
         return self.weapon_type == t_thrown
 
+def manualWeaponFromReq(weapon_type, wa, rof, clip_size, shots_left, custom_range: int | None, item=None, body=5):
+    row = {
+        'id': 0,
+        'character_id': 0,
+        'item': 'weapon check tool',
+        'weapon_type': weapon_type,
+        'wa': wa,
+        'is_chrome': False,
+        'dice_number': 1,
+        'dice_dmg': 6,
+        'divide_by': 1,
+        'dmg_bonus': 0,
+        'weight': 1,
+        'range': rangeByType(5, weapon_type, custom_range),
+        'custom_range': custom_range,
+        'rof': rof,
+        'clip_size': clip_size,
+        'shots_left': shots_left,
+        'effect_radius': 0,
+        'con': con_pocket,
+        'reliability': wep_standard_reliability
+    }
+
+    return Weapon(row, custom_range)
+
+
 def addCharWeapon(
         char: Character, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None,
         humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None,
@@ -173,7 +200,7 @@ def addCharWeapon(
             weapon_name = askInput()
         if clip_size is None or weapon_t is None:
             (weapon_t, clip_size) = askWeaponType()
-        weapon_range = rangeByType(char, weapon_t, custom_range=custom_range)
+        weapon_range = rangeByType(char.attributes[BODY], weapon_t, custom_range=custom_range)
         is_chrome = False
         if humanity_cost is None:
             is_chrome = askForChrome()
@@ -266,7 +293,7 @@ def removeWeaponByCharacterId(character_id, weapon_id) -> list[Log]:
     return removeWeapon(character, weapon_id)
 
 
-def rangeByType(char, weapon_t, custom_range=None) -> int:
+def rangeByType(body, weapon_t, custom_range=None) -> int:
     range = 1
     if custom_range is not None and custom_range > 0:
         return custom_range
@@ -279,7 +306,6 @@ def rangeByType(char, weapon_t, custom_range=None) -> int:
     elif weapon_t == t_rifle:
         range = 400
     elif weapon_t == t_thrown:
-        body = char.attributes[BODY]
         range = 10 * body
 
     print(f'{weapon_t} range: {range}m')

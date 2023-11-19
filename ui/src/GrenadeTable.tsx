@@ -1,10 +1,8 @@
-import React, { useState } from 'react'
 import Dice from './Dice'
 import './GrenadeTable.css'
 import Hideable from './Hideable'
 
 const GrenadeTable = ({}) => {
-    const [show, changeShow] = useState(false)
     type Grid = number | string
     const grids: Grid[]  = [7, '8 - 10', 9, 5, 'Target', 6, 2, '3 - 1', 4]
 
