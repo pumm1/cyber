@@ -416,7 +416,13 @@ def weaponToolResultFromReq(roll_total, weapon_type, wa, attack_range, num_of_ta
                             attack_range=attack_range, num_of_targets=num_of_targets, num_of_shots=num_of_shots,
                             modifiers_total=0, auto_roll=True, skip_luck=True)
     else:
-        logs = [] #TODO
+        (roll_to_beat, range_str, _) = wep.rollToBeatAndRangeStr(attack_range)
+        info_str = f'[Roll to beat = {roll_to_beat}, range = {range_str}]'
+        if roll_total >= roll_to_beat:
+            log_event(logs, "Hit!", log_pos)
+        else:
+            log_event(logs, "Miss!", log_neg)
+        log_event(logs, info_str, log_neutral)
     return logs
 
 
@@ -425,6 +431,7 @@ def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, att
     logs = []
     total_hits = 0
     targets_hit = 0
+    roll_total = roll_total + wep.wa
     range_bonus = math.ceil(num_of_shots / 10)
     shots_per_target = math.floor(num_of_shots / num_of_targets)
     for target_num in range(num_of_targets):
@@ -483,6 +490,7 @@ def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, att
 def burstRoll(roll_total, attack_range, shots_fired, shots_left, wep, skill, roll, skill_bonus=0, ref_bonus=0, auto_roll=False) -> [Log]:
     logs = []
     (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
+    roll_total = roll_total + wep.wa
     if roll_total >= roll_to_beat:
         hits = 1
         if roll_total - roll_to_beat > 4:
