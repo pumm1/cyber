@@ -36,6 +36,7 @@ const App = ({}) => {
     <div className='main'>
       <h1>Welcome to the NET</h1>
       <div className='container'>
+        <a href='/weapon-tool'><button className='btn'>Weapon tool</button></a>
         <ListInitiative initiatives={initiatives} updateInitiatives={updateInitiatives}/>
         <SearchOrCreateCharacter skills={allSkills} updateInitiatives={updateInitiatives} initiatives={initiatives} updateLogs={updateLogs}/>
         <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogs}/>

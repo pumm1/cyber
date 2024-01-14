@@ -35,6 +35,7 @@ const WeaponTool = ({}) => {
     return( 
         <div className="main">
             <h1>Weapon tool</h1>
+            <a href='/'><button>Back to Characters</button></a>
             <table>
                 <tr>
                     <th>Roll total</th>
