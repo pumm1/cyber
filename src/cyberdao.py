@@ -1,3 +1,4 @@
+import sys
 from collections import defaultdict
 import psycopg
 from colorama import Fore
@@ -5,7 +6,8 @@ from colorama import Fore
 from cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
     table_events, table_character_chrome, table_character_statuses, table_character_quick_notice, \
-    table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus, table_character_notice_rolls
+    table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus, table_character_notice_rolls, \
+    table_system_version, expected_system_version
 from character import Character, CharacterShort
 from skill import SkillInfo
 from armor import Armor
@@ -46,14 +48,26 @@ character_statuses_q = f'{select_from} {table_character_statuses}'
 skills_q = f'{select_from} {table_skills}'
 
 
+def check_system_version():
+    with conn.cursor() as cur:
+        row = cur.execute(f'{select_from} {table_system_version}').fetchone()
+        conn.commit()
+
+        version = row['version']
+        if version != expected_system_version:
+            print(f'System version is set wrong. Got {version}, but expected {expected_system_version}')
+            sys.exit()
+        else:
+            print(f'System version is up to date')
+
+
 def getAllCharacters():
     with conn.cursor() as cur:
         rows = cur.execute(character_q).fetchall()
         # cleaned_rows = clean_fetch_all(rows)
-        print(f'rows fetched: {rows}')
+        #print(f'rows fetched: {rows}')
         conn.commit()
         return rows
-
 
 
 def getCharacterRowByName(name: str):
@@ -75,7 +89,6 @@ def getCharcaterRowById(id):
         conn.commit()
 
         return char_row
-
 
 
 def getCharacter(char_row) -> Character | None:

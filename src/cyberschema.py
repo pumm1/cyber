@@ -30,6 +30,10 @@ password = secrets['DB_PASSWORD']
 host = secrets['DB_HOST']
 schema = secrets['DB_SCHEMA']
 
+#Remember to update this when adding new schema update
+expected_system_version = 2
+table_system_version = f'{schema}.system_version'
+
 table_characters = f'{schema}.characters'
 table_character_skills = f'{schema}.character_skills'
 table_skills = f'{schema}.skills'
@@ -46,3 +50,8 @@ table_item_bonuses = f'{schema}.item_bonuses'
 table_item_atr_bonuses = f'{schema}.item_atr_bonuses'
 table_item_skill_bonus = f'{schema}.item_skill_bonus'
 table_character_notice_rolls = f'{schema}.character_notice_rolls'
+table_campaigns = f'{schema}.campaigns'
+table_gigs = f'{schema}.gigs'
+table_gig_characters = f'{schema}.gig_characters'
+table_events = f'{schema}.events'
+table_event_characters = f'{schema}.event_characters'

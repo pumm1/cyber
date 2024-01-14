@@ -18,13 +18,16 @@ sys.path.append(parent)
 
 # now we can import the module in the parent
 # directory.
-import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip, weapon, chrome, notice
+import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip, weapon, chrome, notice, cyberdao
 
 app = Flask(__name__)
 CORS(app)
 
 post = 'POST'
 get = 'GET'
+
+
+cyberdao.check_system_version()
 
 @app.route('/test')
 def hello():

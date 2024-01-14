@@ -6,6 +6,7 @@ import SearchOrCreateCharacter from './SearchOrCreateCharacter';
 import LogViewer from './LogViewer';
 import GrenadeTable from './GrenadeTable';
 import DifficultyTable from './DifficultyTable';
+import Navbar from './Navbar';
 
 const App = ({}) => {
   const [logs, setLogs] = useState<Log[]>([])
@@ -34,9 +35,9 @@ const App = ({}) => {
 
   return (
     <div className='main'>
+      <Navbar />
       <h1>Welcome to the NET</h1>
       <div className='container'>
-        <a href='/weapon-tool'><button className='btn'>Weapon tool</button></a>
         <ListInitiative initiatives={initiatives} updateInitiatives={updateInitiatives}/>
         <SearchOrCreateCharacter skills={allSkills} updateInitiatives={updateInitiatives} initiatives={initiatives} updateLogs={updateLogs}/>
         <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogs}/>
