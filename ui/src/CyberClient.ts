@@ -505,3 +505,12 @@ export interface ManualWeaponRollReq {
 
 export const manualWeaponRoll = (r: ManualWeaponRollReq) =>
     postDataAs<Log[]>(`${pathBase}/manual-weapon-roll`, r)
+
+export interface Campaign {
+    id: number
+    name: string
+    info?: string
+}
+
+export const fetchCampaigns = () => 
+    fetchDataAs<Campaign[]>(`${pathBase}/campaigns`)

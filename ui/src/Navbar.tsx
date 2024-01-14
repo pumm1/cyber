@@ -7,6 +7,7 @@ const Navbar = ({}) =>
             <ul>
                 <li><NavLink to="/">Home</NavLink></li>
                 <li><NavLink to="/weapon-tool">Weapon tool</NavLink></li>
+                <li><NavLink to="/campaigns">Campaigns</NavLink></li>
             </ul>
         </div>
     </nav>

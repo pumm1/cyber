@@ -468,3 +468,10 @@ def manualWeaponCheck():
         ))
     else:
         return "Invalid request", 400
+
+@app.route('/campaigns', methods = [get])
+def fetchCampaigns():
+    if request.method == get:
+        return jsonify([])
+    else:
+        return "Invalid request", 400
