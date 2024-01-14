@@ -506,11 +506,17 @@ export interface ManualWeaponRollReq {
 export const manualWeaponRoll = (r: ManualWeaponRollReq) =>
     postDataAs<Log[]>(`${pathBase}/manual-weapon-roll`, r)
 
-export interface Campaign {
-    id: number
+export interface AddCampaignReq {
     name: string
     info?: string
 }
 
+export interface Campaign extends AddCampaignReq{
+    id: number
+}
+
 export const fetchCampaigns = () => 
     fetchDataAs<Campaign[]>(`${pathBase}/campaigns`)
+
+export const addCampaign = (c: AddCampaignReq) => 
+    postDataAs<Log[]>(`${pathBase}/add-campaign`, c)

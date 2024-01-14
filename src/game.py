@@ -9,8 +9,8 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     character_helper_str, roll_help_str, stun_check_str, stun_check_help_str, dmg_str, safeCastToInt, dmg_helper_str, \
     roll_all_str, roll_atr_str, list_skills_str, list_skills_helper_str, lvl_up_skill_str, lvl_up_skill_help_str, \
     fumble_str, fumble_help_str, jam_str, jam_help_str, add_armor_str, add_armor_help_str, add_reputation_help_str, \
-    list_rep_str, l_rep_help_str, add_event_str, add_weapon_str, add_weapon_help_str, attack_str, attack_help_str, \
-    reload_str, reload_help_str, attack_type_single, attack_type_burst, attack_type_full_auto, list_event_str, \
+    list_rep_str, l_rep_help_str, add_weapon_str, add_weapon_help_str, attack_str, attack_help_str, \
+    reload_str, reload_help_str, attack_type_single, attack_type_burst, attack_type_full_auto, \
     add_chrome_str, add_chrome_help_str, attack_type_melee, melee_dmg_str, melee_dmg_help_str, \
     suppressive_fire_def_help_str, suppressive_fire_def_str, askForRoll, medical_check_str, medical_check_help_str, \
     repair_sp_str, repair_sp_help_str, remove_armor_str, remove_armor_help_str, add_status_str, add_status_help_str, \
@@ -19,7 +19,7 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     notice_roll_str, notice_roll_help_str, add_character_for_notice_str, add_character_for_notice_help_str, \
     clear_notice_str, REF, EMP
 from characterBuilder import createCharacter
-import fumble, armor, events, weapon, chrome, dice, cyberdao as DAO
+import fumble, armor, weapon, chrome, dice, cyberdao as DAO
 import healing
 import status
 import notice
@@ -198,10 +198,6 @@ def start():
                     combat.handleMeleeDmgByCharacterName(attacker_name, dmg)
                 case _:
                     print(f'{melee_dmg_help_str}')
-        elif command.startswith(add_event_str):
-            events.addEvent()
-        elif command.startswith(list_event_str):
-            events.listEvents()
         elif command.startswith(add_weapon_str):
             match command_parts:
                 case [_, name]:
@@ -622,8 +618,6 @@ def help(param):
 {lvl_up_skill_help_str}
 - {fieldName('Add reputation for character')}:
 {add_reputation_help_str}
-- {fieldName('New event log')}:
-{add_event_str}
 - {fieldName('Add weapon for character')}:
 {add_weapon_help_str}
 - {fieldName('Add chrome (not used as a weapon) for character')}:

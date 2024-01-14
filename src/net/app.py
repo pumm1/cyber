@@ -18,7 +18,8 @@ sys.path.append(parent)
 
 # now we can import the module in the parent
 # directory.
-import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip, weapon, chrome, notice, cyberdao
+import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip, weapon, chrome, notice, cyberdao, \
+    campaign
 
 app = Flask(__name__)
 CORS(app)
@@ -27,22 +28,28 @@ post = 'POST'
 get = 'GET'
 
 
+def invalid_req():
+    return "Invalid request", 400
+
+
 cyberdao.check_system_version()
+
 
 @app.route('/test')
 def hello():
     return 'Welcome to the NET!'
 
 
-#TODO
-@app.route('/create-character', methods = [post])
+# TODO
+@app.route('/create-character', methods=[post])
 def createCharacter():
     if request.method == post:
         data = request.get_json()
         name = data['name']
         randomize = data['randomize']
         if randomize:
-            (logs, character_id) = characterBuilder.createCharacterFromReq(name, role='', given_body_type='', attributes=[], randomize=True)
+            (logs, character_id) = characterBuilder.createCharacterFromReq(name, role='', given_body_type='',
+                                                                           attributes=[], randomize=True)
             resJson = {
                 'logs': logs,
                 'charId': character_id
@@ -65,10 +72,10 @@ def createCharacter():
                 resJson
             )
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/roll', methods = [post])
+@app.route('/roll', methods=[post])
 def roll():
     if request.method == post:
         data = request.get_json()
@@ -77,10 +84,10 @@ def roll():
         dice_roll_res = dice.roll(n, d_die)
         return jsonify(dice_roll_res)
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/roll-skill', methods = [post])
+@app.route('/roll-skill', methods=[post])
 def rollSkill():
     if request.method == post:
         data = request.get_json()
@@ -91,10 +98,10 @@ def rollSkill():
         roll = data['roll']
         return jsonify(skills.rollCharacterSkillById(char_id, skill_id, roll, modifier, added_luck))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/roll-initiative', methods = [post])
+@app.route('/roll-initiative', methods=[post])
 def rollInitiative():
     if request.method == post:
         data = request.get_json()
@@ -102,10 +109,10 @@ def rollInitiative():
         initiative = data.get('initiative', None)
         return jsonify(game.rollInitiativeByCharacterId(char_id, initiative))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/roll-melee-dmg', methods = [post])
+@app.route('/roll-melee-dmg', methods=[post])
 def rollMeleeDmg():
     if request.method == post:
         data = request.get_json()
@@ -115,44 +122,45 @@ def rollMeleeDmg():
         print(f'... data: {data} ... method: {method}')
         return jsonify(combat.handleMeleeDmgByCharacterId(char_id, roll=0, wep_id=weapon_id, method=method))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/roll-face-off', methods = [post])
+@app.route('/roll-face-off', methods=[post])
 def rollFaceOff():
     if request.method == post:
         data = request.get_json()
         char_id = data['charId']
         return jsonify(game.faceOffRollById(char_id))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/char', methods = [get])
+@app.route('/char', methods=[get])
 def getChar():
     if request.method == get:
         id = request.args.get('id')
         return jsonify(game.getCharacterById(id))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/list-skills', methods = [get])
+
+@app.route('/list-skills', methods=[get])
 def listSkills():
     if request.method == get:
         return jsonify(skills.fetchAllSkils())
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/list-characters', methods = [get])
+@app.route('/list-characters', methods=[get])
 def listCharacters():
     if request.method == get:
         return jsonify(game.listCharacters())
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/attack', methods = [post])
+@app.route('/attack', methods=[post])
 def attack():
     if request.method == post:
         data = request.get_json()
@@ -166,13 +174,15 @@ def attack():
         shots_fired = data.get('shotsFired', 1)
         return jsonify(
             combat.characterAttackByCharacterAndWeaponId(
-                char_id, weapon_id, attack_type, attack_range, given_roll=given_roll, attack_modifier=attack_modifier, targets=targets, shots_fired=shots_fired
+                char_id, weapon_id, attack_type, attack_range, given_roll=given_roll, attack_modifier=attack_modifier,
+                targets=targets, shots_fired=shots_fired
             )
         )
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/reload', methods = [post])
+
+@app.route('/reload', methods=[post])
 def reload():
     if request.method == post:
         data = request.get_json()
@@ -180,17 +190,19 @@ def reload():
         shots = data['shots']
         return jsonify(combat.reloadWeapon(weapon_id, shots))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/repair-sp', methods = [post])
+
+@app.route('/repair-sp', methods=[post])
 def repairSP():
     if request.method == post:
         char_id = request.get_json()
         return jsonify(armor.repairSPById(char_id)), 200
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/heal', methods = [post])
+
+@app.route('/heal', methods=[post])
 def heal():
     if request.method == post:
         data = request.get_json()
@@ -199,9 +211,10 @@ def heal():
 
         return jsonify(healing.healCharacterById(char_id, amount))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/lvl-up', methods = [post])
+
+@app.route('/lvl-up', methods=[post])
 def lvlUp():
     if request.method == post:
         data = request.get_json()
@@ -211,9 +224,10 @@ def lvlUp():
 
         return jsonify(skills.updateCharSkillById(char_id, skill_id, amount))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/dmg', methods = [post])
+
+@app.route('/dmg', methods=[post])
 def dmg():
     if request.method == post:
         data = request.get_json()
@@ -225,9 +239,10 @@ def dmg():
         res = combat.hitCharacterById(char_id, body_part=body_part, dmg_str=dmg, pass_sp=pass_sp, is_ap=is_ap)
         return jsonify(res)
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/save-ip', methods = [post])
+
+@app.route('/save-ip', methods=[post])
 def saveIP():
     if request.method == post:
         data = request.get_json()
@@ -236,9 +251,10 @@ def saveIP():
         res = ip.saveIP(char_id, ipAmount)
         return jsonify(res)
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/restore-emp', methods = [post])
+
+@app.route('/restore-emp', methods=[post])
 def restoreEMP():
     if request.method == post:
         data = request.get_json()
@@ -247,9 +263,10 @@ def restoreEMP():
         res = game.restoreEMP(char_id, emp)
         return jsonify(res)
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/stun-check', methods = [post])
+
+@app.route('/stun-check', methods=[post])
 def stunCheck():
     if request.method == post:
         data = request.get_json()
@@ -257,10 +274,10 @@ def stunCheck():
         res = combat.stunCheckById(char_id)
         return jsonify(res)
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/add-weapon', methods = [post])
+@app.route('/add-weapon', methods=[post])
 def addWeapon():
     if request.method == post:
         data = request.get_json()
@@ -287,9 +304,10 @@ def addWeapon():
         )
         return jsonify(res)
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/add-chrome', methods = [post])
+
+@app.route('/add-chrome', methods=[post])
 def addChrome():
     if request.method == post:
         data = request.get_json()
@@ -305,9 +323,10 @@ def addChrome():
         )
         return jsonify(res)
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/add-armor', methods = [post])
+
+@app.route('/add-armor', methods=[post])
 def addArmor():
     if request.method == post:
         data = request.get_json()
@@ -325,9 +344,10 @@ def addArmor():
         )
         return jsonify(res)
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/remove-armor', methods = [post])
+
+@app.route('/remove-armor', methods=[post])
 def removeArmor():
     if request.method == post:
         data = request.get_json()
@@ -339,9 +359,10 @@ def removeArmor():
         )
         return jsonify(res)
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/remove-weapon', methods = [post])
+
+@app.route('/remove-weapon', methods=[post])
 def removeWeapon():
     if request.method == post:
         data = request.get_json()
@@ -353,10 +374,10 @@ def removeWeapon():
         )
         return jsonify(res)
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/remove-chrome', methods = [post])
+@app.route('/remove-chrome', methods=[post])
 def removeChrome():
     if request.method == post:
         data = request.get_json()
@@ -366,7 +387,7 @@ def removeChrome():
         res = chrome.removeChromeByCharacterId(char_id, chrome_id)
         return jsonify(res)
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
 @app.route('/list-initiative', methods=[get])
@@ -374,7 +395,8 @@ def initiativeOrder():
     if request.method == get:
         return jsonify(game.combatInitiativeOrder())
     else:
-        return "Invalid request", 400
+        return invalid_req()
+
 
 @app.route('/add-to-combat', methods=[post])
 def addToCombat():
@@ -385,33 +407,34 @@ def addToCombat():
 
         return jsonify(game.addToCombatByid(char_id, initiative))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/advance-combat-seq', methods = [post])
+@app.route('/advance-combat-seq', methods=[post])
 def advanceCombatSeq():
     if request.method == post:
         return jsonify(game.advanceCombatSeq())
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/clear-initiatives', methods = [post])
+@app.route('/clear-initiatives', methods=[post])
 def clearInitiative():
     if request.method == post:
         return jsonify(game.clearCombat())
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/list-quick-notice', methods = [get])
+
+@app.route('/list-quick-notice', methods=[get])
 def listQuickNotice():
     if request.method == get:
         return "TODO"
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/add-reputation', methods = [post])
+@app.route('/add-reputation', methods=[post])
 def addRep():
     if request.method == post:
         data = request.get_json()
@@ -420,9 +443,10 @@ def addRep():
         rep_for = data['repFor']
         return jsonify(game.addReputationById(char_id, rep, rep_for))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/update-money', methods = [post])
+
+@app.route('/update-money', methods=[post])
 def updateMoney():
     if request.method == post:
         data = request.get_json()
@@ -430,19 +454,20 @@ def updateMoney():
         money = data['money']
         return jsonify(game.updateCharacterMoneyByCharacterId(char_id, money))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
 
-@app.route('/delete-character', methods = [post])
+@app.route('/delete-character', methods=[post])
 def deleteCharacter():
     if request.method == post:
         data = request.get_json()
         char_id = data['charId']
         return jsonify(game.deleteCharacter(char_id))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/update-name', methods = [post])
+
+@app.route('/update-name', methods=[post])
 def updateName():
     if request.method == post:
         data = request.get_json()
@@ -450,9 +475,10 @@ def updateName():
         name = data['name']
         return jsonify(game.updateCharacterName(char_id, name))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/manual-weapon-roll', methods = [post])
+
+@app.route('/manual-weapon-roll', methods=[post])
 def manualWeaponCheck():
     if request.method == post:
         data = request.get_json()
@@ -467,11 +493,24 @@ def manualWeaponCheck():
             roll_total, weapon_type, wa, attack_range, num_of_targets, num_of_shots
         ))
     else:
-        return "Invalid request", 400
+        return invalid_req()
 
-@app.route('/campaigns', methods = [get])
+
+@app.route('/campaigns', methods=[get])
 def fetchCampaigns():
     if request.method == get:
-        return jsonify([])
+        # TODO: fetch actual data
+        return jsonify(campaign.allCampaigns())
     else:
-        return "Invalid request", 400
+        return invalid_req()
+
+
+@app.route('/add-campaign', methods=[post])
+def addCampaign():
+    if request.method == post:
+        data = request.get_json()
+        name = data['name']
+        info = data['info']
+        return jsonify(campaign.addCampaign(name, info))
+    else:
+        return invalid_req()

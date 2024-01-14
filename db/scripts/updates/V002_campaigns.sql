@@ -1,5 +1,8 @@
 BEGIN;
 
+--drop old events as they weren't very useful
+DROP TABLE cyberpunk.events;
+
 CREATE TABLE cyberpunk.campaigns(
     id BIGSERIAL PRIMARY KEY NOT NULL,
     name VARCHAR NOT NULL,

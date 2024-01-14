@@ -1,6 +1,6 @@
 import Navbar from "./Navbar"
 import './App.css';
-import { Campaign, fetchCampaigns } from "./CyberClient";
+import { AddCampaignReq, Campaign, addCampaign, fetchCampaigns } from "./CyberClient";
 import { useEffect, useState } from "react";
 import Hideable from "./Hideable";
 
@@ -25,9 +25,17 @@ const CampaignTable = ({ campaigns }: CampaignTableProps) => {
     )
 }
 
-const AddCampaign = ({}) => {
+interface AddCampaingProps {
+    updateCampaigns: () => Promise<void>
+}
+
+const AddCampaign = ({updateCampaigns}: AddCampaingProps) => {
     const [name, setName] = useState('')
     const [info, setInfo] = useState<string | undefined>(undefined)
+    const addCampaingReq: AddCampaignReq  = {
+        name,
+        info
+    }
 
     return(
         <table>
@@ -39,7 +47,11 @@ const AddCampaign = ({}) => {
             <tr>
                 <td><input className='inputField' value={name} onChange={e => setName(e.target.value)}/></td>
                 <td><input className='inputField' value={info} onChange={e => setInfo(e.target.value)}/></td>
-                <td><button>Add</button></td>
+                <td><button onClick={e => {
+                    e.preventDefault()
+
+                    addCampaign(addCampaingReq).then(() => updateCampaigns())
+                }}>Add</button></td>
             </tr>
         </table>
     )
@@ -48,6 +60,7 @@ const AddCampaign = ({}) => {
 
 const Campaigns = ({}) => {
     const [campaigns, setCampaigns] = useState<Campaign[]>([])
+    const updatecampaignsFn = () => fetchCampaigns().then(setCampaigns)
 
     useEffect(() => {
         fetchCampaigns().then(setCampaigns)
@@ -58,7 +71,7 @@ const Campaigns = ({}) => {
             <Navbar />
             <h1>Campaigns</h1>
             <Hideable text='campaigns' props={<CampaignTable campaigns={campaigns}/>}/>
-            <Hideable text='campaign form' props={<AddCampaign />} />
+            <Hideable text='campaign form' props={<AddCampaign updateCampaigns={updatecampaignsFn}/>} />
         </div>
     )
 }

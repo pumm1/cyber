@@ -7,7 +7,7 @@ from cyberschema import db, user, password, host, table_skills, table_characters
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
     table_events, table_character_chrome, table_character_statuses, table_character_quick_notice, \
     table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus, table_character_notice_rolls, \
-    table_system_version, expected_system_version
+    table_system_version, expected_system_version, table_campaigns
 from character import Character, CharacterShort
 from skill import SkillInfo
 from armor import Armor
@@ -27,7 +27,7 @@ def clean_fetch_all(rows):
     return [i[0] for i in rows]
 
 
-insert = 'INSERT INTO'
+insert_into = 'INSERT INTO'
 select_from = 'SELECT * FROM'
 delete_from = 'DELETE FROM'
 update = 'UPDATE'
@@ -231,7 +231,7 @@ def addReputation(character_id, info, rep_level):
     assert 0 < abs(rep_level) <= 10
     with conn.cursor() as cur:
         cur.execute(
-            f"""{insert} {table_reputation} (character_id, known_for, rep_level)
+            f"""{insert_into} {table_reputation} (character_id, known_for, rep_level)
                 VALUES ({character_id}, '{info}', {rep_level});"""
         )
         conn.commit()
@@ -268,7 +268,7 @@ def listCombatInitiative(ascending: bool):
 def addCharacterToCombat(character, initiative):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{insert} {table_combat_session} (character_id, initiative, current)
+            f"""{insert_into} {table_combat_session} (character_id, initiative, current)
                             VALUES ('{character}', {initiative}, {False});"""
         )
         conn.commit()
@@ -319,7 +319,7 @@ def dmgCharacter(character_id, dmg):
 def updateCharSkill(char_id, skill_row, value):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{insert} {table_character_skills} (character_id, skill_id, skill_lvl)
+            f"""{insert_into} {table_character_skills} (character_id, skill_id, skill_lvl)
                 VALUES ({char_id}, {skill_row['id']}, {value})
                 ON CONFLICT(character_id, skill_id)
                 DO
@@ -351,7 +351,7 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
 
     with conn.cursor() as cur:
         cur.execute(
-            f"""{insert} {table_characters} 
+            f"""{insert_into} {table_characters} 
             (name, role, special_ability, body_type_modifier, humanity, ip, initiative_bonus,
             atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken, emp_max)
             VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10}, 0, {initiative_bonus},
@@ -362,7 +362,7 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
 
         cur.execute(
             f"""
-                                {insert} {table_character_sp} 
+                                {insert_into} {table_character_sp} 
                                 (character_id, head, head_max, body, body_max, r_arm, r_arm_max, 
                                 l_arm, l_arm_max, r_leg, r_leg_max, l_leg, l_leg_max)
                                 VALUES ({new_char['id']}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -371,7 +371,7 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
         )
 
         cur.execute(
-            f"""{insert} {table_character_weapons} 
+            f"""{insert_into} {table_character_weapons} 
                             (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, dmg_bonus, range, rof, 
                             clip_size, shots_left, effect_radius, wa, con, reliability, weight, divide_by)
                             VALUES
@@ -544,7 +544,7 @@ def addArmor(character_id, item, sp, body_parts, ev, atr_dict: dict, skill_bonus
         item_bonus_id = insertItemBonusesReturningBonusId(dict(atr_dict), skill_bonuses)
 
         cur.execute(
-            f"""{insert} {table_character_armors} (character_id, item, sp, body_parts, ev, item_bonus_id)
+            f"""{insert_into} {table_character_armors} (character_id, item, sp, body_parts, ev, item_bonus_id)
                                 VALUES ({character_id}, '{item}', {sp}, ARRAY[{bod_parts_str}], {ev}, {item_bonus_id});"""
         )
         for body_part in body_parts:
@@ -556,7 +556,7 @@ def addArmor(character_id, item, sp, body_parts, ev, atr_dict: dict, skill_bonus
 def insertItemBonusesReturningBonusId(atr_bonuses_dict: dict, skill_bonuses: list):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{insert} {table_item_atr_bonuses} 
+            f"""{insert_into} {table_item_atr_bonuses} 
                 (body_type_modifier, initiative_bonus, atr_int, atr_ref, atr_tech, atr_cool, atr_attr, 
                 atr_luck, atr_ma, atr_body, atr_emp)
                 VALUES ({atr_bonuses_dict.get(body_type_mod, 0)}, ({atr_bonuses_dict.get(init_bonus, 0)}), {atr_bonuses_dict.get(INT, 0)},
@@ -568,7 +568,7 @@ def insertItemBonusesReturningBonusId(atr_bonuses_dict: dict, skill_bonuses: lis
         atr_id = cur.fetchone()['id']
 
         cur.execute(
-            f"""{insert} {table_item_bonuses} (item_atr_id)
+            f"""{insert_into} {table_item_bonuses} (item_atr_id)
                 VALUES ({atr_id}) RETURNING id;"""
         )
 
@@ -576,7 +576,7 @@ def insertItemBonusesReturningBonusId(atr_bonuses_dict: dict, skill_bonuses: lis
 
         for skill_bonus in skill_bonuses:
             cur.execute(
-                f"""{insert} {table_item_skill_bonus} (item_bonus_id, skill_id, skill_bonus)
+                f"""{insert_into} {table_item_skill_bonus} (item_bonus_id, skill_id, skill_bonus)
                     VALUES ({bonus_id}, {skill_bonus.skill_id}, {skill_bonus.bonus})
                     """
             )
@@ -683,7 +683,7 @@ def changeHumanityAndEmp(character_id, humanity, emp):
 def addEvent(event):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{insert} {table_events} (event) VALUES ('{event}');"""
+            f"""{insert_into} {table_events} (event) VALUES ('{event}');"""
         )
         conn.commit()
 
@@ -704,7 +704,7 @@ def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg,
               dmg_bonus, range, rof, clip_size, effect_radius, wa, con, reliability, weight):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{insert} {table_character_weapons} 
+            f"""{insert_into} {table_character_weapons} 
                 (character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, divide_by, dmg_bonus, range, rof, clip_size, 
                 shots_left, effect_radius, wa, con, reliability, weight)
                 VALUES
@@ -723,7 +723,7 @@ def addChrome(character_id, item, humanity_cost, description, item_bonus_id: int
     with conn.cursor() as cur:
         cur.execute(
             f"""
-            {insert} {table_character_chrome} (character_id, item, humanity_cost, description, item_bonus_id)
+            {insert_into} {table_character_chrome} (character_id, item, humanity_cost, description, item_bonus_id)
             VALUES ({character_id}, '{item}', {humanity_cost}, '{description}', {item_bonus_id});
             """
         )
@@ -958,7 +958,7 @@ def deleteCharacterChrome(character_id, chrome_id):
 def addCharacterStatus(character_id, status, effect):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{insert} {table_character_statuses} (character_id, status, effect)
+            f"""{insert_into} {table_character_statuses} (character_id, status, effect)
                 VALUES ({character_id}, '{status}', '{effect}');"""
         )
         conn.commit()
@@ -994,7 +994,7 @@ def removeStatus(status_id, character_id):
 def addCharacterForQuickNoticeCheck(character_id, name):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{insert} {table_character_quick_notice} (character_id)
+            f"""{insert_into} {table_character_quick_notice} (character_id)
                             VALUES ({character_id});"""
         )
         conn.commit()
@@ -1023,3 +1023,21 @@ def clearQuickNoticeCheck():
         )
         conn.commit()
         print(f'Quick notice checks cleared')
+
+
+def listCampaigns():
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{select_from} {table_campaigns};"""
+        )
+        rows = cur.fetchall()
+        conn.commit()
+        return rows
+
+
+def addCampaign(name: str, info: str | None):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{insert_into} {table_campaigns} (name, info) VALUES ('{name}', '{info}');"""
+        )
+        conn.commit()
