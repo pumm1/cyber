@@ -7,7 +7,7 @@ from cyberschema import db, user, password, host, table_skills, table_characters
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
     table_events, table_character_chrome, table_character_statuses, table_character_quick_notice, \
     table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus, table_character_notice_rolls, \
-    table_system_version, expected_system_version, table_campaigns
+    table_system_version, expected_system_version, table_campaigns, table_event_characters
 from character import Character, CharacterShort
 from skill import SkillInfo
 from armor import Armor
@@ -28,7 +28,8 @@ def clean_fetch_all(rows):
 
 
 insert_into = 'INSERT INTO'
-select_from = 'SELECT * FROM'
+select = 'SELECT'
+select_from = f'{select} * FROM'
 delete_from = 'DELETE FROM'
 update = 'UPDATE'
 
@@ -680,14 +681,6 @@ def changeHumanityAndEmp(character_id, humanity, emp):
         conn.commit()
 
 
-def addEvent(event):
-    with conn.cursor() as cur:
-        cur.execute(
-            f"""{insert_into} {table_events} (event) VALUES ('{event}');"""
-        )
-        conn.commit()
-
-
 def listEvents():
     rows = []
     with conn.cursor() as cur:
@@ -1039,5 +1032,34 @@ def addCampaign(name: str, info: str | None):
     with conn.cursor() as cur:
         cur.execute(
             f"""{insert_into} {table_campaigns} (name, info) VALUES ('{name}', '{info}');"""
+        )
+        conn.commit()
+
+
+def campaignEvents(campaign_id: int):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{select_from} {table_events} WHERE campaign_id = {campaign_id};"""
+        )
+        rows = cur.fetchall()
+        conn.commit()
+        return rows
+
+def eventChracters(event_id: int):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{select} c.id, c.name, c. role {table_event_characters} ec JOIN {table_characters} c on ec.character_id = c.id WHERE ec.event_id = {event_id};"""
+        )
+        rows = cur.fetchall()
+        conn.commit()
+        return rows
+
+def addEvent(campaign_id, character_ids: list[int], info: str | None):
+    with conn.cursor() as cur:
+        info_inserted = None
+        if info is not None:
+            info_inserted = f"'{info}'"
+        cur.execute(
+            f"""{insert_into} {table_events} (campaign_id, info) VALUES ({campaign_id}, {info_inserted});"""
         )
         conn.commit()

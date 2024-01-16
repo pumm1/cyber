@@ -514,3 +514,21 @@ def addCampaign():
         return jsonify(campaign.addCampaign(name, info))
     else:
         return invalid_req()
+
+@app.route('/campaing-events/<int:id>', methods=[get])
+def campaignEvents(id):
+    if request.method == get:
+        return jsonify(campaign.campaignEvents(id))
+    else:
+        return invalid_req()
+
+@app.route('/add-campaign-event/<int:id>', methods=[post])
+def addCampaignEvent(id):
+    if request.method == post:
+        data = request.get_json()
+        info = data['info']
+        character_ids = data['characterIds']
+        campaign.addCampaignEvent(id, character_ids, info)
+        return jsonify(True)
+    else:
+        return invalid_req()
