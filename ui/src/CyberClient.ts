@@ -521,16 +521,10 @@ export const fetchCampaigns = () =>
 export const addCampaign = (c: AddCampaignReq) => 
     postDataAs<Log[]>(`${pathBase}/add-campaign`, c)
 
-export interface EventCharacter {
-    eventId: number,
-    character: CharacterShort
-    info?: string
-}
-
 export interface CampaignEvent {
     id: number,
     campaignId: number,
-    eventCharacters: EventCharacter[]
+    characters: CharacterShort[]
     info?: string
 }
 
@@ -555,9 +549,10 @@ export const fetchCampaignEvents = (campaignId: number) =>
 export interface AddCampaignEventReq {
     campaignId: number
     info?: string
-    characterIds: number[]
 }
 
 export const addCampaignEvent = (r: AddCampaignEventReq) =>
     postDataAs<boolean>(`${pathBase}/add-campaign-event/${r.campaignId}`, r)
     
+export const addEventCharacter = (eventId: number, characterId: number) =>
+    postDataAs<CampaignEvent[]>(`${pathBase}/add-event-character/${eventId}`, characterId)

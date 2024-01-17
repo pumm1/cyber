@@ -1,6 +1,6 @@
 import Navbar from "./Navbar"
 import './App.css';
-import { AddCampaignEventReq, AddCampaignReq, Campaign, CampaignEvent, addCampaign, addCampaignEvent, fetchCampaignEvents, fetchCampaigns } from "./CyberClient";
+import { AddCampaignEventReq, AddCampaignReq, Campaign, CampaignEvent, CharacterShort, addCampaign, addCampaignEvent, addEventCharacter, fetchCampaignEvents, fetchCampaigns, listCharacters } from "./CyberClient";
 import { useEffect, useState } from "react";
 import Hideable from "./Hideable";
 
@@ -60,59 +60,77 @@ const AddCampaign = ({updateCampaigns}: AddCampaingProps) => {
 
 interface CampaignEventsProps {
     campaignId: number
+    events: CampaignEvent[]
+    setEvents: (events: CampaignEvent[]) => void
 }
 
-const CampaignEvents = ({campaignId}: CampaignEventsProps) => {
-    const [events, setEvents] = useState<CampaignEvent[]>([])
+interface AddEventProps {
+    campaignId: number
+    setEvents: (events: CampaignEvent[]) => void
+}
+
+const CampaignEvents = ({campaignId, events, setEvents}: CampaignEventsProps) => {
+    const [characters, setCharacters] = useState<CharacterShort[]>([])
+
+    const filteredCharacters = (e: CampaignEvent) => 
+        characters.filter(c => !e.characters.map(ec => ec.id).includes(c.id))
+        
     useEffect(() => {
-        fetchCampaignEvents(campaignId).then(setEvents)
-    }, [])
+        fetchCampaignEvents(campaignId).then(setEvents).then(() => listCharacters().then(setCharacters))
+    }, [campaignId])
 
     return (
         <table>
             <tr>
                 <th>id</th>
                 <th>info</th>
+                <th>Characters</th>
+                <th>Add character</th>
             </tr>
-            <tr>
-                {events.map(e => {
-                    return (
-                        <>
-                            <td>{e.id}</td>
-                            <td>{e.info ?? ''}</td>
-                        </>
-                    )
-                })}
-            </tr>
+            {events.map(e => {
+                return (
+                    <tr>
+                        <td>{e.id}</td>
+                        <td>
+                            <textarea value={e.info ?? ''} readOnly={true}/>
+                        </td>
+                        <td>{e.characters.map(c => `${c.name} (${c.role})`).join(', ')}</td>
+                        <td>
+                            <select>
+                                {filteredCharacters(e).map(c => 
+                                    <option value={c.id} onClick={() => addEventCharacter(e.id, c.id).then(setEvents)}>{c.name} ({c.role})</option>
+                                )}
+                            </select>
+                        </td>
+                    </tr>
+                )
+            })}
+           
         </table>
     )
 }
 
-const AddCampaignEvent = ({campaignId}: CampaignEventsProps) => {
+const AddCampaignEvent = ({campaignId, setEvents}: AddEventProps) => {
     const [info, setInfo] = useState<undefined | string>(undefined)
-    const [characterIds, setCharacterIds] = useState<number[]>([])
     const addReq: AddCampaignEventReq = {
         campaignId,
         info,
-        characterIds
     }
     
     return(
         <table>
             <tr>
                 <th>Info</th>
-                <th>Characters</th>
                 <th>Action</th>
             </tr>
             <tr>
                 <td>
-                    <input className='inputField' type='text' onChange={e => {
+                    <textarea className='inputField' onChange={e => {
                         e.preventDefault()
                         setInfo(e.target.value)
                     }}/>
                 </td>
-                <td>SELECTOR TODO</td>
-                <td><button onClick={() => addCampaignEvent(addReq)}>Add</button></td>
+                <td><button onClick={() => addCampaignEvent(addReq).then(() => fetchCampaignEvents(campaignId).then(setEvents))}>Add</button></td>
             </tr>
         </table>
     )
@@ -122,6 +140,11 @@ const Campaigns = ({}) => {
     const [campaigns, setCampaigns] = useState<Campaign[]>([])
     const updatecampaignsFn = () => fetchCampaigns().then(setCampaigns)
     const [selectedCampaign, setSelectedCampaign] = useState<Campaign | undefined>(undefined)
+    const [events, setEvents] = useState<CampaignEvent[]>([])
+
+    useEffect(() => {
+        selectedCampaign && fetchCampaignEvents(selectedCampaign.id).then(setEvents)
+    }, [selectedCampaign])
 
     const SelectedCampaignInfo = ({}) => 
         selectedCampaign ? <div>Selected campaign: <b>{selectedCampaign.name}</b></div> : <></>
@@ -136,8 +159,8 @@ const Campaigns = ({}) => {
             <h1>Campaigns</h1>
             <SelectedCampaignInfo />
             <Hideable text='campaigns' props={<CampaignTable campaigns={campaigns} setSelectedCampaign={setSelectedCampaign}/>}/>
-            {selectedCampaign && <Hideable text='campaign events' props={<CampaignEvents campaignId={selectedCampaign.id}/>}/>}
-            {selectedCampaign && <Hideable text='add campaign event' props={<AddCampaignEvent campaignId={selectedCampaign.id} />}/>}
+            {selectedCampaign && <Hideable text='campaign events' props={<CampaignEvents events={events} setEvents={setEvents} campaignId={selectedCampaign.id}/>}/>}
+            {selectedCampaign && <Hideable text='add campaign event' props={<AddCampaignEvent setEvents={setEvents} campaignId={selectedCampaign.id} />}/>}
             <Hideable text='campaign form' props={<AddCampaign updateCampaigns={updatecampaignsFn}/>} />
         </div>
     )

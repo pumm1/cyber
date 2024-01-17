@@ -527,8 +527,15 @@ def addCampaignEvent(id):
     if request.method == post:
         data = request.get_json()
         info = data['info']
-        character_ids = data['characterIds']
-        campaign.addCampaignEvent(id, character_ids, info)
+        campaign.addCampaignEvent(id, info)
         return jsonify(True)
+    else:
+        return invalid_req()
+
+@app.route('/add-event-character/<int:id>', methods=[post])
+def addEventCharacter(id):
+    if request.method == post:
+        character_id = request.get_json()
+        return jsonify(campaign.addEventCharacter(id, character_id))
     else:
         return invalid_req()

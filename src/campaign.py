@@ -52,12 +52,24 @@ def addCampaign(name: str, info: str | None):
     logs = log_event([], f'Campaign {name} added', log_pos)
     return logs
 
+#TODO: fix characters here
 def campaignEvents(campaignId: int):
     rows = DAO.campaignEvents(campaignId)
-    events = map(lambda r: (
-        CampaignEvent(r, DAO.eventChracters(r['id'])).asJson()
-    ), rows)
+    events = []
+    for row in rows:
+        event_id = row['id']
+        event_character_rows = DAO.eventChracters(event_id)
+        ce = CampaignEvent(row, event_character_rows).asJson()
+        events.append(ce)
     return list(events)
 
-def addCampaignEvent(campaignId: int, character_ids: list[int], info: str | None):
-    DAO.addEvent(campaignId, character_ids, info)
+
+def addCampaignEvent(campaignId: int, info: str | None):
+    DAO.addEvent(campaignId, info)
+
+
+def addEventCharacter(eventId: int, characterId: int):
+    DAO.addEventCharacters(eventId, characterId)
+    event_row = DAO.eventCampaign(eventId)
+    campaign_id = event_row['campaign_id']
+    return campaignEvents(campaign_id)

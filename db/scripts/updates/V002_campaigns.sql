@@ -27,6 +27,9 @@ CREATE TABLE cyberpunk.gig_characters(
 );
 
 ALTER TABLE cyberpunk.gig_characters
+ADD CONSTRAINT gig_unique_characters UNIQUE (gig_id, character_id);
+
+ALTER TABLE cyberpunk.gig_characters
 ADD CONSTRAINT gig_characters_gig_id__fk FOREIGN KEY (gig_id) REFERENCES cyberpunk.gigs (id);
 
 ALTER TABLE cyberpunk.gig_characters
@@ -46,6 +49,9 @@ CREATE TABLE cyberpunk.event_characters(
     character_id BIGINT NOT NULL,
     info VARCHAR
 );
+
+ALTER TABLE cyberpunk.event_characters
+ADD CONSTRAINT event_unique_characters UNIQUE (event_id, character_id);
 
 
 ALTER TABLE cyberpunk.event_characters

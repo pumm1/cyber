@@ -681,18 +681,6 @@ def changeHumanityAndEmp(character_id, humanity, emp):
         conn.commit()
 
 
-def listEvents():
-    rows = []
-    with conn.cursor() as cur:
-        cur.execute(
-            f"""{select_from} {table_events};"""
-        )
-        rows = cur.fetchall()
-        conn.commit()
-
-    return rows
-
-
 def addWeapon(character_id, item, weapon_type, is_chrome, dice_number, dice_dmg, divide_by,
               dmg_bonus, range, rof, clip_size, effect_radius, wa, con, reliability, weight):
     with conn.cursor() as cur:
@@ -1048,13 +1036,13 @@ def campaignEvents(campaign_id: int):
 def eventChracters(event_id: int):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{select} c.id, c.name, c. role {table_event_characters} ec JOIN {table_characters} c on ec.character_id = c.id WHERE ec.event_id = {event_id};"""
+            f"""{select} c.id, c.name, c.role FROM {table_event_characters} ec JOIN {table_characters} c on ec.character_id = c.id WHERE ec.event_id = {event_id};"""
         )
         rows = cur.fetchall()
         conn.commit()
         return rows
 
-def addEvent(campaign_id, character_ids: list[int], info: str | None):
+def addEvent(campaign_id, info: str | None):
     with conn.cursor() as cur:
         info_inserted = None
         if info is not None:
@@ -1063,3 +1051,22 @@ def addEvent(campaign_id, character_ids: list[int], info: str | None):
             f"""{insert_into} {table_events} (campaign_id, info) VALUES ({campaign_id}, {info_inserted});"""
         )
         conn.commit()
+
+def addEventCharacters(event_id, character_id):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{insert_into} {table_event_characters} (event_id, character_id) VALUES ({event_id}, {character_id});"""
+        )
+        conn.commit()
+
+
+def eventCampaign(event_id):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{select_from} {table_events} where id = {event_id};"""
+        )
+        row = cur.fetchone()
+        conn.commit()
+        return row
+
+
