@@ -1,6 +1,6 @@
 import Navbar from "./Navbar"
 import './App.css';
-import { AddCampaignEventReq, AddCampaignReq, Campaign, CampaignEvent, CharacterShort, addCampaign, addCampaignEvent, addEventCharacter, fetchCampaignEvents, fetchCampaigns, listCharacters } from "./CyberClient";
+import { AddCampaignEventReq, AddCampaignReq, Campaign, CampaignEvent, CharacterShort, addCampaign, addCampaignEvent, addEventCharacter, fetchCampaignEvents, fetchCampaigns, listCharacters, sortedCharacters } from "./CyberClient";
 import { useEffect, useState } from "react";
 import Hideable from "./Hideable";
 
@@ -46,8 +46,8 @@ const AddCampaign = ({updateCampaigns}: AddCampaingProps) => {
                 <th>Action</th>
             </tr>
             <tr>
-                <td><input className='inputField' value={name} onChange={e => setName(e.target.value)}/></td>
-                <td><input className='inputField' value={info} onChange={e => setInfo(e.target.value)}/></td>
+                <td><input value={name} onChange={e => setName(e.target.value)}/></td>
+                <td><textarea value={info} onChange={e => setInfo(e.target.value)}/></td>
                 <td><button onClick={e => {
                     e.preventDefault()
 
@@ -73,7 +73,7 @@ const CampaignEvents = ({campaignId, events, setEvents}: CampaignEventsProps) =>
     const [characters, setCharacters] = useState<CharacterShort[]>([])
 
     const filteredCharacters = (e: CampaignEvent) => 
-        characters.filter(c => !e.characters.map(ec => ec.id).includes(c.id))
+        sortedCharacters(characters).filter(c => !e.characters.map(ec => ec.id).includes(c.id))
         
     useEffect(() => {
         fetchCampaignEvents(campaignId).then(setEvents).then(() => listCharacters().then(setCharacters))
@@ -83,7 +83,7 @@ const CampaignEvents = ({campaignId, events, setEvents}: CampaignEventsProps) =>
         <table>
             <tr>
                 <th>id</th>
-                <th>info</th>
+                <th>Event info</th>
                 <th>Characters</th>
                 <th>Add character</th>
             </tr>
@@ -120,12 +120,12 @@ const AddCampaignEvent = ({campaignId, setEvents}: AddEventProps) => {
     return(
         <table>
             <tr>
-                <th>Info</th>
+                <th>Event info</th>
                 <th>Action</th>
             </tr>
             <tr>
                 <td>
-                    <textarea className='inputField' onChange={e => {
+                    <textarea onChange={e => {
                         e.preventDefault()
                         setInfo(e.target.value)
                     }}/>
@@ -159,9 +159,9 @@ const Campaigns = ({}) => {
             <h1>Campaigns</h1>
             <SelectedCampaignInfo />
             <Hideable text='campaigns' props={<CampaignTable campaigns={campaigns} setSelectedCampaign={setSelectedCampaign}/>}/>
+            <Hideable text='campaign form' props={<AddCampaign updateCampaigns={updatecampaignsFn}/>} />
             {selectedCampaign && <Hideable text='campaign events' props={<CampaignEvents events={events} setEvents={setEvents} campaignId={selectedCampaign.id}/>}/>}
             {selectedCampaign && <Hideable text='add campaign event' props={<AddCampaignEvent setEvents={setEvents} campaignId={selectedCampaign.id} />}/>}
-            <Hideable text='campaign form' props={<AddCampaign updateCampaigns={updatecampaignsFn}/>} />
         </div>
     )
 }
