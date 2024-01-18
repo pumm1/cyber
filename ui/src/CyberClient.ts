@@ -547,12 +547,31 @@ export const fetchCampaignEvents = (campaignId: number) =>
 
 
 export interface AddCampaignEventReq {
-    campaignId: number
     info?: string
 }
 
-export const addCampaignEvent = (r: AddCampaignEventReq) =>
-    postDataAs<boolean>(`${pathBase}/add-campaign-event/${r.campaignId}`, r)
+export const addCampaignEvent = (campaignId: number, r: AddCampaignEventReq) =>
+    postDataAs<boolean>(`${pathBase}/add-campaign-event/${campaignId}`, r)
     
 export const addEventCharacter = (eventId: number, characterId: number) =>
     postDataAs<CampaignEvent[]>(`${pathBase}/add-event-character/${eventId}`, characterId)
+
+export interface AddCampaignGigReq {
+    name: string
+    info?: string
+}
+
+export const addCampaignGig = (campaignId: number, r: AddCampaignGigReq) =>
+    postDataAs<boolean>(`${pathBase}/add-campaign-event/${campaignId}`, r)
+
+export interface CampaignGig {
+    id: number
+    campaignId: number
+    name: string
+    info?: string
+    characters: CharacterShort[]
+}
+
+export const addGigCharacter = (gigId: number, characterId: number) =>
+    postDataAs<CampaignGig[]>(`${pathBase}/add-gig-character/${gigId}`, characterId)
+

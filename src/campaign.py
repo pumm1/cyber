@@ -17,6 +17,30 @@ class Campaign:
         }
         return json
 
+
+class CampaignGig:
+    def __init__(self, row, event_char_rows):
+        characters = map(lambda r: (
+            CharacterShort(r).asJson()
+        ), event_char_rows)
+        self.id = row['id']
+        self.name = row['name']
+        self.characters = list(characters)
+        self.campaignId = row['campaign_id']
+        self.info = row['info']
+
+
+    def asJson(self):
+        json = {
+            'id': self.id,
+            'name': self.name,
+            'campaignId': self.campaignId,
+            'characters': self.characters,
+            'info': self.info
+        }
+        return json
+
+
 class CampaignEvent:
     def __init__(self, row, event_char_rows):
         characters = map(lambda r: (
@@ -64,12 +88,34 @@ def campaignEvents(campaignId: int):
     return list(events)
 
 
+def campaignGigs(campaignId: int):
+    rows = DAO.campaignGigs(campaignId)
+    gigs = []
+    for row in rows:
+        gig_id = row['id']
+        gig_character_rows = DAO.gigChracters(gig_id)
+        ce = CampaignGig(row, gig_character_rows).asJson()
+        gigs.append(ce)
+    return list(gigs)
+
+
 def addCampaignEvent(campaignId: int, info: str | None):
     DAO.addEvent(campaignId, info)
 
 
 def addEventCharacter(eventId: int, characterId: int):
-    DAO.addEventCharacters(eventId, characterId)
+    DAO.addEventCharacter(eventId, characterId)
     event_row = DAO.eventCampaign(eventId)
     campaign_id = event_row['campaign_id']
     return campaignEvents(campaign_id)
+
+
+def addCampaignGig(campaign_id: int, name: str, info: str | None):
+    DAO.addGig(campaign_id, name, info)
+
+
+def addGigCharacter(gig_id: int, characterId: int):
+    DAO.addGigCharacter(gig_id, characterId)
+    event_row = DAO.gigCampaign(gig_id)
+    campaign_id = event_row['campaign_id']
+    return campaignGigs(campaign_id)

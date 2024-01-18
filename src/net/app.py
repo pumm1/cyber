@@ -539,3 +539,31 @@ def addEventCharacter(id):
         return jsonify(campaign.addEventCharacter(id, character_id))
     else:
         return invalid_req()
+
+@app.route('/add-campaign-gig/<int:id>', methods=[post])
+def addCampaignEvent(id):
+    if request.method == post:
+        data = request.get_json()
+        name = data['name']
+        info = data['info']
+        campaign.addCampaignGig(id, name, info)
+        return jsonify(True)
+    else:
+        return invalid_req()
+
+
+@app.route('/add-gig-character/<int:id>', methods=[post])
+def addEventCharacter(id):
+    if request.method == post:
+        character_id = request.get_json()
+        return jsonify(campaign.addGigCharacter(id, character_id))
+    else:
+        return invalid_req()
+
+@app.route('/complete-gig/<int:id>', methods=[post])
+def completeGig(id):
+    if request.method == post:
+        print(id)
+        return jsonify(True) #TODO: campaign.completeGig(id)
+    else:
+        return invalid_req()

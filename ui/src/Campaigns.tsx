@@ -1,6 +1,6 @@
 import Navbar from "./Navbar"
 import './App.css';
-import { AddCampaignEventReq, AddCampaignReq, Campaign, CampaignEvent, CharacterShort, addCampaign, addCampaignEvent, addEventCharacter, fetchCampaignEvents, fetchCampaigns, listCharacters, sortedCharacters } from "./CyberClient";
+import { AddCampaignEventReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, addCampaign, addCampaignEvent, addEventCharacter, addGigCharacter, fetchCampaignEvents, fetchCampaigns, listCharacters, sortedCharacters } from "./CyberClient";
 import { useEffect, useState } from "react";
 import Hideable from "./Hideable";
 
@@ -69,6 +69,10 @@ interface AddEventProps {
     setEvents: (events: CampaignEvent[]) => void
 }
 
+const resolveCharacterInfos = (characters: CharacterShort[]) =>
+    characters.map(c => `${c.name} (${c.role})`).join(', ')
+
+
 const CampaignEvents = ({campaignId, events, setEvents}: CampaignEventsProps) => {
     const [characters, setCharacters] = useState<CharacterShort[]>([])
 
@@ -94,7 +98,7 @@ const CampaignEvents = ({campaignId, events, setEvents}: CampaignEventsProps) =>
                         <td>
                             <textarea value={e.info ?? ''} readOnly={true}/>
                         </td>
-                        <td>{e.characters.map(c => `${c.name} (${c.role})`).join(', ')}</td>
+                        <td>{resolveCharacterInfos(e.characters)}</td>
                         <td>
                             <select>
                                 {filteredCharacters(e).map(c => 
@@ -113,7 +117,6 @@ const CampaignEvents = ({campaignId, events, setEvents}: CampaignEventsProps) =>
 const AddCampaignEvent = ({campaignId, setEvents}: AddEventProps) => {
     const [info, setInfo] = useState<undefined | string>(undefined)
     const addReq: AddCampaignEventReq = {
-        campaignId,
         info,
     }
     
@@ -130,8 +133,52 @@ const AddCampaignEvent = ({campaignId, setEvents}: AddEventProps) => {
                         setInfo(e.target.value)
                     }}/>
                 </td>
-                <td><button onClick={() => addCampaignEvent(addReq).then(() => fetchCampaignEvents(campaignId).then(setEvents))}>Add</button></td>
+                <td><button onClick={() => addCampaignEvent(campaignId, addReq).then(() => fetchCampaignEvents(campaignId).then(setEvents))}>Add</button></td>
             </tr>
+        </table>
+    )
+}
+
+interface CampaignGigsProps {
+    campaignId: number
+    gigs: CampaignGig[]
+    setGigs: (events: CampaignGig[]) => void
+}
+const CampaignGigs = ({campaignId, gigs, setGigs}: CampaignGigsProps) => {
+    const [characters, setCharacters] = useState<CharacterShort[]>([])
+
+    const filteredCharacters = (g: CampaignGig) => 
+        sortedCharacters(characters).filter(c => !g.characters.map(gc => gc.id).includes(c.id))
+
+    return(
+        <table>
+            <tr>
+                <th>id</th>
+                <th>Gig name</th>
+                <th>Gig info</th>
+                <th>Characters</th>
+                <th>Add character</th>
+            </tr>
+            {gigs.map(g => {
+                return (
+                    <tr>
+                        <td>{g.id}</td>
+                        <td>{g.name}</td>
+                        <td>
+                            <textarea value={g.info ?? ''} readOnly={true}/>
+                        </td>
+                        <td>{resolveCharacterInfos(g.characters)}</td>
+                        <td>
+                            <select>
+                                {filteredCharacters(g).map(c => 
+                                    <option value={c.id} onClick={() => addGigCharacter(g.id, c.id).then(setGigs)}>{c.name} ({c.role})</option>
+                                )}
+                            </select>
+                        </td>
+                    </tr>
+                )
+            })}
+           
         </table>
     )
 }

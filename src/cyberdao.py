@@ -7,7 +7,8 @@ from cyberschema import db, user, password, host, table_skills, table_characters
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
     table_events, table_character_chrome, table_character_statuses, table_character_quick_notice, \
     table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus, table_character_notice_rolls, \
-    table_system_version, expected_system_version, table_campaigns, table_event_characters
+    table_system_version, expected_system_version, table_campaigns, table_event_characters, table_gigs, \
+    table_gig_characters
 from character import Character, CharacterShort
 from skill import SkillInfo
 from armor import Armor
@@ -1033,6 +1034,17 @@ def campaignEvents(campaign_id: int):
         conn.commit()
         return rows
 
+
+def campaignGigs(campaign_id: int):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{select_from} {table_gigs} WHERE campaign_id = {campaign_id};"""
+        )
+        rows = cur.fetchall()
+        conn.commit()
+        return rows
+
+
 def eventChracters(event_id: int):
     with conn.cursor() as cur:
         cur.execute(
@@ -1042,17 +1054,22 @@ def eventChracters(event_id: int):
         conn.commit()
         return rows
 
+def resolveInfo(info: str | None):
+    info_inserted = None
+    if info is not None:
+        info_inserted = f"'{info}'"
+    return info_inserted
+
+
 def addEvent(campaign_id, info: str | None):
     with conn.cursor() as cur:
-        info_inserted = None
-        if info is not None:
-            info_inserted = f"'{info}'"
+        info_inserted = resolveInfo(info)
         cur.execute(
             f"""{insert_into} {table_events} (campaign_id, info) VALUES ({campaign_id}, {info_inserted});"""
         )
         conn.commit()
 
-def addEventCharacters(event_id, character_id):
+def addEventCharacter(event_id, character_id):
     with conn.cursor() as cur:
         cur.execute(
             f"""{insert_into} {table_event_characters} (event_id, character_id) VALUES ({event_id}, {character_id});"""
@@ -1069,4 +1086,39 @@ def eventCampaign(event_id):
         conn.commit()
         return row
 
+
+def addGig(campaign_id, name: str, info: str | None):
+    with conn.cursor() as cur:
+        info_inserted = resolveInfo(info)
+        cur.execute(
+            f"""{insert_into} {table_gigs} (campaign_id, name, info, is_completed) VALUES ({campaign_id}, '{name}', {info_inserted}, {False});"""
+        )
+        conn.commit()
+
+
+def addGigCharacter(gig_id, character_id):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{insert_into} {table_gig_characters} (gig_id, character_id) VALUES ({gig_id}, {character_id});"""
+        )
+        conn.commit()
+
+
+def gigCampaign(gig_id):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{select_from} {table_gigs} where id = {gig_id};"""
+        )
+        row = cur.fetchone()
+        conn.commit()
+        return row
+
+def gigChracters(gig_id: int):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{select} c.id, c.name, c.role FROM {table_gig_characters} gc JOIN {table_characters} c on gc.character_id = c.id WHERE gc.gig_id = {gig_id};"""
+        )
+        rows = cur.fetchall()
+        conn.commit()
+        return rows
 
