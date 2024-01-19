@@ -1,6 +1,6 @@
 import Navbar from "./Navbar"
 import './App.css';
-import { AddCampaignEventReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, addCampaign, addCampaignEvent, addEventCharacter, addGigCharacter, fetchCampaignEvents, fetchCampaigns, listCharacters, sortedCharacters } from "./CyberClient";
+import { AddCampaignEventReq, AddCampaignGigReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, addCampaign, addCampaignEvent, addCampaignGig, addEventCharacter, addGigCharacter, completeGig, fetchCampaignEvents, fetchCampaignGigs, fetchCampaigns, listCharacters, sortedCharacters } from "./CyberClient";
 import { useEffect, useState } from "react";
 import Hideable from "./Hideable";
 
@@ -59,7 +59,6 @@ const AddCampaign = ({updateCampaigns}: AddCampaingProps) => {
 }
 
 interface CampaignEventsProps {
-    campaignId: number
     events: CampaignEvent[]
     setEvents: (events: CampaignEvent[]) => void
 }
@@ -73,15 +72,15 @@ const resolveCharacterInfos = (characters: CharacterShort[]) =>
     characters.map(c => `${c.name} (${c.role})`).join(', ')
 
 
-const CampaignEvents = ({campaignId, events, setEvents}: CampaignEventsProps) => {
+const CampaignEvents = ({events, setEvents}: CampaignEventsProps) => {
     const [characters, setCharacters] = useState<CharacterShort[]>([])
 
     const filteredCharacters = (e: CampaignEvent) => 
         sortedCharacters(characters).filter(c => !e.characters.map(ec => ec.id).includes(c.id))
         
     useEffect(() => {
-        fetchCampaignEvents(campaignId).then(setEvents).then(() => listCharacters().then(setCharacters))
-    }, [campaignId])
+       listCharacters().then(setCharacters)
+    }, [])
 
     return (
         <table>
@@ -119,6 +118,8 @@ const AddCampaignEvent = ({campaignId, setEvents}: AddEventProps) => {
     const addReq: AddCampaignEventReq = {
         info,
     }
+
+    const isValid = info !== undefined && info !== ''
     
     return(
         <table>
@@ -133,22 +134,25 @@ const AddCampaignEvent = ({campaignId, setEvents}: AddEventProps) => {
                         setInfo(e.target.value)
                     }}/>
                 </td>
-                <td><button onClick={() => addCampaignEvent(campaignId, addReq).then(() => fetchCampaignEvents(campaignId).then(setEvents))}>Add</button></td>
+                <td><button disabled={!isValid} onClick={() => addCampaignEvent(campaignId, addReq).then(() => fetchCampaignEvents(campaignId).then(setEvents))}>Add</button></td>
             </tr>
         </table>
     )
 }
 
 interface CampaignGigsProps {
-    campaignId: number
     gigs: CampaignGig[]
     setGigs: (events: CampaignGig[]) => void
 }
-const CampaignGigs = ({campaignId, gigs, setGigs}: CampaignGigsProps) => {
+const CampaignGigs = ({gigs, setGigs}: CampaignGigsProps) => {
     const [characters, setCharacters] = useState<CharacterShort[]>([])
 
     const filteredCharacters = (g: CampaignGig) => 
         sortedCharacters(characters).filter(c => !g.characters.map(gc => gc.id).includes(c.id))
+
+        useEffect(() => {
+            listCharacters().then(setCharacters)
+         }, [])
 
     return(
         <table>
@@ -158,6 +162,7 @@ const CampaignGigs = ({campaignId, gigs, setGigs}: CampaignGigsProps) => {
                 <th>Gig info</th>
                 <th>Characters</th>
                 <th>Add character</th>
+                <th>Complete gig</th>
             </tr>
             {gigs.map(g => {
                 return (
@@ -175,10 +180,57 @@ const CampaignGigs = ({campaignId, gigs, setGigs}: CampaignGigsProps) => {
                                 )}
                             </select>
                         </td>
+                        <td>
+                            <button disabled={g.isCompleted} onClick={() => completeGig(g.id).then(() => fetchCampaignGigs(g.campaignId).then(setGigs))}>
+                                Complete
+                            </button>
+                        </td>
                     </tr>
                 )
             })}
            
+        </table>
+    )
+}
+
+interface AddGigProps {
+    campaignId: number
+    setGigs: (g: CampaignGig[]) => void
+}
+
+const AddCampaignGig = ({campaignId, setGigs}: AddGigProps) => {
+    const [name, setName] = useState<string>('')
+    const [info, setInfo] = useState<undefined | string>(undefined)
+    const isValid = name !== ''
+    const addReq: AddCampaignGigReq = {
+        name,
+        info,
+    }
+    
+    return(
+        <table>
+            <tr>
+                <th>Gig name</th>
+                <th>Gig info</th>
+                <th>Action</th>
+            </tr>
+            <tr>
+                <td>
+                    <input type='text' value={name} onChange={e => {
+                            e.preventDefault()
+                            setName(e.target.value)
+                        }}
+                    />
+                </td>
+                <td>
+                    <textarea onChange={e => {
+                        e.preventDefault()
+                        setInfo(e.target.value)
+                    }}/>
+                </td>
+                <td>
+                    <button disabled={!isValid} onClick={() => addCampaignGig(campaignId, addReq).then(() => fetchCampaignGigs(campaignId).then(setGigs))}>Add</button></td>
+            </tr>
         </table>
     )
 }
@@ -188,9 +240,10 @@ const Campaigns = ({}) => {
     const updatecampaignsFn = () => fetchCampaigns().then(setCampaigns)
     const [selectedCampaign, setSelectedCampaign] = useState<Campaign | undefined>(undefined)
     const [events, setEvents] = useState<CampaignEvent[]>([])
+    const [gigs, setGigs] = useState<CampaignGig[]>([])
 
     useEffect(() => {
-        selectedCampaign && fetchCampaignEvents(selectedCampaign.id).then(setEvents)
+        selectedCampaign && fetchCampaignEvents(selectedCampaign.id).then(setEvents).then(() => fetchCampaignGigs(selectedCampaign.id).then(setGigs))
     }, [selectedCampaign])
 
     const SelectedCampaignInfo = ({}) => 
@@ -207,8 +260,10 @@ const Campaigns = ({}) => {
             <SelectedCampaignInfo />
             <Hideable text='campaigns' props={<CampaignTable campaigns={campaigns} setSelectedCampaign={setSelectedCampaign}/>}/>
             <Hideable text='campaign form' props={<AddCampaign updateCampaigns={updatecampaignsFn}/>} />
-            {selectedCampaign && <Hideable text='campaign events' props={<CampaignEvents events={events} setEvents={setEvents} campaignId={selectedCampaign.id}/>}/>}
-            {selectedCampaign && <Hideable text='add campaign event' props={<AddCampaignEvent setEvents={setEvents} campaignId={selectedCampaign.id} />}/>}
+            {selectedCampaign && <Hideable text='campaign events' props={<CampaignEvents events={events} setEvents={setEvents} />}/>}
+            {selectedCampaign && <Hideable text='campaign event form' props={<AddCampaignEvent setEvents={setEvents} campaignId={selectedCampaign.id} />}/>}
+            {selectedCampaign && <Hideable text='campaign gigs' props={<CampaignGigs gigs={gigs} setGigs={setGigs}/>}/>}
+            {selectedCampaign && <Hideable text='campaign gig form' props={<AddCampaignGig campaignId={selectedCampaign.id} setGigs={setGigs}/>}/>}
         </div>
     )
 }

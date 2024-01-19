@@ -1044,6 +1044,12 @@ def campaignGigs(campaign_id: int):
         conn.commit()
         return rows
 
+def completeGig(gig_id: int):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{update} {table_gigs} SET is_completed = {True} WHERE id = {gig_id};"""
+        )
+        conn.commit()
 
 def eventChracters(event_id: int):
     with conn.cursor() as cur:

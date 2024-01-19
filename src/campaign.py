@@ -28,6 +28,7 @@ class CampaignGig:
         self.characters = list(characters)
         self.campaignId = row['campaign_id']
         self.info = row['info']
+        self.isCompleted = row['is_completed']
 
 
     def asJson(self):
@@ -36,7 +37,8 @@ class CampaignGig:
             'name': self.name,
             'campaignId': self.campaignId,
             'characters': self.characters,
-            'info': self.info
+            'info': self.info,
+            'isCompleted': self.isCompleted
         }
         return json
 
@@ -119,3 +121,6 @@ def addGigCharacter(gig_id: int, characterId: int):
     event_row = DAO.gigCampaign(gig_id)
     campaign_id = event_row['campaign_id']
     return campaignGigs(campaign_id)
+
+def completeGig(gig_id: int):
+    DAO.completeGig(gig_id)

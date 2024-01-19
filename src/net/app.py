@@ -540,8 +540,24 @@ def addEventCharacter(id):
     else:
         return invalid_req()
 
+
+@app.route('/add-gig-character/<int:id>', methods=[post])
+def addGigCharacter(id):
+    if request.method == post:
+        character_id = request.get_json()
+        return jsonify(campaign.addGigCharacter(id, character_id))
+    else:
+        return invalid_req()
+
+@app.route('/campaign-gigs/<int:id>', methods=[get])
+def campaignGigs(id):
+    if request.method == get:
+        return jsonify(campaign.campaignGigs(id))
+    else:
+        return invalid_req()
+
 @app.route('/add-campaign-gig/<int:id>', methods=[post])
-def addCampaignEvent(id):
+def addCampaignGig(id):
     if request.method == post:
         data = request.get_json()
         name = data['name']
@@ -552,18 +568,11 @@ def addCampaignEvent(id):
         return invalid_req()
 
 
-@app.route('/add-gig-character/<int:id>', methods=[post])
-def addEventCharacter(id):
-    if request.method == post:
-        character_id = request.get_json()
-        return jsonify(campaign.addGigCharacter(id, character_id))
-    else:
-        return invalid_req()
-
 @app.route('/complete-gig/<int:id>', methods=[post])
 def completeGig(id):
     if request.method == post:
         print(id)
-        return jsonify(True) #TODO: campaign.completeGig(id)
+        campaign.completeGig(id)
+        return jsonify(True)
     else:
         return invalid_req()
