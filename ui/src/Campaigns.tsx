@@ -31,12 +31,19 @@ interface AddCampaingProps {
 }
 
 const AddCampaign = ({updateCampaigns}: AddCampaingProps) => {
-    const [name, setName] = useState('')
+    const [name, setName] = useState<undefined | string>(undefined)
     const [info, setInfo] = useState<string | undefined>(undefined)
     const addCampaingReq: AddCampaignReq  = {
-        name,
+        name: name ?? '',
         info
     }
+
+    const emptyForm = () => {
+        setName(undefined)
+        setInfo(undefined)
+    }
+
+    const isValid: boolean = name !== ''
 
     return(
         <table>
@@ -46,12 +53,12 @@ const AddCampaign = ({updateCampaigns}: AddCampaingProps) => {
                 <th>Action</th>
             </tr>
             <tr>
-                <td><input value={name} onChange={e => setName(e.target.value)}/></td>
-                <td><textarea value={info} onChange={e => setInfo(e.target.value)}/></td>
-                <td><button onClick={e => {
+                <td><input placeholder='<Campaign name>' value={name} onChange={e => setName(e.target.value)}/></td>
+                <td><textarea placeholder='Describe campaign somehow' value={info} onChange={e => setInfo(e.target.value)}/></td>
+                <td><button disabled={!isValid} onClick={e => {
                     e.preventDefault()
 
-                    addCampaign(addCampaingReq).then(() => updateCampaigns())
+                    addCampaign(addCampaingReq).then(() => updateCampaigns().then(() => emptyForm()))
                 }}>Add</button></td>
             </tr>
         </table>
@@ -74,6 +81,8 @@ const resolveCharacterInfos = (characters: CharacterShort[]) =>
 
 const CampaignEvents = ({events, setEvents}: CampaignEventsProps) => {
     const [characters, setCharacters] = useState<CharacterShort[]>([])
+    const [showFilter, setShowFilter] = useState(false)
+    const [sessionFilter, setSessionFilter] = useState<undefined | number>(undefined)
 
     const filteredCharacters = (e: CampaignEvent) => 
         sortedCharacters(characters).filter(c => !e.characters.map(ec => ec.id).includes(c.id))
@@ -82,36 +91,50 @@ const CampaignEvents = ({events, setEvents}: CampaignEventsProps) => {
        listCharacters().then(setCharacters)
     }, [])
 
+    const filteredEvents = () =>
+        showFilter && sessionFilter !== undefined ? events.filter(e => e.sessionNumber === sessionFilter) : events
+
     return (
-        <table>
-            <tr>
-                <th>id</th>
-                <th>Session</th>
-                <th>Event info</th>
-                <th>Characters</th>
-                <th>Add character</th>
-            </tr>
-            {events.map(e => {
-                return (
-                    <tr>
-                        <td>{e.id}</td>
-                        <td>{e.sessionNumber}</td>
-                        <td>
-                            <textarea value={e.info ?? ''} readOnly={true}/>
-                        </td>
-                        <td>{resolveCharacterInfos(e.characters)}</td>
-                        <td>
-                            <select>
-                                {filteredCharacters(e).map(c => 
-                                    <option value={c.id} onClick={() => addEventCharacter(e.id, c.id).then(setEvents)}>{c.name} ({c.role})</option>
-                                )}
-                            </select>
-                        </td>
-                    </tr>
-                )
-            })}
-           
-        </table>
+        <div>
+            Show session filter {<input type='checkbox' checked={showFilter} onChange={() => setShowFilter(!showFilter)}/>}       
+            {showFilter && 
+                <input value={sessionFilter} type='number' onChange={e => {
+                        e.preventDefault()
+                        const value = parseInt(e.target.value)
+                        setSessionFilter(value)
+                    }}
+                />
+            }     
+            <table>
+                <tr>
+                    <th>id</th>
+                    <th>Session</th>
+                    <th>Event info</th>
+                    <th>Characters</th>
+                    <th>Add character</th>
+                </tr>
+                {filteredEvents().map(e => {
+                    return (
+                        <tr>
+                            <td>{e.id}</td>
+                            <td>{e.sessionNumber}</td>
+                            <td>
+                                <textarea value={e.info ?? ''} readOnly={true}/>
+                            </td>
+                            <td>{resolveCharacterInfos(e.characters)}</td>
+                            <td>
+                                <select>
+                                    {filteredCharacters(e).map(c => 
+                                        <option value={c.id} onClick={() => addEventCharacter(e.id, c.id).then(setEvents)}>{c.name} ({c.role})</option>
+                                    )}
+                                </select>
+                            </td>
+                        </tr>
+                    )
+                })}
+            
+            </table>
+        </div>
     )
 }
 
@@ -138,7 +161,7 @@ const AddCampaignEvent = ({campaignId, setEvents}: AddEventProps) => {
             </tr>
             <tr>
                 <td>
-                    <textarea value={info} onChange={e => {
+                    <textarea placeholder='Describe event somehow..' value={info} onChange={e => {
                         e.preventDefault()
                         setInfo(e.target.value)
                     }}/>
@@ -179,6 +202,9 @@ const CampaignGigs = ({gigs, setGigs}: CampaignGigsProps) => {
         listCharacters().then(setCharacters)
     }, [])
 
+    const gigStatus = (g: CampaignGig) =>
+        g.isCompleted ? 'Done' : 'In progress'
+
     return(
         <div>
             Show completed {<input type='checkbox' checked={showCompleted} onChange={() => setShowCompleted(!showCompleted)} />}
@@ -186,6 +212,7 @@ const CampaignGigs = ({gigs, setGigs}: CampaignGigsProps) => {
                 <tr>
                     <th>id</th>
                     <th>Gig name</th>
+                    <th>Status</th>
                     <th>Gig info</th>
                     <th>Characters</th>
                     <th>Add character</th>
@@ -196,6 +223,7 @@ const CampaignGigs = ({gigs, setGigs}: CampaignGigsProps) => {
                         <tr>
                             <td>{g.id}</td>
                             <td>{g.name}</td>
+                            <td>{gigStatus(g)}</td>
                             <td>
                                 <textarea value={g.info ?? ''} readOnly={true}/>
                             </td>
@@ -250,14 +278,14 @@ const AddCampaignGig = ({campaignId, setGigs}: AddGigProps) => {
             </tr>
             <tr>
                 <td>
-                    <input type='text' value={name} onChange={e => {
+                    <input placeholder='<Gig name>' type='text' value={name} onChange={e => {
                             e.preventDefault()
                             setName(e.target.value)
                         }}
                     />
                 </td>
                 <td>
-                    <textarea value={info} onChange={e => {
+                    <textarea placeholder='Describe the gig somehow' value={info} onChange={e => {
                         e.preventDefault()
                         setInfo(e.target.value)
                     }}/>
