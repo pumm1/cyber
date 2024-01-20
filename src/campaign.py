@@ -28,7 +28,7 @@ class CampaignGig:
         self.characters = list(characters)
         self.campaignId = row['campaign_id']
         self.info = row['info']
-        self.isCompleted = row['is_completed']
+        self.status = row['status']
 
 
     def asJson(self):
@@ -38,9 +38,10 @@ class CampaignGig:
             'campaignId': self.campaignId,
             'characters': self.characters,
             'info': self.info,
-            'isCompleted': self.isCompleted
+            'status': self.status
         }
         return json
+
 
 
 class CampaignEvent:
@@ -65,6 +66,13 @@ class CampaignEvent:
         }
         return json
 
+
+gig_status_not_started = 'NotStarted'
+gig_status_started = 'Started'
+gig_status_failed = 'Failed'
+gig_status_done = 'Done'
+
+valid_gig_statuses = [gig_status_done,  gig_status_failed, gig_status_not_started, gig_status_started]
 
 def allCampaigns():
     rows = DAO.listCampaigns()
@@ -114,8 +122,13 @@ def addEventCharacter(eventId: int, characterId: int):
     return campaignEvents(campaign_id)
 
 
-def addCampaignGig(campaign_id: int, name: str, info: str | None):
-    DAO.addGig(campaign_id, name, info)
+def addCampaignGig(campaign_id: int, name: str, info: str | None, status: str):
+    DAO.addGig(campaign_id, name, info, status)
+
+
+def updateGigStatus(gig_id: int, status: str):
+    assert(valid_gig_statuses.__contains__(status))
+    DAO.updateGigStatus(gig_id, status)
 
 
 def addGigCharacter(gig_id: int, characterId: int):
@@ -123,6 +136,3 @@ def addGigCharacter(gig_id: int, characterId: int):
     event_row = DAO.gigCampaign(gig_id)
     campaign_id = event_row['campaign_id']
     return campaignGigs(campaign_id)
-
-def completeGig(gig_id: int):
-    DAO.completeGig(gig_id)

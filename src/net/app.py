@@ -563,17 +563,18 @@ def addCampaignGig(id):
         data = request.get_json()
         name = data['name']
         info = data['info']
-        campaign.addCampaignGig(id, name, info)
+        status = data['status']
+        campaign.addCampaignGig(id, name, info, status)
         return jsonify(True)
     else:
         return invalid_req()
 
 
-@app.route('/complete-gig/<int:id>', methods=[post])
-def completeGig(id):
+@app.route('/update-gig-status/<int:id>', methods=[post])
+def updateGigStatus(id):
     if request.method == post:
-        print(id)
-        campaign.completeGig(id)
+        status = request.get_json()
+        campaign.updateGigStatus(id, status)
         return jsonify(True)
     else:
         return invalid_req()

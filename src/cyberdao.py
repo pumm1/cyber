@@ -1044,12 +1044,6 @@ def campaignGigs(campaign_id: int):
         conn.commit()
         return rows
 
-def completeGig(gig_id: int):
-    with conn.cursor() as cur:
-        cur.execute(
-            f"""{update} {table_gigs} SET is_completed = {True} WHERE id = {gig_id};"""
-        )
-        conn.commit()
 
 def eventChracters(event_id: int):
     with conn.cursor() as cur:
@@ -1093,11 +1087,19 @@ def eventCampaign(event_id):
         return row
 
 
-def addGig(campaign_id, name: str, info: str | None):
+def addGig(campaign_id, name: str, info: str | None, status: str):
     with conn.cursor() as cur:
         info_inserted = resolveInfo(info)
         cur.execute(
-            f"""{insert_into} {table_gigs} (campaign_id, name, info, is_completed) VALUES ({campaign_id}, '{name}', {info_inserted}, {False});"""
+            f"""{insert_into} {table_gigs} (campaign_id, name, info, status) VALUES ({campaign_id}, '{name}', {info_inserted}, '{status}');"""
+        )
+        conn.commit()
+
+
+def updateGigStatus(gig_id: int, status: str):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{update} {table_gigs} SET status = '{status}' WHERE id = {gig_id};"""
         )
         conn.commit()
 

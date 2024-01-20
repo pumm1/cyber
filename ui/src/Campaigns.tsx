@@ -1,8 +1,20 @@
 import Navbar from "./Navbar"
-import './App.css';
-import { AddCampaignEventReq, AddCampaignGigReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, addCampaign, addCampaignEvent, addCampaignGig, addEventCharacter, addGigCharacter, completeGig, fetchCampaignEvents, fetchCampaignGigs, fetchCampaigns, listCharacters, sortedCharacters } from "./CyberClient";
+import './App.css'
+import './Campaigns.css'
+import { AddCampaignEventReq, AddCampaignGigReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, GigStatus, addCampaign, addCampaignEvent, addCampaignGig, addEventCharacter, addGigCharacter, fetchCampaignEvents, fetchCampaignGigs, fetchCampaigns, listCharacters, sortedCharacters, updateGigStatus } from "./CyberClient";
 import { useEffect, useState } from "react";
 import Hideable from "./Hideable";
+
+interface ListedcharactersProps {
+    characters: CharacterShort[]
+}
+
+//TODO: remove functionality
+const ListedCharacters = ({ characters }: ListedcharactersProps) => 
+    <div className='characters'>
+        {characters.map(c => <div className='character'>{`${c.name} (${c.role})`} <button>X</button></div>)}
+    </div>
+
 
 interface CampaignTableProps {
     campaigns: Campaign[]
@@ -121,7 +133,7 @@ const CampaignEvents = ({events, setEvents}: CampaignEventsProps) => {
                             <td>
                                 <textarea value={e.info ?? ''} readOnly={true}/>
                             </td>
-                            <td>{resolveCharacterInfos(e.characters)}</td>
+                            <td><ListedCharacters characters={e.characters}/></td>
                             <td>
                                 <select>
                                     {filteredCharacters(e).map(c => 
@@ -184,6 +196,9 @@ const AddCampaignEvent = ({campaignId, setEvents}: AddEventProps) => {
     )
 }
 
+const gigStatusLabel = (status: GigStatus) =>
+    status === GigStatus.NotStarted ? 'Not started' : status
+
 interface CampaignGigsProps {
     gigs: CampaignGig[]
     setGigs: (events: CampaignGig[]) => void
@@ -192,18 +207,18 @@ const CampaignGigs = ({gigs, setGigs}: CampaignGigsProps) => {
     const [characters, setCharacters] = useState<CharacterShort[]>([])
     const [showCompleted, setShowCompleted] = useState(false)
 
+    const gigIsOver = (g: CampaignGig) =>
+        g.status === GigStatus.Done || g.status === GigStatus.Failed
+
     const filteredCharacters = (g: CampaignGig) => 
         sortedCharacters(characters).filter(c => !g.characters.map(gc => gc.id).includes(c.id))
 
-    const filteredGigs = () =>
-        !showCompleted ? gigs.filter(g => !g.isCompleted) : gigs
+    const filteredGigs = () =>!
+        !showCompleted ? gigs.filter(g => !gigIsOver(g)) : gigs
 
     useEffect(() => {
         listCharacters().then(setCharacters)
     }, [])
-
-    const gigStatus = (g: CampaignGig) =>
-        g.isCompleted ? 'Done' : 'In progress'
 
     return(
         <div>
@@ -216,14 +231,16 @@ const CampaignGigs = ({gigs, setGigs}: CampaignGigsProps) => {
                     <th>Gig info</th>
                     <th>Characters</th>
                     <th>Add character</th>
-                    <th>Complete gig</th>
+                    <th>Action</th>
                 </tr>
                 {filteredGigs().map(g => {
                     return (
                         <tr>
                             <td>{g.id}</td>
                             <td>{g.name}</td>
-                            <td>{gigStatus(g)}</td>
+                            <td>
+                                {gigStatusLabel(g.status)}
+                            </td>
                             <td>
                                 <textarea value={g.info ?? ''} readOnly={true}/>
                             </td>
@@ -236,8 +253,14 @@ const CampaignGigs = ({gigs, setGigs}: CampaignGigsProps) => {
                                 </select>
                             </td>
                             <td>
-                                <button disabled={g.isCompleted} onClick={() => completeGig(g.id).then(() => fetchCampaignGigs(g.campaignId).then(setGigs))}>
+                                <button className='withLessRightSpace' disabled={g.status !== GigStatus.NotStarted} onClick={() => updateGigStatus(g.id, GigStatus.Started).then(() => fetchCampaignGigs(g.campaignId).then(setGigs))}>
+                                    Start
+                                </button>
+                                <button className='withLessRightSpace' disabled={gigIsOver(g)} onClick={() => updateGigStatus(g.id, GigStatus.Done).then(() => fetchCampaignGigs(g.campaignId).then(setGigs))}>
                                     Complete
+                                </button>
+                                <button className='withLessRightSpace' disabled={gigIsOver(g)} onClick={() => updateGigStatus(g.id, GigStatus.Failed).then(() => fetchCampaignGigs(g.campaignId).then(setGigs))}>
+                                    Failed
                                 </button>
                             </td>
                         </tr>
@@ -257,15 +280,18 @@ interface AddGigProps {
 const AddCampaignGig = ({campaignId, setGigs}: AddGigProps) => {
     const [name, setName] = useState<string>('')
     const [info, setInfo] = useState<undefined | string>(undefined)
+    const [status, setStatus] = useState<GigStatus>(GigStatus.NotStarted)
     const isValid = name !== ''
     const addReq: AddCampaignGigReq = {
         name,
+        status,
         info,
     }
 
     const emptyForm = () => {
         setInfo('')
         setName('')
+        setStatus(GigStatus.NotStarted)
     }
 
     
@@ -273,6 +299,7 @@ const AddCampaignGig = ({campaignId, setGigs}: AddGigProps) => {
         <table>
             <tr>
                 <th>Gig name</th>
+                <th>Status</th>
                 <th>Gig info</th>
                 <th>Action</th>
             </tr>
@@ -283,6 +310,14 @@ const AddCampaignGig = ({campaignId, setGigs}: AddGigProps) => {
                             setName(e.target.value)
                         }}
                     />
+                </td>
+                <td>
+                    <select value={status}>
+                        <option onClick={() => setStatus(GigStatus.NotStarted)}>{gigStatusLabel(GigStatus.NotStarted)}</option>
+                        <option onClick={() => setStatus(GigStatus.Started)}>{gigStatusLabel(GigStatus.Started)}</option>
+                        <option onClick={() => setStatus(GigStatus.Done)}>{gigStatusLabel(GigStatus.Done)}</option>
+                        <option onClick={() => setStatus(GigStatus.Failed)}>{gigStatusLabel(GigStatus.Failed)}</option>
+                    </select>
                 </td>
                 <td>
                     <textarea placeholder='Describe the gig somehow' value={info} onChange={e => {

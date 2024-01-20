@@ -535,11 +535,18 @@ export interface GigCharacter {
     info?: string
 }
 
+export enum GigStatus {
+    NotStarted = 'NotStarted',
+    Started = 'Started',
+    Failed = 'Failed',
+    Done = 'Done'
+}
+
 export interface CampaignGig {
     id: number,
     campaignId: number,
     name: string,
-    isCompleted: boolean,
+    status: GigStatus,
     info?: string
 }
 
@@ -560,6 +567,7 @@ export const addEventCharacter = (eventId: number, characterId: number) =>
 
 export interface AddCampaignGigReq {
     name: string
+    status: GigStatus
     info?: string
 }
 
@@ -581,6 +589,6 @@ export const fetchCampaignGigs = (campaignId: number) =>
     fetchDataAs<CampaignGig[]>(`${pathBase}/campaign-gigs/${campaignId}`)
 
 
-export const completeGig = (gigId: number) =>
-    postDataAs<Boolean>(`${pathBase}/complete-gig/${gigId}`, {})
+export const updateGigStatus = (gigId: number, status: GigStatus) =>
+    postDataAs<Boolean>(`${pathBase}/update-gig-status/${gigId}`, status)
 

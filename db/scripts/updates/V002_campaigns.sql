@@ -1,7 +1,8 @@
 BEGIN;
 
---drop old events as they weren't very useful
-DROP TABLE cyberpunk.events;
+CREATE TYPE cyberpunk.gig_status AS ENUM(
+ 'NotStarted', 'Started', 'Failed', 'Done'
+);
 
 CREATE TABLE cyberpunk.campaigns(
     id BIGSERIAL PRIMARY KEY NOT NULL,
@@ -13,7 +14,7 @@ CREATE TABLE cyberpunk.gigs(
     id BIGSERIAL PRIMARY KEY NOT NULL,
     campaign_id BIGINT NOT NULL,
     name VARCHAR NOT NULL,
-    is_completed BOOLEAN NOT NULL,
+    status cyberpunk.gig_status NOT NULL,
     info VARCHAR
 );
 
