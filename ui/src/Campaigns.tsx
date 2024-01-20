@@ -1,7 +1,7 @@
 import Navbar from "./Navbar"
 import './App.css'
 import './Campaigns.css'
-import { AddCampaignEventReq, AddCampaignGigReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, GigStatus, addCampaign, addCampaignEvent, addCampaignGig, addEventCharacter, addGigCharacter, fetchCampaignEvents, fetchCampaignGigs, fetchCampaigns, listCharacters, sortedCharacters, updateGigStatus } from "./CyberClient";
+import { AddCampaignEventReq, AddCampaignGigReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, GigStatus, addCampaign, addCampaignEvent, addCampaignGig, addEventCharacter, addGigCharacter, fetchCampaignEvents, fetchCampaignGigs, fetchCampaigns, listCharacters, sortedCharacters, updateCampaignInfo, updateGigStatus } from "./CyberClient";
 import { useEffect, useState } from "react";
 import Hideable from "./Hideable";
 
@@ -16,6 +16,36 @@ const ListedCharacters = ({ characters }: ListedcharactersProps) =>
     </div>
 
 
+interface CampaingRowProps {
+    campaign: Campaign
+    setSelectedCampaign: (c: Campaign) => void
+}
+
+
+const CampaignRow = ({ campaign, setSelectedCampaign }: CampaingRowProps) => {
+    const [allowEdit, setAllowedit] = useState(false)
+    const [info, setInfo] = useState(campaign.info)
+    const editIsvalid: boolean = allowEdit && campaign.info !== info
+    return(
+        <tr key={campaign.id}>
+            <td>{campaign.name}</td>
+            <td>
+                <textarea value={info} readOnly={!allowEdit} onChange={e => {
+                    e.preventDefault()
+                    setInfo(e.target.value)
+                }}/>
+            </td>
+            <td>
+                <input type='checkbox' checked={allowEdit} onChange={() => setAllowedit(!allowEdit)}/>
+            </td>
+            <td>
+                <button className='withLessRightSpace' onClick={() => setSelectedCampaign(campaign)}>Select</button>
+                <button disabled={!editIsvalid} className='withLessRightSpace' onClick={() => updateCampaignInfo(campaign.id, info)}>Update</button>
+            </td>
+        </tr>
+    )
+}
+
 interface CampaignTableProps {
     campaigns: Campaign[]
     setSelectedCampaign: (c: Campaign) => void
@@ -27,17 +57,10 @@ const CampaignTable = ({ campaigns, setSelectedCampaign }: CampaignTableProps) =
             <tr>
                 <th>Campaign</th>
                 <th>Info</th>
+                <th>Edit</th>
                 <th>Action</th>
             </tr>
-        {campaigns.map(c => 
-                <tr key={c.id}>
-                    <td>{c.name}</td>
-                    <td>
-                        <textarea value={c.info} readOnly={true}/>
-                    </td>
-                    <td><button onClick={() => setSelectedCampaign(c)}>Select</button></td>
-                </tr>
-            )}
+        {campaigns.map(c => <CampaignRow campaign={c} setSelectedCampaign={setSelectedCampaign}/>)}
         </table>
     )
 }

@@ -26,6 +26,7 @@ CORS(app)
 
 post = 'POST'
 get = 'GET'
+put = 'PUT'
 
 
 def invalid_req():
@@ -515,6 +516,17 @@ def addCampaign():
     else:
         return invalid_req()
 
+
+@app.route('/update-campaign-info/<int:id>', methods=[put])
+def updateCampaignInfo(id):
+    if request.method == put:
+        info = request.get_json()
+        campaign.updateCampaignInfo(id, info)
+        return jsonify(True)
+    else:
+        return invalid_req()
+
+
 @app.route('/campaing-events/<int:id>', methods=[get])
 def campaignEvents(id):
     if request.method == get:
@@ -532,6 +544,18 @@ def addCampaignEvent(id):
         return jsonify(True)
     else:
         return invalid_req()
+
+
+@app.route('/update-event-info/<int:id>', methods=[put])
+def updateEventInfo(id):
+    if request.method == post:
+        info = request.get_json()
+        campaign.updateEventInfo(id, info)
+        return jsonify(True)
+    else:
+        return invalid_req()
+
+
 
 @app.route('/add-event-character/<int:id>', methods=[post])
 def addEventCharacter(id):
@@ -570,7 +594,7 @@ def addCampaignGig(id):
         return invalid_req()
 
 
-@app.route('/update-gig-status/<int:id>', methods=[post])
+@app.route('/update-gig-status/<int:id>', methods=[put])
 def updateGigStatus(id):
     if request.method == post:
         status = request.get_json()
@@ -578,3 +602,14 @@ def updateGigStatus(id):
         return jsonify(True)
     else:
         return invalid_req()
+
+
+@app.route('/update-gig-info/<int:id>', methods=[put])
+def updateGigInfo(id):
+    if request.method == post:
+        info = request.get_json()
+        campaign.updateGigInfo(id, info)
+        return jsonify(True)
+    else:
+        return invalid_req()
+

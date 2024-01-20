@@ -85,10 +85,12 @@ def allCampaigns():
 
 def addCampaign(name: str, info: str | None):
     DAO.addCampaign(name, info)
-    logs = log_event([], f'Campaign {name} added', log_pos)
-    return logs
 
-#TODO: fix characters here
+
+def updateCampaignInfo(campaign_id: int, info: str | None):
+    DAO.updateCampaignInfo(campaign_id, info)
+
+
 def campaignEvents(campaignId: int):
     rows = DAO.campaignEvents(campaignId)
     events = []
@@ -115,6 +117,10 @@ def addCampaignEvent(campaignId: int, session_number, info: str | None):
     DAO.addEvent(campaignId, session_number, info)
 
 
+def updateEventInfo(event_id: int, info: str | None):
+    DAO.updateEventInfo(event_id, info)
+
+
 def addEventCharacter(eventId: int, characterId: int):
     DAO.addEventCharacter(eventId, characterId)
     event_row = DAO.eventCampaign(eventId)
@@ -131,8 +137,12 @@ def updateGigStatus(gig_id: int, status: str):
     DAO.updateGigStatus(gig_id, status)
 
 
+def updateGigInfo(gig_id: int, info: str | None):
+    DAO.updateGigInfo(gig_id, info)
+
+
 def addGigCharacter(gig_id: int, characterId: int):
     DAO.addGigCharacter(gig_id, characterId)
-    event_row = DAO.gigCampaign(gig_id)
-    campaign_id = event_row['campaign_id']
+    gig_row = DAO.gigCampaign(gig_id)
+    campaign_id = gig_row['campaign_id']
     return campaignGigs(campaign_id)

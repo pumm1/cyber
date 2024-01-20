@@ -17,9 +17,24 @@ const postData = (path: string, data: any) => {
     return fetch(path, requestOptions)
 }
 
+const putData = (path: string, data: any) => {
+    const requestOptions = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }
+
+    return fetch(path, requestOptions)
+}
+
 const postDataAs = <T, >(path: string, data: any): Promise<T> => 
     postData(path, data).then(res => {
        return res.json() as T
+    })
+
+const putDataAs = <T, >(path: string, data: any): Promise<T> => 
+    putData(path, data).then(res => {
+        return res.json() as T
     })
 
 
@@ -590,5 +605,15 @@ export const fetchCampaignGigs = (campaignId: number) =>
 
 
 export const updateGigStatus = (gigId: number, status: GigStatus) =>
-    postDataAs<Boolean>(`${pathBase}/update-gig-status/${gigId}`, status)
+    putDataAs<Boolean>(`${pathBase}/update-gig-status/${gigId}`, status)
+
+export const updateGigInfo = (gigId: number, info?: string) =>
+    putDataAs<Boolean>(`${pathBase}/update-gig-info/${gigId}`, info)
+
+export const updateEventInfo = (eventId: number, info?: string) =>
+    putDataAs<Boolean>(`${pathBase}/update-event-info/${eventId}`, info)
+
+
+export const updateCampaignInfo = (campaignId: number, info?: string) =>
+    putDataAs<Boolean>(`${pathBase}/update-campaign-info/${campaignId}`, info)
 

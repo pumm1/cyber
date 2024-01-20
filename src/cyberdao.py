@@ -1025,6 +1025,15 @@ def addCampaign(name: str, info: str | None):
         conn.commit()
 
 
+def updateCampaignInfo(campaign_id: int, info: str | None):
+    with conn.cursor() as cur:
+        info_str = resolveInfo(info)
+        cur.execute(
+            f"""{update} {table_campaigns} SET info = {info_str} WHERE id = {campaign_id};"""
+        )
+        conn.commit()
+
+
 def campaignEvents(campaign_id: int):
     with conn.cursor() as cur:
         cur.execute(
@@ -1069,6 +1078,16 @@ def addEvent(campaign_id, session_number, info: str | None):
         )
         conn.commit()
 
+
+def updateEventInfo(event_id: int, info: str | None):
+    with conn.cursor() as cur:
+        info_str = resolveInfo(info)
+        cur.execute(
+            f"""{update} {table_events} SET info = {info_str} WHERE id = {event_id};"""
+        )
+        conn.commit()
+
+
 def addEventCharacter(event_id, character_id):
     with conn.cursor() as cur:
         cur.execute(
@@ -1094,6 +1113,16 @@ def addGig(campaign_id, name: str, info: str | None, status: str):
             f"""{insert_into} {table_gigs} (campaign_id, name, info, status) VALUES ({campaign_id}, '{name}', {info_inserted}, '{status}');"""
         )
         conn.commit()
+
+
+def updateGigInfo(gig_id: int, info: str | None):
+    with conn.cursor() as cur:
+        info_str = resolveInfo(info)
+        cur.execute(
+            f"""{update} {table_gigs} SET info = {info_str} WHERE id = {gig_id};"""
+        )
+        conn.commit()
+
 
 
 def updateGigStatus(gig_id: int, status: str):
