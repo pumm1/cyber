@@ -49,6 +49,7 @@ class CampaignEvent:
             CharacterShort(r).asJson()
         ), event_char_rows)
         self.id = row['id']
+        self.sessionNumber = row['session_number']
         self.characters = list(characters)
         self.campaignId = row['campaign_id']
         self.info = row['info']
@@ -58,6 +59,7 @@ class CampaignEvent:
         json = {
             'id': self.id,
             'campaignId': self.campaignId,
+            'sessionNumber': self.sessionNumber,
             'characters': self.characters,
             'info': self.info
         }
@@ -101,8 +103,8 @@ def campaignGigs(campaignId: int):
     return list(gigs)
 
 
-def addCampaignEvent(campaignId: int, info: str | None):
-    DAO.addEvent(campaignId, info)
+def addCampaignEvent(campaignId: int, session_number, info: str | None):
+    DAO.addEvent(campaignId, session_number, info)
 
 
 def addEventCharacter(eventId: int, characterId: int):

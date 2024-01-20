@@ -38,6 +38,7 @@ ADD CONSTRAINT gig_characters_characer_id__fk FOREIGN KEY (character_id) REFEREN
 CREATE TABLE cyberpunk.events(
     id BIGSERIAL PRIMARY KEY NOT NULL,
     campaign_id BIGINT NOT NULL,
+    session_number INTEGER NOT NULL,
     info VARCHAR
 );
 

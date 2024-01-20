@@ -524,6 +524,7 @@ export const addCampaign = (c: AddCampaignReq) =>
 export interface CampaignEvent {
     id: number,
     campaignId: number,
+    sessionNumber: number,
     characters: CharacterShort[]
     info?: string
 }
@@ -547,6 +548,7 @@ export const fetchCampaignEvents = (campaignId: number) =>
 
 
 export interface AddCampaignEventReq {
+    sessionNumber: number
     info?: string
 }
 

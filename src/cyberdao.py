@@ -1067,11 +1067,11 @@ def resolveInfo(info: str | None):
     return info_inserted
 
 
-def addEvent(campaign_id, info: str | None):
+def addEvent(campaign_id, session_number, info: str | None):
     with conn.cursor() as cur:
         info_inserted = resolveInfo(info)
         cur.execute(
-            f"""{insert_into} {table_events} (campaign_id, info) VALUES ({campaign_id}, {info_inserted});"""
+            f"""{insert_into} {table_events} (campaign_id, session_number, info) VALUES ({campaign_id}, {session_number}, {info_inserted});"""
         )
         conn.commit()
 

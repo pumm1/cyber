@@ -526,8 +526,9 @@ def campaignEvents(id):
 def addCampaignEvent(id):
     if request.method == post:
         data = request.get_json()
+        session_number = data['sessionNumber']
         info = data['info']
-        campaign.addCampaignEvent(id, info)
+        campaign.addCampaignEvent(id, session_number, info)
         return jsonify(True)
     else:
         return invalid_req()
