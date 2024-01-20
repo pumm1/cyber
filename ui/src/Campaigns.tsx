@@ -26,11 +26,15 @@ const CampaignTable = ({ campaigns, setSelectedCampaign }: CampaignTableProps) =
         <table>
             <tr>
                 <th>Campaign</th>
+                <th>Info</th>
                 <th>Action</th>
             </tr>
         {campaigns.map(c => 
                 <tr key={c.id}>
                     <td>{c.name}</td>
+                    <td>
+                        <textarea value={c.info} readOnly={true}/>
+                    </td>
                     <td><button onClick={() => setSelectedCampaign(c)}>Select</button></td>
                 </tr>
             )}
@@ -51,8 +55,8 @@ const AddCampaign = ({updateCampaigns}: AddCampaingProps) => {
     }
 
     const emptyForm = () => {
-        setName(undefined)
-        setInfo(undefined)
+        setName('')
+        setInfo('')
     }
 
     const isValid: boolean = name !== ''
@@ -85,6 +89,7 @@ interface CampaignEventsProps {
 interface AddEventProps {
     campaignId: number
     setEvents: (events: CampaignEvent[]) => void
+    maxSession?: number
 }
 
 const resolveCharacterInfos = (characters: CharacterShort[]) =>
@@ -119,7 +124,6 @@ const CampaignEvents = ({events, setEvents}: CampaignEventsProps) => {
             }     
             <table>
                 <tr>
-                    <th>id</th>
                     <th>Session</th>
                     <th>Event info</th>
                     <th>Characters</th>
@@ -128,7 +132,6 @@ const CampaignEvents = ({events, setEvents}: CampaignEventsProps) => {
                 {filteredEvents().map(e => {
                     return (
                         <tr>
-                            <td>{e.id}</td>
                             <td>{e.sessionNumber}</td>
                             <td>
                                 <textarea value={e.info ?? ''} readOnly={true}/>
@@ -150,8 +153,8 @@ const CampaignEvents = ({events, setEvents}: CampaignEventsProps) => {
     )
 }
 
-const AddCampaignEvent = ({campaignId, setEvents}: AddEventProps) => {
-    const [sessionNumber, setSessionNumber] = useState<undefined | number>(1)
+const AddCampaignEvent = ({campaignId, setEvents, maxSession}: AddEventProps) => {
+    const [sessionNumber, setSessionNumber] = useState<undefined | number>(maxSession)
     const [info, setInfo] = useState<undefined | string>(undefined)
     const addReq: AddCampaignEventReq = {
         sessionNumber: sessionNumber ?? 1,
@@ -173,7 +176,7 @@ const AddCampaignEvent = ({campaignId, setEvents}: AddEventProps) => {
             </tr>
             <tr>
                 <td>
-                    <textarea placeholder='Describe event somehow..' value={info} onChange={e => {
+                    <textarea placeholder='Describe event somehow' value={info} onChange={e => {
                         e.preventDefault()
                         setInfo(e.target.value)
                     }}/>
@@ -359,7 +362,7 @@ const Campaigns = ({}) => {
             <Hideable text='campaign form' props={<AddCampaign updateCampaigns={updatecampaignsFn}/>} />
             {selectedCampaign && <h2>Campaign events</h2>}
             {selectedCampaign && <Hideable text='campaign events' props={<CampaignEvents events={events} setEvents={setEvents} />}/>}
-            {selectedCampaign && <Hideable text='campaign event form' props={<AddCampaignEvent setEvents={setEvents} campaignId={selectedCampaign.id} />}/>}
+            {selectedCampaign && <Hideable text='campaign event form' props={<AddCampaignEvent maxSession={Math.max(...events.map(e => e.sessionNumber))} setEvents={setEvents} campaignId={selectedCampaign.id} />}/>}
             {selectedCampaign && <h2>Campaign gigs</h2>}
             {selectedCampaign && <Hideable text='campaign gigs' props={<CampaignGigs gigs={gigs} setGigs={setGigs}/>}/>}
             {selectedCampaign && <Hideable text='campaign gig form' props={<AddCampaignGig campaignId={selectedCampaign.id} setGigs={setGigs}/>}/>}
