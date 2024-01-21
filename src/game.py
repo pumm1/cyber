@@ -275,7 +275,7 @@ def start():
         elif command.startswith(add_status_str):
             match command_parts:
                 case [_, name]:
-                    status.addStatus(name)
+                    status.addStatusManual(name)
                 case _:
                     print(f'{add_status_help_str}')
         elif command.startswith(remove_status_str):

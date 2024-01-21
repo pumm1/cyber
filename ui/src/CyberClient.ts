@@ -637,3 +637,9 @@ export const deleteGigCharacter = (gigId: number, characterId: number) =>
 
 export const deleteEventCharacter = (eventId: number, characterId: number) =>
     deleteDataAs<Boolean>(`${pathBase}/delete-event-character/${eventId}`, characterId)
+
+export enum CharacterStatusType {
+    Positive = 'Positive',
+    Neutral = 'Neutral',
+    Negative = 'Negative'
+}

@@ -937,14 +937,13 @@ def deleteCharacterChrome(character_id, chrome_id):
                 conn.commit()
 
 
-def addCharacterStatus(character_id, status, effect):
+def addCharacterStatus(character_id, status, effect, status_type):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{insert_into} {table_character_statuses} (character_id, status, effect)
-                VALUES ({character_id}, '{status}', '{effect}');"""
+            f"""{insert_into} {table_character_statuses} (character_id, status, effect, status_type)
+                VALUES ({character_id}, '{status}', '{effect}', '{status_type}');"""
         )
         conn.commit()
-    print('Status added')
 
 
 def getCharacterStatuses(character_id):

@@ -5,6 +5,7 @@ import { AddWeapon } from './AddWeapon'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import AddChrome from './AddChrome'
 import AddArmor from './AddArmor'
+import { AddStatus } from './AddStatus'
 
 
 const roles = {
@@ -1197,6 +1198,7 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
                     <CharacterArmor armors={character.armor} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id}/>
                     <AddChrome allSkills={allSkills ?? []} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
                     <CharacterChrome updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} charChrome={character.chrome}/>
+                    <AddStatus characterId={character.id}/>
                 </>
             }
         </div>
