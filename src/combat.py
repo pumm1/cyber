@@ -746,7 +746,7 @@ def hitCharacter(character, body_part, dmg_str, is_ap, pass_sp):
     logs = []
     if character is not None:
         if pass_sp == True:
-            logs = damageCharacter(character, dmg)
+            logs = damageCharacter(character, body_part, dmg)
         elif body_parts.__contains__(body_part):
             if is_ap:
                 logs = handleApHit(character, dmg, body_part, logs)
@@ -780,12 +780,12 @@ def handleNormalHit(character: Character, dmg, body_part) -> list[Log]:
             passed_dmg = abs(dmg_passing_sp)
             logs = log_event(logs, f'Armor damaged at {body_part} and {passed_dmg} DMG done to {character.name}', log_neg)
             DAO.dmgCharacterSP(character.id, body_part)
-            damageCharacter(character, passed_dmg)
+            damageCharacter(character, passed_dmg, body_part)
         else:
             logs = log_event(logs, f"{character.name}'s armor absorbed the hit", log_neutral)
     else:
         logs = log_event(logs, f'{character.name} has no armor left at {body_part}', log_neutral)
-        dmg_logs = damageCharacter(character, dmg)
+        dmg_logs = damageCharacter(character, dmg, body_part)
         logs = logs + dmg_logs
     return logs
 
@@ -803,19 +803,19 @@ def handleApHit(character: Character, dmg, body_part, logs) -> list[Log]:
     if dmg_done > 0:
         if char_sp > 0:
             DAO.dmgCharacterSP(character.id, body_part)
-        logs = damageCharacter(character, dmg_done, logs=logs)
+        logs = damageCharacter(character, dmg_done, body_part, logs=logs)
     return logs
 
 
-def damageCharacter(c: Character, dmg, logs: list[Log]=[]) -> list[Log]:
+def damageCharacter(c: Character, dmg, body_part, logs: list[Log]=[]) -> list[Log]:
     dmgReduction = c.bodyTypeModifier
     total_dmg = dmg - dmgReduction
     if total_dmg > 0:
         logs = log_event(logs, f'{c.name} damaged by {total_dmg}! (DMG reduced by {dmgReduction})', log_neg)
         DAO.dmgCharacter(c.id, total_dmg)
         updated_character = DAO.getCharacterById(c.id)
-        if total_dmg >= 8: #TODO: log body part destroyed/damaged badly
-            logs = log_event(logs, f'')
+        if total_dmg >= 8:
+            logs = log_event(logs, f"Body part hit ({body_part}) is badly damaged/destroyed!", log_neg)
 
         if updated_character.dmg_taken >= max_health:
             logs = log_event(logs, f'{c.name} has flatlined', log_neg)
