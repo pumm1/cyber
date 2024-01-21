@@ -483,11 +483,10 @@ def updateName():
 def addCharacterStatus(id):
     if request.method == post:
         data = request.get_json()
-        status = data['status']
+        stat = data['status']
         effect = data['effect']
         status_type = data['statusType']
-        status.addStatus(id, status, effect, status_type)
-        return jsonify(True)
+        return jsonify(status.addStatus(id, stat, effect, status_type))
     else:
         return invalid_req()
 
@@ -495,11 +494,8 @@ def addCharacterStatus(id):
 @app.route('/delete-character-status/<int:id>', methods=[delete])
 def deleteCharacterStatus(id):
     if request.method == delete:
-        data = request.get_json()
-        status_id = data['statusId']
-        character_id = data['characterId']
-        status.deleteStatus(id, character_id, status_id)
-        return jsonify(True)
+        status_id = request.get_json()
+        return jsonify(status.removeStatusByCharId(id, status_id))
     else:
         return invalid_req()
 

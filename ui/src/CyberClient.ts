@@ -212,6 +212,23 @@ export interface CharacterShort {
     initiative?: number
 }
 
+export enum CharacterStatusType {
+    Positive = 'Positive',
+    Neutral = 'Neutral',
+    Negative = 'Negative'
+}
+
+
+export interface AddCharacterStatusReq {
+    status: string
+    effect: string
+    statusType: CharacterStatusType
+}
+
+export interface CharacterStatus extends AddCharacterStatusReq {
+    id: number
+}
+
 export interface Character extends CharacterShort{
     specialAbility: string, //TODO: enum?
     specialAbilityLvl: number
@@ -224,7 +241,8 @@ export interface Character extends CharacterShort{
     armor: Armor[]
     weapons: Weapon[]
     chrome: Chrome[],
-    sp: CharacterSP
+    sp: CharacterSP,
+    statuses: CharacterStatus[]
     reputation: number
     humanity: number
     ip: number
@@ -638,8 +656,9 @@ export const deleteGigCharacter = (gigId: number, characterId: number) =>
 export const deleteEventCharacter = (eventId: number, characterId: number) =>
     deleteDataAs<Boolean>(`${pathBase}/delete-event-character/${eventId}`, characterId)
 
-export enum CharacterStatusType {
-    Positive = 'Positive',
-    Neutral = 'Neutral',
-    Negative = 'Negative'
-}
+export const addCharacterStatus = (characterId: number, req: AddCharacterStatusReq) =>
+    postDataAs<Log[]>(`${pathBase}/add-character-status/${characterId}`, req)
+
+export const deleteCharacterStatus = (characterId: number, statusId: number) =>
+    deleteDataAs<Log[]>(`${pathBase}/delete-character-status/${characterId}`, statusId)
+

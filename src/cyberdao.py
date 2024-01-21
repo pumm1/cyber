@@ -961,6 +961,18 @@ def getCharacterStatuses(character_id):
         return statuses
 
 
+def getCharacterStatusById(status_id, character_id):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{select_from} {table_character_statuses}
+            WHERE id = {status_id} AND character_id = {character_id};
+            """
+        )
+        row = cur.fetchone()
+        conn.commit()
+        return row
+
+
 def removeStatus(status_id, character_id):
     with conn.cursor() as cur:
         cur.execute(
@@ -969,7 +981,6 @@ def removeStatus(status_id, character_id):
             """
         )
         conn.commit()
-        print('Status removed')
 
 
 def addCharacterForQuickNoticeCheck(character_id, name):

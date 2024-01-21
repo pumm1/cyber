@@ -1,4 +1,4 @@
-import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, AddRepReq, addReputation, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName } from './CyberClient'
+import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, AddRepReq, addReputation, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName, CharacterStatus, CharacterStatusType, deleteCharacterStatus } from './CyberClient'
 import { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -84,11 +84,45 @@ const StatValue = ({field, value, props}: StatValueProps) =>
 interface StatsProps extends UpdateCharacterAndLogs {
     characterId: number
     attributes: Attributes
+    statuses: CharacterStatus[]
     updateCharacterAttributes: (a: Attributes) => void
     edit: boolean
 }
 
-const Stats = ( {characterId, attributes, updateCharacter, updateLogs, updateCharacterAttributes, edit}: StatsProps) => {
+interface CharacterStatusRowProps {
+    characterId: number
+    charStatus: CharacterStatus
+    updateCharacterAndLogs: (l: Log[]) => void
+}
+
+const statusClass = (statusType: CharacterStatusType) => {
+    switch(statusType){
+        case CharacterStatusType.Positive:
+            return 'statusPos'
+        case CharacterStatusType.Neutral:
+            return 'statusNeutral'
+        
+        case CharacterStatusType.Negative:
+            return 'statusNeg'
+        default:
+            return ''
+    }
+}
+
+const CharacterStatusRow = ({characterId, charStatus, updateCharacterAndLogs}: CharacterStatusRowProps) => {
+    const {id, status, effect, statusType} = charStatus
+    const className = statusClass(statusType)
+    return(
+        <div className = 'statusContainer'>
+            <span className={className}>
+                {status}: {effect} 
+                <button className='withLessLeftSpace' onClick={() => deleteCharacterStatus(characterId, id).then(updateCharacterAndLogs)}>X</button>
+            </span>
+        </div>
+        )
+}
+
+const Stats = ( {characterId, statuses, attributes, updateCharacter, updateLogs, updateCharacterAttributes, edit}: StatsProps) => {
     
     const run = attributes.MA * 3
     const leap = Math.floor(run / 4)
@@ -177,10 +211,14 @@ const Stats = ( {characterId, attributes, updateCharacter, updateLogs, updateCha
                 <StatValue field='Lift' value={liftKg} />
             </div>
             {!edit && 
-            <span className='valueToAdd'>
-                <ValueChanger baseValue={empToRestore} onChange={updateEmpToRestore}/>{empToRestore}
-                <button className='withLeftSpace' disabled={empRestoreDisabled} onClick={() => restoreEMP()}>Restore EMP</button>
-            </span>}
+                <span className='valueToAdd'>
+                    <ValueChanger baseValue={empToRestore} onChange={updateEmpToRestore}/>{empToRestore}
+                    <button className='withLeftSpace' disabled={empRestoreDisabled} onClick={() => restoreEMP()}>Restore EMP</button>
+                </span>
+            }
+            {
+                statuses.map(s => <CharacterStatusRow characterId={characterId} charStatus={s} updateCharacterAndLogs={updateCharacterAndLogs}/>)
+            }
         </div>
     )
 }
@@ -1184,7 +1222,7 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
             <Handle updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
             {edit && <><input type="checkbox" checked={randomize} onClick={() => setRandomize(!randomize)}/> Randomize</>}
             <RoleFiled updateChracterRole={updateCharacterRole} edit={editWithRandomize} value={character.role}/>
-             <Stats characterId={character.id} edit={edit} updateCharacter={updateCharacter} updateLogs={updateLogs} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>
+             <Stats characterId={character.id} statuses={character.statuses} edit={edit} updateCharacter={updateCharacter} updateLogs={updateLogs} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>
             {!edit && <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter} updateLogs={updateLogs}/>}
             <SaveAndHealthRow updateCharacterBTM={updateCharacterBTM} randomize={randomize} edit={edit} character={character} updateCharacter={updateCharacter} updateLogs={updateLogs}/>
             {edit && <SaveNewCharacter />}
@@ -1198,7 +1236,7 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
                     <CharacterArmor armors={character.armor} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id}/>
                     <AddChrome allSkills={allSkills ?? []} characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
                     <CharacterChrome updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} charChrome={character.chrome}/>
-                    <AddStatus characterId={character.id}/>
+                    <AddStatus characterId={character.id} updateLogsAndCharacter={updateLogsAndCharacter}/>
                 </>
             }
         </div>
