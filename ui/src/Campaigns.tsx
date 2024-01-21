@@ -1,7 +1,7 @@
 import Navbar from "./Navbar"
 import './App.css'
 import './Campaigns.css'
-import { AddCampaignEventReq, AddCampaignGigReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, GigStatus, addCampaign, addCampaignEvent, addCampaignGig, addEventCharacter, addGigCharacter, fetchCampaignEvents, fetchCampaignGigs, fetchCampaigns, listCharacters, sortedCharacters, updateCampaignInfo, updateGigStatus } from "./CyberClient";
+import { AddCampaignEventReq, AddCampaignGigReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, GigStatus, addCampaign, addCampaignEvent, addCampaignGig, addEventCharacter, addGigCharacter, fetchCampaignEvents, fetchCampaignGigs, fetchCampaigns, listCharacters, sortedCharacters, updateCampaignInfo, updateEventInfo, updateGigInfo, updateGigStatus } from "./CyberClient";
 import { useEffect, useState } from "react";
 import Hideable from "./Hideable";
 
@@ -104,6 +104,44 @@ const AddCampaign = ({updateCampaigns}: AddCampaingProps) => {
     )
 }
 
+interface EventRowProps {
+    event: CampaignEvent,
+    allCharacters: CharacterShort[]
+    setEvents: (e: CampaignEvent[]) => void
+}
+
+const EventRow = ({event, allCharacters, setEvents}: EventRowProps) => {
+    const [allowEdit, setAllowedit] = useState(false)
+    const [info, setInfo] = useState(event.info)
+    const editIsvalid: boolean = allowEdit && event.info !== info
+    
+    return (
+        <tr>
+            <td>{event.sessionNumber}</td>
+            <td>
+                <textarea value={info} readOnly={!allowEdit} onChange={e => {
+                    e.preventDefault()
+                    setInfo(e.target.value)
+                }}/>
+            </td>
+            <td>
+                <input type='checkbox' checked={allowEdit} onClick={() => setAllowedit(!allowEdit)}/>
+                <button disabled={!editIsvalid} onClick={() => updateEventInfo(event.id, info).then(() => fetchCampaignEvents(event.campaignId).then(setEvents))}>
+                    Edit info
+                </button>
+            </td>
+            <td><ListedCharacters characters={event.characters}/></td>
+            <td>
+                <select>
+                    {allCharacters.map(c => 
+                        <option value={c.id} onClick={() => addEventCharacter(event.id, c.id).then(setEvents)}>{c.name} ({c.role})</option>
+                    )}
+                </select>
+            </td>
+        </tr>
+    )
+}
+
 interface CampaignEventsProps {
     events: CampaignEvent[]
     setEvents: (events: CampaignEvent[]) => void
@@ -149,25 +187,13 @@ const CampaignEvents = ({events, setEvents}: CampaignEventsProps) => {
                 <tr>
                     <th>Session</th>
                     <th>Event info</th>
+                    <th>Edit</th>
                     <th>Characters</th>
                     <th>Add character</th>
                 </tr>
                 {filteredEvents().map(e => {
                     return (
-                        <tr>
-                            <td>{e.sessionNumber}</td>
-                            <td>
-                                <textarea value={e.info ?? ''} readOnly={true}/>
-                            </td>
-                            <td><ListedCharacters characters={e.characters}/></td>
-                            <td>
-                                <select>
-                                    {filteredCharacters(e).map(c => 
-                                        <option value={c.id} onClick={() => addEventCharacter(e.id, c.id).then(setEvents)}>{c.name} ({c.role})</option>
-                                    )}
-                                </select>
-                            </td>
-                        </tr>
+                        <EventRow event={e} setEvents={setEvents} allCharacters={filteredCharacters(e)} />
                     )
                 })}
             
@@ -218,23 +244,86 @@ const AddCampaignEvent = ({campaignId, setEvents, maxSession}: AddEventProps) =>
                     </button>
                 </td>
             </tr>
-        </table>
+        </ table>
     )
 }
 
 const gigStatusLabel = (status: GigStatus) =>
     status === GigStatus.NotStarted ? 'Not started' : status
 
+
+interface GigRowProps {
+    gig: CampaignGig,
+    setGigs: (g: CampaignGig[]) => void
+    allCharacters: CharacterShort[]
+}
+
+const gigIsOver = (g: CampaignGig) =>
+    g.status === GigStatus.Done || g.status === GigStatus.Failed
+
+
+const GigRow = ({gig, setGigs, allCharacters}: GigRowProps) => {
+    const [allowEdit, setAllowedit] = useState(false)
+    const [info, setInfo] = useState(gig.info)
+    const editIsvalid: boolean = allowEdit && gig.info !== info
+
+    const fetchAndUpdategigs = () =>
+        fetchCampaignGigs(gig.campaignId).then(setGigs) 
+    
+    
+    return (
+        <tr>
+            <td>{gig.id}</td>
+            <td>{gig.name}</td>
+            <td>
+                {gigStatusLabel(gig.status)}
+            </td>
+            <td>
+                <textarea value={info} readOnly={!allowEdit} onChange={e => {
+                    e.preventDefault()
+                    setInfo(e.target.value)
+                }}/>
+            </td>
+            <td>
+                <input type='checkbox' checked={allowEdit} onClick={() => setAllowedit(!allowEdit)}/>
+                <button disabled={!editIsvalid} onClick={() => 
+                        updateGigInfo(gig.id, info).then(() => fetchAndUpdategigs())
+                    }
+                >
+                    Edit info
+                </button>
+            </td>
+            <td>{resolveCharacterInfos(gig.characters)}</td>
+            <td>
+                <select>
+                    {allCharacters.map(c => 
+                        <option value={c.id} onClick={() => addGigCharacter(gig.id, c.id).then(setGigs)}>{c.name} ({c.role})</option>
+                    )}
+                </select>
+            </td>
+            <td>
+                <button className='withLessRightSpace' disabled={gig.status !== GigStatus.NotStarted} onClick={() => updateGigStatus(gig.id, GigStatus.Started).then(() => fetchAndUpdategigs())}>
+                    Start
+                </button>
+                <button className='withLessRightSpace' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Done).then(() => fetchAndUpdategigs())}>
+                    Complete
+                </button>
+                <button className='withLessRightSpace' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Failed).then(() => fetchAndUpdategigs())}>
+                    Failed
+                </button>
+            </td>
+        </tr>
+    )
+}
+
 interface CampaignGigsProps {
     gigs: CampaignGig[]
-    setGigs: (events: CampaignGig[]) => void
+    setGigs: (g: CampaignGig[]) => void
 }
+
 const CampaignGigs = ({gigs, setGigs}: CampaignGigsProps) => {
     const [characters, setCharacters] = useState<CharacterShort[]>([])
     const [showCompleted, setShowCompleted] = useState(false)
-
-    const gigIsOver = (g: CampaignGig) =>
-        g.status === GigStatus.Done || g.status === GigStatus.Failed
 
     const filteredCharacters = (g: CampaignGig) => 
         sortedCharacters(characters).filter(c => !g.characters.map(gc => gc.id).includes(c.id))
@@ -255,41 +344,14 @@ const CampaignGigs = ({gigs, setGigs}: CampaignGigsProps) => {
                     <th>Gig name</th>
                     <th>Status</th>
                     <th>Gig info</th>
+                    <th>Edit</th>
                     <th>Characters</th>
                     <th>Add character</th>
                     <th>Action</th>
                 </tr>
                 {filteredGigs().map(g => {
                     return (
-                        <tr>
-                            <td>{g.id}</td>
-                            <td>{g.name}</td>
-                            <td>
-                                {gigStatusLabel(g.status)}
-                            </td>
-                            <td>
-                                <textarea value={g.info ?? ''} readOnly={true}/>
-                            </td>
-                            <td>{resolveCharacterInfos(g.characters)}</td>
-                            <td>
-                                <select>
-                                    {filteredCharacters(g).map(c => 
-                                        <option value={c.id} onClick={() => addGigCharacter(g.id, c.id).then(setGigs)}>{c.name} ({c.role})</option>
-                                    )}
-                                </select>
-                            </td>
-                            <td>
-                                <button className='withLessRightSpace' disabled={g.status !== GigStatus.NotStarted} onClick={() => updateGigStatus(g.id, GigStatus.Started).then(() => fetchCampaignGigs(g.campaignId).then(setGigs))}>
-                                    Start
-                                </button>
-                                <button className='withLessRightSpace' disabled={gigIsOver(g)} onClick={() => updateGigStatus(g.id, GigStatus.Done).then(() => fetchCampaignGigs(g.campaignId).then(setGigs))}>
-                                    Complete
-                                </button>
-                                <button className='withLessRightSpace' disabled={gigIsOver(g)} onClick={() => updateGigStatus(g.id, GigStatus.Failed).then(() => fetchCampaignGigs(g.campaignId).then(setGigs))}>
-                                    Failed
-                                </button>
-                            </td>
-                        </tr>
+                        <GigRow gig={g} setGigs={setGigs} allCharacters={filteredCharacters(g)} />
                     )
                 })}
             

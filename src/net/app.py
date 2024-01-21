@@ -548,7 +548,7 @@ def addCampaignEvent(id):
 
 @app.route('/update-event-info/<int:id>', methods=[put])
 def updateEventInfo(id):
-    if request.method == post:
+    if request.method == put:
         info = request.get_json()
         campaign.updateEventInfo(id, info)
         return jsonify(True)
@@ -596,7 +596,7 @@ def addCampaignGig(id):
 
 @app.route('/update-gig-status/<int:id>', methods=[put])
 def updateGigStatus(id):
-    if request.method == post:
+    if request.method == put:
         status = request.get_json()
         campaign.updateGigStatus(id, status)
         return jsonify(True)
@@ -606,7 +606,7 @@ def updateGigStatus(id):
 
 @app.route('/update-gig-info/<int:id>', methods=[put])
 def updateGigInfo(id):
-    if request.method == post:
+    if request.method == put:
         info = request.get_json()
         campaign.updateGigInfo(id, info)
         return jsonify(True)
