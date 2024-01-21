@@ -99,6 +99,10 @@ class Character:
             c.asJson()
         ), self.cybernetics)
 
+        statuses = map(lambda s: (
+            s.asJson()
+        ), self.statuses)
+
         resJson = {
             "id": self.id,
             "name": self.name,
@@ -120,6 +124,7 @@ class Character:
             "sp": self.sp,
             "ip": self.ip,
             "money": self.money,
+            'statuses': list(statuses)
         }
 
         return resJson

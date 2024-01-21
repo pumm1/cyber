@@ -41,6 +41,7 @@ const characterToCreate: Character = {
     skills: [],
     weapons: [],
     chrome: [],
+    statuses: [],
     sp: initialSp,
     reputation: 0,
     humanity: initialAttributes.EMP * 10,

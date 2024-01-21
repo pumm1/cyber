@@ -295,3 +295,25 @@ textarea {
     display: flex;
     padding: 0px 4px;
 }
+
+.statusContainer {
+    margin: 8px 0px;
+}
+
+.statusPos {
+    background-color: #3BB143;
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.statusNeg {
+    background-color: #FF2400;
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.statusNeutral {
+    background-color: grey;
+    padding: 4px;
+    border-radius: 6px;
+}

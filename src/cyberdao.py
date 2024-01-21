@@ -937,14 +937,13 @@ def deleteCharacterChrome(character_id, chrome_id):
                 conn.commit()
 
 
-def addCharacterStatus(character_id, status, effect):
+def addCharacterStatus(character_id, status, effect, status_type):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{insert_into} {table_character_statuses} (character_id, status, effect)
-                VALUES ({character_id}, '{status}', '{effect}');"""
+            f"""{insert_into} {table_character_statuses} (character_id, status, effect, status_type)
+                VALUES ({character_id}, '{status}', '{effect}', '{status_type}');"""
         )
         conn.commit()
-    print('Status added')
 
 
 def getCharacterStatuses(character_id):
@@ -962,6 +961,18 @@ def getCharacterStatuses(character_id):
         return statuses
 
 
+def getCharacterStatusById(status_id, character_id):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{select_from} {table_character_statuses}
+            WHERE id = {status_id} AND character_id = {character_id};
+            """
+        )
+        row = cur.fetchone()
+        conn.commit()
+        return row
+
+
 def removeStatus(status_id, character_id):
     with conn.cursor() as cur:
         cur.execute(
@@ -970,7 +981,6 @@ def removeStatus(status_id, character_id):
             """
         )
         conn.commit()
-        print('Status removed')
 
 
 def addCharacterForQuickNoticeCheck(character_id, name):

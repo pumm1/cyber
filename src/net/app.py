@@ -19,7 +19,7 @@ sys.path.append(parent)
 # now we can import the module in the parent
 # directory.
 import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip, weapon, chrome, notice, cyberdao, \
-    campaign
+    campaign, status
 
 app = Flask(__name__)
 CORS(app)
@@ -475,6 +475,27 @@ def updateName():
         char_id = data['charId']
         name = data['name']
         return jsonify(game.updateCharacterName(char_id, name))
+    else:
+        return invalid_req()
+
+
+@app.route('/add-character-status/<int:id>', methods=[post])
+def addCharacterStatus(id):
+    if request.method == post:
+        data = request.get_json()
+        stat = data['status']
+        effect = data['effect']
+        status_type = data['statusType']
+        return jsonify(status.addStatus(id, stat, effect, status_type))
+    else:
+        return invalid_req()
+
+
+@app.route('/delete-character-status/<int:id>', methods=[delete])
+def deleteCharacterStatus(id):
+    if request.method == delete:
+        status_id = request.get_json()
+        return jsonify(status.removeStatusByCharId(id, status_id))
     else:
         return invalid_req()
 
