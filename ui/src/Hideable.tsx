@@ -13,7 +13,8 @@ const Hideable = ({text, props}: HideableProps) => {
         <div>
             <button className='hideable' onClick={() => {
                     setShow(!show)
-                }}>{show ? 'Hide' : 'Show'} {text}</button>
+                }}>{show ? 'Hide' : 'Show'} {text}
+            </button>
             {show && props}
         </div>
     )

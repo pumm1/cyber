@@ -17,9 +17,39 @@ const postData = (path: string, data: any) => {
     return fetch(path, requestOptions)
 }
 
+const putData = (path: string, data: any) => {
+    const requestOptions = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }
+
+    return fetch(path, requestOptions)
+}
+
+const deleteData = (path: string, data: any) => {
+    const requestOptions = {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }
+
+    return fetch(path, requestOptions)
+}
+
 const postDataAs = <T, >(path: string, data: any): Promise<T> => 
     postData(path, data).then(res => {
        return res.json() as T
+    })
+
+const putDataAs = <T, >(path: string, data: any): Promise<T> => 
+    putData(path, data).then(res => {
+        return res.json() as T
+    })
+
+const deleteDataAs = <T, >(path: string, data: any): Promise<T> => 
+    deleteData(path, data).then(res => {
+        return res.json() as T
     })
 
 
@@ -505,3 +535,105 @@ export interface ManualWeaponRollReq {
 
 export const manualWeaponRoll = (r: ManualWeaponRollReq) =>
     postDataAs<Log[]>(`${pathBase}/manual-weapon-roll`, r)
+
+export interface AddCampaignReq {
+    name: string
+    info?: string
+}
+
+export interface Campaign extends AddCampaignReq{
+    id: number
+}
+
+export const fetchCampaigns = () => 
+    fetchDataAs<Campaign[]>(`${pathBase}/campaigns`)
+
+export const addCampaign = (c: AddCampaignReq) => 
+    postDataAs<Log[]>(`${pathBase}/add-campaign`, c)
+
+export interface CampaignEvent {
+    id: number,
+    campaignId: number,
+    sessionNumber: number,
+    characters: CharacterShort[]
+    info?: string
+}
+
+export interface GigCharacter {
+    gigId: number,
+    character: CharacterShort
+    info?: string
+}
+
+export enum GigStatus {
+    NotStarted = 'NotStarted',
+    Started = 'Started',
+    Failed = 'Failed',
+    Done = 'Done'
+}
+
+export interface CampaignGig {
+    id: number,
+    campaignId: number,
+    name: string,
+    status: GigStatus,
+    info?: string
+}
+
+export const fetchCampaignEvents = (campaignId: number) => 
+    fetchDataAs<CampaignEvent[]>(`${pathBase}/campaing-events/${campaignId}`)
+
+
+export interface AddCampaignEventReq {
+    sessionNumber: number
+    info?: string
+}
+
+export const addCampaignEvent = (campaignId: number, r: AddCampaignEventReq) =>
+    postDataAs<boolean>(`${pathBase}/add-campaign-event/${campaignId}`, r)
+    
+export const addEventCharacter = (eventId: number, characterId: number) =>
+    postDataAs<CampaignEvent[]>(`${pathBase}/add-event-character/${eventId}`, characterId)
+
+export interface AddCampaignGigReq {
+    name: string
+    status: GigStatus
+    info?: string
+}
+
+export const addCampaignGig = (campaignId: number, r: AddCampaignGigReq) =>
+    postDataAs<boolean>(`${pathBase}/add-campaign-gig/${campaignId}`, r)
+
+export interface CampaignGig {
+    id: number
+    campaignId: number
+    name: string
+    info?: string
+    characters: CharacterShort[]
+}
+
+export const addGigCharacter = (gigId: number, characterId: number) =>
+    postDataAs<CampaignGig[]>(`${pathBase}/add-gig-character/${gigId}`, characterId)
+
+export const fetchCampaignGigs = (campaignId: number) => 
+    fetchDataAs<CampaignGig[]>(`${pathBase}/campaign-gigs/${campaignId}`)
+
+
+export const updateGigStatus = (gigId: number, status: GigStatus) =>
+    putDataAs<Boolean>(`${pathBase}/update-gig-status/${gigId}`, status)
+
+export const updateGigInfo = (gigId: number, info?: string) =>
+    putDataAs<Boolean>(`${pathBase}/update-gig-info/${gigId}`, info)
+
+export const updateEventInfo = (eventId: number, info?: string) =>
+    putDataAs<Boolean>(`${pathBase}/update-event-info/${eventId}`, info)
+
+
+export const updateCampaignInfo = (campaignId: number, info?: string) =>
+    putDataAs<Boolean>(`${pathBase}/update-campaign-info/${campaignId}`, info)
+
+export const deleteGigCharacter = (gigId: number, characterId: number) =>
+    deleteDataAs<Boolean>(`${pathBase}/delete-gig-character/${gigId}`, characterId)
+
+export const deleteEventCharacter = (eventId: number, characterId: number) =>
+    deleteDataAs<Boolean>(`${pathBase}/delete-event-character/${eventId}`, characterId)

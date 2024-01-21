@@ -5,6 +5,7 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
 import WeaponTool from './WeaponTool';
+import Campaigns from './Campaigns';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -18,6 +19,10 @@ const router = createBrowserRouter([
   {
     path: "/weapon-tool",
     element: <WeaponTool />
+  },
+  {
+    path: "/campaigns",
+    element: <Campaigns/>
   },
   {
     path: '*',

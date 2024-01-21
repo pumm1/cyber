@@ -6,6 +6,7 @@ import SearchOrCreateCharacter from './SearchOrCreateCharacter';
 import LogViewer from './LogViewer';
 import GrenadeTable from './GrenadeTable';
 import DifficultyTable from './DifficultyTable';
+import Navbar from './Navbar';
 
 const App = ({}) => {
   const [logs, setLogs] = useState<Log[]>([])
@@ -31,9 +32,14 @@ const App = ({}) => {
     listSkills().then(setSkills).then(_ => updateInitiatives())
   }, [])
 
+  React.useEffect(() => {
+    document.title = "Home"
+}, []);
+
 
   return (
     <div className='main'>
+      <Navbar />
       <h1>Welcome to the NET</h1>
       <div className='container'>
         <ListInitiative initiatives={initiatives} updateInitiatives={updateInitiatives}/>

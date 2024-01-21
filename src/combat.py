@@ -814,6 +814,8 @@ def damageCharacter(c: Character, dmg, logs: list[Log]=[]) -> list[Log]:
         logs = log_event(logs, f'{c.name} damaged by {total_dmg}! (DMG reduced by {dmgReduction})', log_neg)
         DAO.dmgCharacter(c.id, total_dmg)
         updated_character = DAO.getCharacterById(c.id)
+        if total_dmg >= 8: #TODO: log body part destroyed/damaged badly
+            logs = log_event(logs, f'')
 
         if updated_character.dmg_taken >= max_health:
             logs = log_event(logs, f'{c.name} has flatlined', log_neg)

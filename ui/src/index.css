@@ -22,6 +22,11 @@ label {
     margin-right: 4px;
 }
 
+textarea {
+    height: 80px;
+    width: 320px;
+}
+
 .main {
     padding: 16px 8px;
     font-family: monospace;
