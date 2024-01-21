@@ -27,7 +27,7 @@ CORS(app)
 post = 'POST'
 get = 'GET'
 put = 'PUT'
-
+delete = 'DELETE'
 
 def invalid_req():
     return "Invalid request", 400
@@ -613,3 +613,21 @@ def updateGigInfo(id):
     else:
         return invalid_req()
 
+
+@app.route('/delete-gig-character/<int:id>', methods=[delete])
+def deleteGigCharacter(id):
+    if request.method == delete:
+        character_id = request.get_json()
+        campaign.deleteGigCharacter(id, character_id)
+        return jsonify(True)
+    else:
+        return invalid_req()
+
+@app.route('/delete-event-character/<int:id>', methods=[delete])
+def deleteEventCharacter(id):
+    if request.method == delete:
+        character_id = request.get_json()
+        campaign.deleteEventCharacter(id, character_id)
+        return jsonify(True)
+    else:
+        return invalid_req()

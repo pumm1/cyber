@@ -1,18 +1,18 @@
 import Navbar from "./Navbar"
 import './App.css'
 import './Campaigns.css'
-import { AddCampaignEventReq, AddCampaignGigReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, GigStatus, addCampaign, addCampaignEvent, addCampaignGig, addEventCharacter, addGigCharacter, fetchCampaignEvents, fetchCampaignGigs, fetchCampaigns, listCharacters, sortedCharacters, updateCampaignInfo, updateEventInfo, updateGigInfo, updateGigStatus } from "./CyberClient";
+import { AddCampaignEventReq, AddCampaignGigReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, GigStatus, addCampaign, addCampaignEvent, addCampaignGig, addEventCharacter, addGigCharacter, deleteEventCharacter, deleteGigCharacter, fetchCampaignEvents, fetchCampaignGigs, fetchCampaigns, listCharacters, sortedCharacters, updateCampaignInfo, updateEventInfo, updateGigInfo, updateGigStatus } from "./CyberClient";
 import { useEffect, useState } from "react";
 import Hideable from "./Hideable";
 
-interface ListedcharactersProps {
+interface ListedCharactersProps {
     characters: CharacterShort[]
+    onDelete: (cId: number) => Promise<Boolean> 
 }
 
-//TODO: remove functionality
-const ListedCharacters = ({ characters }: ListedcharactersProps) => 
+const ListedCharacters = ({ characters, onDelete }: ListedCharactersProps) => 
     <div className='characters'>
-        {characters.map(c => <div className='character'>{`${c.name} (${c.role})`} <button>X</button></div>)}
+        {characters.map(c => <div className='character'>{`${c.name} (${c.role})`} <button onClick={() => onDelete(c.id)}>X</button></div>)}
     </div>
 
 
@@ -114,6 +114,12 @@ const EventRow = ({event, allCharacters, setEvents}: EventRowProps) => {
     const [allowEdit, setAllowedit] = useState(false)
     const [info, setInfo] = useState(event.info)
     const editIsvalid: boolean = allowEdit && event.info !== info
+
+    const updateEvents = () =>
+        fetchCampaignEvents(event.campaignId).then(setEvents)
+
+    const deleteCharacter = (c: number) =>
+        deleteEventCharacter(event.id, c).then(() => updateEvents().then(() => true))
     
     return (
         <tr>
@@ -126,11 +132,11 @@ const EventRow = ({event, allCharacters, setEvents}: EventRowProps) => {
             </td>
             <td>
                 <input type='checkbox' checked={allowEdit} onClick={() => setAllowedit(!allowEdit)}/>
-                <button disabled={!editIsvalid} onClick={() => updateEventInfo(event.id, info).then(() => fetchCampaignEvents(event.campaignId).then(setEvents))}>
+                <button disabled={!editIsvalid} onClick={() => updateEventInfo(event.id, info).then(() => updateEvents())}>
                     Edit info
                 </button>
             </td>
-            <td><ListedCharacters characters={event.characters}/></td>
+            <td><ListedCharacters characters={event.characters} onDelete={deleteCharacter}/></td>
             <td>
                 <select>
                     {allCharacters.map(c => 
@@ -269,7 +275,9 @@ const GigRow = ({gig, setGigs, allCharacters}: GigRowProps) => {
 
     const fetchAndUpdategigs = () =>
         fetchCampaignGigs(gig.campaignId).then(setGigs) 
-    
+
+    const deleteCharacter = (c: number) =>
+        deleteGigCharacter(gig.id, c).then(() => fetchAndUpdategigs()).then(() => true)
     
     return (
         <tr>
@@ -293,7 +301,7 @@ const GigRow = ({gig, setGigs, allCharacters}: GigRowProps) => {
                     Edit info
                 </button>
             </td>
-            <td>{resolveCharacterInfos(gig.characters)}</td>
+            <td><ListedCharacters characters={gig.characters} onDelete={deleteCharacter}/></td>
             <td>
                 <select>
                     {allCharacters.map(c => 

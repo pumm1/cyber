@@ -86,8 +86,8 @@ def addCampaign(name: str, info: str | None):
     DAO.addCampaign(name, info)
 
 
-def updateCampaignInfo(campaign_id: int, info: str | None):
-    DAO.updateCampaignInfo(campaign_id, info)
+def updateCampaignInfo(campaignId: int, info: str | None):
+    DAO.updateCampaignInfo(campaignId, info)
 
 
 def campaignEvents(campaignId: int):
@@ -112,12 +112,12 @@ def campaignGigs(campaignId: int):
     return list(gigs)
 
 
-def addCampaignEvent(campaignId: int, session_number, info: str | None):
-    DAO.addEvent(campaignId, session_number, info)
+def addCampaignEvent(campaignId: int, sessionNumber, info: str | None):
+    DAO.addEvent(campaignId, sessionNumber, info)
 
 
-def updateEventInfo(event_id: int, info: str | None):
-    DAO.updateEventInfo(event_id, info)
+def updateEventInfo(eventId: int, info: str | None):
+    DAO.updateEventInfo(eventId, info)
 
 
 def addEventCharacter(eventId: int, characterId: int):
@@ -131,17 +131,26 @@ def addCampaignGig(campaign_id: int, name: str, info: str | None, status: str):
     DAO.addGig(campaign_id, name, info, status)
 
 
-def updateGigStatus(gig_id: int, status: str):
+def updateGigStatus(gigId: int, status: str):
     assert(valid_gig_statuses.__contains__(status))
-    DAO.updateGigStatus(gig_id, status)
+    DAO.updateGigStatus(gigId, status)
 
 
-def updateGigInfo(gig_id: int, info: str | None):
-    DAO.updateGigInfo(gig_id, info)
+def updateGigInfo(gigId: int, info: str | None):
+    DAO.updateGigInfo(gigId, info)
 
 
-def addGigCharacter(gig_id: int, characterId: int):
-    DAO.addGigCharacter(gig_id, characterId)
-    gig_row = DAO.gigCampaign(gig_id)
+def addGigCharacter(gigId: int, characterId: int):
+    DAO.addGigCharacter(gigId, characterId)
+    gig_row = DAO.gigCampaign(gigId)
     campaign_id = gig_row['campaign_id']
     return campaignGigs(campaign_id)
+
+
+def deleteGigCharacter(gigId: int, characterId: int):
+    DAO.deleteGigCharacter(gigId, characterId)
+
+
+def deleteEventCharacter(eventId: int, characterId: int):
+    DAO.deleteEventCharacter(eventId, characterId)
+

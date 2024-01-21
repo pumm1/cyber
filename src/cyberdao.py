@@ -1096,6 +1096,14 @@ def addEventCharacter(event_id, character_id):
         conn.commit()
 
 
+def deleteEventCharacter(event_id, character_id):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{delete_from} {table_event_characters} WHERE event_id = {event_id} AND character_id = {character_id};"""
+        )
+        conn.commit()
+
+
 def eventCampaign(event_id):
     with conn.cursor() as cur:
         cur.execute(
@@ -1141,6 +1149,14 @@ def addGigCharacter(gig_id, character_id):
         conn.commit()
 
 
+def deleteGigCharacter(gig_id, character_id):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{delete_from} {table_gig_characters} WHERE gig_id = {gig_id} AND character_id = {character_id};"""
+        )
+        conn.commit()
+
+
 def gigCampaign(gig_id):
     with conn.cursor() as cur:
         cur.execute(
@@ -1149,6 +1165,7 @@ def gigCampaign(gig_id):
         row = cur.fetchone()
         conn.commit()
         return row
+
 
 def gigChracters(gig_id: int):
     with conn.cursor() as cur:

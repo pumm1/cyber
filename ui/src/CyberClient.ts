@@ -27,6 +27,16 @@ const putData = (path: string, data: any) => {
     return fetch(path, requestOptions)
 }
 
+const deleteData = (path: string, data: any) => {
+    const requestOptions = {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }
+
+    return fetch(path, requestOptions)
+}
+
 const postDataAs = <T, >(path: string, data: any): Promise<T> => 
     postData(path, data).then(res => {
        return res.json() as T
@@ -34,6 +44,11 @@ const postDataAs = <T, >(path: string, data: any): Promise<T> =>
 
 const putDataAs = <T, >(path: string, data: any): Promise<T> => 
     putData(path, data).then(res => {
+        return res.json() as T
+    })
+
+const deleteDataAs = <T, >(path: string, data: any): Promise<T> => 
+    deleteData(path, data).then(res => {
         return res.json() as T
     })
 
@@ -617,3 +632,8 @@ export const updateEventInfo = (eventId: number, info?: string) =>
 export const updateCampaignInfo = (campaignId: number, info?: string) =>
     putDataAs<Boolean>(`${pathBase}/update-campaign-info/${campaignId}`, info)
 
+export const deleteGigCharacter = (gigId: number, characterId: number) =>
+    deleteDataAs<Boolean>(`${pathBase}/delete-gig-character/${gigId}`, characterId)
+
+export const deleteEventCharacter = (eventId: number, characterId: number) =>
+    deleteDataAs<Boolean>(`${pathBase}/delete-event-character/${eventId}`, characterId)
