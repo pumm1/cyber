@@ -1,5 +1,4 @@
 import cyberdao as DAO
-from logger import Log, log_neg, log_pos, log_neutral, log_event
 from src.character import CharacterShort
 
 
