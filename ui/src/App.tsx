@@ -32,6 +32,10 @@ const App = ({}) => {
     listSkills().then(setSkills).then(_ => updateInitiatives())
   }, [])
 
+  React.useEffect(() => {
+    document.title = "Home"
+}, []);
+
 
   return (
     <div className='main'>

@@ -438,6 +438,10 @@ const Campaigns = ({}) => {
         fetchCampaigns().then(setCampaigns)
     }, [])
 
+    useEffect(() => {
+        document.title = "Campaigns"
+     }, []);
+
     return( 
         <div className="main">
             <Navbar />

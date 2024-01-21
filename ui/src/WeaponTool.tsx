@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Log, ManualWeaponRollReq, WeaponType, manualWeaponRoll } from "./CyberClient"
 import LogViewer from './LogViewer'
 import Navbar from "./Navbar"
@@ -32,6 +32,10 @@ const WeaponTool = ({}) => {
 
     const wepRoll = () => 
         manualWeaponRoll(req).then(updateLogs)
+
+    useEffect(() => {
+        document.title = "Weapon tool"
+    }, []);
 
     return( 
         <div className="main">
