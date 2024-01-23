@@ -1,8 +1,7 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { AddCharacterStatusReq, CharacterStatusType, Log, addCharacterStatus } from './CyberClient'
-import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import Hideable from './Hideable'
-import { TextField } from './Common'
+import { Button, TextField } from './Common'
 
 interface AddStatusProps {
     characterId: number
@@ -43,7 +42,7 @@ const AddStatusForm = ({characterId, updateLogsAndCharacter}: AddStatusProps) =>
                     </select>
                 </td>
                 <td>
-                    <button onClick={() => addCharacterStatus(characterId, addStsatusReq).then(updateLogsAndCharacter)}>Add</button>
+                    <Button label='Add' onClick={() => addCharacterStatus(characterId, addStsatusReq).then(updateLogsAndCharacter)}/>
                 </td>
             </tr>
         </table>

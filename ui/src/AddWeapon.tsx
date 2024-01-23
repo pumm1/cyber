@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import './AddWeapon.css'
 import { AddWeaponReq, Con, Log, Reliability, WeaponType, addWeapon } from './CyberClient'
 import Hideable from './Hideable'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
+import { Button } from './Common'
 
 interface AddWeaponProps {
     characterId: number
@@ -105,7 +106,7 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
             </tr>
             <tr>
                 <td>
-                    <button onClick={() => addWeapon(addWeaponReq).then(updateLogsAndCharacter).then(emptyForm)}>Add</button>
+                    <Button label='Add' onClick={() => addWeapon(addWeaponReq).then(updateLogsAndCharacter).then(emptyForm)}/>
                 </td>
                 <td>
                     <input className='inputField' value={item} onChange={e => setItem(e.target.value)}/>

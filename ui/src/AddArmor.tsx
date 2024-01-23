@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { AddArmorReq, Attribute, AttributeExtra, AttributeBonus, BodyPart, Log, Skill, SkillBonus, addArmor, attributes, sortedSkills } from './CyberClient'
 import './AddWeapon.css'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import { AtrBonuses, SkillBonuses } from './AddChrome'
 import Hideable from './Hideable'
+import { Button } from './Common'
 
 export interface AddArmorProps {
     allSkills: Skill[]
@@ -91,7 +92,9 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
                 <th>(Opt. HL)</th>
             </tr>
             <tr>
-                <td><button disabled={bodyParts.length <= 0} onClick={() => addArmor(addArmorReq).then(updateLogsAndCharacter).then(emptyForm)}>Add</button></td>
+                <td>
+                    <Button label='Add' disabled={bodyParts.length <= 0} onClick={() => addArmor(addArmorReq).then(updateLogsAndCharacter).then(emptyForm)}/>
+                </td>
                 <td>
                     <input className='inputField' value={item} onChange={e => setItem(e.target.value)}/>
                 </td>
@@ -115,7 +118,7 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
                     <AtrBonuses attributeBonuses={attributeBonuses}/>
                 </td>
                 <td>
-                    <button onClick={() => setAttributeBonuses([newAtrBonus, ...attributeBonuses])}>Add bonus</button>
+                    <Button label='Add bonus' onClick={() => setAttributeBonuses([newAtrBonus, ...attributeBonuses])}/>
                 </td>
                 <td>
                     <select>
@@ -131,7 +134,7 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
                     <SkillBonuses allSkills={allSkills} skillBonuses={skillBonuses}/>
                 </td>
                 <td>
-                    <button onClick={() => setSkillBonuses([newSkillBonus, ...skillBonuses])}>Add bonus</button>
+                    <Button label='Add bonus' onClick={() => setSkillBonuses([newSkillBonus, ...skillBonuses])}/>
                 </td>
                 <td>
                     <select>

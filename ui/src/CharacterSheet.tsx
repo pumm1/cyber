@@ -6,6 +6,7 @@ import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import AddChrome from './AddChrome'
 import AddArmor from './AddArmor'
 import { AddStatus } from './AddStatus'
+import { Button } from './Common'
 
 
 const roles = {
@@ -116,7 +117,7 @@ const CharacterStatusRow = ({characterId, charStatus, updateCharacterAndLogs}: C
         <div className = 'statusContainer'>
             <span className={className}>
                 {status}: {effect} 
-                <button className='withLessLeftSpace' onClick={() => deleteCharacterStatus(characterId, id).then(updateCharacterAndLogs)}>X</button>
+                <Button label='X' variant='SomeLeftSpace' onClick={() => deleteCharacterStatus(characterId, id).then(updateCharacterAndLogs)}/>
             </span>
         </div>
         )
@@ -213,7 +214,7 @@ const Stats = ( {characterId, statuses, attributes, updateCharacter, updateLogs,
             {!edit && 
                 <span className='valueToAdd'>
                     <ValueChanger baseValue={empToRestore} onChange={updateEmpToRestore}/>{empToRestore}
-                    <button className='withLeftSpace' disabled={empRestoreDisabled} onClick={() => restoreEMP()}>Restore EMP</button>
+                    <Button label='Restore EMP' variant='SpaceLeft' disabled={empRestoreDisabled} onClick={() => restoreEMP()}/>
                 </span>
             }
             {
