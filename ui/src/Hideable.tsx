@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import './Hideable.css'
+import { Button } from './Common'
 
 export interface HideableProps {
     text: string
@@ -8,13 +9,14 @@ export interface HideableProps {
 
 const Hideable = ({text, props}: HideableProps) => {
     const [show, setShow] = useState(false)
+    const prefix = show ? 'Hide' : 'Show'
+    const label = `${prefix} ${text}`
 
     return(
         <div>
-            <button className='hideable' onClick={() => {
+            <Button label={label} className='hideable' onClick={() => {
                     setShow(!show)
-                }}>{show ? 'Hide' : 'Show'} {text}
-            </button>
+                }}/>
             {show && props}
         </div>
     )

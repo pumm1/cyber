@@ -28,18 +28,21 @@ export const TextArea = ({setValue, readOnly, value, placeholder, variant}: Text
 
 
 //TODO: fix these names with the class names
-type ButtonVariant = 'SomeSpaceLeft' | 'SomeSpaceRight' | 'SpaceLeft' | 'SomeLeftSpace'
+type ButtonVariant = 'SomeSpaceLeft' | 'SomeSpaceRight' | 'SpaceLeft' | 'SomeLeftSpace' | 'MoreSpaceLeft'
 
 export interface ButtonProps {
     variant?: ButtonVariant
-    onClick: () => void | Promise<void>
+    onClick?: () => void | Promise<void>
     label: string
     disabled?: boolean
+    className?: string
 }
 
 //TODO: rename the classNames better!
 const resolveButtonClassName = (variant?: ButtonVariant) => {
     switch(variant) {
+        case 'MoreSpaceLeft':
+            return 'withMoreLeftSpace'
         case 'SpaceLeft':
             return 'withLeftSpace'
         case 'SomeSpaceRight':
@@ -53,8 +56,8 @@ const resolveButtonClassName = (variant?: ButtonVariant) => {
     }
     }
 
-export const Button = ({label, onClick, variant, disabled}: ButtonProps) => 
-    <button className={resolveButtonClassName(variant)} disabled={disabled} onClick={onClick}>
+export const Button = ({label, onClick, variant, disabled, className}: ButtonProps) => 
+    <button className={className ?? resolveButtonClassName(variant)} disabled={disabled} onClick={onClick}>
         {label}
     </button>
 

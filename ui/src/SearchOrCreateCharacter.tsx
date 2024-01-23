@@ -3,6 +3,7 @@ import { getCharacter , Character, Log, Attributes, CharacterSP, Skill, Initiati
 import './SearchCharacter.css'
 import CharacterSheet from "./CharacterSheet"
 import Hideable from "./Hideable"
+import { Button } from "./Common"
 
 const initialAttributes: Attributes = {
     ATTR: 1,
@@ -79,6 +80,7 @@ interface CharacterListRowProps {
 }
 const CharacterListRow = ({character: c, isAlreadyInCombat, setCharacterById, addToCombatReq, updateCharIni, removeCharacter, updateLogs, updateCharacters, updateInitiatives}: CharacterListRowProps) => {
     const [initiative, setInitiative] = useState<number | undefined>(undefined)
+    const addToCombatFn = () => (c.initiative !== undefined && !isAlreadyInCombat(c.id)) ? addToCombat(addToCombatReq(c.id, c.initiative)).then(() => updateInitiatives()) : undefined
 
     return(
         <tr key={c.id}>
@@ -87,21 +89,19 @@ const CharacterListRow = ({character: c, isAlreadyInCombat, setCharacterById, ad
                 <td>
                     <span>
                         <input className='valueBox' type="text" onChange={e => setInitiative(parseInt(e.target.value))}/>
-                        <button onClick={() => rollInitiative({charId: c.id, initiative}).then(i => updateCharIni(c.id, i))}>Roll</button> 
+                        <Button label='Roll' onClick={() => rollInitiative({charId: c.id, initiative}).then(i => updateCharIni(c.id, i))}/>
                     </span>
                     </td>
                 <td>{c.initiative ?? ''}</td>
                 <td>
-                    <button onClick={() => c.initiative && addToCombat(addToCombatReq(c.id, c.initiative)).then(() => updateInitiatives())} disabled={!c.initiative || isAlreadyInCombat(c.id)}>
-                        Add
-                    </button></td>
+                    <Button label='Add' onClick={() => addToCombatFn()}/></td>
                 <td>
-                    <button onClick={() => setCharacterById(c.id)}>Show</button>
+                    <Button label='Show' onClick={() => setCharacterById(c.id)}/>
                 </td>
                 <td>
-                <button onClick={() => {
+                    <Button label='Delete' onClick={() => {
                         removeCharacter(c.id).then(updateLogs).then(() => updateCharacters())
-                    }}>Delete</button>  
+                    }}/>
                 </td>
             </tr> 
     )
@@ -143,7 +143,7 @@ const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharact
     const characterTable = 
         <>
             <input placeholder='Search by...' className='filter' value={nameFilter} onChange={e => setNameFilter(e.target.value)}/>
-            <button className='withLeftSpace' onClick={() => updateCharacterList()}>Reset</button>
+            <Button label='Reset' variant='SpaceLeft' onClick={() => updateCharacterList()}/>
             <table>
                 <tbody>
                     <tr>
@@ -205,8 +205,8 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives, skills, updateInitiat
         <>
             <ListCharacters updateCharacters={updateCharacterList} updateCharacterList={updateCharacterList} updateInitiatives={updateInitiatives} initiatives={initiatives} characters={allCharacters ?? []} setCharacterById={setCharacterFn} updateLogs={updateLogs} setAllCharacters={setAllCharacters}/>
             <div className="search">
-                <button onClick={() => createCharacter()}>Create</button>
-                {character && <button className='withLeftSpace' onClick={() => setCharacter(undefined)}>Hide character</button>}
+                <Button label='Create' onClick={() => createCharacter()}/>
+                {character && <Button label='Hide character' className='withLeftSpace' onClick={() => setCharacter(undefined)}/>}
             </div>
             {!!character &&
                  <div><CharacterSheet updateCharacterList={updateCharacterList} allowAddingToInitiative={allowAddingToInitiative} editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
