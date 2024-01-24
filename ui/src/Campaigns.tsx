@@ -4,6 +4,7 @@ import './Campaigns.css'
 import { AddCampaignEventReq, AddCampaignGigReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, GigStatus, addCampaign, addCampaignEvent, addCampaignGig, addEventCharacter, addGigCharacter, deleteEventCharacter, deleteGigCharacter, fetchCampaignEvents, fetchCampaignGigs, fetchCampaigns, listCharacters, sortedCharacters, updateCampaignInfo, updateEventInfo, updateGigInfo, updateGigStatus } from "./CyberClient";
 import { useEffect, useState } from "react";
 import Hideable from "./Hideable";
+import { Button, TextArea } from "./Common";
 
 interface ListedCharactersProps {
     characters: CharacterShort[]
@@ -12,17 +13,19 @@ interface ListedCharactersProps {
 
 const ListedCharacters = ({ characters, onDelete }: ListedCharactersProps) => 
     <div className='characters'>
-        {characters.map(c => <div className='character'>{`${c.name} (${c.role})`} <button onClick={() => onDelete(c.id)}>X</button></div>)}
+        {characters.map(c => <div className='character'>{`${c.name} (${c.role})`} <Button label='X' onClick={() => onDelete(c.id).then()} /></div>)}
     </div>
 
 
 interface CampaingRowProps {
     campaign: Campaign
     setSelectedCampaign: (c: Campaign) => void
+    updateCampaigns: () => Promise<void>
+    selectedCampaignId?: number
 }
 
 
-const CampaignRow = ({ campaign, setSelectedCampaign }: CampaingRowProps) => {
+const CampaignRow = ({ campaign, setSelectedCampaign, updateCampaigns, selectedCampaignId }: CampaingRowProps) => {
     const [allowEdit, setAllowedit] = useState(false)
     const [info, setInfo] = useState(campaign.info)
     const editIsvalid: boolean = allowEdit && campaign.info !== info
@@ -30,28 +33,27 @@ const CampaignRow = ({ campaign, setSelectedCampaign }: CampaingRowProps) => {
         <tr key={campaign.id}>
             <td>{campaign.name}</td>
             <td>
-                <textarea value={info} readOnly={!allowEdit} onChange={e => {
-                    e.preventDefault()
-                    setInfo(e.target.value)
-                }}/>
+                <TextArea placeholder='Describe campaign somehow' value={info} setValue={setInfo} variant="resizeable" readOnly={!allowEdit}/>
             </td>
             <td>
                 <input type='checkbox' checked={allowEdit} onChange={() => setAllowedit(!allowEdit)}/>
             </td>
             <td>
-                <button className='withLessRightSpace' onClick={() => setSelectedCampaign(campaign)}>Select</button>
-                <button disabled={!editIsvalid} className='withLessRightSpace' onClick={() => updateCampaignInfo(campaign.id, info)}>Update</button>
+                <Button label='Select' disabled={selectedCampaignId === campaign.id} onClick={() => setSelectedCampaign(campaign)}/>
+                <Button label='Update' disabled={!editIsvalid} onClick={() => updateCampaignInfo(campaign.id, info).then(() => fetchCampaigns().then(updateCampaigns))}/>
             </td>
         </tr>
     )
 }
 
 interface CampaignTableProps {
+    selectedCampaignId?: number
     campaigns: Campaign[]
     setSelectedCampaign: (c: Campaign) => void
+    updateCampaigns: () => Promise<void>
 }
 
-const CampaignTable = ({ campaigns, setSelectedCampaign }: CampaignTableProps) => {
+const CampaignTable = ({ campaigns, setSelectedCampaign, updateCampaigns, selectedCampaignId }: CampaignTableProps) => {
     return (
         <table>
             <tr>
@@ -60,7 +62,7 @@ const CampaignTable = ({ campaigns, setSelectedCampaign }: CampaignTableProps) =
                 <th>Edit</th>
                 <th>Action</th>
             </tr>
-        {campaigns.map(c => <CampaignRow campaign={c} setSelectedCampaign={setSelectedCampaign}/>)}
+        {campaigns.map(c => <CampaignRow selectedCampaignId={selectedCampaignId} campaign={c} setSelectedCampaign={setSelectedCampaign} updateCampaigns={updateCampaigns}/>)}
         </table>
     )
 }
@@ -84,6 +86,9 @@ const AddCampaign = ({updateCampaigns}: AddCampaingProps) => {
 
     const isValid: boolean = name !== ''
 
+    const addCampaignFn = () =>
+        addCampaign(addCampaingReq).then(() => updateCampaigns().then(() => emptyForm()))
+
     return(
         <table>
             <tr>
@@ -93,12 +98,10 @@ const AddCampaign = ({updateCampaigns}: AddCampaingProps) => {
             </tr>
             <tr>
                 <td><input placeholder='<Campaign name>' value={name} onChange={e => setName(e.target.value)}/></td>
-                <td><textarea placeholder='Describe campaign somehow' value={info} onChange={e => setInfo(e.target.value)}/></td>
-                <td><button disabled={!isValid} onClick={e => {
-                    e.preventDefault()
-
-                    addCampaign(addCampaingReq).then(() => updateCampaigns().then(() => emptyForm()))
-                }}>Add</button></td>
+                <td>
+                    <TextArea placeholder='Describe campaign somehow' value={info} setValue={setInfo} variant="resizeable"/>
+                </td>
+                <td><Button label='Add' disabled={!isValid} onClick={() => addCampaignFn()} /></td>
             </tr>
         </table>
     )
@@ -113,7 +116,7 @@ interface EventRowProps {
 const EventRow = ({event, allCharacters, setEvents}: EventRowProps) => {
     const [allowEdit, setAllowedit] = useState(false)
     const [info, setInfo] = useState(event.info)
-    const editIsvalid: boolean = allowEdit && event.info !== info
+    const editIsValid: boolean = allowEdit && event.info !== info
 
     const updateEvents = () =>
         fetchCampaignEvents(event.campaignId).then(setEvents)
@@ -125,16 +128,11 @@ const EventRow = ({event, allCharacters, setEvents}: EventRowProps) => {
         <tr>
             <td>{event.sessionNumber}</td>
             <td>
-                <textarea value={info} readOnly={!allowEdit} onChange={e => {
-                    e.preventDefault()
-                    setInfo(e.target.value)
-                }}/>
+                <TextArea placeholder='Describe event somehow' value={info} setValue={setInfo} variant="resizeable" readOnly={!allowEdit}/>
             </td>
             <td>
                 <input type='checkbox' checked={allowEdit} onClick={() => setAllowedit(!allowEdit)}/>
-                <button disabled={!editIsvalid} onClick={() => updateEventInfo(event.id, info).then(() => updateEvents())}>
-                    Edit info
-                </button>
+                <Button label='Edit info' disabled={!editIsValid} onClick={() => updateEventInfo(event.id, info).then(() => updateEvents())}/>
             </td>
             <td><ListedCharacters characters={event.characters} onDelete={deleteCharacter}/></td>
             <td>
@@ -158,10 +156,6 @@ interface AddEventProps {
     setEvents: (events: CampaignEvent[]) => void
     maxSession?: number
 }
-
-const resolveCharacterInfos = (characters: CharacterShort[]) =>
-    characters.map(c => `${c.name} (${c.role})`).join(', ')
-
 
 const CampaignEvents = ({events, setEvents}: CampaignEventsProps) => {
     const [characters, setCharacters] = useState<CharacterShort[]>([])
@@ -231,10 +225,7 @@ const AddCampaignEvent = ({campaignId, setEvents, maxSession}: AddEventProps) =>
             </tr>
             <tr>
                 <td>
-                    <textarea placeholder='Describe event somehow' value={info} onChange={e => {
-                        e.preventDefault()
-                        setInfo(e.target.value)
-                    }}/>
+                    <TextArea placeholder='Describe event somehow' value={info} setValue={setInfo} variant="resizeable"/>
                 </td>
                 <td>
                     <input value={sessionNumber} type='number' onChange={e => {
@@ -244,10 +235,7 @@ const AddCampaignEvent = ({campaignId, setEvents, maxSession}: AddEventProps) =>
                     }}/>
                 </td>
                 <td>
-                    <button disabled={!isValid} onClick={() => {
-                            addCampaignEvent(campaignId, addReq).then(() => fetchCampaignEvents(campaignId).then(setEvents)).then(() =>   emptyForm())
-                        }}>Add
-                    </button>
+                    <Button label='Add' disabled={!isValid} onClick={() =>  addCampaignEvent(campaignId, addReq).then(() => fetchCampaignEvents(campaignId).then(setEvents)).then(() => emptyForm())}/>
                 </td>
             </tr>
         </ table>
@@ -271,7 +259,7 @@ const gigIsOver = (g: CampaignGig) =>
 const GigRow = ({gig, setGigs, allCharacters}: GigRowProps) => {
     const [allowEdit, setAllowedit] = useState(false)
     const [info, setInfo] = useState(gig.info)
-    const editIsvalid: boolean = allowEdit && gig.info !== info
+    const editIsValid: boolean = allowEdit && gig.info !== info
 
     const fetchAndUpdategigs = () =>
         fetchCampaignGigs(gig.campaignId).then(setGigs) 
@@ -287,19 +275,11 @@ const GigRow = ({gig, setGigs, allCharacters}: GigRowProps) => {
                 {gigStatusLabel(gig.status)}
             </td>
             <td>
-                <textarea value={info} readOnly={!allowEdit} onChange={e => {
-                    e.preventDefault()
-                    setInfo(e.target.value)
-                }}/>
+                <TextArea placeholder='Describe gig somehow' readOnly={!allowEdit} value={info} setValue={setInfo} variant="resizeable"/>
             </td>
             <td>
                 <input type='checkbox' checked={allowEdit} onClick={() => setAllowedit(!allowEdit)}/>
-                <button disabled={!editIsvalid} onClick={() => 
-                        updateGigInfo(gig.id, info).then(() => fetchAndUpdategigs())
-                    }
-                >
-                    Edit info
-                </button>
+                <Button label='Edit info' disabled={!editIsValid} onClick={() => updateGigInfo(gig.id, info).then(() => fetchAndUpdategigs())}/>
             </td>
             <td><ListedCharacters characters={gig.characters} onDelete={deleteCharacter}/></td>
             <td>
@@ -310,15 +290,9 @@ const GigRow = ({gig, setGigs, allCharacters}: GigRowProps) => {
                 </select>
             </td>
             <td>
-                <button className='withLessRightSpace' disabled={gig.status !== GigStatus.NotStarted} onClick={() => updateGigStatus(gig.id, GigStatus.Started).then(() => fetchAndUpdategigs())}>
-                    Start
-                </button>
-                <button className='withLessRightSpace' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Done).then(() => fetchAndUpdategigs())}>
-                    Complete
-                </button>
-                <button className='withLessRightSpace' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Failed).then(() => fetchAndUpdategigs())}>
-                    Failed
-                </button>
+                <Button label='Start' disabled={gig.status !== GigStatus.NotStarted} onClick={() => updateGigStatus(gig.id, GigStatus.Started).then(() => fetchAndUpdategigs())}/>
+                <Button label='Complete' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Done).then(() => fetchAndUpdategigs())}/>
+                <Button label='Failed' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Failed).then(() => fetchAndUpdategigs())}/>
             </td>
         </tr>
     )
@@ -416,13 +390,11 @@ const AddCampaignGig = ({campaignId, setGigs}: AddGigProps) => {
                     </select>
                 </td>
                 <td>
-                    <textarea placeholder='Describe the gig somehow' value={info} onChange={e => {
-                        e.preventDefault()
-                        setInfo(e.target.value)
-                    }}/>
+                    <TextArea placeholder='Describe gig somehow' value={info} setValue={setInfo} variant="resizeable"/>
                 </td>
                 <td>
-                    <button disabled={!isValid} onClick={() => addCampaignGig(campaignId, addReq).then(() => fetchCampaignGigs(campaignId).then(setGigs).then(() => emptyForm()))}>Add</button></td>
+                    <Button label='Add' disabled={!isValid} onClick={() => addCampaignGig(campaignId, addReq).then(() => fetchCampaignGigs(campaignId).then(setGigs).then(() => emptyForm()))}/>
+                </td>
             </tr>
         </table>
     )
@@ -455,7 +427,7 @@ const Campaigns = ({}) => {
             <Navbar />
             <h2>Campaigns</h2>
             <SelectedCampaignInfo />
-            <Hideable text='campaigns' props={<CampaignTable campaigns={campaigns} setSelectedCampaign={setSelectedCampaign}/>}/>
+            <Hideable text='campaigns' props={<CampaignTable selectedCampaignId={selectedCampaign?.id} campaigns={campaigns} updateCampaigns={updatecampaignsFn} setSelectedCampaign={setSelectedCampaign}/>}/>
             <Hideable text='campaign form' props={<AddCampaign updateCampaigns={updatecampaignsFn}/>} />
             {selectedCampaign && <h2>Campaign events</h2>}
             {selectedCampaign && <Hideable text='campaign events' props={<CampaignEvents events={events} setEvents={setEvents} />}/>}

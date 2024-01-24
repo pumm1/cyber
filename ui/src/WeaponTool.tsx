@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Log, ManualWeaponRollReq, WeaponType, manualWeaponRoll } from "./CyberClient"
 import LogViewer from './LogViewer'
 import Navbar from "./Navbar"
+import { Button } from "./Common"
 
 //TODO: set parameters
 const WeaponTool = ({}) => {
@@ -76,7 +77,7 @@ const WeaponTool = ({}) => {
                         <input className='valueBox' onChange={e => setAttackRange(parseInt(e.target.value) || 0)} value={attackRange}/>
                     </td>
                     <td>
-                        <button className="btn" onClick={() => wepRoll()}>Roll</button>
+                        <Button label='Roll' className='btn'  onClick={() => wepRoll()}/>
                     </td>
                 </tr>
             </table>

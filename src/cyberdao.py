@@ -7,7 +7,7 @@ from cyberschema import db, user, password, host, table_skills, table_characters
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
     table_events, table_character_chrome, table_character_statuses, table_character_quick_notice, \
     table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus, table_character_notice_rolls, \
-    table_system_version, expected_system_version, table_campaigns, table_event_characters, table_gigs, \
+    table_system_version, EXPECTED_SYSTEM_VERSION, table_campaigns, table_event_characters, table_gigs, \
     table_gig_characters
 from character import Character, CharacterShort
 from skill import SkillInfo
@@ -56,8 +56,8 @@ def check_system_version():
         conn.commit()
 
         version = row['version']
-        if version != expected_system_version:
-            print(f'System version is set wrong. Got {version}, but expected {expected_system_version}')
+        if version != EXPECTED_SYSTEM_VERSION:
+            print(f'System version is set wrong. Got {version}, but expected {EXPECTED_SYSTEM_VERSION}')
             sys.exit()
         else:
             print(f'System version is up to date')
@@ -492,12 +492,22 @@ def getCharacterSkillsById(id) -> list[SkillInfo]:
 
     return skill_dict.values()
 
+
 def updateCharacterName(character_id, name):
     with conn.cursor() as cur:
         cur.execute(
             f"""{update} {table_characters} SET name = '{name}' WHERE id = {character_id};"""
         )
         conn.commit()
+
+
+def updateCharacterBackground(character_id, background):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{update} {table_characters} SET background = '{background}' WHERE id = {character_id};"""
+        )
+        conn.commit()
+
 
 def listSkillsByAttribute(atr: str):
     skills = []

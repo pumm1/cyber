@@ -1,6 +1,7 @@
 import { Initiative, advanceCombatSeq, clearCombatSeq } from './CyberClient'
 import './ListInitiative.css'
 import Hideable from './Hideable'
+import { Button } from './Common'
 
 export interface ListInitiativeProps {
     initiatives: Initiative[]
@@ -21,9 +22,9 @@ const ListInitiative = ({initiatives, updateInitiatives}: ListInitiativeProps) =
      const initiativesProps = 
         <div className='initiatives'>
             Initiatives
-            <button className='updateButton' onClick={() => updateInitiatives()}>Update</button>
-            {initiatives.length > 0 && <button className='updateButton' onClick={() => advanceCombatSeq().then(() => updateInitiatives())}>Advance combat</button>}
-            {initiatives.length > 0 && <button className='updateButton' onClick={() => clearCombatSeq().then(() => updateInitiatives())}>Clear initiatives</button>}
+            <Button label='Update' className='updateButton' onClick={() => updateInitiatives()}/>
+            {initiatives.length > 0 && <Button label='Advance combat' className='updateButton' onClick={() => advanceCombatSeq().then(() => updateInitiatives())}/>}
+            {initiatives.length > 0 && <Button label='Clear initiatives' className='updateButton' onClick={() => clearCombatSeq().then(() => updateInitiatives())}/>}
             <table>
                 <tr>
                     <th>Name</th>

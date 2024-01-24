@@ -2,6 +2,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 import './LogViewer.css'
 import { Log, LogType } from './CyberClient'
+import { Button } from './Common'
 
 interface LogViewerProps {
     logs: Log[]
@@ -42,15 +43,11 @@ const LogViewer = ({logs, addToLogs, emptyLogs}: LogViewerProps) => {
             </div>
             <div className='input'><input type='text' value={input} onChange={e => setInput(e.target.value)} /></div>
             <div>
-                <button className='btn' disabled={input.length <=0} onClick={() =>{
+                <Button label='Add to logs' className='btn' disabled={input.length <=0} onClick={() =>{
                  addToLogs({log: input, logType: LogType.neutral})
                  setInput('')
-                 }}>
-                    Add to logs
-                </button>
-                <button className='btn' onClick={() => emptyLogs()}>
-                    Empty logs
-                </button>
+                 }}/>
+                 <Button label='Empty lgos' className='btn' onClick={() => emptyLogs()}/>
             </div>
         </div>
     )

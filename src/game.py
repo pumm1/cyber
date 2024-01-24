@@ -330,16 +330,13 @@ def fetchCharacter(name):
     else:
         character.info()
 
-def rollInitiativeByCharacterId(char_id, initiative=None):
+def rollInitiativeByCharacterId(char_id):
     character = DAO.getCharacterById(char_id)
     if character is not None:
         init_bonus = character.initiativeBonus
         ref = character.attributes[REF]
         roll = 0
-        if initiative is None:
-            (roll, _) = dice.rollWithCrit(True)
-        else:
-            roll = initiative
+        (roll, _) = dice.rollWithCrit(True)
         res = roll + ref + init_bonus
         print(f'Initiative roll for {character.name} = {res} [roll = {roll} initiative_bonus = {init_bonus}, REF = {ref}]')
 
@@ -524,6 +521,17 @@ def updateCharacterName(character_id, name) -> list[Log]:
     return logs
 
 
+def updateCharacterBackground(character_id, background: str | None) -> list[Log]:
+    logs = []
+    c = DAO.getCharacterById(character_id)
+    if c is not None:
+        DAO.updateCharacterBackground(character_id, background)
+        logs = log_event(logs, f'{c.name} background updated', log_neutral)
+    else:
+        logs = log_event(logs, f"Character not found [id = {character_id}]", log_neg)
+    return logs
+
+
 def restoreEMP(character_id, emp):
     logs = []
     char = DAO.getCharacterById(character_id)
@@ -550,6 +558,7 @@ def restoreEMP(character_id, emp):
         logs = log_event(logs, "Character not found", log_neg)
 
     return logs
+
 
 #param = all/combat/info
 def help(param):

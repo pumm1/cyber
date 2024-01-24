@@ -3,6 +3,7 @@ import { getCharacter , Character, Log, Attributes, CharacterSP, Skill, Initiati
 import './SearchCharacter.css'
 import CharacterSheet from "./CharacterSheet"
 import Hideable from "./Hideable"
+import { Button } from "./Common"
 
 const initialAttributes: Attributes = {
     ATTR: 1,
@@ -70,38 +71,51 @@ interface CharacterListRowProps {
     character: CharacterShort
     setCharacterById: (i: number) => void
     addToCombatReq: (i: number, ini: number) => AddToCombatReq
-    updateCharIni: (i: number, ini: number) => void
     removeCharacter: (i: number) => Promise<Log[]>
     updateLogs: (l: Log[]) => void
     updateCharacters: () => void
     updateInitiatives: () => void
     isAlreadyInCombat: (i: number) => boolean
 }
-const CharacterListRow = ({character: c, isAlreadyInCombat, setCharacterById, addToCombatReq, updateCharIni, removeCharacter, updateLogs, updateCharacters, updateInitiatives}: CharacterListRowProps) => {
+const CharacterListRow = ({character: c, isAlreadyInCombat, setCharacterById, addToCombatReq, removeCharacter, updateLogs, updateCharacters, updateInitiatives}: CharacterListRowProps) => {
     const [initiative, setInitiative] = useState<number | undefined>(undefined)
+    //const initiativeToUse = c.initiative ?? initiative
+    const initiativeIsValid = (i: number | undefined): boolean =>
+        i !== undefined && i > 0
+    const addToCombatFn = () => 
+        (initiativeIsValid(initiative) && !isAlreadyInCombat(c.id)) 
+        ? //initiativeToUse is now ok but for some reason I get warning initiativeToUse could be undefined
+            addToCombat(addToCombatReq(c.id, initiative ?? 0)).then(() => updateInitiatives()) 
+        : 
+            undefined
+    const handleManualIniativeInput = (v: string) => {
+        const value = parseInt(v)
+        if (isNaN(value)) {
+            return undefined
+        } else {
+            return value
+        }
 
+    }
     return(
         <tr key={c.id}>
                 <td>{c.name}</td>
                 <td>{c.role}</td>
                 <td>
                     <span>
-                        <input className='valueBox' type="text" onChange={e => setInitiative(parseInt(e.target.value))}/>
-                        <button onClick={() => rollInitiative({charId: c.id, initiative}).then(i => updateCharIni(c.id, i))}>Roll</button> 
+                        <input className='valueBox' type="text" value={initiative} onChange={e => setInitiative(handleManualIniativeInput(e.target.value))}/>
+                        <Button label='Roll' variant='LessSpaceLeft' onClick={() => rollInitiative({charId: c.id}).then(i => setInitiative(i))}/>
                     </span>
                     </td>
-                <td>{c.initiative ?? ''}</td>
                 <td>
-                    <button onClick={() => c.initiative && addToCombat(addToCombatReq(c.id, c.initiative)).then(() => updateInitiatives())} disabled={!c.initiative || isAlreadyInCombat(c.id)}>
-                        Add
-                    </button></td>
+                    <Button label='Add' disabled={!initiativeIsValid(initiative) || isAlreadyInCombat(c.id)} onClick={() => addToCombatFn()}/></td>
                 <td>
-                    <button onClick={() => setCharacterById(c.id)}>Show</button>
+                    <Button label='Show' onClick={() => setCharacterById(c.id)}/>
                 </td>
                 <td>
-                <button onClick={() => {
+                    <Button label='Delete' onClick={() => {
                         removeCharacter(c.id).then(updateLogs).then(() => updateCharacters())
-                    }}>Delete</button>  
+                    }}/>
                 </td>
             </tr> 
     )
@@ -124,40 +138,26 @@ const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharact
         }
     }
 
-    const updateCharIni = (charId: number, init: number) => {
-        const updatedCharacters = characters.map(c => {
-            if (charId === c.id) {
-                const res: CharacterShort = {initiative: init, ...c}
-                return res
-            } else {
-                return c
-            }
-        })
-
-        setAllCharacters(updatedCharacters)
-    }
-
     const isAlreadyInCombat = (charId: number): boolean =>
         !!initiatives.find(i => i.charId === charId)
 
     const characterTable = 
         <>
             <input placeholder='Search by...' className='filter' value={nameFilter} onChange={e => setNameFilter(e.target.value)}/>
-            <button className='withLeftSpace' onClick={() => updateCharacterList()}>Reset</button>
+            <Button label='Reset' variant='SpaceLeft' onClick={() => updateCharacterList()}/>
             <table>
                 <tbody>
                     <tr>
                         <th>Name</th>
                         <th>Role</th>
                         <th>Roll ini.</th>
-                        <th>Initiative</th>
                         <th>Add to combat</th>
                         <th>Show</th>
                         <th>Remove</th>
                     </tr>
                 </tbody>
                 {filteredCharacters.map(c => 
-                    <CharacterListRow character={c} isAlreadyInCombat={isAlreadyInCombat} updateCharacters={updateCharacters} updateLogs={updateLogs} removeCharacter={removeCharacter} updateCharIni={updateCharIni} updateInitiatives={updateInitiatives} setCharacterById={setCharacterById} addToCombatReq={addToCombatReq}/>
+                    <CharacterListRow character={c} isAlreadyInCombat={isAlreadyInCombat} updateCharacters={updateCharacters} updateLogs={updateLogs} removeCharacter={removeCharacter} updateInitiatives={updateInitiatives} setCharacterById={setCharacterById} addToCombatReq={addToCombatReq}/>
                 )}
             </table>
         </>
@@ -205,8 +205,8 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives, skills, updateInitiat
         <>
             <ListCharacters updateCharacters={updateCharacterList} updateCharacterList={updateCharacterList} updateInitiatives={updateInitiatives} initiatives={initiatives} characters={allCharacters ?? []} setCharacterById={setCharacterFn} updateLogs={updateLogs} setAllCharacters={setAllCharacters}/>
             <div className="search">
-                <button onClick={() => createCharacter()}>Create</button>
-                {character && <button className='withLeftSpace' onClick={() => setCharacter(undefined)}>Hide character</button>}
+                <Button label='Create' onClick={() => createCharacter()}/>
+                {character && <Button label='Hide character' className='withLeftSpace' onClick={() => setCharacter(undefined)}/>}
             </div>
             {!!character &&
                  <div><CharacterSheet updateCharacterList={updateCharacterList} allowAddingToInitiative={allowAddingToInitiative} editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>

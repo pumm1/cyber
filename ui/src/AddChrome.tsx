@@ -3,6 +3,7 @@ import { AddChromeReq, Attribute, AttributeExtra, AttributeBonus, Log, Skill, Sk
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import './AddWeapon.css'
 import Hideable from './Hideable'
+import { Button } from './Common'
 
 interface AddChromeProps {
     characterId: number
@@ -92,7 +93,7 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
             </tr>
             <tr>
                 <td>
-                    <button onClick={() => addChrome(addChromeReq).then(updateLogsAndCharacter).then(setInitialBonuses).then(emptyForm)}>Add</button>
+                    <Button label='Add' onClick={() => addChrome(addChromeReq).then(updateLogsAndCharacter).then(setInitialBonuses).then(emptyForm)}/>
                 </td>
                 <td>
                     <input className='inputField' value={item} onChange={e => setItem(e.target.value)}/>
@@ -107,7 +108,7 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
                     <AtrBonuses attributeBonuses={attributeBonuses}/>
                 </td>
                 <td>
-                    <button onClick={() => setAttributeBonuses([newAtrBonus, ...attributeBonuses])}>Add bonus</button>
+                    <Button label='Add bonus' onClick={() => setAttributeBonuses([newAtrBonus, ...attributeBonuses])}/>
                 </td>
                 <td>
                     <select>
@@ -123,7 +124,7 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
                     <SkillBonuses skillBonuses={skillBonuses} allSkills={allSkills}/>
                 </td>
                 <td>
-                    <button onClick={() => setSkillBonuses([newSkillBonus, ...skillBonuses])}>Add bonus</button>
+                    <Button label='Add bonus' onClick={() => setSkillBonuses([newSkillBonus, ...skillBonuses])}/>
                 </td>
                 <td>
                     <select>

@@ -36,6 +36,7 @@ class Character:
         self.skills: list[SkillInfo] = skills
         self.humanity = row['humanity']
         self.money = row['money']
+        self.background = row['background']
 
         dmg_taken = row['dmg_taken']
         self.dmg_taken = dmg_taken
@@ -107,6 +108,7 @@ class Character:
             "id": self.id,
             "name": self.name,
             "role": self.role,
+            "background": self.background,
             "specialAbilityLvl": self.specialAbility,
             "specialAbility": roleSpecialAbility(self.role),
             "attributes": self.attributes,

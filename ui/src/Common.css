@@ -1,0 +1,4 @@
+.resizeable {
+    resize: both;
+    max-width: 300px;
+}
