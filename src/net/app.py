@@ -182,9 +182,9 @@ def attack():
         return invalid_req()
 
 
-@app.route('/reload', methods=[post])
+@app.route('/reload', methods=[put])
 def reload():
-    if request.method == post:
+    if request.method == put:
         data = request.get_json()
         weapon_id = data['weaponId']
         shots = data['shots']
@@ -193,18 +193,18 @@ def reload():
         return invalid_req()
 
 
-@app.route('/repair-sp', methods=[post])
+@app.route('/repair-sp', methods=[put])
 def repairSP():
-    if request.method == post:
+    if request.method == put:
         char_id = request.get_json()
         return jsonify(armor.repairSPById(char_id)), 200
     else:
         return invalid_req()
 
 
-@app.route('/heal', methods=[post])
+@app.route('/heal', methods=[put])
 def heal():
-    if request.method == post:
+    if request.method == put:
         data = request.get_json()
         char_id = data['charId']
         amount = data['amount']
@@ -214,9 +214,9 @@ def heal():
         return invalid_req()
 
 
-@app.route('/lvl-up', methods=[post])
+@app.route('/lvl-up', methods=[put])
 def lvlUp():
-    if request.method == post:
+    if request.method == put:
         data = request.get_json()
         char_id = data['charId']
         skill_id = data['skillId']
@@ -254,9 +254,9 @@ def saveIP():
         return invalid_req()
 
 
-@app.route('/restore-emp', methods=[post])
+@app.route('/restore-emp', methods=[put])
 def restoreEMP():
-    if request.method == post:
+    if request.method == put:
         data = request.get_json()
         char_id = data['charId']
         emp = data['emp']
@@ -362,9 +362,9 @@ def removeArmor():
         return invalid_req()
 
 
-@app.route('/remove-weapon', methods=[post])
+@app.route('/remove-weapon', methods=[delete])
 def removeWeapon():
-    if request.method == post:
+    if request.method == delete:
         data = request.get_json()
         char_id = data['charId']
         weapon_id = data['weaponId']
@@ -377,9 +377,9 @@ def removeWeapon():
         return invalid_req()
 
 
-@app.route('/remove-chrome', methods=[post])
+@app.route('/remove-chrome', methods=[delete])
 def removeChrome():
-    if request.method == post:
+    if request.method == delete:
         data = request.get_json()
         char_id = data['charId']
         chrome_id = data['chromeId']
@@ -446,9 +446,9 @@ def addRep():
         return invalid_req()
 
 
-@app.route('/update-money', methods=[post])
+@app.route('/update-money', methods=[put])
 def updateMoney():
-    if request.method == post:
+    if request.method == put:
         data = request.get_json()
         char_id = data['charId']
         money = data['money']
@@ -457,9 +457,9 @@ def updateMoney():
         return invalid_req()
 
 
-@app.route('/delete-character', methods=[post])
+@app.route('/delete-character', methods=[delete])
 def deleteCharacter():
-    if request.method == post:
+    if request.method == delete:
         data = request.get_json()
         char_id = data['charId']
         return jsonify(game.deleteCharacter(char_id))
@@ -467,13 +467,24 @@ def deleteCharacter():
         return invalid_req()
 
 
-@app.route('/update-name', methods=[post])
+@app.route('/update-name', methods=[put])
 def updateName():
-    if request.method == post:
+    if request.method == put:
         data = request.get_json()
         char_id = data['charId']
         name = data['name']
         return jsonify(game.updateCharacterName(char_id, name))
+    else:
+        return invalid_req()
+
+
+@app.route('/update-background', methods=[put])
+def updateBackground():
+    if request.method == put:
+        data = request.get_json()
+        char_id = data['charId']
+        background = data['background']
+        return jsonify(game.updateCharacterBackground(char_id, background))
     else:
         return invalid_req()
 

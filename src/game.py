@@ -521,6 +521,17 @@ def updateCharacterName(character_id, name) -> list[Log]:
     return logs
 
 
+def updateCharacterBackground(character_id, background: str | None) -> list[Log]:
+    logs = []
+    c = DAO.getCharacterById(character_id)
+    if c is not None:
+        DAO.updateCharacterBackground(character_id, background)
+        logs = log_event(logs, f'{c.name} background updated', log_neutral)
+    else:
+        logs = log_event(logs, f"Character not found [id = {character_id}]", log_neg)
+    return logs
+
+
 def restoreEMP(character_id, emp):
     logs = []
     char = DAO.getCharacterById(character_id)
@@ -547,6 +558,7 @@ def restoreEMP(character_id, emp):
         logs = log_event(logs, "Character not found", log_neg)
 
     return logs
+
 
 #param = all/combat/info
 def help(param):

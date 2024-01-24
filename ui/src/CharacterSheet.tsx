@@ -1,4 +1,4 @@
-import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, AddRepReq, addReputation, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName, CharacterStatus, CharacterStatusType, deleteCharacterStatus } from './CyberClient'
+import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, AddRepReq, addReputation, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName, CharacterStatus, CharacterStatusType, deleteCharacterStatus, updateCharacterBackground } from './CyberClient'
 import { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -6,7 +6,8 @@ import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import AddChrome from './AddChrome'
 import AddArmor from './AddArmor'
 import { AddStatus } from './AddStatus'
-import { Button } from './Common'
+import { Button, TextArea } from './Common'
+import Hideable from './Hideable'
 
 
 const roles = {
@@ -1079,13 +1080,18 @@ interface HandleProps {
     edit: boolean
     onUpdate: (n: string) => void
     updateLogsAndCharacter: (l: Log[]) => void
+    characterBackground?: string
 }
 
-const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter}: HandleProps) => {
+const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, characterBackground}: HandleProps) => {
     const [nameEditable, setNameEditable] = useState(false)
+    const [background, setBackground] = useState(characterBackground)
 
     const updateName = (charId: number) => 
         updateCharacterName({charId, name: value})
+
+    const updateBackground = (charId: number) =>
+        updateCharacterBackground({charId, background})
 
     return(
         <div className='fieldContainer'>
@@ -1095,9 +1101,18 @@ const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter}: Ha
             </span>
             {characterId && <span>
                 <input type='checkbox' checked={nameEditable} onClick={() => setNameEditable(!nameEditable)}/> Edit handle
-                <Button label='Update handle' variant='SpaceLeft'  disabled={!nameEditable} onClick={() => updateName(characterId).then(updateLogsAndCharacter)}/>
-            </span>
+                <Button label='Update handle' variant='SpaceLeft'  disabled={!nameEditable} onClick={() => updateName(characterId).then(updateLogsAndCharacter)}/>               
+           </span>
             }
+            <Hideable text='Background' props={
+                <> 
+                    {characterId && <Button variant='LessSpaceLeft' label='Updage background' disabled={background === characterBackground} onClick={() => updateBackground(characterId).then(updateLogsAndCharacter)}/>}
+                    <div>
+                        <TextArea readOnly={false} value={background} setValue={setBackground}/>
+                    </div>
+                </>
+            }
+            />    
         </div>
     )
 }
@@ -1203,7 +1218,7 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
 
     return(
         <div className='sheet'>
-            <Handle updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
+            <Handle characterBackground={character.background} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
             {edit && <><input type="checkbox" checked={randomize} onClick={() => setRandomize(!randomize)}/> Randomize</>}
             <RoleFiled updateChracterRole={updateCharacterRole} edit={editWithRandomize} value={character.role}/>
              <Stats characterId={character.id} statuses={character.statuses} edit={edit} updateCharacter={updateCharacter} updateLogs={updateLogs} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>

@@ -229,7 +229,8 @@ export interface CharacterStatus extends AddCharacterStatusReq {
     id: number
 }
 
-export interface Character extends CharacterShort{
+export interface Character extends CharacterShort {
+    background?: string
     specialAbility: string, //TODO: enum?
     specialAbilityLvl: number
     bodyType: string
@@ -316,10 +317,10 @@ export interface ReloadReq extends WeaponReq {
 }
 
 export const reload = (reload: ReloadReq) => 
-    postDataAs<Log[]>(`${pathBase}/reload`, reload)
+    putDataAs<Log[]>(`${pathBase}/reload`, reload)
 
 export const repair = (charId: number) =>
-    postDataAs<Log[]>(`${pathBase}/repair-sp`, charId)
+    putDataAs<Log[]>(`${pathBase}/repair-sp`, charId)
 
 export interface LvlUpReq extends CharacterReq {
     skillId: number
@@ -333,7 +334,7 @@ export const lvlUp = (charId: number, skillId: number) => {
         amount: 1
     } 
 
-    return postDataAs<Log[]>(`${pathBase}/lvl-up`, lvlUpReq)
+    return putDataAs<Log[]>(`${pathBase}/lvl-up`, lvlUpReq)
 }
 
 export interface HealReq {
@@ -342,7 +343,7 @@ export interface HealReq {
 }
 
 export const heal = (healReq: HealReq) =>
-    postDataAs<Log[]>(`${pathBase}/heal`, healReq)
+    putDataAs<Log[]>(`${pathBase}/heal`, healReq)
 
 export interface DmgReq {
     charId: number
@@ -482,21 +483,21 @@ export interface UpdateMoneyReq extends CharacterReq {
 }
 
 export const updateMoney = (m: UpdateMoneyReq) => 
-    postDataAs<Log[]>(`${pathBase}/update-money`, m)
+    putDataAs<Log[]>(`${pathBase}/update-money`, m)
 
 export interface RemoveWeaponReq extends CharacterReq {
     weaponId: number
 }
 
 export const removeWeapon = (w: RemoveWeaponReq) =>
-    postDataAs<Log[]>(`${pathBase}/remove-weapon`, w)
+    deleteDataAs<Log[]>(`${pathBase}/remove-weapon`, w)
 
 export interface RemoveChromeReq extends CharacterReq {
     chromeId: number
 }
 
 export const removeChrome = (c: RemoveChromeReq) =>
-    postDataAs<Log[]>(`${pathBase}/remove-chrome`, c)
+    deleteDataAs<Log[]>(`${pathBase}/remove-chrome`, c)
 
 export enum MeleeAttackMethod {
     weapon = 'weapon',
@@ -523,20 +524,27 @@ export interface RestoreEMPReq extends CharacterReq {
     emp: number
 }
 export const restoreCharEMP = (e: RestoreEMPReq) =>
-    postDataAs<Log[]>(`${pathBase}/restore-emp`, e)
+    putDataAs<Log[]>(`${pathBase}/restore-emp`, e)
 
 export const stuncheck = (c: CharacterReq) =>
     postDataAs<Log[]>(`${pathBase}/stun-check`, c)
 
 export const deleteCharacter = (c: CharacterReq) =>
-    postDataAs<Log[]>(`${pathBase}/delete-character`, c)
+    deleteDataAs<Log[]>(`${pathBase}/delete-character`, c)
 
 export interface UpdateCharNameReq extends CharacterReq {
     name: string
 }
 
 export const updateCharacterName = (c: UpdateCharNameReq) => 
-    postDataAs<Log[]>(`${pathBase}/update-name`, c)
+    putDataAs<Log[]>(`${pathBase}/update-name`, c)
+
+export interface UpdateCharacterBackgroundReq extends CharacterReq {
+    background?: string
+}
+
+export const updateCharacterBackground = (c: UpdateCharacterBackgroundReq) =>
+    putDataAs<Log[]>(`${pathBase}/update-background`, c)
 
 export interface ManualWeaponRollReq {
     rollTotal: number
