@@ -107,8 +107,7 @@ def rollInitiative():
     if request.method == post:
         data = request.get_json()
         char_id = data['charId']
-        initiative = data.get('initiative', None)
-        return jsonify(game.rollInitiativeByCharacterId(char_id, initiative))
+        return jsonify(game.rollInitiativeByCharacterId(char_id))
     else:
         return invalid_req()
 
