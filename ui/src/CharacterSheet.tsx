@@ -117,7 +117,7 @@ const CharacterStatusRow = ({characterId, charStatus, updateCharacterAndLogs}: C
         <div className = 'statusContainer'>
             <span className={className}>
                 {status}: {effect} 
-                <Button label='X' variant='SomeLeftSpace' onClick={() => deleteCharacterStatus(characterId, id).then(updateCharacterAndLogs)}/>
+                <Button label='X' variant='LessSpaceLeft' onClick={() => deleteCharacterStatus(characterId, id).then(updateCharacterAndLogs)}/>
             </span>
         </div>
         )
@@ -258,7 +258,7 @@ const SkillRow = ({skill, charSkillLvl, charOriginalSkillLvl, rollReq, charId, u
     return(
         <div className='skill' key={skill.id}>
             <span>
-                <Button label='+' variant='SomeSpaceRight' disabled={charOriginalSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(() => updateCharacter(charId))}/>
+                <Button label='+' disabled={charOriginalSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(() => updateCharacter(charId))}/>
                 <Button label='Roll' className='skillBtn' onClick={() => rollSkill(rollReq).then(updateLogsAndCharacter)}/>
                 <span className='withLessLeftSpace'>
                     {skill.skill.padEnd(30, '.')}[{charSkillLvl ?? ''}]
@@ -540,14 +540,14 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
             </td>
             <td>
                 <span className='attackMod'>
-                    <Button label='Attack' variant='SomeSpaceRight' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
+                    <Button label='Attack' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
                         setShotsFired(1)
                         setTargets(1)
                         setAttackModifier(0)
                         setGivenRoll(0)
                     })}/>
                     {weaponIsGun && 
-                        <Button label='Reload' variant='SomeSpaceRight' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}/>
+                        <Button label='Reload' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}/>
                     }
                 </span>
             </td>
@@ -681,12 +681,12 @@ const MeleeWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Weap
                 <td>{weapon.reliability}</td>
                 <td>
                     <span className='attackMod'>
-                        <Button label='Attack' variant='SomeSpaceRight' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
+                        <Button label='Attack' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
                             setAttackModifier(0)
                             setGivenRoll(0)
                         })}/>
                         {canBeReloaded && 
-                            <Button label='Reload' variant='SomeSpaceRight' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}/>
+                            <Button label='Reload' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}/>
                         }
                     </span>
                 </td>

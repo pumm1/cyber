@@ -104,7 +104,7 @@ const CharacterListRow = ({character: c, isAlreadyInCombat, setCharacterById, ad
                 <td>
                     <span>
                         <input className='valueBox' type="text" value={initiative} onChange={e => setInitiative(handleManualIniativeInput(e.target.value))}/>
-                        <Button label='Roll' variant='SomeLeftSpace' onClick={() => rollInitiative({charId: c.id}).then(i => setInitiative(i))}/>
+                        <Button label='Roll' variant='LessSpaceLeft' onClick={() => rollInitiative({charId: c.id}).then(i => setInitiative(i))}/>
                     </span>
                     </td>
                 <td>

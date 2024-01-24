@@ -1,3 +1,4 @@
 .resizeable {
-    resize: vertical;
+    resize: both;
+    max-width: 300px;
 }

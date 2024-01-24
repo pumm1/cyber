@@ -21,10 +21,11 @@ interface CampaingRowProps {
     campaign: Campaign
     setSelectedCampaign: (c: Campaign) => void
     updateCampaigns: () => Promise<void>
+    selectedCampaignId?: number
 }
 
 
-const CampaignRow = ({ campaign, setSelectedCampaign, updateCampaigns }: CampaingRowProps) => {
+const CampaignRow = ({ campaign, setSelectedCampaign, updateCampaigns, selectedCampaignId }: CampaingRowProps) => {
     const [allowEdit, setAllowedit] = useState(false)
     const [info, setInfo] = useState(campaign.info)
     const editIsvalid: boolean = allowEdit && campaign.info !== info
@@ -38,20 +39,21 @@ const CampaignRow = ({ campaign, setSelectedCampaign, updateCampaigns }: Campain
                 <input type='checkbox' checked={allowEdit} onChange={() => setAllowedit(!allowEdit)}/>
             </td>
             <td>
-                <Button label='Select' variant='SomeSpaceRight' onClick={() => setSelectedCampaign(campaign)}/>
-                <Button label='Update' variant='SomeSpaceRight' disabled={!editIsvalid} onClick={() => updateCampaignInfo(campaign.id, info).then(() => fetchCampaigns().then(updateCampaigns))}/>
+                <Button label='Select' disabled={selectedCampaignId === campaign.id} onClick={() => setSelectedCampaign(campaign)}/>
+                <Button label='Update' disabled={!editIsvalid} onClick={() => updateCampaignInfo(campaign.id, info).then(() => fetchCampaigns().then(updateCampaigns))}/>
             </td>
         </tr>
     )
 }
 
 interface CampaignTableProps {
+    selectedCampaignId?: number
     campaigns: Campaign[]
     setSelectedCampaign: (c: Campaign) => void
     updateCampaigns: () => Promise<void>
 }
 
-const CampaignTable = ({ campaigns, setSelectedCampaign, updateCampaigns }: CampaignTableProps) => {
+const CampaignTable = ({ campaigns, setSelectedCampaign, updateCampaigns, selectedCampaignId }: CampaignTableProps) => {
     return (
         <table>
             <tr>
@@ -60,7 +62,7 @@ const CampaignTable = ({ campaigns, setSelectedCampaign, updateCampaigns }: Camp
                 <th>Edit</th>
                 <th>Action</th>
             </tr>
-        {campaigns.map(c => <CampaignRow campaign={c} setSelectedCampaign={setSelectedCampaign} updateCampaigns={updateCampaigns}/>)}
+        {campaigns.map(c => <CampaignRow selectedCampaignId={selectedCampaignId} campaign={c} setSelectedCampaign={setSelectedCampaign} updateCampaigns={updateCampaigns}/>)}
         </table>
     )
 }
@@ -288,9 +290,9 @@ const GigRow = ({gig, setGigs, allCharacters}: GigRowProps) => {
                 </select>
             </td>
             <td>
-                <Button label='Start' variant='SomeSpaceRight' disabled={gig.status !== GigStatus.NotStarted} onClick={() => updateGigStatus(gig.id, GigStatus.Started).then(() => fetchAndUpdategigs())}/>
-                <Button label='Complete' variant='SomeSpaceRight' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Done).then(() => fetchAndUpdategigs())}/>
-                <Button label='Failed' variant='SomeSpaceRight' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Failed).then(() => fetchAndUpdategigs())}/>
+                <Button label='Start' disabled={gig.status !== GigStatus.NotStarted} onClick={() => updateGigStatus(gig.id, GigStatus.Started).then(() => fetchAndUpdategigs())}/>
+                <Button label='Complete' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Done).then(() => fetchAndUpdategigs())}/>
+                <Button label='Failed' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Failed).then(() => fetchAndUpdategigs())}/>
             </td>
         </tr>
     )
@@ -425,7 +427,7 @@ const Campaigns = ({}) => {
             <Navbar />
             <h2>Campaigns</h2>
             <SelectedCampaignInfo />
-            <Hideable text='campaigns' props={<CampaignTable campaigns={campaigns} updateCampaigns={updatecampaignsFn} setSelectedCampaign={setSelectedCampaign}/>}/>
+            <Hideable text='campaigns' props={<CampaignTable selectedCampaignId={selectedCampaign?.id} campaigns={campaigns} updateCampaigns={updatecampaignsFn} setSelectedCampaign={setSelectedCampaign}/>}/>
             <Hideable text='campaign form' props={<AddCampaign updateCampaigns={updatecampaignsFn}/>} />
             {selectedCampaign && <h2>Campaign events</h2>}
             {selectedCampaign && <Hideable text='campaign events' props={<CampaignEvents events={events} setEvents={setEvents} />}/>}
