@@ -260,7 +260,7 @@ const SkillRow = ({skill, charSkillLvl, charOriginalSkillLvl, rollReq, charId, u
         <div className='skill' key={skill.id}>
             <span>
                 <Button label='+' disabled={charOriginalSkillLvl >= 10 } onClick={() => lvlUp(charId, skill.id).then(() => updateCharacter(charId))}/>
-                <Button label='Roll' className='skillBtn' onClick={() => rollSkill(rollReq).then(updateLogsAndCharacter)}/>
+                <Button variant='LessSpaceLeft' label='Roll' onClick={() => rollSkill(rollReq).then(updateLogsAndCharacter)}/>
                 <span className='withLessLeftSpace'>
                     {skill.skill.padEnd(30, '.')}[{charSkillLvl ?? ''}]
                 </span>
