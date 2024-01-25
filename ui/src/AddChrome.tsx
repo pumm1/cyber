@@ -13,17 +13,21 @@ interface AddChromeProps {
 
 export interface AtrBonusesProps {
     attributeBonuses: AttributeBonus[]
+    onDelete: (a: AttributeBonus) => void
 }
 
-export const AtrBonuses = ({attributeBonuses}: AtrBonusesProps) =>
-    <>{attributeBonuses.map(b => <div>{b.attribute} {b.bonus}</div>) }</>
+export const AtrBonuses = ({attributeBonuses, onDelete}: AtrBonusesProps) =>
+    <div>{attributeBonuses.map((b, idx) => <div key={`${b.attribute}-${idx}`}>{b.attribute} {b.bonus} <Button label='x' onClick={() => onDelete(b)}/></div>) }</div>
 
 export interface SkillBonusesProps {
     allSkills: Skill[]
     skillBonuses: SkillBonus[]
+    onDelete: (i: number) => void
 }
-export const SkillBonuses = ({skillBonuses, allSkills}: SkillBonusesProps) =>
-    <>{skillBonuses.map(sb => <div>{allSkills.find(s => s.id === sb.skillId)?.skill || 'Not found'} {sb.bonus}</div>)}</>
+export const SkillBonuses = ({skillBonuses, allSkills, onDelete}: SkillBonusesProps) =>
+    <div>
+        {skillBonuses.map(sb => <div>{allSkills.find(s => s.id === sb.skillId)?.skill || 'Not found'} {sb.bonus} <Button label='x' onClick={() => onDelete(sb.skillId)}/></div>)}
+    </div>
 
 const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChromeProps) => {
     const [item, setItem] = useState('')
@@ -75,6 +79,12 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
         humanityCost
     }
 
+    const onAtrBonusDelete = (a: AttributeBonus) => 
+        setAttributeBonuses(attributeBonuses.filter(b => b.attribute !== a.attribute))
+
+    const onSkillBonusDelete = (s: number) =>
+        setSkillBonuses(skillBonuses.filter(sb => sb.skillId !== s))
+
     return(
         <table>
             <tr>
@@ -102,10 +112,10 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
                     <input value={description} onChange={e => setDescription(e.target.value)}/>
                 </td>
                 <td>
-                      <span className='attackMod'>{humanityCost}<ValueChanger onChange={updateHumanityCost} baseValue={humanityCost}/></span>
+                    <span className='attackMod'>{humanityCost}<ValueChanger onChange={updateHumanityCost} baseValue={humanityCost}/></span>
                 </td> 
                 <td>
-                    <AtrBonuses attributeBonuses={attributeBonuses}/>
+                    <AtrBonuses attributeBonuses={attributeBonuses} onDelete={onAtrBonusDelete}/>
                 </td>
                 <td>
                     <Button label='Add bonus' onClick={() => setAttributeBonuses([newAtrBonus, ...attributeBonuses])}/>
@@ -121,7 +131,7 @@ const NewChromeForm = ({characterId, updateLogsAndCharacter, allSkills}: AddChro
                     <span className='attackMod'>{atrBonus}<ValueChanger onChange={setAtrBonus} baseValue={atrBonus}/></span>
                 </td>
                 <td>
-                    <SkillBonuses skillBonuses={skillBonuses} allSkills={allSkills}/>
+                    <SkillBonuses onDelete={onSkillBonusDelete} skillBonuses={skillBonuses} allSkills={allSkills}/>
                 </td>
                 <td>
                     <Button label='Add bonus' onClick={() => setSkillBonuses([newSkillBonus, ...skillBonuses])}/>

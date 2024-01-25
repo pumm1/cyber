@@ -72,6 +72,13 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
         skillBonuses,
         humanityCost
     }
+
+    const onAtrBonusDelete = (a: AttributeBonus) =>
+        setAttributeBonuses(attributeBonuses.filter(b => b.attribute !== a.attribute))
+
+    const onSkillBonusDelete = (s: number) =>
+        setSkillBonuses(skillBonuses.filter(sb => sb.skillId !== s))
+
     return (
         <table>
             <tr>
@@ -115,7 +122,7 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
                     </select>
                 </td>
                 <td>
-                    <AtrBonuses attributeBonuses={attributeBonuses}/>
+                    <AtrBonuses onDelete={onAtrBonusDelete} attributeBonuses={attributeBonuses}/>
                 </td>
                 <td>
                     <Button label='Add bonus' onClick={() => setAttributeBonuses([newAtrBonus, ...attributeBonuses])}/>
@@ -131,7 +138,7 @@ const NewArmorForm = ({characterId, updateLogsAndCharacter, allSkills}: AddArmor
                     <span className='attackMod'>{atrBonus}<ValueChanger onChange={setAtrBonus} baseValue={atrBonus}/></span>
                 </td>
                 <td>
-                    <SkillBonuses allSkills={allSkills} skillBonuses={skillBonuses}/>
+                    <SkillBonuses onDelete={onSkillBonusDelete}allSkills={allSkills} skillBonuses={skillBonuses}/>
                 </td>
                 <td>
                     <Button label='Add bonus' onClick={() => setSkillBonuses([newSkillBonus, ...skillBonuses])}/>

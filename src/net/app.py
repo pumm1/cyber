@@ -214,9 +214,9 @@ def heal():
         return invalid_req()
 
 
-@app.route('/lvl-up', methods=[put])
+@app.route('/lvl-up', methods=[post])
 def lvlUp():
-    if request.method == put:
+    if request.method == post:
         data = request.get_json()
         char_id = data['charId']
         skill_id = data['skillId']

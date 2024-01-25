@@ -332,9 +332,9 @@ export const lvlUp = (charId: number, skillId: number) => {
         charId,
         skillId,
         amount: 1
-    } 
+    }
 
-    return putDataAs<Log[]>(`${pathBase}/lvl-up`, lvlUpReq)
+    return postDataAs<Log[]>(`${pathBase}/lvl-up`, lvlUpReq)
 }
 
 export interface HealReq {
