@@ -40,7 +40,7 @@ const CampaignRow = ({ campaign, setSelectedCampaign, updateCampaigns, selectedC
             </td>
             <td>
                 <Button label='Select' disabled={selectedCampaignId === campaign.id} onClick={() => setSelectedCampaign(campaign)}/>
-                <Button label='Update' disabled={!editIsvalid} onClick={() => updateCampaignInfo(campaign.id, info).then(() => fetchCampaigns().then(updateCampaigns))}/>
+                <Button variant='LessSpaceLeft' label='Update' disabled={!editIsvalid} onClick={() => updateCampaignInfo(campaign.id, info).then(() => fetchCampaigns().then(updateCampaigns))}/>
             </td>
         </tr>
     )
