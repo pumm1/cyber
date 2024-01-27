@@ -257,9 +257,8 @@ const gigIsOver = (g: CampaignGig) =>
 
 
 const GigRow = ({gig, setGigs, allCharacters}: GigRowProps) => {
-    const [allowEdit, setAllowedit] = useState(false)
     const [info, setInfo] = useState(gig.info)
-    const editIsValid: boolean = allowEdit && gig.info !== info
+    const editIsValid: boolean = gig.info !== info
 
     const fetchAndUpdategigs = () =>
         fetchCampaignGigs(gig.campaignId).then(setGigs) 
@@ -275,10 +274,12 @@ const GigRow = ({gig, setGigs, allCharacters}: GigRowProps) => {
                 {gigStatusLabel(gig.status)}
             </td>
             <td>
-                <TextArea placeholder='Describe gig somehow' readOnly={!allowEdit} value={info} setValue={setInfo} variant="resizeable"/>
+                <TextArea placeholder='Describe gig somehow' readOnly={true} value={gig.info} setValue={setInfo} variant="resizeable"/>
             </td>
             <td>
-                <input type='checkbox' checked={allowEdit} onClick={() => setAllowedit(!allowEdit)}/>
+                <TextArea placeholder='Describe gig somehow' value={info} setValue={setInfo} readOnly={false} variant="resizeable"/>
+            </td>
+            <td>
                 <Button label='Edit info' disabled={!editIsValid} onClick={() => updateGigInfo(gig.id, info).then(() => fetchAndUpdategigs())}/>
             </td>
             <td><ListedCharacters characters={gig.characters} onDelete={deleteCharacter}/></td>
@@ -291,47 +292,52 @@ const GigRow = ({gig, setGigs, allCharacters}: GigRowProps) => {
             </td>
             <td>
                 <Button label='Start' disabled={gig.status !== GigStatus.NotStarted} onClick={() => updateGigStatus(gig.id, GigStatus.Started).then(() => fetchAndUpdategigs())}/>
-                <Button label='Complete' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Done).then(() => fetchAndUpdategigs())}/>
-                <Button label='Failed' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Failed).then(() => fetchAndUpdategigs())}/>
+                <Button variant='LessSpaceLeft' label='Complete' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Done).then(() => fetchAndUpdategigs())}/>
+                <Button variant='LessSpaceLeft' label='Failed' disabled={gigIsOver(gig)} onClick={() => updateGigStatus(gig.id, GigStatus.Failed).then(() => fetchAndUpdategigs())}/>
             </td>
         </tr>
     )
 }
 
 interface CampaignGigsProps {
+    campaignId: number
     gigs: CampaignGig[]
     setGigs: (g: CampaignGig[]) => void
 }
 
-const CampaignGigs = ({gigs, setGigs}: CampaignGigsProps) => {
+const CampaignGigs = ({ campaignId, gigs, setGigs}: CampaignGigsProps) => {
     const [characters, setCharacters] = useState<CharacterShort[]>([])
-    const [showCompleted, setShowCompleted] = useState(false)
+    const [showCompleted, setShowCompleted] = useState(true)
 
     const filteredCharacters = (g: CampaignGig) => 
         sortedCharacters(characters).filter(c => !g.characters.map(gc => gc.id).includes(c.id))
-
-    const filteredGigs = () =>!
-        !showCompleted ? gigs.filter(g => !gigIsOver(g)) : gigs
 
     useEffect(() => {
         listCharacters().then(setCharacters)
     }, [])
 
+    const updateGigs = () => { //showCompleted used here for filtering is still pre-updated value 
+        Promise.resolve(setShowCompleted(!showCompleted)).then(() => fetchCampaignGigs(campaignId).then(allGigs => setGigs(!showCompleted ? allGigs : allGigs.filter(g => !gigIsOver(g)))))
+    }
+
     return(
         <div>
-            Show completed {<input type='checkbox' checked={showCompleted} onChange={() => setShowCompleted(!showCompleted)} />}
+            Show completed {<input type='checkbox' checked={showCompleted} onChange={() => { 
+                updateGigs()
+            }} />}
             <table>
                 <tr>
                     <th>id</th>
                     <th>Gig name</th>
                     <th>Status</th>
                     <th>Gig info</th>
+                    <th>Info update</th>
                     <th>Edit</th>
                     <th>Characters</th>
                     <th>Add character</th>
                     <th>Action</th>
                 </tr>
-                {filteredGigs().map(g => {
+                {gigs.map(g => {
                     return (
                         <GigRow gig={g} setGigs={setGigs} allCharacters={filteredCharacters(g)} />
                     )
@@ -433,7 +439,7 @@ const Campaigns = ({}) => {
             {selectedCampaign && <Hideable text='campaign events' props={<CampaignEvents events={events} setEvents={setEvents} />}/>}
             {selectedCampaign && <Hideable text='campaign event form' props={<AddCampaignEvent maxSession={Math.max(...events.map(e => e.sessionNumber))} setEvents={setEvents} campaignId={selectedCampaign.id} />}/>}
             {selectedCampaign && <h2>Campaign gigs</h2>}
-            {selectedCampaign && <Hideable text='campaign gigs' props={<CampaignGigs gigs={gigs} setGigs={setGigs}/>}/>}
+            {selectedCampaign && <Hideable text='campaign gigs' props={<CampaignGigs campaignId={selectedCampaign.id} gigs={gigs} setGigs={setGigs}/>}/>}
             {selectedCampaign && <Hideable text='campaign gig form' props={<AddCampaignGig campaignId={selectedCampaign.id} setGigs={setGigs}/>}/>}
         </div>
     )

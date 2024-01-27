@@ -1067,7 +1067,7 @@ def campaignEvents(campaign_id: int):
 def campaignGigs(campaign_id: int):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{select_from} {table_gigs} WHERE campaign_id = {campaign_id};"""
+            f"""{select_from} {table_gigs} WHERE campaign_id = {campaign_id} ORDER BY id DESC;"""
         )
         rows = cur.fetchall()
         conn.commit()
