@@ -679,42 +679,41 @@ const MeleeWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Weap
         </span>
 
     return (
-        <tbody>
-            <tr>
-                <td>{weapon.item}</td>
-                <td><Dmg weapon={weapon} /></td>
-                <td>{weapon.reliability}</td>
-                <td>
-                    <span className='attackMod'>
-                        <Button label='Attack' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
-                            setAttackModifier(0)
-                            setGivenRoll(0)
-                        })}/>
-                        {canBeReloaded && 
-                            <Button label='Reload' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}/>
-                        }
-                    </span>
-                </td>
-                <td>
-                    <Button label='Roll DMG' onClick={() => rollMeleeDmg(meleeDmgRollReq).then(updateLogsAndCharacter)}/>
-                </td>
-                <td><AttackMethods /></td>
-                <td>{ammoInfo}</td>
-                <td>
-                    <span className='attackMod'>
-                        <input value={givenRoll} className='valueBox' onChange={e => updateGivenRoll(parseInt(e.target.value))}/>
-                    </span>
-                </td>
-                <td>
-                    <span className='attackMod'>
-                        {attackModifier} <ValueChanger onChange={updateModifier} baseValue={attackModifier} />
-                    </span>
-                </td>
-                <td>
-                    <Button label='Remove' disabled={weapon.item === 'unarmed'} onClick={() => removeWeapon(removeWeaponReq).then(updateLogsAndCharacter)}/>
-                </td>
-            </tr>
-        </tbody>
+        <tr>
+            <td>{weapon.item}</td>
+            <td><Dmg weapon={weapon} /></td>
+            <td>{weapon.reliability}</td>
+            <td>{weapon.con}</td>
+            <td>
+                <span className='attackMod'>
+                    <Button label='Attack' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
+                        setAttackModifier(0)
+                        setGivenRoll(0)
+                    })}/>
+                    {canBeReloaded && 
+                        <Button label='Reload' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}/>
+                    }
+                </span>
+            </td>
+            <td>
+                <Button label='Roll DMG' onClick={() => rollMeleeDmg(meleeDmgRollReq).then(updateLogsAndCharacter)}/>
+            </td>
+            <td><AttackMethods /></td>
+            <td>{ammoInfo}</td>
+            <td>
+                <span className='attackMod'>
+                    <input value={givenRoll} className='valueBox' onChange={e => updateGivenRoll(parseInt(e.target.value))}/>
+                </span>
+            </td>
+            <td>
+                <span className='attackMod'>
+                    {attackModifier} <ValueChanger onChange={updateModifier} baseValue={attackModifier} />
+                </span>
+            </td>
+            <td>
+                <Button label='Remove' disabled={weapon.item === 'unarmed'} onClick={() => removeWeapon(removeWeaponReq).then(updateLogsAndCharacter)}/>
+            </td>
+        </tr>
     )
 }
 
@@ -723,20 +722,19 @@ const CharacterMeleeWeapons = (
 ) => {
     return(
         <table>
-            <tbody>
-                <tr>
-                    <th>Melee weapon</th>
-                    <th>DMG</th>
-                    <th>Reliability</th>
-                    <th>Action</th>
-                    <th>Roll DMG</th>
-                    <th>Attack methods</th>
-                    <th>(Opt. Shots left)</th>
-                    <th>(Opt. Roll)</th>
-                    <th>(Opt. Modifier)</th>
-                    <th>Remove</th>
-                </tr>
-            </tbody>
+            <tr>
+                <th>Melee weapon</th>
+                <th>DMG</th>
+                <th>Reliability</th>
+                <th>Con.</th>
+                <th>Action</th>
+                <th>Roll DMG</th>
+                <th>Attack methods</th>
+                <th>(Opt. Shots left)</th>
+                <th>(Opt. Roll)</th>
+                <th>(Opt. Modifier)</th>
+                <th>Remove</th>
+            </tr>
             {weapons.map(w => 
                 <MeleeWeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} updateCharacter={updateCharacter} />
             )}
