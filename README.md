@@ -18,6 +18,18 @@ This is not a replacement for the original game's source books.
 
 Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 
+## Example images
+### Initiatives
+![image](https://github.com/pumm1/cyber/assets/22749461/0ddd5ffb-2a65-4b4f-b776-e3ff09aa7706)
+### Showing character info
+![image](https://github.com/pumm1/cyber/assets/22749461/e614dab3-3288-4fae-8fe3-91c44c947879)
+### Skills
+![image](https://github.com/pumm1/cyber/assets/22749461/03a51e62-c5da-4b62-bc8b-7ee9ac68eaa2)
+
+### Equipment and chrome
+![image](https://github.com/pumm1/cyber/assets/22749461/641c309c-cfd5-4e5b-befa-e5e632075336)
+
+
 
 ## Feature examples:
 
