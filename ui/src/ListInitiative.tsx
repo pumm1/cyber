@@ -6,9 +6,10 @@ import { Button } from './Common'
 export interface ListInitiativeProps {
     initiatives: Initiative[]
     updateInitiatives: () => Promise<void>
+    setCharacterById: (i: number) => void
 }
 
-const ListInitiative = ({initiatives, updateInitiatives}: ListInitiativeProps) => {
+const ListInitiative = ({initiatives, updateInitiatives, setCharacterById}: ListInitiativeProps) => {
     /**
      when using python as backend, one might end up in a weird race condition.
      now this app fetches all the skills initially and we could already fetch also the initaitives.
@@ -30,12 +31,16 @@ const ListInitiative = ({initiatives, updateInitiatives}: ListInitiativeProps) =
                     <th>Name</th>
                     <th>Initiative</th>
                     <th>Turn</th>
+                    <th>Select character</th>
                 </tr>
                 {initiatives.map((i, idx) => 
                     <tr key={idx}>
                         <td>{i.name}</td>
                         <td>{i.initiative}</td>
                         <td>{i.current ? "This character's turn" : ''}</td>
+                        <td>
+                            <Button label='Show' onClick={() => setCharacterById(i.charId)}/>
+                        </td>
                     </tr>
                 )}
             </table>

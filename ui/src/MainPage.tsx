@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Initiative, Log, Skill, listInitiative, listSkills } from './CyberClient';
-import ListInitiative from './ListInitiative';
 import SearchOrCreateCharacter from './SearchOrCreateCharacter';
 import LogViewer from './LogViewer';
 import Navbar from './Navbar';
@@ -43,7 +42,6 @@ const App = ({}) => {
       <h1>Welcome to the NET</h1>
       <div className='infoContainer'>
         <div className='sheetContainer'>
-          <ListInitiative initiatives={initiatives} updateInitiatives={updateInitiatives}/>
           <SearchOrCreateCharacter skills={allSkills} updateInitiatives={updateInitiatives} initiatives={initiatives} updateLogs={updateLogs}/>
           <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogs}/>
         </div>
