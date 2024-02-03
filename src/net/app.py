@@ -297,7 +297,6 @@ def addWeapon():
         reliability = data['reliability']
         effect_radius = data['effectRadius']
         custom_range = data.get('customRange', None)
-        print(f'....data: {data}')
         res = weapon.addCharacterWeaponById(
             char_id, dice_num, die, divide_by, dmg_bonus, item, clip_size, rof,
             humanity_cost, weapon_type, wa, con, weight, reliability, effect_radius, custom_range

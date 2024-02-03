@@ -194,7 +194,6 @@ def addCharWeapon(
         custom_range=None
 )-> list[Log]:
     logs = []
-    print(f'... humanity cost for add weapon: {humanity_cost}')
     if char is not None:
         if weapon_name is None:
             print(f'Give weapon name:')
@@ -229,8 +228,10 @@ def addCharWeapon(
 
         DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, divide_by, bonus, weapon_range, rof, clip_size,
                       effect_radius, wa, con, reliability, weight)
+
         if is_chrome:
-            handleHumanity(char, humanity_cost=humanity_cost)
+            (_, humanity_logs) = handleHumanity(char, humanity_cost=humanity_cost)
+            logs = logs + humanity_logs
 
         logs = log_event(logs, 'Weapon added!', log_pos)
     else:
