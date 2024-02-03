@@ -5,8 +5,9 @@ import bodytypes
 from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str, INT, REF, TECH, \
     COOL, ATTR, LUCK, MA, BODY, EMP, body_part_l_arm, body_part_body, body_part_head, body_part_r_arm, t_melee, \
     t_handgun, t_shotgun, t_rifle, t_thrown, t_smg, con_pocket, con_long_coat, con_jacket, not_hideable, yes_no, \
-    body_part_l_leg, body_part_r_leg, printGreenLine
+    body_part_l_leg, body_part_r_leg, printGreenLine, printRedLine
 from logger import log_event, log_pos
+from skills import udpateCharacterSkill
 
 
 def rollAtr():
@@ -61,9 +62,25 @@ def manualRole(allow_roll: bool):
 def rollSpecial(role):
     specialAbility = roles.roleDict[role][roles.ability]
 
-    skill = dice.roll(1, 10)
+    skill = dice.roll(1, 5)
     print(f'Rolled {specialAbility} = {skill}')
     return skill
+
+
+def generateRandomSkills(character_id):
+    character = DAO.getCharacterById(character_id)
+    if character is not None:
+        basic_skills = ['awareness' , 'library search', 'athletics', 'dodge/escape', 'brawling', 'handgun', 'melee'] #this requires DB to be set as instructed
+        role_skills = roles.roleDict[character.role]['skills']
+        all_skills = basic_skills + role_skills
+        for skill in all_skills:
+            skill = DAO.skillByName(skill)
+            if skill is not None:
+                skill_id = skill['id']
+                lvl_up_amount = dice.roll(1, 5)
+                udpateCharacterSkill(character, skill_id, lvl_up_amount)
+            else:
+                printRedLine(f'{skill} not found!')
 
 
 def addSpecial(role):
@@ -188,6 +205,7 @@ def createRandomCharacter(name, generate_gear=True):
     )
     if generate_gear:
         generateGear(name)
+    generateRandomSkills(character_id)
     return character_id
 
 
