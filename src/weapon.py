@@ -192,7 +192,7 @@ def addCharWeapon(
         char: Character, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None,
         humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None,
         custom_range=None
-)-> list[Log]:
+) -> list[Log]:
     logs = []
     if char is not None:
         if weapon_name is None:

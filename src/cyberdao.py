@@ -6,15 +6,14 @@ from colorama import Fore
 from cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
     table_events, table_character_chrome, table_character_statuses, table_character_quick_notice, \
-    table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus, table_character_notice_rolls, \
+    table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus, \
     table_system_version, EXPECTED_SYSTEM_VERSION, table_campaigns, table_event_characters, table_gigs, \
     table_gig_characters
 from character import Character, CharacterShort
 from skill import SkillInfo
 from armor import Armor
 from gameHelper import EMP, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, woundEffect, calculateModifierBonus, \
-    BODY_TYPE_MOD, t_thrown, coloredText, body_type_mod, atr_int, atr_tech, atr_ref, atr_cool, atr_attr, atr_luck, \
-    atr_ma, atr_body, atr_emp, init_bonus, INIT_BONUS
+    BODY_TYPE_MOD, t_thrown, coloredText, body_type_mod, init_bonus, INIT_BONUS
 from chrome import Chrome
 from roles import solo
 from status import Status

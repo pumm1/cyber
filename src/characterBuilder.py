@@ -1,3 +1,5 @@
+import random
+
 import dice
 import cyberdao as DAO
 import roles
@@ -5,9 +7,11 @@ import bodytypes
 from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str, INT, REF, TECH, \
     COOL, ATTR, LUCK, MA, BODY, EMP, body_part_l_arm, body_part_body, body_part_head, body_part_r_arm, t_melee, \
     t_handgun, t_shotgun, t_rifle, t_thrown, t_smg, con_pocket, con_long_coat, con_jacket, not_hideable, yes_no, \
-    body_part_l_leg, body_part_r_leg, printGreenLine, printRedLine
+    body_part_l_leg, body_part_r_leg, printGreenLine, printRedLine, wep_standard_reliability
 from logger import log_event, log_pos
 from skills import udpateCharacterSkill
+from roles import role_skills, role_guns
+from weapon import addCharacterWeaponById
 
 
 def rollAtr():
@@ -67,20 +71,56 @@ def rollSpecial(role):
     return skill
 
 
-def generateRandomSkills(character_id):
+def generateRandomSkillsAndGear(character_id):
     character = DAO.getCharacterById(character_id)
     if character is not None:
-        basic_skills = ['awareness' , 'library search', 'athletics', 'dodge/escape', 'brawling', 'handgun', 'melee'] #this requires DB to be set as instructed
-        role_skills = roles.roleDict[character.role]['skills']
-        all_skills = basic_skills + role_skills
-        for skill in all_skills:
-            skill = DAO.skillByName(skill)
-            if skill is not None:
-                skill_id = skill['id']
-                lvl_up_amount = dice.roll(1, 5)
-                udpateCharacterSkill(character, skill_id, lvl_up_amount)
-            else:
-                printRedLine(f'{skill} not found!')
+        generateSkills(character)
+        generateWeapons(character)
+
+
+def generateWeapons(character):
+    weps_of_role = roles.roleDict[character.role][role_guns]
+    possible_amount_of_guns = len(weps_of_role)
+    guns_to_add = dice.roll(1, possible_amount_of_guns)
+    guns_to_add_indices = []
+    while len(guns_to_add_indices) < guns_to_add:
+        idx = random.randint(0, guns_to_add - 1)
+        if not guns_to_add_indices.__contains__(idx):
+            guns_to_add_indices.append(idx)
+            wep = weps_of_role[idx]
+            addCharacterWeaponById(
+                character_id=character.id,
+                dice=wep[roles.dice_str],
+                die=wep[roles.die_str],
+                divide_by=wep[roles.divide_by_str],
+                bonus=wep[roles.bonus_str],
+                weapon_name=wep[roles.weapon_name_str],
+                clip_size=wep[roles.clip_size_str],
+                rof=wep[roles.rof_str],
+                humanity_cost=wep[roles.humanity_cost_str],
+                weapon_t=wep[roles.weapon_type_str],
+                wa=wep[roles.wa_str],
+                con=wep[roles.con_str],
+                weight=wep[roles.weight_str],
+                reliability=wep[roles.reliability_str],
+                effect_radius=wep[roles.effect_radius_str],
+                custom_range=wep[roles.custom_range_str]
+            )
+
+
+def generateSkills(character):
+    basic_skills = ['awareness', 'library search', 'athletics', 'dodge/escape', 'brawling', 'handgun',
+                    'melee']  # this requires DB to be set as instructed
+    char_role_skills = roles.roleDict[character.role][role_skills]
+    all_skills = basic_skills + char_role_skills
+    for skill in all_skills:
+        skill = DAO.skillByName(skill)
+        if skill is not None:
+            skill_id = skill['id']
+            lvl_up_amount = dice.roll(1, 5)
+            udpateCharacterSkill(character, skill_id, lvl_up_amount)
+        else:
+            printRedLine(f'{skill} not found!')
 
 
 def addSpecial(role):
@@ -205,7 +245,7 @@ def createRandomCharacter(name, generate_gear=True):
     )
     if generate_gear:
         generateGear(name)
-    generateRandomSkills(character_id)
+    generateRandomSkillsAndGear(character_id)
     return character_id
 
 
