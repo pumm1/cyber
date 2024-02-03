@@ -13,4 +13,5 @@
 
 .listCharacters {
   margin-bottom: 4px;
+  max-width: 600px;
 }

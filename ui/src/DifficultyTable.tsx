@@ -215,8 +215,8 @@ const Table = ({items}: TableProps) =>
     </table>
 
 const DifficultyTable = ({}) =>
-    <div className='difficulties'>
-        <div className='difficulties'>
+    <div>
+        <div>
             <Hideable text='difficulties' props={<Table items={difficulties}/>}/>
         </div>
         <div className='difficulties'>
