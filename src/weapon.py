@@ -134,6 +134,7 @@ class Weapon:
             'rof': self.rof,
             'shotsLeft': self.shots_left,
             'reliability': self.reliability,
+            'con': self.con,
             'isChrome': self.is_chrome,
             'effectRadius': self.effect_radius,
             'weaponType': self.weapon_type,

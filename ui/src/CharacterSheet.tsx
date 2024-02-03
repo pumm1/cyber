@@ -540,6 +540,9 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
                 {weapon.reliability}
             </td>
             <td>
+                {weapon.con}
+            </td>
+            <td>
                 <span className='attackMod'>
                     <Button label='Attack' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
                         setShotsFired(1)
@@ -548,7 +551,7 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
                         setGivenRoll(0)
                     })}/>
                     {weaponIsGun && 
-                        <Button label='Reload' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}/>
+                        <Button variant='LessSpaceLeft' label='Reload' onClick={() => reload(reloadReq).then(updateLogsAndCharacter)}/>
                     }
                 </span>
             </td>
@@ -604,6 +607,7 @@ const CharacterRangedWeapons = (
                     <th>Type</th>
                     <th>DMG</th>
                     <th>Rel.</th>
+                    <th>Con.</th>
                     <th>Action</th>
                     <th>Attack Type</th>
                     <th>Attack Range</th>
