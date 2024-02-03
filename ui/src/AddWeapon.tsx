@@ -1,9 +1,172 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './AddWeapon.css'
 import { AddWeaponReq, Con, Log, Reliability, WeaponType, addWeapon } from './CyberClient'
 import Hideable from './Hideable'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import { Button } from './Common'
+
+
+const basicSMGTemplate = (charId: number): AddWeaponReq => {
+    return (
+        {
+            charId,
+            item: 'SMG',
+            die: 6,
+            dice: 2,
+            dmgBonus: 0,
+            weaponType: WeaponType.SMG,
+            divideBy: 1,
+            rof: 30,
+            wa: 0,
+            reliability: Reliability.Standard,
+            con: Con.Jacket,
+            weight: 2,
+            humanityCost: 0,
+            effectRadius: 0,
+            clipSize: 30,
+            customRange: undefined
+        }
+    ) 
+}
+
+const basicRifleTemplate = (charId: number): AddWeaponReq => {
+    return (
+        {
+            charId,
+            item: 'Rifle',
+            die: 6,
+            dice: 4,
+            dmgBonus: 0,
+            weaponType: WeaponType.Rifle,
+            divideBy: 1,
+            rof: 30,
+            wa: 0,
+            reliability: Reliability.Standard,
+            con: Con.LongJacket,
+            weight: 4,
+            humanityCost: 0,
+            effectRadius: 0,
+            clipSize: 30,
+            customRange: undefined
+        }
+    )
+}
+
+const basicMeleeTemplate = (charId: number): AddWeaponReq => {
+    return (
+        {
+            charId,
+            item: 'Melee',
+            die: 6,
+            dice: 2,
+            dmgBonus: 0,
+            weaponType: WeaponType.Melee,
+            divideBy: 1,
+            rof: 1,
+            wa: 0,
+            reliability: Reliability.Standard,
+            con: Con.Jacket,
+            weight: 2,
+            humanityCost: 0,
+            effectRadius: 0,
+            clipSize: 1,
+            customRange: undefined
+        }
+    )
+}
+
+const basicHandgunTemplate = (charId: number): AddWeaponReq => {
+    return (
+        {
+            charId,
+            item: 'Handgun',
+            die: 6,
+            dice: 2,
+            dmgBonus: 0,
+            weaponType: WeaponType.Handgun,
+            divideBy: 1,
+            rof: 2,
+            wa: 0,
+            reliability: Reliability.Standard,
+            con: Con.Pocket,
+            weight: 2,
+            humanityCost: 0,
+            effectRadius: 0,
+            clipSize: 1,
+            customRange: undefined
+        }
+    )
+}
+
+const basicHeavyTemplate = (charId: number): AddWeaponReq => {
+    return (
+        {
+            charId,
+            item: 'Heavy',
+            die: 6,
+            dice: 6,
+            dmgBonus: 0,
+            weaponType: WeaponType.Heavy,
+            divideBy: 1,
+            rof: 2,
+            wa: 0,
+            reliability: Reliability.Standard,
+            con: Con.NotHideable,
+            weight: 5,
+            humanityCost: 0,
+            effectRadius: 0,
+            clipSize: 1,
+            customRange: undefined
+        }
+    )
+}
+
+const basicThrownTemplate = (charId: number): AddWeaponReq => {
+    return (
+        {
+            charId,
+            item: 'Thrown',
+            die: 6,
+            dice: 4,
+            dmgBonus: 0,
+            weaponType: WeaponType.Thrown,
+            divideBy: 1,
+            rof: 2,
+            wa: 0,
+            reliability: Reliability.Standard,
+            con: Con.Jacket,
+            weight: 2,
+            humanityCost: 0,
+            effectRadius: 3,
+            clipSize: 1,
+            customRange: undefined
+        }
+    )
+}
+
+const basicShotgunTemplate = (charId: number): AddWeaponReq => {
+    return (
+        {
+            charId,
+            item: 'Shotgun',
+            die: 6,
+            dice: 4,
+            dmgBonus: 0,
+            weaponType: WeaponType.Shotgun,
+            divideBy: 1,
+            rof: 1,
+            wa: 0,
+            reliability: Reliability.Standard,
+            con: Con.LongJacket,
+            weight: 2,
+            humanityCost: 0,
+            effectRadius: 3,
+            clipSize: 1,
+            customRange: undefined
+        }
+    )
+}
+
 
 interface AddWeaponProps {
     characterId: number
@@ -11,68 +174,48 @@ interface AddWeaponProps {
 }
 
 const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) => {
-    const [item, setItem] = useState('')
-    const [diceNum, setDiceNum] = useState(1)
-    const [dDie, setDie] = useState(6)
-    const [dmgBonus, setDmgBonus] = useState(0)
-    const [divideBy, setDivideBy] = useState(1)
-    const [clipSize, setClipSize] = useState(1)
-    const [weaponType, setWeaponType] = useState<WeaponType>(WeaponType.Melee)
-    const [reliability, setReliabilty] = useState<Reliability>(Reliability.Standard)
-    const [humanityCost, setHumanityCost] = useState(0)
-    const [wa, setWa] = useState(0)
-    const [effectRadius, setEffectRadius] = useState(0)
-    const [con, setCon] = useState(Con.Pocket)
-    const [rof, setRof] = useState(1)
-    const [weight, setWeight] = useState(1)
-    const [customRange, setCustomRange] = useState<number | undefined>(undefined)
+    const addWeaponReqBasic: AddWeaponReq = useMemo(() => {
+        return {
+            charId: characterId,
+            item: '',
+            die: 6,
+            dice: 1,
+            dmgBonus: 1,
+            weaponType: WeaponType.Melee,
+            divideBy: 1,
+            rof: 1,
+            wa: 0,
+            reliability: Reliability.Standard,
+            con: Con.Pocket,
+            weight: 1,
+            humanityCost: 0,
+            effectRadius: 0,
+            clipSize: 1,
+            customRange: 0
+        }
+    }, [characterId])
+
+    const [weapon, setWeapon] = useState(addWeaponReqBasic)
 
     const emptyForm = () => {
-        setItem('')
-        setDiceNum(1)
-        setDie(6)
-        setDmgBonus(0)
-        setDivideBy(1)
-        setClipSize(1)
-        setReliabilty(Reliability.Standard)
-        setHumanityCost(0)
-        setWa(0)
-        setEffectRadius(0)
-        setCon(Con.Pocket)
-        setRof(1)
-        setWeight(1)
-        setCustomRange(undefined)
+        setWeapon(addWeaponReqBasic)
     }
 
-    const updateDiceNum = (v: number) => updateNumWithLowerLimit(v, 1, setDiceNum)
-    const updateDie = (v: number) => updateNumWithLowerLimit(v, 1, setDie)
-    const updateDmgBonus = (v: number) => updateNumWithLowerLimit(v, 0, setDmgBonus)
-    const updateClipSize = (v: number) => updateNumWithLowerLimit(v, 1, setClipSize)
-    const updateHlCost = (v: number) => updateNumWithLowerLimit(v, 0, setHumanityCost)
-    const updateWa = (v: number) => updateNumWithLowerLimit(v, -5, setWa)
-    const updateEffectRadius = (v: number) => updateNumWithLowerLimit(v, 0, setEffectRadius)
-    const updateDivideBy = (v: number) => updateNumWithLowerLimit(v, 1, setDivideBy)
-    const updateRof = (v: number) => updateNumWithLowerLimit(v, 1, setRof)
-    const updateWeight = (v: number) => updateNumWithLowerLimit(v, 1, setWeight)
+    const updateDiceNum = (v: number) => updateNumWithLowerLimit(v, 1, (i: number) => setWeapon({...weapon, dice: i}))
+    const updateDie = (v: number) => updateNumWithLowerLimit(v, 1, (i: number) => setWeapon({...weapon, die: i}))
+    const updateDmgBonus = (v: number) => updateNumWithLowerLimit(v, 0, (i: number) => setWeapon({...weapon, dmgBonus: i}))
+    const updateClipSize = (v: number) => updateNumWithLowerLimit(v, 1, (i: number) => setWeapon({...weapon, clipSize: i}))
+    const updateHlCost = (v: number) => updateNumWithLowerLimit(v, 0, (i: number) => setWeapon({...weapon, humanityCost: i}))
+    const updateWa = (v: number) => updateNumWithLowerLimit(v, -5, (i: number) => setWeapon({...weapon, wa: i}))
+    const updateEffectRadius = (v: number) => updateNumWithLowerLimit(v, 0, (i: number) => setWeapon({...weapon, effectRadius: i}))
+    const updateDivideBy = (v: number) => updateNumWithLowerLimit(v, 1, (i: number) => setWeapon({...weapon, divideBy: i}))
+    const updateRof = (v: number) => updateNumWithLowerLimit(v, 1, (i: number) => setWeapon({...weapon, rof: i}))
+    const updateWeight = (v: number) => updateNumWithLowerLimit(v, 1, (i: number) => setWeapon({...weapon, weight: i}))
 
-    const addWeaponReq: AddWeaponReq = {
-        charId: characterId,
-        item,
-        die: dDie,
-        dice: diceNum,
-        dmgBonus,
-        weaponType,
-        divideBy,
-        rof,
-        wa,
-        reliability,
-        con,
-        weight,
-        humanityCost,
-        effectRadius,
-        clipSize,
-        customRange
-    }
+
+    useEffect(() => {
+        setWeapon(addWeaponReqBasic)
+    }, [addWeaponReqBasic])
 
 
     interface FormRowWithValueChangerProps {
@@ -106,69 +249,71 @@ const NewWeaponForm = ({characterId, updateLogsAndCharacter}: AddWeaponProps) =>
             </tr>
             <tr>
                 <td>
-                    <Button label='Add' onClick={() => addWeapon(addWeaponReq).then(updateLogsAndCharacter).then(emptyForm)}/>
+                    <Button label='Add' onClick={() => addWeapon(weapon).then(updateLogsAndCharacter).then(emptyForm)}/>
                 </td>
                 <td>
-                    <input className='inputField' value={item} onChange={e => setItem(e.target.value)}/>
+                    <input className='inputField' value={weapon.item} onChange={e => setWeapon({...weapon, item: e.target.value})}/>
                 </td>
                 <td>
                     <select>
-                        <option value={WeaponType.Melee} onClick={() => setWeaponType(WeaponType.Melee)}>Melee</option>
-                        <option value={WeaponType.Handgun} onClick={() => setWeaponType(WeaponType.Handgun)}>Handgun</option>
-                        <option value={WeaponType.SMG} onClick={() => setWeaponType(WeaponType.SMG)}>SMG</option>
-                        <option value={WeaponType.Rifle} onClick={() => setWeaponType(WeaponType.Rifle)}>Rifle</option>
-                        <option value={WeaponType.Shotgun} onClick={() => setWeaponType(WeaponType.Shotgun)}>Shotgun</option>
-                        <option value={WeaponType.Thrown} onClick={() => setWeaponType(WeaponType.Thrown)}>Thrown</option>
-                        <option value={WeaponType.Heavy} onClick={() => setWeaponType(WeaponType.Heavy)}>Heavy</option>
+                        <option value={WeaponType.Melee} onClick={() => setWeapon(basicMeleeTemplate(characterId))}>Melee</option>
+                        <option value={WeaponType.Handgun} onClick={() => setWeapon(basicHandgunTemplate(characterId))}>Handgun</option>
+                        <option value={WeaponType.SMG} onClick={() => setWeapon(basicSMGTemplate(characterId))}>SMG</option>
+                        <option value={WeaponType.Rifle} onClick={() => setWeapon(basicRifleTemplate(characterId))}>Rifle</option>
+                        <option value={WeaponType.Shotgun} onClick={() => setWeapon(basicShotgunTemplate(characterId))}>Shotgun</option>
+                        <option value={WeaponType.Thrown} onClick={() => setWeapon(basicThrownTemplate(characterId))}>Thrown</option>
+                        <option value={WeaponType.Heavy} onClick={() => setWeapon(basicHeavyTemplate(characterId))}>Heavy</option>
                     </select>
                 </td>
                 <td>
-                    <FormRowWithValueChanger onChange={updateDiceNum} value={diceNum} baseValue={diceNum}/>
+                    <FormRowWithValueChanger onChange={updateDiceNum} value={weapon.dice} baseValue={weapon.dice}/>
                 </td>
                 <td>
-                    <FormRowWithValueChanger onChange={updateDie} value={`D${dDie}`} baseValue={dDie}/>
+                    <FormRowWithValueChanger onChange={updateDie} value={`D${weapon.die}`} baseValue={weapon.die}/>
                 </td>
                 <td>
-                    <FormRowWithValueChanger onChange={updateDivideBy} value={`/${divideBy}`} baseValue={divideBy}/>
+                    <FormRowWithValueChanger onChange={updateDivideBy} value={`/${weapon.divideBy}`} baseValue={weapon.divideBy}/>
                 </td>
                 <td>
-                    <FormRowWithValueChanger onChange={updateDmgBonus} value={`+${dmgBonus}`} baseValue={dmgBonus}/>
+                    <FormRowWithValueChanger onChange={updateDmgBonus} value={`+${weapon.dmgBonus}`} baseValue={weapon.dmgBonus}/>
                 </td>
                 <td>
-                    <FormRowWithValueChanger onChange={updateRof} value={rof} baseValue={rof}/>
+                    <FormRowWithValueChanger onChange={updateRof} value={weapon.rof} baseValue={weapon.rof}/>
                 </td>
                 <td>
-                    <FormRowWithValueChanger onChange={updateWa} value={wa} baseValue={wa}/>
+                    <FormRowWithValueChanger onChange={updateWa} value={weapon.wa} baseValue={weapon.wa}/>
                 </td>
                 <td>
-                    <FormRowWithValueChanger onChange={updateClipSize} value={clipSize} baseValue={clipSize}/>
+                    <FormRowWithValueChanger onChange={updateClipSize} value={weapon.clipSize} baseValue={weapon.clipSize}/>
                 </td>
                 <td>
                     <select>
-                        <option value={Reliability.Standard} onClick={() => setReliabilty(Reliability.Standard)}>ST</option>
-                        <option value={Reliability.VeryReliable} onClick={() => setReliabilty(Reliability.VeryReliable)}>VR</option>
-                        <option value={Reliability.Unreliable} onClick={() => setReliabilty(Reliability.Unreliable)}>UR</option>
+                        <option value={Reliability.Standard} onClick={() => setWeapon({...weapon, reliability: Reliability.Standard})}>ST</option>
+                        <option value={Reliability.VeryReliable} onClick={() => setWeapon({...weapon, reliability: Reliability.VeryReliable})}>VR</option>
+                        <option value={Reliability.Unreliable} onClick={() => setWeapon({...weapon, reliability: Reliability.Unreliable})}>UR</option>
                     </select> 
                 </td>
                 <td>
                     <select>
-                        <option value={Con.Pocket} onClick={() => setCon(Con.Pocket)}>P</option>
-                        <option value={Con.Jacket} onClick={() => setCon(Con.Jacket)}>J</option>
-                        <option value={Con.LongJacket} onClick={() => setCon(Con.LongJacket)}>L</option>
-                        <option value={Con.NotHideable} onClick={() => setCon(Con.NotHideable)}>N</option>
+                        <option value={Con.Pocket} onClick={() => setWeapon({...weapon, con: Con.Pocket})}>P</option>
+                        <option value={Con.Jacket} onClick={() => setWeapon({...weapon, con: Con.Jacket})}>J</option>
+                        <option value={Con.LongJacket} onClick={() => setWeapon({...weapon, con: Con.LongJacket})}>L</option>
+                        <option value={Con.NotHideable} onClick={() => setWeapon({...weapon, con: Con.NotHideable})}>N</option>
                     </select>
                 </td>
                 <td>
-                    <FormRowWithValueChanger onChange={updateWeight} value={`${weight}kg`} baseValue={weight}/>
+                    <FormRowWithValueChanger onChange={updateWeight} value={`${weapon.weight}kg`} baseValue={weapon.weight}/>
                 </td>
                 <td>
-                    <FormRowWithValueChanger onChange={updateEffectRadius} value={effectRadius} baseValue={effectRadius}/>
+                    <FormRowWithValueChanger onChange={updateEffectRadius} value={weapon.effectRadius} baseValue={weapon.effectRadius}/>
                 </td>
                 <td>
-                     <input placeholder={'0'} className='shortInput' value={customRange} onChange={e => setCustomRange(parseInt(e.target.value) || 0)}/>
+                     <input placeholder={'0'} className='shortInput' value={weapon.customRange} onChange={e => 
+                        setWeapon({...weapon, customRange: parseInt(e.target.value) || 0})
+                    }/>
                 </td>
                 <td>
-                    <FormRowWithValueChanger onChange={updateHlCost} value={humanityCost} baseValue={humanityCost}/>
+                    <FormRowWithValueChanger onChange={updateHlCost} value={weapon.humanityCost} baseValue={weapon.humanityCost}/>
                 </td>
             </tr>
         </table>
