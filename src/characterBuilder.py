@@ -10,8 +10,10 @@ from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToI
     body_part_l_leg, body_part_r_leg, printGreenLine, printRedLine, wep_standard_reliability
 from logger import log_event, log_pos
 from skills import udpateCharacterSkill
-from roles import role_skills, role_guns
+from roles import role_skills, role_guns, role_armors
 from weapon import addCharacterWeaponById
+from armor import addArmorForCharacter
+from chrome import addChromeByCharacterId
 
 
 def rollAtr():
@@ -76,6 +78,29 @@ def generateRandomSkillsAndGear(character_id):
     if character is not None:
         generateSkills(character)
         generateWeapons(character)
+        generateArmors(character)
+
+
+def generateArmors(character):
+    armors_of_role = roles.roleDict[character.role][roles.role_armors]
+    possible_amount_of_armors = len(armors_of_role)
+    armors_to_add = dice.roll(1, possible_amount_of_armors) - 1 #allow 0
+    armors_to_add_indices = []
+    while len(armors_to_add_indices) < armors_to_add:
+        idx = random.randint(0, possible_amount_of_armors - 1)
+        if not armors_to_add_indices.__contains__(idx):
+            armors_to_add_indices.append(idx)
+            armor = armors_of_role[idx]
+            addArmorForCharacter(
+                character,
+                item=armor[roles.armor_name_str],
+                ev=armor[roles.ev_str],
+                humanity_cost=armor[roles.humanity_cost_str],
+                sp=armor[roles.sp_str],
+                covered_parts=armor[roles.covered_parts_str],
+                atr_bonuses=armor[roles.atr_bonuses_str],
+                skill_bonuses_dict=armor[roles.skill_bonuses_str]
+            )
 
 
 def generateWeapons(character):
