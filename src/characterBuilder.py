@@ -14,6 +14,7 @@ from roles import role_skills, role_guns, role_armors
 from weapon import addCharacterWeaponById
 from armor import addArmorForCharacter
 from chrome import addChromeByCharacterId
+import genericGear
 
 
 def rollAtr():
@@ -79,12 +80,80 @@ def generateRandomSkillsAndGear(character_id):
         generateSkills(character)
         generateWeapons(character)
         generateArmors(character)
+        generateChrome(character)
 
+
+def generateChrome(character):
+    chrome_of_role = roles.roleDict[character.role][roles.role_chrome] + genericChromeWithSkillChanges()
+    possible_amount_of_chrome = len(chrome_of_role)
+    chrome_to_add = dice.roll(1, possible_amount_of_chrome) - 1  # allow 0
+    if chrome_to_add > 3:  # limit to 3
+        chrome_to_add = 3
+    chrome_to_add_indices = []
+    while len(chrome_to_add_indices) < chrome_to_add:
+        idx = random.randint(0, possible_amount_of_chrome - 1)
+        if not chrome_to_add_indices.__contains__(idx):
+            chrome_to_add_indices.append(idx)
+            chrome = chrome_of_role[idx]
+            addChromeByCharacterId(
+                character.id,
+                item=chrome[genericGear.chrome_name_str],
+                descr=chrome[genericGear.chrome_descr_str],
+                humanity_cost=chrome[genericGear.humanity_cost_str],
+                atr_bonuses=chrome[genericGear.atr_bonuses_str],
+                skill_bonuses_dict=chrome[genericGear.skill_bonuses_str]
+            )
+
+
+def genericChromeWithSkillChanges():
+    c1 = generic_voice_stress_analyzer()
+    c2 = generic_cyber_eyes()
+    return [c1, c2]
+
+
+def generic_voice_stress_analyzer():
+    skill = DAO.skillByName('human perception')
+    human_perception_skill_id = skill['id']
+    skill_bonuses = [
+        {
+            'skillId': human_perception_skill_id,
+            'bonus': 1
+        }
+    ]
+    res = {
+        genericGear.chrome_name_str: 'Voice stress analyzer',
+        genericGear.chrome_descr_str: 'Lie detector. +2 To human perception',
+        genericGear.humanity_cost_str: 5,
+        genericGear.atr_bonuses_str: [],
+        genericGear.skill_bonuses_str: skill_bonuses
+    }
+    return res
+
+def generic_cyber_eyes():
+    skill = DAO.skillByName('awareness')
+    awareness_skill_id = skill['id']
+    skill_bonuses = [
+        {
+            'skillId': awareness_skill_id,
+            'bonus': 1
+        }
+    ]
+
+    res = {
+        genericGear.chrome_name_str: 'Cyber eyes',
+        genericGear.chrome_descr_str: '+1 to awareness',
+        genericGear.humanity_cost_str: 4,
+        genericGear.atr_bonuses_str: [],
+        genericGear.skill_bonuses_str: skill_bonuses
+    }
+    return res
 
 def generateArmors(character):
     armors_of_role = roles.roleDict[character.role][roles.role_armors]
     possible_amount_of_armors = len(armors_of_role)
     armors_to_add = dice.roll(1, possible_amount_of_armors) - 1 #allow 0
+    if armors_to_add > 4: #limit to 5
+        armors_to_add = 4
     armors_to_add_indices = []
     while len(armors_to_add_indices) < armors_to_add:
         idx = random.randint(0, possible_amount_of_armors - 1)
@@ -93,13 +162,13 @@ def generateArmors(character):
             armor = armors_of_role[idx]
             addArmorForCharacter(
                 character,
-                item=armor[roles.armor_name_str],
-                ev=armor[roles.ev_str],
-                humanity_cost=armor[roles.humanity_cost_str],
-                sp=armor[roles.sp_str],
-                covered_parts=armor[roles.covered_parts_str],
-                atr_bonuses=armor[roles.atr_bonuses_str],
-                skill_bonuses_dict=armor[roles.skill_bonuses_str]
+                item=armor[genericGear.armor_name_str],
+                ev=armor[genericGear.ev_str],
+                humanity_cost=armor[genericGear.humanity_cost_str],
+                sp=armor[genericGear.sp_str],
+                covered_parts=armor[genericGear.covered_parts_str],
+                atr_bonuses=armor[genericGear.atr_bonuses_str],
+                skill_bonuses_dict=armor[genericGear.skill_bonuses_str]
             )
 
 
@@ -107,6 +176,8 @@ def generateWeapons(character):
     weps_of_role = roles.roleDict[character.role][role_guns]
     possible_amount_of_guns = len(weps_of_role)
     guns_to_add = dice.roll(1, possible_amount_of_guns)
+    if guns_to_add > 3:
+        guns_to_add = 3
     guns_to_add_indices = []
     while len(guns_to_add_indices) < guns_to_add:
         idx = random.randint(0, guns_to_add - 1)
@@ -115,21 +186,21 @@ def generateWeapons(character):
             wep = weps_of_role[idx]
             addCharacterWeaponById(
                 character_id=character.id,
-                dice=wep[roles.dice_str],
-                die=wep[roles.die_str],
-                divide_by=wep[roles.divide_by_str],
-                bonus=wep[roles.bonus_str],
-                weapon_name=wep[roles.weapon_name_str],
-                clip_size=wep[roles.clip_size_str],
-                rof=wep[roles.rof_str],
-                humanity_cost=wep[roles.humanity_cost_str],
-                weapon_t=wep[roles.weapon_type_str],
-                wa=wep[roles.wa_str],
-                con=wep[roles.con_str],
-                weight=wep[roles.weight_str],
-                reliability=wep[roles.reliability_str],
-                effect_radius=wep[roles.effect_radius_str],
-                custom_range=wep[roles.custom_range_str]
+                dice=wep[genericGear.dice_str],
+                die=wep[genericGear.die_str],
+                divide_by=wep[genericGear.divide_by_str],
+                bonus=wep[genericGear.bonus_str],
+                weapon_name=wep[genericGear.weapon_name_str],
+                clip_size=wep[genericGear.clip_size_str],
+                rof=wep[genericGear.rof_str],
+                humanity_cost=wep[genericGear.humanity_cost_str],
+                weapon_t=wep[genericGear.weapon_type_str],
+                wa=wep[genericGear.wa_str],
+                con=wep[genericGear.con_str],
+                weight=wep[genericGear.weight_str],
+                reliability=wep[genericGear.reliability_str],
+                effect_radius=wep[genericGear.effect_radius_str],
+                custom_range=wep[genericGear.custom_range_str]
             )
 
 
