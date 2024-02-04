@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import './App.css';
 import { Initiative, Log, Skill, listInitiative, listSkills } from './CyberClient';
-import ListInitiative from './ListInitiative';
 import SearchOrCreateCharacter from './SearchOrCreateCharacter';
 import LogViewer from './LogViewer';
-import GrenadeTable from './GrenadeTable';
-import DifficultyTable from './DifficultyTable';
 import Navbar from './Navbar';
+import { InfoTables } from './InfoTables';
+
+import './MainPage.css';
 
 const App = ({}) => {
   const [logs, setLogs] = useState<Log[]>([])
@@ -41,12 +40,12 @@ const App = ({}) => {
     <div className='main'>
       <Navbar />
       <h1>Welcome to the NET</h1>
-      <div className='container'>
-        <ListInitiative initiatives={initiatives} updateInitiatives={updateInitiatives}/>
-        <SearchOrCreateCharacter skills={allSkills} updateInitiatives={updateInitiatives} initiatives={initiatives} updateLogs={updateLogs}/>
-        <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogs}/>
-        <DifficultyTable />
-        <GrenadeTable />
+      <div className='infoContainer'>
+        <div className='sheetContainer'>
+          <SearchOrCreateCharacter skills={allSkills} updateInitiatives={updateInitiatives} initiatives={initiatives} updateLogs={updateLogs}/>
+          <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogs}/>
+        </div>
+        <InfoTables />
       </div>
     </div>
   )

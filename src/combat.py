@@ -600,7 +600,7 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
             logs = logs + dmg_logs
             logs = log_event(logs, f'DMG done: {dmg}', log_pos)
 
-        attack_info_str = f'{character.name} selected {wep.item} [weapon range = {wep.range}m] (roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})'
+        attack_info_str = f'{character.name} selected {wep.item} [weapon range = {wep.range}m] (TOTAL = {total}, roll = {roll}, skill_lvl = {skill_bonus} ({skill}), REF bonus = {ref_bonus}, WA = {wep.wa})'
         logs = log_event(logs, attack_info_str, log_neutral)
 
         range_info_str = f'{range_str} range attack ({attack_range}m) is {end_res} {rollToBeatStr(roll_to_beat, total)}'

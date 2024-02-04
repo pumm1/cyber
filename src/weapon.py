@@ -134,6 +134,7 @@ class Weapon:
             'rof': self.rof,
             'shotsLeft': self.shots_left,
             'reliability': self.reliability,
+            'con': self.con,
             'isChrome': self.is_chrome,
             'effectRadius': self.effect_radius,
             'weaponType': self.weapon_type,
@@ -191,9 +192,8 @@ def addCharWeapon(
         char: Character, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None,
         humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None,
         custom_range=None
-)-> list[Log]:
+) -> list[Log]:
     logs = []
-    print(f'... humanity cost for add weapon: {humanity_cost}')
     if char is not None:
         if weapon_name is None:
             print(f'Give weapon name:')
@@ -228,8 +228,10 @@ def addCharWeapon(
 
         DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, divide_by, bonus, weapon_range, rof, clip_size,
                       effect_radius, wa, con, reliability, weight)
+
         if is_chrome:
-            handleHumanity(char, humanity_cost=humanity_cost)
+            (_, humanity_logs) = handleHumanity(char, humanity_cost=humanity_cost)
+            logs = logs + humanity_logs
 
         logs = log_event(logs, 'Weapon added!', log_pos)
     else:

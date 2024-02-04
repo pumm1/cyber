@@ -91,7 +91,7 @@ def addChromeWithHumanityCost(
     return logs
 
 
-def handleHumanity(char, humanity_cost=None) -> list[Log]:
+def handleHumanity(char, humanity_cost=None) -> (int, list[Log]):
     if humanity_cost is None:
         print(f'Reduce humanity for chrome ({roll_str} or <amount>)')
         humanity_cost = 0

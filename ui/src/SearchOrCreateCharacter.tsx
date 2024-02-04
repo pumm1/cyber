@@ -4,6 +4,7 @@ import './SearchCharacter.css'
 import CharacterSheet from "./CharacterSheet"
 import Hideable from "./Hideable"
 import { Button } from "./Common"
+import ListInitiative from "./ListInitiative"
 
 const initialAttributes: Attributes = {
     ATTR: 1,
@@ -203,6 +204,7 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives, skills, updateInitiat
     //why using form breaks this in backend?
     return(
         <>
+            <ListInitiative setCharacterById={setCharacterFn} initiatives={initiatives} updateInitiatives={updateInitiatives}/>
             <ListCharacters updateCharacters={updateCharacterList} updateCharacterList={updateCharacterList} updateInitiatives={updateInitiatives} initiatives={initiatives} characters={allCharacters ?? []} setCharacterById={setCharacterFn} updateLogs={updateLogs} setAllCharacters={setAllCharacters}/>
             <div className="search">
                 <Button label='Create' onClick={() => createCharacter()}/>

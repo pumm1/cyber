@@ -122,7 +122,6 @@ def addArmorForCharacter(character, item=None, ev=None, humanity_cost=None, sp=N
 
         item_bonus_id = DAO.addArmor(character.id, item, sp, covered_parts, ev, atr_bonuses, skill_bonuses)
         chrome_logs = []
-        print(f'... is chrome: {is_chrome} ... humanity cost: {humanity_cost}')
         if is_chrome:
             chrome_logs = addChromeWithHumanityCost(
                 character, item, 'Added with armor', item_bonus_id=item_bonus_id, humanity_cost=humanity_cost,

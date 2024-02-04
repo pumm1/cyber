@@ -1,7 +1,7 @@
 import React from 'react';
 import * as ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import App from './App';
+import MainPage from './MainPage';
 import reportWebVitals from './reportWebVitals';
 import './index.css';
 import WeaponTool from './WeaponTool';
@@ -14,7 +14,7 @@ const root = ReactDOM.createRoot(
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App/>
+    element: <MainPage/>
   },
   {
     path: "/weapon-tool",

@@ -163,6 +163,7 @@ export interface Weapon {
     weight: number
     weaponType: WeaponType //TODO: enum
     reliability: string //TODO: enum
+    con: Con
     range: number
     pointBlankLimit: number
     closeRangeLimit: number

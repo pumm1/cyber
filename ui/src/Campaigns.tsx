@@ -1,10 +1,11 @@
 import Navbar from "./Navbar"
-import './App.css'
-import './Campaigns.css'
 import { AddCampaignEventReq, AddCampaignGigReq, AddCampaignReq, Campaign, CampaignEvent, CampaignGig, CharacterShort, GigStatus, addCampaign, addCampaignEvent, addCampaignGig, addEventCharacter, addGigCharacter, deleteEventCharacter, deleteGigCharacter, fetchCampaignEvents, fetchCampaignGigs, fetchCampaigns, listCharacters, sortedCharacters, updateCampaignInfo, updateEventInfo, updateGigInfo, updateGigStatus } from "./CyberClient";
 import { useEffect, useState } from "react";
 import Hideable from "./Hideable";
 import { Button, TextArea } from "./Common";
+
+import './MainPage.css'
+import './Campaigns.css'
 
 interface ListedCharactersProps {
     characters: CharacterShort[]
