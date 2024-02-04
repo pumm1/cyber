@@ -813,6 +813,7 @@ def getArmorById(character_id, id):
 
 def deleteCharacter(c: Character):
     with conn.cursor() as cur:
+        deleteCharacterStatuses(c.id)
         for chrome in c.cybernetics:
             deleteCharacterChrome(c.id, chrome.id)
         for weapon in c.weapons:
@@ -944,6 +945,15 @@ def deleteCharacterChrome(character_id, chrome_id):
                             WHERE character_id = {character_id} AND chrome_id = {chrome_id}"""
                 )
                 conn.commit()
+
+
+def deleteCharacterStatuses(character_id):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{delete_from} {table_character_statuses} WHERE character_id={character_id};"""
+        )
+        conn.commit()
+
 
 
 def addCharacterStatus(character_id, status, effect, status_type):

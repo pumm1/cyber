@@ -1,6 +1,6 @@
 from src.gameHelper import not_hideable, con_jacket, con_pocket, t_handgun, t_smg, t_rifle, t_shotgun, t_melee, \
     wep_standard_reliability, con_long_coat, body_part_body, body_part_l_arm, body_part_r_arm, body_part_l_leg, \
-    body_part_r_leg, body_part_head
+    body_part_r_leg, body_part_head, t_thrown
 
 # generic guns
 
@@ -64,6 +64,25 @@ generic_smg = {
     weapon_name_str: 'SMG',
     clip_size_str: 30,
     rof_str: 30,
+    humanity_cost_str: 0,
+    weapon_type_str: t_smg,
+    wa_str: 0,
+    con_str: con_jacket,
+    weight_str: 3,
+    reliability_str: wep_standard_reliability,
+    effect_radius_str: 0,
+    custom_range_str: 0
+}
+
+
+generic_hvy_smg = {
+    dice_str: 3,
+    die_str: 6,
+    divide_by_str: 1,
+    bonus_str: 1,
+    weapon_name_str: 'SMG',
+    clip_size_str: 30,
+    rof_str: 25,
     humanity_cost_str: 0,
     weapon_type_str: t_smg,
     wa_str: 0,
@@ -162,6 +181,63 @@ generic_sawed_off_shotgun = {
     effect_radius_str: 0,
     custom_range_str: 0
 }
+
+generic_molotov = {
+    dice_str: 4,
+    die_str: 6,
+    divide_by_str: 1,
+    bonus_str: 0,
+    weapon_name_str: 'Sawed off shotgun',
+    clip_size_str: 1,
+    rof_str: 1,
+    humanity_cost_str: 0,
+    weapon_type_str: t_thrown,
+    wa_str: 0,
+    con_str: con_long_coat,
+    weight_str: 2,
+    reliability_str: wep_standard_reliability,
+    effect_radius_str: 5,
+    custom_range_str: 0
+}
+
+generic_grenade = {
+    dice_str: 6,
+    die_str: 6,
+    divide_by_str: 1,
+    bonus_str: 0,
+    weapon_name_str: 'Sawed off shotgun',
+    clip_size_str: 1,
+    rof_str: 1,
+    humanity_cost_str: 0,
+    weapon_type_str: t_thrown,
+    wa_str: 0,
+    con_str: con_long_coat,
+    weight_str: 2,
+    reliability_str: wep_standard_reliability,
+    effect_radius_str: 5,
+    custom_range_str: 0
+}
+
+generic_emp = {
+    dice_str: 0,
+    die_str: 6,
+    divide_by_str: 1,
+    bonus_str: 0,
+    weapon_name_str: 'EMP grenade',
+    clip_size_str: 1,
+    rof_str: 1,
+    humanity_cost_str: 0,
+    weapon_type_str: t_thrown,
+    wa_str: 0,
+    con_str: con_long_coat,
+    weight_str: 2,
+    reliability_str: wep_standard_reliability,
+    effect_radius_str: 5,
+    custom_range_str: 0
+}
+
+# generic armor
+
 armor_name_str = 'armor'
 ev_str = 'ev'
 sp_str = 'sp'
@@ -259,6 +335,8 @@ generic_cyber_leg_l = {
     atr_bonuses_str: [],
     skill_bonuses_str: []
 }
+
+#generic chrome
 
 chrome_name_str = 'chromeName'
 chrome_descr_str = 'chromeDescr'
