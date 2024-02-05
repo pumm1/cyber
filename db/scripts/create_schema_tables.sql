@@ -148,11 +148,6 @@ alter table cyberpunk.character_chrome
         foreign key(character_id)
         references cyberpunk.characters(id);
 
-create table cyberpunk.events(
-     id bigserial not null PRIMARY KEY,
-     event varchar not null
-);
-
 create table cyberpunk.character_statuses(
     id bigserial not null primary key,
     character_id bigint not null,
