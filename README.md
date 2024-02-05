@@ -61,6 +61,9 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 # Setup
 
 * Install python 3.10+
+  * You can use pip to install dependencies 
+    * For windows one might need to run the following for psycopg: 
+      * `pip install "psycopg[binary,pool]"`
   * Python dependencies:
     - colorama
     - psycopg
@@ -76,12 +79,12 @@ After setting up the PSQL database, run the following migration scripts:
   * `grant_access.sql`
 
 Also run all the versioned update sql-scripts in order inside `updates` 
-directory (V001_.., V002_.., ... etc.)
+directory (`V001_..`, `V002_..`, etc.)
 
 ## secrets.json in /src for (PSQL) db config:
 ```
 {
-    "DB_HOST": "<host>",
+    "DB_HOST": "<host>", //most likely 127.0.0.1 for local setup
     "DB_SCHEMA": "cyberpunk", //need to update migration script(s) if changed..
     "DB_NAME": "<db_name>",
     "DB_USER": "cyber", //check init.sql and grant_access.sql for user or edit as you wish
