@@ -6,7 +6,6 @@ __pycache__/
 .idea/
 ui/node_modules/
 ui/.cache/
-ui/public
 ui/src/gatsby-types.d.ts
 ui/package-lock.json
 # C extensions
