@@ -88,7 +88,7 @@ directory (`V001_..`, `V002_..`, etc.)
     "DB_SCHEMA": "cyberpunk", //need to update migration script(s) if changed..
     "DB_NAME": "<db_name>",
     "DB_USER": "cyber", //check init.sql and grant_access.sql for user or edit as you wish
-    "DB_PASSWORD": "<db_user_pw>"
+    "DB_PASSWORD": "<db_user_pw>" //most likely cyber1 as in init.sql
 }
 ```
 
