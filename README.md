@@ -107,6 +107,7 @@ directory (`V001_..`, `V002_..`, etc.)
     KeyError: 'DB_NAME'
     ```
   * NET: ``/ui $ npm start``
+    * If that doesn't work, run first `npm install`
   * Go to `http://localhost:8000/`
   
 **Start terminal version:**
