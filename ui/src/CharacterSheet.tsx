@@ -58,16 +58,16 @@ const RoleFiled = ({value, edit, updateChracterRole}: RoleFieldProps) => {
         <div className='fieldContainer'>
             <label>ROLE</label>
             <span className='roles'>
-                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.solo} name={roles.solo} checked={value === roles.solo} /> Solo
-                <RoleInput updateChracterRole={updateChracterRole}  edit={edit} value={roles.rocker} name={roles.rocker} checked={value === roles.rocker} /> Rocker
-                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.netrunner} name={roles.netrunner} checked={value === roles.netrunner} /> Netrunner
-                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.media} name={roles.media} checked={value === roles.media} /> Media
-                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.nomad} name={roles.nomad} checked={value === roles.nomad} /> Nomad
-                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.fixer} name={roles.fixer} checked={value === roles.fixer} /> Fixer
-                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.cop} name={roles.cop} checked={value === roles.cop} /> Cop
-                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.corp} name={roles.solo} checked={value === roles.corp} /> Corp
-                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.techie} name={roles.techie} checked={value === roles.techie} /> Techie
-                <RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.medtechie} name={roles.medtechie} checked={value === roles.medtechie} /> Medtechie
+                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.solo} name={roles.solo} checked={value === roles.solo} /> Solo</div>
+                <div><RoleInput updateChracterRole={updateChracterRole}  edit={edit} value={roles.rocker} name={roles.rocker} checked={value === roles.rocker} /> Rocker</div>
+                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.netrunner} name={roles.netrunner} checked={value === roles.netrunner} /> Netrunner</div>
+                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.media} name={roles.media} checked={value === roles.media} /> Media</div>
+                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.nomad} name={roles.nomad} checked={value === roles.nomad} /> Nomad</div>
+                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.fixer} name={roles.fixer} checked={value === roles.fixer} /> Fixer</div>
+                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.cop} name={roles.cop} checked={value === roles.cop} /> Cop</div>
+                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.corp} name={roles.solo} checked={value === roles.corp} /> Corp</div>
+                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.techie} name={roles.techie} checked={value === roles.techie} /> Techie</div>
+                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.medtechie} name={roles.medtechie} checked={value === roles.medtechie} /> Medtechie</div>
             </span>
         </div>
     )

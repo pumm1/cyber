@@ -80,7 +80,7 @@ generic_hvy_smg = {
     die_str: 6,
     divide_by_str: 1,
     bonus_str: 1,
-    weapon_name_str: 'SMG',
+    weapon_name_str: 'Heavy SMG',
     clip_size_str: 30,
     rof_str: 25,
     humanity_cost_str: 0,
@@ -128,12 +128,31 @@ generic_assault_rifle = {
     effect_radius_str: 0,
     custom_range_str: 0
 }
+
 generic_melee = {
     dice_str: 2,
     die_str: 6,
     divide_by_str: 1,
     bonus_str: 0,
     weapon_name_str: 'Knife (AP)',
+    clip_size_str: 1,
+    rof_str: 1,
+    humanity_cost_str: 0,
+    weapon_type_str: t_melee,
+    wa_str: 0,
+    con_str: con_pocket,
+    weight_str: 3,
+    reliability_str: wep_standard_reliability,
+    effect_radius_str: 0,
+    custom_range_str: 0
+}
+
+generic_katana = {
+    dice_str: 4,
+    die_str: 6,
+    divide_by_str: 1,
+    bonus_str: 0,
+    weapon_name_str: 'Katana (AP)',
     clip_size_str: 1,
     rof_str: 1,
     humanity_cost_str: 0,
@@ -177,6 +196,24 @@ generic_sawed_off_shotgun = {
     wa_str: 0,
     con_str: con_long_coat,
     weight_str: 3,
+    reliability_str: wep_standard_reliability,
+    effect_radius_str: 0,
+    custom_range_str: 0
+}
+
+generic_auto_shotgun = {
+    dice_str: 4,
+    die_str: 6,
+    divide_by_str: 1,
+    bonus_str: 0,
+    weapon_name_str: 'Auto shotgun',
+    clip_size_str: 10,
+    rof_str: 5,
+    humanity_cost_str: 0,
+    weapon_type_str: t_shotgun,
+    wa_str: 0,
+    con_str: con_long_coat,
+    weight_str: 4,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
     custom_range_str: 0
@@ -233,6 +270,24 @@ generic_emp = {
     weight_str: 2,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 5,
+    custom_range_str: 0
+}
+
+generic_mantis_blades = {
+    dice_str: 4,
+    die_str: 6,
+    divide_by_str: 1,
+    bonus_str: 0,
+    weapon_name_str: 'Mantis blades',
+    clip_size_str: 1,
+    rof_str: 1,
+    humanity_cost_str: 9,
+    weapon_type_str: t_melee,
+    wa_str: 0,
+    con_str: con_pocket,
+    weight_str: 2,
+    reliability_str: wep_standard_reliability,
+    effect_radius_str: 0,
     custom_range_str: 0
 }
 
@@ -296,6 +351,8 @@ generic_helmet = {
     skill_bonuses_str: []
 }
 
+#generic armor that is also chrome
+
 generic_cyber_arm_l = {
     armor_name_str: 'Cyber arm (L)',
     ev_str: 0,
@@ -332,6 +389,26 @@ generic_cyber_leg_l = {
     humanity_cost_str: 4,
     sp_str: 4,
     covered_parts_str: [body_part_l_leg],
+    atr_bonuses_str: [],
+    skill_bonuses_str: []
+}
+
+generic_torso_plate = {
+    armor_name_str: 'Torso plate',
+    ev_str: 0,
+    humanity_cost_str: 4,
+    sp_str: 25,
+    covered_parts_str: [body_part_body],
+    atr_bonuses_str: [],
+    skill_bonuses_str: []
+}
+
+generic_face_plate = {
+    armor_name_str: 'Face plate',
+    ev_str: 0,
+    humanity_cost_str: 3,
+    sp_str: 10,
+    covered_parts_str: [body_part_head],
     atr_bonuses_str: [],
     skill_bonuses_str: []
 }

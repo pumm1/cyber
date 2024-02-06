@@ -80,7 +80,9 @@ def generateRandomSkillsAndGear(character_id):
         generateSkills(character)
         generateWeapons(character)
         generateArmors(character)
-        generateChrome(character)
+        if dice.roll(1, 3) > 1: #some more randomness to generating chrome
+            generateChrome(character)
+
 
 
 def generateChrome(character):
@@ -181,9 +183,10 @@ def generateWeapons(character):
     guns_to_add_indices = []
     while len(guns_to_add_indices) < guns_to_add:
         idx = random.randint(0, guns_to_add - 1)
+        wep = weps_of_role[idx]
+
         if not guns_to_add_indices.__contains__(idx):
             guns_to_add_indices.append(idx)
-            wep = weps_of_role[idx]
             addCharacterWeaponById(
                 character_id=character.id,
                 dice=wep[genericGear.dice_str],
