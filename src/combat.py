@@ -479,7 +479,7 @@ def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, att
                 (dmg, dmg_logs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
                 logs = logs + dmg_logs
                 target_total_dmg = target_total_dmg + dmg
-            logs = log_event(logs, f'Total dmg done to target [{t}]: {target_total_dmg}', log_pos)
+            logs = log_event(logs, f'Total dmg done to target [{t}]: {target_total_dmg} [{num_of_hits}x {dmg_info(wep)}]', log_pos)
             logs = log_event(logs, f'{num_of_shots} shots fired in full auto with {wep.item} hitting {total_hits} times', log_neutral)
 
         else:
@@ -511,7 +511,7 @@ def burstRoll(roll_total, attack_range, shots_fired, shots_left, wep, skill, rol
             (dmg, hitLogs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
             logs = logs + hitLogs
             total_dmg = total_dmg + dmg
-        logs = log_event(logs, f'Total dmg done to target: {total_dmg}', log_pos)
+        logs = log_event(logs, f'Total dmg done to target: {total_dmg} [{hits}x {dmg_info(wep)}]', log_pos)
     else:
         logs = log_event(logs, f'Burst attack misses target!', log_neg)
     return logs
@@ -519,6 +519,14 @@ def burstRoll(roll_total, attack_range, shots_fired, shots_left, wep, skill, rol
 def rollToBeatStr(to_beat, total):
     return f'[roll to beat ({to_beat}) vs total ({total})]'
 
+def dmg_info(wep):
+    dmg_bonus_str = ''
+    if wep.dmg_bonus != 0:
+        if wep.dmg_bonus < 0:
+            dmg_bonus_str = f'{wep.dmg_bonus}'
+        else:
+            dmg_bonus_str = f'+{wep.dmg_bonus}'
+    return f'[{wep.dice_num}D{wep.dice_dmg}{dmg_bonus_str}]'
 
 def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill, modifiers_total, skip_luck=False, auto_roll=False) -> [Log]:
     logs = []
@@ -598,7 +606,7 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
             logs = log_event(logs, f'Attack successful!', log_pos)
             (dmg, dmg_logs) = hitDmg(wep, attack_range, targets=targets, auto_roll=auto_roll)
             logs = logs + dmg_logs
-            logs = log_event(logs, f'DMG done: {dmg}', log_pos)
+            logs = log_event(logs, f'DMG done: {dmg} [{wep.dice_num}D{wep.dice_dmg}{dmg_info(wep)}]', log_pos)
 
         attack_info_str = f'{character.name} selected {wep.item} [weapon range = {wep.range}m] (TOTAL = {total}, roll = {roll}, skill_lvl = {skill_bonus} ({skill}), REF bonus = {ref_bonus}, WA = {wep.wa})'
         logs = log_event(logs, attack_info_str, log_neutral)

@@ -828,6 +828,17 @@ def deleteCharacter(c: Character):
             f"""{delete_from} {table_reputation} WHERE character_id = {c.id};"""
         )
         cur.execute(
+            f'{delete_from} {table_character_skills} WHERE character_id = {c.id};'
+        )
+
+        cur.execute(
+            f"""
+            {delete_from} {table_character_sp}
+            WHERE character_id = {c.id};
+            """
+        )
+
+        cur.execute(
             f'{delete_from} {table_characters} WHERE id = {c.id};'
         )
         conn.commit()
