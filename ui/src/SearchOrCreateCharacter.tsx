@@ -6,16 +6,18 @@ import Hideable from "./Hideable"
 import { Button } from "./Common"
 import ListInitiative from "./ListInitiative"
 
+const initialStat = 5
+
 const initialAttributes: Attributes = {
-    ATTR: 1,
-    BODY: 1,
-    COOL: 1,
-    EMP: 1,
-    INT: 1,
-    LUCK: 1,
-    MA: 1,
-    REF: 1,
-    TECH: 1,
+    ATTR: initialStat,
+    BODY: initialStat,
+    COOL: initialStat,
+    EMP: initialStat,
+    INT: initialStat,
+    LUCK: initialStat,
+    MA: initialStat,
+    REF: initialStat,
+    TECH: initialStat,
 }
 
 const initialSp: CharacterSP = {
