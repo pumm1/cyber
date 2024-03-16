@@ -311,7 +311,7 @@ generic_leather_armor = {
 }
 
 generic_leather_pants = {
-    armor_name_str: 'Leather jacket',
+    armor_name_str: 'Leather pants',
     ev_str: 0,
     humanity_cost_str: 0,
     sp_str: 4,
