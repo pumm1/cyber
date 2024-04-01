@@ -45,6 +45,6 @@ const Table = ({}) => {
 }
 
 const JamTable = ({}) => 
-    <Hideable text='jam table' props={<Table />}/>
+    <Hideable text='weapon jam table' props={<Table />}/>
 
 export default JamTable
