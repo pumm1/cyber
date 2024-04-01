@@ -316,8 +316,11 @@ def handleMeleeDmg(character, roll, wep_id=None, method=None) -> list[Log]:
                     dmg = dmg_roll
                     break
         hit_loc = determineHitLocation()
+        logs, head_is_hit = handleHitLocationInfoForLogs(hit_loc, logs)
         if dmg < 0:
             dmg = 0
+        if head_is_hit:
+            dmg = dmg * 2
         logs = log_event(
             logs,
             f'{character.name} did {dmg} DMG to {hit_loc} using {method} [dmg roll = {dmg_roll}, dmg_bonus = {dmg_bonus}]',
@@ -326,6 +329,14 @@ def handleMeleeDmg(character, roll, wep_id=None, method=None) -> list[Log]:
     else:
         logs = log_event(logs, f'Character not found for melee dmg', log_neg)
     return logs
+
+def handleHitLocationInfoForLogs(hit_loc: str, logs: list[Log]) -> (list[Log], bool):
+    head_is_hit = False
+    if hit_loc == body_part_head:
+        head_is_hit = True
+        logs = log_event(logs, 'Hit to head doubles damage!', log_neg)
+    return logs, head_is_hit
+
 
 def handleMeleeDmgByCharacterId(character_id, roll, wep_id, method=None):
     character = DAO.getCharacterById(character_id)
@@ -606,7 +617,7 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
             logs = log_event(logs, f'Attack successful!', log_pos)
             (dmg, dmg_logs) = hitDmg(wep, attack_range, targets=targets, auto_roll=auto_roll)
             logs = logs + dmg_logs
-            logs = log_event(logs, f'DMG done: {dmg} [{wep.dice_num}D{wep.dice_dmg}{dmg_info(wep)}]', log_pos)
+            logs = log_event(logs, f'DMG done: {dmg} {dmg_info(wep)}', log_pos)
 
         attack_info_str = f'{character.name} selected {wep.item} [weapon range = {wep.range}m] (TOTAL = {total}, roll = {roll}, skill_lvl = {skill_bonus} ({skill}), REF bonus = {ref_bonus}, WA = {wep.wa})'
         logs = log_event(logs, attack_info_str, log_neutral)
@@ -639,9 +650,9 @@ def hitDmg(wep, attack_range, targets=1, auto_roll=False) -> (int, list[Log]):
             if target > 1:
                 hit = dice.roll(1, 2)
                 if hit > 1:
-                    t_dmg = handleShotgunDmgAndHit(wep, attack_range)
+                    (t_dmg, logs) = handleShotgunDmgAndHit(wep, attack_range, log_events)
             else:
-                t_dmg = handleShotgunDmgAndHit(wep, attack_range)
+                (t_dmg, logs) = handleShotgunDmgAndHit(wep, attack_range, log_events)
 
             dmg += t_dmg
 
@@ -649,7 +660,7 @@ def hitDmg(wep, attack_range, targets=1, auto_roll=False) -> (int, list[Log]):
         (dmg, hitDmgLogs) = handleWeaponDmgAndHit(wep, auto_roll)
         log_events = log_events + hitDmgLogs
 
-    return (dmg, log_events)
+    return dmg, log_events
 
 
 def handleWeaponDmgAndHit(wep, auto_roll) -> (int, list[Log]):
@@ -670,12 +681,15 @@ def handleWeaponDmgAndHit(wep, auto_roll) -> (int, list[Log]):
             if dmg > 0:
                 break
     location = determineHitLocation()
-    logs = log_event([], f'{dmg} DMG to {location}', log_neg)
+    logs, head_is_hit = handleHitLocationInfoForLogs(location, [])
+    if head_is_hit:
+        dmg = dmg * 2
+    logs = log_event(logs, f'{dmg} DMG to {location}', log_neg)
 
     return (dmg, logs)
 
 
-def handleShotgunDmgAndHit(wep, attack_range):
+def handleShotgunDmgAndHit(wep, attack_range, logs: list[Log]):
     shotgun_max_dice = wep.dice_num
     shotgun_dmg = wep.dice_dmg
     dmg = 0
@@ -703,18 +717,14 @@ def handleShotgunDmgAndHit(wep, attack_range):
         hit_locations.append(hit2)
         hit_locations.append(hit3)
 
-    hit_loc_data = determineHitLocDamages(dmg, hit_locations)
-    locations_str = ', '.join(hit_loc_data)
+    logs = determineHitLocDamages(dmg, hit_locations, logs)
 
-    printRedLine(f'{locations_str}')
-
-    return dmg
+    return dmg, logs
 
 
 # | -- x ----- x --- |
-def determineHitLocDamages(dmg, locations):
+def determineHitLocDamages(dmg, locations, logs: list[Log]):
     dmg_left = dmg
-    loc_data = []
     loc_size = len(locations)
     i = 0
     dmg_for_part = 0
@@ -724,9 +734,13 @@ def determineHitLocDamages(dmg, locations):
         else:
             dmg_for_part = random.randint(0, dmg_left)
         dmg_left -= dmg_for_part
-        loc_data.append(f'{dmg_for_part} DMG to {locations[i]}')
+        logs, head_is_hit = handleHitLocationInfoForLogs(locations[i], logs)
+        if head_is_hit:
+            dmg_for_part = dmg_for_part * 2
+        logs = log_event(logs, f'{dmg_for_part} DMG to {locations[i]}', log_neg)
         i += 1
-    return loc_data
+
+    return logs
 
 
 def reloadWeapon(weapon_id, shots):
