@@ -147,7 +147,7 @@ const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharact
     const characterTable = 
         <>
             <input placeholder='Search by...' className='filter' value={nameFilter} onChange={e => setNameFilter(e.target.value)}/>
-            <Button label='Reset' variant='SpaceLeft' onClick={() => updateCharacterList()}/>
+            <Button label='Update characters' variant='SpaceLeft' onClick={() => updateCharacterList()}/>
             <table>
                 <tbody>
                     <tr>
