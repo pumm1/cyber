@@ -430,10 +430,13 @@ def weaponToolResultFromReq(roll_total, weapon_type, wa, attack_range, num_of_ta
         (roll_to_beat, range_str, _) = wep.rollToBeatAndRangeStr(attack_range)
         info_str = f'[Roll to beat = {roll_to_beat}, range = {range_str}]'
         if roll_total >= roll_to_beat:
-            log_event(logs, "Hit!", log_pos)
+            logs = log_event(logs, "Hit!", log_pos)
+            if wep.weapon_type == t_shotgun:
+                hits, dice_num, logs = resolveShotgunHitsAndDmgDiceByRange(wep, attack_range, logs)
+                logs = log_event(logs, f'Roll damage for {hits} spots for each target in spread area with {dice_num}D{wep.dice_dmg}', log_pos)
         else:
-            log_event(logs, "Miss!", log_neg)
-        log_event(logs, info_str, log_neutral)
+            logs = log_event(logs, "Miss!", log_neg)
+        logs = log_event(logs, info_str, log_neutral)
     return logs
 
 
@@ -689,33 +692,36 @@ def handleWeaponDmgAndHit(wep, auto_roll) -> (int, list[Log]):
     return (dmg, logs)
 
 
+def resolveShotgunHitsAndDmgDiceByRange(wep, attack_range, logs: list[Log]):
+    hits = 1
+    dice_num = wep.dice_num
+
+    if wep.isCloseRange(attack_range):
+        logs = log_event(logs, f'Close range shotgun attack with full damage to single spot!', log_pos)
+    elif wep.isMidRange(attack_range):
+        hits = 2
+        dice_num -= 1
+        logs = log_event(logs, f'Middle range shotgun attack with lessened damage but 2 spots hit (1m spread)', log_pos)
+    elif wep.isLongRange(attack_range):
+        hits = 3
+        dice_num -= 2
+        logs = log_event(logs, f'Long range shotgun attack with Half damage but 3 spots hit (2m spread)', log_pos)
+    elif wep.isExtremeRange(attack_range):
+        hits = 4
+        dice_num -= 3
+        logs = log_event(logs, f'Extreme range shotgun attack with minimum damage but 4 spots hit (3m spread)', log_pos)
+
+    return hits, dice_num, logs
+
 def handleShotgunDmgAndHit(wep, attack_range, logs: list[Log]):
-    shotgun_max_dice = wep.dice_num
     shotgun_dmg = wep.dice_dmg
     dmg = 0
     hit_locations = []
-    if wep.isCloseRange(attack_range):
-        print('Damage is for 1m pattern')
-        dmg = dice.roll(shotgun_max_dice, shotgun_dmg)
-        location = determineHitLocation()
-        hit_locations.append(location)
-    elif wep.isMidRange(attack_range):
-        print('Damage is for 2m pattern')
-        dmg = dice.roll(shotgun_max_dice - 1, shotgun_dmg)
-        hit1 = determineHitLocation()
-        hit2 = determineHitLocation()
-
-        hit_locations.append(hit1)
-        hit_locations.append(hit2)
-    elif wep.isLongRange(attack_range) or wep.isExtremeRange(attack_range):
-        print('Damage is for 3m pattern')
-        dmg = dice.roll(shotgun_max_dice - 2, shotgun_dmg)
-        hit1 = determineHitLocation()
-        hit2 = determineHitLocation()
-        hit3 = determineHitLocation()
-        hit_locations.append(hit1)
-        hit_locations.append(hit2)
-        hit_locations.append(hit3)
+    hits, dmg_dice, logs = resolveShotgunHitsAndDmgDiceByRange(wep, attack_range, logs)
+    for hit in range(hits):
+        dmg = dice.roll(dmg_dice, shotgun_dmg)
+        hit = determineHitLocation()
+        hit_locations.append(hit)
 
     logs = determineHitLocDamages(dmg, hit_locations, logs)
 

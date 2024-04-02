@@ -170,7 +170,7 @@ def manualWeaponFromReq(weapon_type, wa, rof, clip_size, shots_left, custom_rang
         'weapon_type': weapon_type,
         'wa': wa,
         'is_chrome': False,
-        'dice_number': 1,
+        'dice_number': 4,
         'dice_dmg': 6,
         'divide_by': 1,
         'dmg_bonus': 0,
