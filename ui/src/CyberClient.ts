@@ -134,6 +134,7 @@ export interface SkillBonus {
 export interface Armor {
     bodyParts: BodyPart[]
     id: number
+    ev: number,
     item: string
     sp: number
 }

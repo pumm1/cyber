@@ -15,6 +15,7 @@ from logger import Log, log_neg, log_pos, log_neutral, log_event
 from weapon import Weapon, manualWeaponFromReq
 from colorama import Fore, Style
 
+
 def weaponsByAttackType(attack_type, weapons):
     weps = []
     if attack_type == attack_type_melee:
@@ -31,6 +32,7 @@ def weaponsByAttackType(attack_type, weapons):
                 weps.append(w)
     return weps
 
+
 def weaponByAttackTypeAndWeaponId(character, weapon_id, attack_type):
     weapons = weaponsByAttackType(attack_type, character.weapons)
     weapon = None
@@ -42,7 +44,6 @@ def weaponByAttackTypeAndWeaponId(character, weapon_id, attack_type):
         printRedLine(f'No weapons found for {attack_type}, character_id = {character.id}, weapon_id = {weapon_id}')
 
     return weapon
-
 
 
 def weaponByAttackType(attack_type, character, wep_id=None):
@@ -93,6 +94,7 @@ def suppressiveFireDef(name, rounds, area):
     else:
         print(f'Suppressive area needs at least one shot fired into it and valid area width')
 
+
 def weapon_info(wep):
     if wep.effect_radius > 0:
         print(
@@ -104,7 +106,8 @@ def weapon_info(wep):
         )
 
 
-def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, attack_range, given_roll, attack_modifier, targets, shots_fired=1):
+def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, attack_range, given_roll,
+                                          attack_modifier, targets, shots_fired=1):
     character = DAO.getCharacterById(character_id)
     result_logs = []
     if character is not None:
@@ -172,7 +175,6 @@ def characterAttackByCharacterAndWeaponId(character_id, weapon_id, attack_type, 
     return result_logs
 
 
-
 def characterAttack(character, attack_type, attack_range, given_roll):
     wep = weaponByAttackType(attack_type, character)
     (skill_bonus, skill) = characterSkillBonusForWeapon(character, wep.weapon_type)
@@ -191,7 +193,7 @@ def characterAttack(character, attack_type, attack_range, given_roll):
         print(f'{character.name} has no ways of attack for {attack_type}')
 
 
-#TODO: collect all printed lines are array of strings/some result json and return to UI to be printed..?
+# TODO: collect all printed lines are array of strings/some result json and return to UI to be printed..?
 def characterAttackById(id, attack_type, range_str, given_roll):
     attack_range = safeCastToInt(range_str)
     if attack_range > 0:
@@ -200,7 +202,6 @@ def characterAttackById(id, attack_type, range_str, given_roll):
             characterAttack(character, attack_type, attack_range, given_roll)
     else:
         print(f'Range must be bigger than 0')
-
 
 
 def characterAttackByName(name, attack_type, range_str, given_roll):
@@ -253,11 +254,11 @@ def handleMelee(character, wep, given_roll, skill_bonus, skill, modifiers_total)
     if modifiers_total is None:
         modifiers_total = modifiersForTarget(1)
     ref_bonus = character.attributes[REF]
-    #TODO: specify judo etc
-    #if wep.item == unarmed:
-        #print('Give skill for bonus (e.g. brawling, karate, judo...)')
-        #skill = askInput()
-        #skill_bonus = skillBonusForSkill(character.skills, skill)
+    # TODO: specify judo etc
+    # if wep.item == unarmed:
+    # print('Give skill for bonus (e.g. brawling, karate, judo...)')
+    # skill = askInput()
+    # skill_bonus = skillBonusForSkill(character.skills, skill)
     t_roll = safeCastToInt(given_roll)
     roll = 0
     if t_roll > 0:
@@ -267,10 +268,15 @@ def handleMelee(character, wep, given_roll, skill_bonus, skill, modifiers_total)
     total = roll + ref_bonus + skill_bonus + modifiers_total
     logs = log_event(logs, f'{character.name} attacks with {wep.item} (Roll total = {total})', log_pos)
     logs = log_event(logs, "Defend against melee attack by rolling opponent's dodge skill", log_neg)
-    logs = log_event(logs, f'If attack is successful, calculate damage for roll (or automatically roll dmg) with {melee_dmg_help_str}', log_neutral)
-    logs = log_event(logs, f'(dice roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), modifiers = {modifiers_total})', log_neutral)
+    logs = log_event(logs,
+                     f'If attack is successful, calculate damage for roll (or automatically roll dmg) with {melee_dmg_help_str}',
+                     log_neutral)
+    logs = log_event(logs,
+                     f'(dice roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), modifiers = {modifiers_total})',
+                     log_neutral)
 
     return logs
+
 
 def handleMeleeDmg(character, roll, wep_id=None, method=None) -> list[Log]:
     logs = []
@@ -288,7 +294,8 @@ def handleMeleeDmg(character, roll, wep_id=None, method=None) -> list[Log]:
                     wep = weaponByAttackType(attack_type_melee, character, wep_id)
                     if wep is not None:
                         if dmg_roll == 0:
-                            dmg_roll = dice.roll(wep.dice_num, wep.dice_dmg, divide_by=wep.divide_by, bonus=wep.dmg_bonus)
+                            dmg_roll = dice.roll(wep.dice_num, wep.dice_dmg, divide_by=wep.divide_by,
+                                                 bonus=wep.dmg_bonus)
                         dmg = dmg_roll + dmg_bonus
                         method = wep.item
                         break
@@ -330,6 +337,7 @@ def handleMeleeDmg(character, roll, wep_id=None, method=None) -> list[Log]:
         logs = log_event(logs, f'Character not found for melee dmg', log_neg)
     return logs
 
+
 def handleHitLocationInfoForLogs(hit_loc: str, logs: list[Log]) -> (list[Log], bool):
     head_is_hit = False
     if hit_loc == body_part_head:
@@ -341,6 +349,7 @@ def handleHitLocationInfoForLogs(hit_loc: str, logs: list[Log]) -> (list[Log], b
 def handleMeleeDmgByCharacterId(character_id, roll, wep_id, method=None):
     character = DAO.getCharacterById(character_id)
     return handleMeleeDmg(character, roll, wep_id, method)
+
 
 def handleMeleeDmgByCharacterName(name, roll, method=None):
     character = DAO.getCharacterByName(name)
@@ -368,7 +377,8 @@ def characterSkillBonusForWeapon(character, wep_t) -> (int, str):
     return (skill_bonus, skill)
 
 
-def handleFullAuto(character, wep, skill_bonus, skill, attack_range=0, num_of_targets=0, num_of_shots=0, roll=0, modifiers_total=None, auto_roll=False, skip_luck=False) -> list[Log]:
+def handleFullAuto(character, wep, skill_bonus, skill, attack_range=0, num_of_targets=0, num_of_shots=0, roll=0,
+                   modifiers_total=None, auto_roll=False, skip_luck=False) -> list[Log]:
     logs = []
     logs = log_event(logs, f'Trying full auto attack with {wep.item}', log_neutral)
     shots_left = wep.shots_left
@@ -401,11 +411,12 @@ def handleFullAuto(character, wep, skill_bonus, skill, attack_range=0, num_of_ta
         ref_bonus = character.attributes[REF]
 
         shots_left_after_firing = wep.shots_left - num_of_shots
-        #test one roll for whole full auto attack
+        # test one roll for whole full auto attack
         if roll <= 0:
             roll = dice.resolveAutoOrManualRollWithCrit(auto_roll=auto_roll, skip_luck=skip_luck)
         roll_total = roll + ref_bonus + skill_bonus + modifiers_total + wep.wa
-        full_auto_logs = fullAutoRoll(roll_total, wep, skill, skill_bonus, roll, ref_bonus, attack_range, num_of_targets, num_of_shots, modifiers_total, auto_roll, skip_luck)
+        full_auto_logs = fullAutoRoll(roll_total, wep, skill, skill_bonus, roll, ref_bonus, attack_range,
+                                      num_of_targets, num_of_shots, modifiers_total, auto_roll, skip_luck)
         logs = logs + full_auto_logs
 
         DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
@@ -433,15 +444,18 @@ def weaponToolResultFromReq(roll_total, weapon_type, wa, attack_range, num_of_ta
             logs = log_event(logs, "Hit!", log_pos)
             if wep.weapon_type == t_shotgun:
                 hits, dice_num, logs = resolveShotgunHitsAndDmgDiceByRange(wep, attack_range, logs)
-                logs = log_event(logs, f'Roll damage for {hits} spots for each target in spread area with {dice_num}D{wep.dice_dmg}', log_pos)
+                logs = log_event(logs,
+                                 f'Roll damage for {hits} spots for each target in spread area with {dice_num}D{wep.dice_dmg}',
+                                 log_pos)
         else:
             logs = log_event(logs, "Miss!", log_neg)
         logs = log_event(logs, info_str, log_neutral)
     return logs
 
 
-#TODO: think about some balancing changes?
-def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, attack_range=0, num_of_targets=0, num_of_shots=0, modifiers_total=None, auto_roll=False, skip_luck=False) -> list[Log]:
+# TODO: think about some balancing changes?
+def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, attack_range=0, num_of_targets=0,
+                 num_of_shots=0, modifiers_total=None, auto_roll=False, skip_luck=False) -> list[Log]:
     logs = []
     total_hits = 0
     targets_hit = 0
@@ -491,17 +505,23 @@ def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, att
 
             for i in range(num_of_hits):
                 (dmg, dmg_logs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
+                logs = possiblyWarnAboutLimbDestroyed(dmg, logs)
                 logs = logs + dmg_logs
                 target_total_dmg = target_total_dmg + dmg
-            logs = log_event(logs, f'Total dmg done to target [{t}]: {target_total_dmg} [{num_of_hits}x {dmg_info(wep)}]', log_pos)
-            logs = log_event(logs, f'{num_of_shots} shots fired in full auto with {wep.item} hitting {total_hits} times', log_neutral)
+            logs = log_event(logs,
+                             f'Total dmg done to target [{t}]: {target_total_dmg} [{num_of_hits}x {dmg_info(wep)}]',
+                             log_pos)
+            logs = log_event(logs,
+                             f'{num_of_shots} shots fired in full auto with {wep.item} hitting {total_hits} times',
+                             log_neutral)
 
         else:
             logs = log_event(logs, f'Full auto missed target {t}!', log_neg)
     return logs
 
 
-def burstRoll(roll_total, attack_range, shots_fired, shots_left, wep, skill, roll, skill_bonus=0, ref_bonus=0, auto_roll=False) -> [Log]:
+def burstRoll(roll_total, attack_range, shots_fired, shots_left, wep, skill, roll, skill_bonus=0, ref_bonus=0,
+              auto_roll=False) -> [Log]:
     logs = []
     (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
     roll_total = roll_total + wep.wa
@@ -530,8 +550,10 @@ def burstRoll(roll_total, attack_range, shots_fired, shots_left, wep, skill, rol
         logs = log_event(logs, f'Burst attack misses target!', log_neg)
     return logs
 
+
 def rollToBeatStr(to_beat, total):
     return f'[roll to beat ({to_beat}) vs total ({total})]'
+
 
 def dmg_info(wep):
     dmg_bonus_str = ''
@@ -542,7 +564,9 @@ def dmg_info(wep):
             dmg_bonus_str = f'+{wep.dmg_bonus}'
     return f'[{wep.dice_num}D{wep.dice_dmg}{dmg_bonus_str}]'
 
-def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill, modifiers_total, skip_luck=False, auto_roll=False) -> [Log]:
+
+def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill, modifiers_total, skip_luck=False,
+                auto_roll=False) -> [Log]:
     logs = []
     if modifiers_total < 0 or modifiers_total is None:
         modifiers_total = modifiersForTarget(1)
@@ -571,17 +595,22 @@ def handleBurst(character, wep, attack_range, given_roll, skill_bonus, skill, mo
         shots_left_after_firing = wep.shots_left - shots_fired
 
         total = roll + ref_bonus + skill_bonus + range_bonus + modifiers_total + wep.wa
-        burst_logs = burstRoll(roll_total=total, attack_range=attack_range, shots_fired=shots_fired, shots_left=shots_left,
-                         wep=wep, skill=skill, roll=roll, skill_bonus=skill_bonus, ref_bonus=ref_bonus, auto_roll=auto_roll)
+        burst_logs = burstRoll(roll_total=total, attack_range=attack_range, shots_fired=shots_fired,
+                               shots_left=shots_left,
+                               wep=wep, skill=skill, roll=roll, skill_bonus=skill_bonus, ref_bonus=ref_bonus,
+                               auto_roll=auto_roll)
         logs = logs + burst_logs
         DAO.updateShotsInClip(wep.weapon_id, shots_left_after_firing)
     else:
-        logs = log_event(logs, f"Unable to do burst attack with {wep.item} ({wep.weapon_type}) [{wep.shots_left} / {wep.clip_size}] ROF: {wep.rof}", log_neg)
+        logs = log_event(logs,
+                         f"Unable to do burst attack with {wep.item} ({wep.weapon_type}) [{wep.shots_left} / {wep.clip_size}] ROF: {wep.rof}",
+                         log_neg)
 
     return logs
 
 
-def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill, modifiers_total, targets=1, skip_luck=False, auto_roll=False):
+def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skill, modifiers_total, targets=1,
+                     skip_luck=False, auto_roll=False):
     if modifiers_total is None:
         modifiers_total = modifiersForTarget(1)
     roll = safeCastToInt(given_roll)
@@ -615,7 +644,9 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
         if hit_res == False:
             end_res = failure_str
             if wep.isThrown():
-                logs = log_event(logs, 'Roll 1D10 to see how the throw misses and another 1D10 to see how far! (See grenade table)', log_neutral)
+                logs = log_event(logs,
+                                 'Roll 1D10 to see how the throw misses and another 1D10 to see how far! (See grenade table)',
+                                 log_neutral)
         else:
             logs = log_event(logs, f'Attack successful!', log_pos)
             (dmg, dmg_logs) = hitDmg(wep, attack_range, targets=targets, auto_roll=auto_roll)
@@ -637,7 +668,7 @@ def handleSingleShot(character, wep, attack_range, given_roll, skill_bonus, skil
 def hitDmg(wep, attack_range, targets=1, auto_roll=False) -> (int, list[Log]):
     log_events = []
     dmg = 0
-    #TODO for REST
+    # TODO for REST
     if wep.weapon_type == t_shotgun:
         if targets is None or targets <= 0:
             while True:
@@ -645,7 +676,9 @@ def hitDmg(wep, attack_range, targets=1, auto_roll=False) -> (int, list[Log]):
                 targets = safeCastToInt(input)
                 if targets > 0:
                     break
-        log_events = log_event(log_events, f'{targets} targets in shotgun spread area (At least main target is hit, others have 50/50 a chance of not being hit)', log_neutral)
+        log_events = log_event(log_events,
+                               f'{targets} targets in shotgun spread area (At least main target is hit, others have 50/50 a chance of not being hit)',
+                               log_neutral)
 
         for target in range(targets):
             t_dmg = 0
@@ -688,8 +721,9 @@ def handleWeaponDmgAndHit(wep, auto_roll) -> (int, list[Log]):
     if head_is_hit:
         dmg = dmg * 2
     logs = log_event(logs, f'{dmg} DMG to {location}', log_neg)
+    logs = possiblyWarnAboutLimbDestroyed(dmg, logs)
 
-    return (dmg, logs)
+    return dmg, logs
 
 
 def resolveShotgunHitsAndDmgDiceByRange(wep, attack_range, logs: list[Log]):
@@ -713,6 +747,15 @@ def resolveShotgunHitsAndDmgDiceByRange(wep, attack_range, logs: list[Log]):
 
     return hits, dice_num, logs
 
+
+def possiblyWarnAboutLimbDestroyed(dmg, logs: list[Log]):
+    if dmg >= 8:
+        logs = log_event(logs, f'If armor passing damage is greater than 8, then the hit limb is destroyed!',
+                         log_neg)
+
+    return logs
+
+
 def handleShotgunDmgAndHit(wep, attack_range, logs: list[Log]):
     shotgun_dmg = wep.dice_dmg
     dmg = 0
@@ -723,6 +766,7 @@ def handleShotgunDmgAndHit(wep, attack_range, logs: list[Log]):
         hit = determineHitLocation()
         hit_locations.append(hit)
 
+    logs = possiblyWarnAboutLimbDestroyed(dmg, logs)
     logs = determineHitLocDamages(dmg, hit_locations, logs)
 
     return dmg, logs
@@ -740,6 +784,7 @@ def determineHitLocDamages(dmg, locations, logs: list[Log]):
         else:
             dmg_for_part = random.randint(0, dmg_left)
         dmg_left -= dmg_for_part
+        logs = possiblyWarnAboutLimbDestroyed(dmg_for_part, logs)
         logs, head_is_hit = handleHitLocationInfoForLogs(locations[i], logs)
         if head_is_hit:
             dmg_for_part = dmg_for_part * 2
@@ -757,7 +802,8 @@ def reloadWeapon(weapon_id, shots):
     if weapon is not None and amount > 0:
         if weapon.isGun():
             if weapon.clip_size < amount:
-                logs = log_event(logs, f"Can't hold that many shots for {weapon.item}, clip size = {weapon.clip_size}", log_neutral)
+                logs = log_event(logs, f"Can't hold that many shots for {weapon.item}, clip size = {weapon.clip_size}",
+                                 log_neutral)
                 amount = weapon.clip_size
 
             DAO.updateShotsInClip(id, amount)
@@ -806,7 +852,8 @@ def handleNormalHit(character: Character, dmg, body_part) -> list[Log]:
         dmg_passing_sp = char_sp - dmg
         if dmg_passing_sp < 0:
             passed_dmg = abs(dmg_passing_sp)
-            logs = log_event(logs, f'Armor damaged at {body_part} and {passed_dmg} DMG done to {character.name}', log_neg)
+            logs = log_event(logs, f'Armor damaged at {body_part} and {passed_dmg} DMG done to {character.name}',
+                             log_neg)
             DAO.dmgCharacterSP(character.id, body_part)
             damageCharacter(character, passed_dmg, body_part)
         else:
@@ -835,7 +882,7 @@ def handleApHit(character: Character, dmg, body_part, logs) -> list[Log]:
     return logs
 
 
-def damageCharacter(c: Character, dmg, body_part, logs: list[Log]=[]) -> list[Log]:
+def damageCharacter(c: Character, dmg, body_part, logs: list[Log] = []) -> list[Log]:
     dmgReduction = c.bodyTypeModifier
     total_dmg = dmg - dmgReduction
     if total_dmg > 0:
@@ -850,7 +897,8 @@ def damageCharacter(c: Character, dmg, body_part, logs: list[Log]=[]) -> list[Lo
         else:
             logs = logs + stunCheckById(updated_character.id)
     else:
-        logs = log_event(logs, f'The hit did not damage target (DMG = {dmg}, DMG reduced by = {dmgReduction})', log_neutral)
+        logs = log_event(logs, f'The hit did not damage target (DMG = {dmg}, DMG reduced by = {dmgReduction})',
+                         log_neutral)
 
     return logs
 
@@ -899,7 +947,8 @@ def stunCheckToBeat(dmg_taken, body) -> (int, list[Log]):
         logs = log_event(logs, f'penalty for {dmg_taken} DMG taken is {penalty}', log_neg)
     save_against = body - penalty
     if (save_against > 0):
-        logs = log_event(logs, f'To not be stunned/shocked (or to not lose death save), roll {save_against} or lower', log_neutral)
+        logs = log_event(logs, f'To not be stunned/shocked (or to not lose death save), roll {save_against} or lower',
+                         log_neutral)
     else:
         logs = log_event(logs, f'Stun/shock saves cannot help anymore, character needs to be stabilized fast', log_neg)
 
@@ -930,6 +979,7 @@ def stunCheckById(character_id) -> list[Log]:
     else:
         logs = log_event(logs, f'Character not found [id = {character_id}]', log_neg)
     return logs
+
 
 def stunCheckByName(name) -> list[Log]:
     logs = []

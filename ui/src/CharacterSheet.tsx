@@ -768,6 +768,9 @@ const ArmorRow = ({armor, characterId, updateLogsAndCharacter}: ArmorRowProps) =
                 {armor.sp}
             </td>
             <td>
+                {armor.ev}
+            </td>
+            <td>
                 [{armor.bodyParts.join(', ')}]
             </td>
             <td>
@@ -784,6 +787,7 @@ const CharacterArmor = ({armors, updateLogsAndCharacter, characterId}: Character
                 <tr>
                     <th>Armor</th>
                     <th>SP</th>
+                    <th>EV</th>
                     <th>Covers</th>
                     <th>Remove</th>
                 </tr>

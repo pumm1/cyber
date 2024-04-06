@@ -24,6 +24,7 @@ class Armor:
         resJson = {
             'id': self.id,
             'item': self.item,
+            'ev': self.ev,
             'sp': self.sp,
             'bodyParts': self.body_parts,
             'attributeBonuses': self.atr_bonuses.asJson()
