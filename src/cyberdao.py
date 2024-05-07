@@ -257,7 +257,7 @@ def listCombatInitiative(ascending: bool):
         cur.execute(
             f"""{select_from} {table_combat_session} cs 
                 JOIN {table_characters} c ON cs.character_id = c.id
-                ORDER BY cs.initiative {ordering};
+                ORDER BY cs.initiative {ordering}, c.name ASC;
                 """
         )
         rows = cur.fetchall()
