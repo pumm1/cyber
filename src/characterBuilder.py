@@ -7,7 +7,8 @@ import bodytypes
 from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str, INT, REF, TECH, \
     COOL, ATTR, LUCK, MA, BODY, EMP, body_part_l_arm, body_part_body, body_part_head, body_part_r_arm, t_melee, \
     t_handgun, t_shotgun, t_rifle, t_thrown, t_smg, con_pocket, con_long_coat, con_jacket, not_hideable, yes_no, \
-    body_part_l_leg, body_part_r_leg, printGreenLine, printRedLine, wep_standard_reliability
+    body_part_l_leg, body_part_r_leg, printGreenLine, printRedLine, wep_standard_reliability, GEAR_TIER_LOW, \
+    GEAR_TIER_MID, GEAR_TIER_HIGH, gear_is_allowed, GEAR_TIER_COMMON
 from logger import log_event, log_pos
 from skills import udpateCharacterSkill
 from roles import role_skills, role_guns, role_armors
@@ -74,27 +75,35 @@ def rollSpecial(role):
     return skill
 
 
-def generateRandomSkillsAndGear(character_id):
+def generateRandomSkillsAndGear(character_id, gear_tier=None):
     character = DAO.getCharacterById(character_id)
     if character is not None:
         generateSkills(character)
-        generateWeapons(character)
-        generateArmors(character)
+        generateWeapons(character, gear_tier)
+        generateArmors(character, gear_tier)
         if dice.roll(1, 3) > 1: #some more randomness to generating chrome
-            generateChrome(character)
+            generateChrome(character, gear_tier)
 
 
 
-def generateChrome(character):
+def generateChrome(character, gear_tier=None):
     chrome_of_role = roles.roleDict[character.role][roles.role_chrome] + genericChromeWithSkillChanges()
     possible_amount_of_chrome = len(chrome_of_role)
     chrome_to_add = dice.roll(1, possible_amount_of_chrome) - 1  # allow 0
-    if chrome_to_add > 3:  # limit to 3
+    if gear_tier == GEAR_TIER_LOW and chrome_to_add > 0:
+        chrome_to_add = 1
+    elif gear_tier == GEAR_TIER_MID and chrome_to_add > 0:
+        chrome_to_add = 2
+    elif gear_tier == GEAR_TIER_HIGH and chrome_to_add > 0:
         chrome_to_add = 3
     chrome_to_add_indices = []
     while len(chrome_to_add_indices) < chrome_to_add:
-        idx = random.randint(0, possible_amount_of_chrome - 1)
-        if not chrome_to_add_indices.__contains__(idx):
+        idx = random.randint(0, len(chrome_of_role) - 1)
+        chrome = chrome_of_role[idx]
+        chrome_tier = chrome[genericGear.tier_str]
+        tier_matches = gear_is_allowed(chrome_tier, gear_tier)
+        print(f'(CHROME) gear tier requested: {gear_tier} ... equipment ({chrome[genericGear.chrome_name_str]}) tier: {chrome_tier} .. matches: {tier_matches}')
+        if not chrome_to_add_indices.__contains__(idx) and tier_matches:
             chrome_to_add_indices.append(idx)
             chrome = chrome_of_role[idx]
             addChromeByCharacterId(
@@ -127,7 +136,8 @@ def generic_voice_stress_analyzer():
         genericGear.chrome_descr_str: 'Lie detector. +2 To human perception',
         genericGear.humanity_cost_str: 5,
         genericGear.atr_bonuses_str: [],
-        genericGear.skill_bonuses_str: skill_bonuses
+        genericGear.skill_bonuses_str: skill_bonuses,
+        genericGear.tier_str: GEAR_TIER_COMMON
     }
     return res
 
@@ -146,22 +156,28 @@ def generic_cyber_eyes():
         genericGear.chrome_descr_str: '+1 to awareness',
         genericGear.humanity_cost_str: 4,
         genericGear.atr_bonuses_str: [],
-        genericGear.skill_bonuses_str: skill_bonuses
+        genericGear.skill_bonuses_str: skill_bonuses,
+        genericGear.tier_str: GEAR_TIER_COMMON
     }
     return res
 
-def generateArmors(character):
+def generateArmors(character, gear_tier=None):
     armors_of_role = roles.roleDict[character.role][roles.role_armors]
     possible_amount_of_armors = len(armors_of_role)
     armors_to_add = dice.roll(1, possible_amount_of_armors) - 1 #allow 0
+    if gear_tier == GEAR_TIER_LOW:
+        armors_to_add = dice.roll(1, 3)
     if armors_to_add > 4: #limit to 5
         armors_to_add = 4
     armors_to_add_indices = []
     while len(armors_to_add_indices) < armors_to_add:
-        idx = random.randint(0, possible_amount_of_armors - 1)
-        if not armors_to_add_indices.__contains__(idx):
+        idx = random.randint(0, len(armors_of_role) - 1)
+        armor = armors_of_role[idx]
+        armor_gear_tier = armor[genericGear.tier_str]
+        tier_matches = gear_is_allowed(armor_gear_tier, gear_tier)
+        print(f'(ARMOR) gear tier requested: {gear_tier} ... equipment ({armor[genericGear.armor_name_str]}) tier: {armor_gear_tier} .. matches: {tier_matches}')
+        if not armors_to_add_indices.__contains__(idx) and tier_matches:
             armors_to_add_indices.append(idx)
-            armor = armors_of_role[idx]
             addArmorForCharacter(
                 character,
                 item=armor[genericGear.armor_name_str],
@@ -174,18 +190,28 @@ def generateArmors(character):
             )
 
 
-def generateWeapons(character):
+def generateWeapons(character, gear_tier=None):
     weps_of_role = roles.roleDict[character.role][role_guns]
-    possible_amount_of_guns = len(weps_of_role)
-    guns_to_add = dice.roll(1, possible_amount_of_guns)
-    if guns_to_add > 3:
-        guns_to_add = 3
+    guns_to_add = 1
+    if gear_tier == GEAR_TIER_LOW:
+        guns_to_add = 1
+    elif gear_tier == GEAR_TIER_MID:
+        guns_to_add = dice.roll(1, 2)
+    elif gear_tier == GEAR_TIER_HIGH:
+        guns_to_add = max(dice.roll(1, 3), 2)
+    else:
+        guns_to_add = dice.roll(1, 3)
     guns_to_add_indices = []
     while len(guns_to_add_indices) < guns_to_add:
-        idx = random.randint(0, guns_to_add - 1)
+        idx = random.randint(0, len(weps_of_role) - 1)
         wep = weps_of_role[idx]
+        wep_gear_tier = wep[genericGear.tier_str]
+        tier_matches = gear_is_allowed(wep_gear_tier, gear_tier)
+        wep_is_uniq = not guns_to_add_indices.__contains__(idx)
+        print(f'guns added: {len(guns_to_add_indices)} [{guns_to_add_indices}] - guns to add: {guns_to_add}')
+        print(f'idx: {idx} - (unique: {wep_is_uniq}) (WEAPON) gear tier requested: {gear_tier} ... equipment ({wep[genericGear.weapon_name_str]}) tier: {wep_gear_tier} .. matches: {tier_matches}')
 
-        if not guns_to_add_indices.__contains__(idx):
+        if wep_is_uniq and tier_matches:
             guns_to_add_indices.append(idx)
             addCharacterWeaponById(
                 character_id=character.id,
@@ -322,7 +348,7 @@ def createCharacterWithRandomAtr(name):
     )
 
 
-def createRandomCharacter(name, generate_gear=True):
+def createRandomCharacter(name, gear_tier=None):
     role = rollRole()
     special = rollSpecial(role)
     body_type = rollBodyType()
@@ -342,194 +368,8 @@ def createRandomCharacter(name, generate_gear=True):
         atr_body=atr_body,
         atr_emp=atr_emp,
     )
-    if generate_gear:
-        generateGear(name)
-    generateRandomSkillsAndGear(character_id)
+    generateRandomSkillsAndGear(character_id, gear_tier)
     return character_id
-
-
-low_q_armor_set = [
-    {'item': 'vest', 'body_parts': [body_part_body], 'sp': 10, 'ev': 0},
-    {'item': 'helmet', 'body_parts': [body_part_head], 'sp': 10, 'ev': 0}
-]
-
-mid_q_armor_set = [
-    {'item': 'flak jacket', 'body_parts': [body_part_body, body_part_l_arm, body_part_r_arm], 'sp': 15, 'ev': 0},
-    {'item': 'helmet', 'body_parts': [body_part_head], 'sp': 10, 'ev': 0}
-]
-
-high_q_armor_set = [
-    {'item': 'combat armor', 'body_parts': [body_part_body, body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg], 'sp': 20, 'ev': 1},
-    {'item': 'combat helmet', 'body_parts': [body_part_head], 'sp': 20, 'ev': 0}
-]
-
-low_q_melee_set = [
-    {'item': 'Rippers', 'is_chrome': True,
-     'weapon_type': t_melee,
-     'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 3,
-     'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
-     'wa': 0, 'con': con_pocket,  'reliability': 'ST',
-     'effect_radius': 0, 'weight': 1}
-]
-
-mid_q_melee_set = [
-    {'item': 'Slice n dice', 'is_chrome': True,
-     'weapon_type': t_melee,
-     'dice_number': 2, 'dice_dmg': 6, 'dmg_bonus': 0,
-     'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
-     'wa': 0, 'con': con_pocket,  'reliability': 'ST',
-     'effect_radius': 0, 'weight': 1},
-    {'item': 'Cybersnake',
-     'weapon_type': t_melee, 'is_chrome': True,
-     'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 0,
-     'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
-     'wa': 0, 'con': con_long_coat,  'reliability': 'ST',
-     'effect_radius': 0, 'weight': 1}
-]
-
-high_q_melee_set = [
-    {'item': 'Wolvers', 'is_chrome': True,
-     'weapon_type': t_melee,
-     'dice_number': 3, 'dice_dmg': 6, 'dmg_bonus': 0,
-     'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
-     'wa': 0, 'con': con_pocket,  'reliability': 'ST',
-     'effect_radius': 0, 'weight': 1},
-    {'item': 'Cybersnake 1', 'is_chrome': True,
-     'weapon_type': t_melee,
-     'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 0,
-     'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
-     'wa': 0, 'con': con_long_coat,  'reliability': 'ST',
-     'effect_radius': 0, 'weight': 1},
-    {'item': 'Cybersnake 2', 'is_chrome': True,
-     'weapon_type': t_melee,
-     'dice_number': 1, 'dice_dmg': 6, 'dmg_bonus': 0,
-     'range': 1, 'rof': 1, 'clip_size': 0, 'shots_left': 0,
-     'wa': 0, 'con': con_long_coat,  'reliability': 'ST',
-     'effect_radius': 0, 'weight': 1}
-]
-
-low_q_gun_set = [
-    {'item': 'Colt .45', 'is_chrome': False,
-     'weapon_type': t_handgun,
-     'dice_number': 2, 'dice_dmg': 6, 'dmg_bonus': 3,
-     'range': 50, 'rof': 2, 'clip_size': 6, 'shots_left': 6,
-     'wa': 0, 'con': con_jacket,  'reliability': 'ST',
-     'effect_radius': 0, 'weight': 1}
-]
-
-mid_q_gun_set1 = [
-    {'item': 'Double barrel shotgun', 'is_chrome': False,
-     'weapon_type': t_shotgun,
-     'dice_number': 4, 'dice_dmg': 6, 'dmg_bonus': 0,
-     'range': 50, 'rof': 1, 'clip_size': 2, 'shots_left': 2,
-     'wa': -1, 'con': con_long_coat,  'reliability': 'UR',
-     'effect_radius': 0, 'weight': 1},
-    {'item': 'Molotov cocktail', 'is_chrome': False,
-     'weapon_type': t_thrown,
-     'dice_number': 2, 'dice_dmg': 10, 'dmg_bonus': 0,
-     'range': 30, 'rof': 1, 'clip_size': 1, 'shots_left': 1,
-     'wa': 0, 'con': con_jacket, 'reliability': 'ST',
-     'effect_radius': 0, 'weight': 1},
-]
-
-mid_q_gun_set2 = [
-    {'item': 'Uzi', 'is_chrome': False,
-     'weapon_type': t_smg,
-     'dice_number': 2, 'dice_dmg': 6, 'dmg_bonus': 1,
-     'range': 50, 'rof': 35, 'clip_size': 30, 'shots_left': 30,
-     'wa': 0, 'con': con_jacket,  'reliability': 'VR',
-     'effect_radius': 0, 'weight': 1},
-]
-
-high_q_gun_set = [
-    {'item': 'Militech Ronin Lt. AR', 'is_chrome': False,
-     'weapon_type': t_rifle,
-     'dice_number': 5, 'dice_dmg': 6, 'dmg_bonus': 0,
-     'range': 400, 'rof': 35, 'clip_size': 30, 'shots_left': 30,
-     'wa': 1, 'con': not_hideable, 'reliability': 'VR',
-     'effect_radius': 0, 'weight': 1},
-    {'item': 'Frag. Grenade', 'is_chrome': False,
-     'weapon_type': t_thrown,
-     'dice_number': 3, 'dice_dmg': 10, 'dmg_bonus': 0,
-     'range': 30, 'rof': 1, 'clip_size': 1, 'shots_left': 1,
-     'wa': 0, 'con': con_pocket,  'reliability': 'ST',
-     'effect_radius': 5, 'weight': 2},
-]
-
-
-
-def generateGear(name):
-    print(f'Generate gear? {yes_no}')
-    gen_gear = False
-    while True:
-        i = askInput()
-        if i == 'y':
-            gen_gear = True
-            break
-        elif i == 'n':
-            break
-    if gen_gear:
-        char = DAO.getCharacterByName(name)
-        if char is not None:
-            add_gear = True
-            while add_gear:
-                print(
-                    f'Armor/weapon and quality? [a/w]-[1-3] (e.g. a-1 for low quality armor, w-3 for high quality weapon)')
-                print('Stop adding gear with -1')
-                i = askInput()
-                if i == '-1':
-                    add_gear = False
-                else:
-                    gear = i.split('-')
-                    q = 0
-                    match gear:
-                        case ['a', quality]:
-                            q = safeCastToInt(quality)
-                            if q == 1:
-                                addArmorSet(char.id, low_q_armor_set)
-                            elif q == 2:
-                                addArmorSet(char.id, mid_q_armor_set)
-                            elif q == 3:
-                                addArmorSet(char.id, high_q_armor_set)
-                            else:
-                                print(f'Invalid quality [{quality}]')
-                        case ['w', quality]:
-                            print('Melee or gun set? [g/m]')
-                            is_melee = False
-                            while True:
-                                input = askInput()
-                                if input == 'g':
-                                    is_melee = False
-                                    break
-                                elif input == 'm':
-                                    is_melee = True
-                                    break
-                                else:
-                                    print('Invalid selection')
-                            q = safeCastToInt(quality)
-                            if q == 1:
-                                if is_melee:
-                                    addWeaponSet(char.id, low_q_melee_set)
-                                else:
-                                    addWeaponSet(char.id, low_q_gun_set)
-                            elif q == 2:
-                                if is_melee:
-                                    addWeaponSet(char.id, mid_q_melee_set)
-                                else:
-                                    roll = dice.roll(1, 2)
-                                    if roll == 1:
-                                        addWeaponSet(char.id, mid_q_gun_set1)
-                                    else:
-                                        addWeaponSet(char.id, mid_q_gun_set2)
-                            elif q == 3:
-                                if is_melee:
-                                    addWeaponSet(char.id, high_q_melee_set)
-                                else:
-                                    addWeaponSet(char.id, high_q_gun_set)
-                            else:
-                                print(f'Invalid quality [{quality}]')
-                        case _:
-                            print('Invalid input')
 
 
 def addArmorSet(character_id, armor_set):
@@ -573,11 +413,11 @@ def rollAtributes():
 
     return (atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp)
 
-def createCharacterFromReq(name, role, given_body_type, attributes, randomize=False):
+def createCharacterFromReq(name, role, given_body_type, attributes, randomize=False, gear_tier=None):
     logs = []
     character_id = 0
     if randomize:
-        character_id = createRandomCharacter(name, generate_gear=False)
+        character_id = createRandomCharacter(name, gear_tier)
     else:
         body_Type = addBodyType(given_body_type)
         special = 0

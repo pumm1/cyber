@@ -1,6 +1,6 @@
 from src.gameHelper import not_hideable, con_jacket, con_pocket, t_handgun, t_smg, t_rifle, t_shotgun, t_melee, \
     wep_standard_reliability, con_long_coat, body_part_body, body_part_l_arm, body_part_r_arm, body_part_l_leg, \
-    body_part_r_leg, body_part_head, t_thrown
+    body_part_r_leg, body_part_head, t_thrown, GEAR_TIER_LOW, GEAR_TIER_MID, GEAR_TIER_HIGH, GEAR_TIER_COMMON
 
 # generic guns
 
@@ -19,6 +19,7 @@ weight_str = 'weight'
 reliability_str = 'reliability'
 effect_radius_str = 'effectRadius'
 custom_range_str = 'customRange'
+tier_str = 'tier'
 
 generic_lt_pistol = {
     dice_str: 2,
@@ -35,7 +36,8 @@ generic_lt_pistol = {
     weight_str: 2,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_LOW
 }
 
 generic_hvy_pistol = {
@@ -53,7 +55,8 @@ generic_hvy_pistol = {
     weight_str: 2,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_LOW
 }
 
 generic_smg = {
@@ -71,7 +74,8 @@ generic_smg = {
     weight_str: 3,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_MID
 }
 
 
@@ -90,7 +94,8 @@ generic_hvy_smg = {
     weight_str: 3,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_HIGH
 }
 
 generic_bolt_rifle = {
@@ -108,7 +113,8 @@ generic_bolt_rifle = {
     weight_str: 3,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_MID
 }
 
 generic_assault_rifle = {
@@ -126,7 +132,8 @@ generic_assault_rifle = {
     weight_str: 3,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_HIGH
 }
 
 generic_melee = {
@@ -144,7 +151,27 @@ generic_melee = {
     weight_str: 3,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_LOW
+}
+
+generic_melee_2 = {
+    dice_str: 3,
+    die_str: 6,
+    divide_by_str: 1,
+    bonus_str: 0,
+    weapon_name_str: 'Spiked baseball bat',
+    clip_size_str: 1,
+    rof_str: 1,
+    humanity_cost_str: 0,
+    weapon_type_str: t_melee,
+    wa_str: 0,
+    con_str: con_pocket,
+    weight_str: 3,
+    reliability_str: wep_standard_reliability,
+    effect_radius_str: 0,
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_LOW
 }
 
 generic_katana = {
@@ -162,7 +189,8 @@ generic_katana = {
     weight_str: 3,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_LOW
 }
 
 generic_shotgun = {
@@ -180,7 +208,8 @@ generic_shotgun = {
     weight_str: 4,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_MID
 }
 
 generic_sawed_off_shotgun = {
@@ -198,7 +227,8 @@ generic_sawed_off_shotgun = {
     weight_str: 3,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_LOW
 }
 
 generic_auto_shotgun = {
@@ -216,7 +246,8 @@ generic_auto_shotgun = {
     weight_str: 4,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_HIGH
 }
 
 generic_molotov = {
@@ -224,7 +255,7 @@ generic_molotov = {
     die_str: 6,
     divide_by_str: 1,
     bonus_str: 0,
-    weapon_name_str: 'Sawed off shotgun',
+    weapon_name_str: 'Molotov cocktail',
     clip_size_str: 1,
     rof_str: 1,
     humanity_cost_str: 0,
@@ -234,7 +265,8 @@ generic_molotov = {
     weight_str: 2,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 5,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_LOW
 }
 
 generic_grenade = {
@@ -242,7 +274,7 @@ generic_grenade = {
     die_str: 6,
     divide_by_str: 1,
     bonus_str: 0,
-    weapon_name_str: 'Sawed off shotgun',
+    weapon_name_str: 'Grenade (HE)',
     clip_size_str: 1,
     rof_str: 1,
     humanity_cost_str: 0,
@@ -252,7 +284,8 @@ generic_grenade = {
     weight_str: 2,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 5,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_HIGH
 }
 
 generic_emp = {
@@ -270,7 +303,8 @@ generic_emp = {
     weight_str: 2,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 5,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_HIGH
 }
 
 generic_mantis_blades = {
@@ -278,7 +312,7 @@ generic_mantis_blades = {
     die_str: 6,
     divide_by_str: 1,
     bonus_str: 0,
-    weapon_name_str: 'Mantis blades',
+    weapon_name_str: 'Mantis blades (AP)',
     clip_size_str: 1,
     rof_str: 1,
     humanity_cost_str: 9,
@@ -288,7 +322,8 @@ generic_mantis_blades = {
     weight_str: 2,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
-    custom_range_str: 0
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_MID
 }
 
 # generic armor
@@ -307,7 +342,8 @@ generic_leather_armor = {
     sp_str: 8,
     covered_parts_str: [body_part_body, body_part_l_arm, body_part_r_arm],
     atr_bonuses_str: [],
-    skill_bonuses_str: []
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_LOW
 }
 
 generic_leather_pants = {
@@ -317,7 +353,8 @@ generic_leather_pants = {
     sp_str: 4,
     covered_parts_str: [body_part_l_leg, body_part_r_leg],
     atr_bonuses_str: [],
-    skill_bonuses_str: []
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_LOW
 }
 
 generic_kevlar_armor = {
@@ -327,7 +364,8 @@ generic_kevlar_armor = {
     sp_str: 10,
     covered_parts_str: [body_part_body],
     atr_bonuses_str: [],
-    skill_bonuses_str: []
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_MID
 }
 
 generic_skin_weave = {
@@ -338,7 +376,8 @@ generic_skin_weave = {
     covered_parts_str: [body_part_body, body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg,
                         body_part_head],
     atr_bonuses_str: [],
-    skill_bonuses_str: []
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_MID
 }
 
 generic_helmet = {
@@ -348,7 +387,8 @@ generic_helmet = {
     sp_str: 10,
     covered_parts_str: [body_part_head],
     atr_bonuses_str: [],
-    skill_bonuses_str: []
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_MID
 }
 
 #generic armor that is also chrome
@@ -360,7 +400,8 @@ generic_cyber_arm_l = {
     sp_str: 4,
     covered_parts_str: [body_part_l_arm],
     atr_bonuses_str: [],
-    skill_bonuses_str: []
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_COMMON
 }
 
 generic_cyber_arm_r = {
@@ -370,7 +411,8 @@ generic_cyber_arm_r = {
     sp_str: 4,
     covered_parts_str: [body_part_r_arm],
     atr_bonuses_str: [],
-    skill_bonuses_str: []
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_COMMON
 }
 
 generic_cyber_leg_r = {
@@ -380,7 +422,8 @@ generic_cyber_leg_r = {
     sp_str: 4,
     covered_parts_str: [body_part_r_leg],
     atr_bonuses_str: [],
-    skill_bonuses_str: []
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_COMMON
 }
 
 generic_cyber_leg_l = {
@@ -390,7 +433,8 @@ generic_cyber_leg_l = {
     sp_str: 4,
     covered_parts_str: [body_part_l_leg],
     atr_bonuses_str: [],
-    skill_bonuses_str: []
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_COMMON
 }
 
 generic_torso_plate = {
@@ -400,7 +444,8 @@ generic_torso_plate = {
     sp_str: 25,
     covered_parts_str: [body_part_body],
     atr_bonuses_str: [],
-    skill_bonuses_str: []
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_MID
 }
 
 generic_face_plate = {
@@ -410,7 +455,8 @@ generic_face_plate = {
     sp_str: 10,
     covered_parts_str: [body_part_head],
     atr_bonuses_str: [],
-    skill_bonuses_str: []
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_MID
 }
 
 #generic chrome
@@ -419,49 +465,55 @@ chrome_name_str = 'chromeName'
 chrome_descr_str = 'chromeDescr'
 
 generic_chip_slot = {
-        chrome_name_str: 'Chip slot',
-        chrome_descr_str: 'Allow using data chips',
-        humanity_cost_str: 3,
-        atr_bonuses_str: [],
-        skill_bonuses_str: []
+    chrome_name_str: 'Chip slot',
+    chrome_descr_str: 'Allow using data chips',
+    humanity_cost_str: 3,
+    atr_bonuses_str: [],
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_COMMON
 }
 
 generic_smart_gun_link = {
-        chrome_name_str: 'Smart gun link',
-        chrome_descr_str: '+1 with smart gun link weapons',
-        humanity_cost_str: 5,
-        atr_bonuses_str: [],
-        skill_bonuses_str: []
+    chrome_name_str: 'Smart gun link',
+    chrome_descr_str: '+1 with smart gun link weapons',
+    humanity_cost_str: 5,
+    atr_bonuses_str: [],
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_COMMON
 }
 
 generic_cyber_contacts = {
-        chrome_name_str: 'Color changing eyes',
-        chrome_descr_str: 'Eyes change color',
-        humanity_cost_str: 2,
-        atr_bonuses_str: [],
-        skill_bonuses_str: []
+    chrome_name_str: 'Color changing eyes',
+    chrome_descr_str: 'Eyes change color',
+    humanity_cost_str: 2,
+    atr_bonuses_str: [],
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_COMMON
 }
 
 generic_nanosurgeons = {
-        chrome_name_str: 'Nanosurgeons',
-        chrome_descr_str: 'Doubles healing rate',
-        humanity_cost_str: 5,
-        atr_bonuses_str: [],
-        skill_bonuses_str: []
+    chrome_name_str: 'Nanosurgeons',
+    chrome_descr_str: 'Doubles healing rate',
+    humanity_cost_str: 5,
+    atr_bonuses_str: [],
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_HIGH
 }
 
 generic_infra_red = {
-        chrome_name_str: 'Infrared',
-        chrome_descr_str: 'Allow seeing in dark',
-        humanity_cost_str: 6,
-        atr_bonuses_str: [],
-        skill_bonuses_str: []
+    chrome_name_str: 'Infrared',
+    chrome_descr_str: 'Allow seeing in dark',
+    humanity_cost_str: 6,
+    atr_bonuses_str: [],
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_COMMON
 }
 
 generic_scrambler = {
-        chrome_name_str: 'Scrambler',
-        chrome_descr_str: 'Mess with near by wireless communications',
-        humanity_cost_str: 5,
-        atr_bonuses_str: [],
-        skill_bonuses_str: []
+    chrome_name_str: 'Scrambler',
+    chrome_descr_str: 'Mess with near by wireless communications',
+    humanity_cost_str: 5,
+    atr_bonuses_str: [],
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_COMMON
 }

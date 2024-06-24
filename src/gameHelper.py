@@ -48,6 +48,25 @@ EMP = 'EMP'
 BODY_TYPE_MOD = 'BTM'
 INIT_BONUS = 'INIT_BONUS'
 
+GEAR_TIER_LOW = 'LOW'
+GEAR_TIER_MID = 'MID'
+GEAR_TIER_HIGH = 'HIGH'
+
+GEAR_TIER_COMMON = 'COMMON'
+
+def gear_is_allowed(wep_gear_tier, requested_tier):
+    tier_matches: bool = (requested_tier is None) or (gear_tiers_allowed(requested_tier).__contains__(wep_gear_tier))
+    return tier_matches
+
+def gear_tiers_allowed(tier):
+    if tier == GEAR_TIER_LOW:
+        return [GEAR_TIER_LOW, GEAR_TIER_COMMON]
+    elif tier == GEAR_TIER_MID:
+        return [GEAR_TIER_MID, GEAR_TIER_COMMON]
+    elif tier == GEAR_TIER_HIGH:
+        return [GEAR_TIER_HIGH, GEAR_TIER_MID, GEAR_TIER_COMMON]
+    else:
+        return [GEAR_TIER_COMMON]
 
 exit_commands = ['/e', '/q', '/exit', '/quit']
 help_commands = ['/help', '/halp', '/h']
