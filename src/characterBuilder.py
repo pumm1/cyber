@@ -88,7 +88,8 @@ def generateRandomSkillsAndGear(character_id, gear_tier=None):
 
 def generateChrome(character, gear_tier=None):
     chrome_of_role = roles.roleDict[character.role][roles.role_chrome] + genericChromeWithSkillChanges()
-    possible_amount_of_chrome = len(chrome_of_role)
+    chrome_by_tier = list(filter(lambda c: gear_is_allowed(c[genericGear.tier_str], gear_tier), chrome_of_role))
+    possible_amount_of_chrome = len(chrome_by_tier)
     chrome_to_add = dice.roll(1, possible_amount_of_chrome) - 1  # allow 0
     if gear_tier == GEAR_TIER_LOW and chrome_to_add > 0:
         chrome_to_add = 1
@@ -98,14 +99,14 @@ def generateChrome(character, gear_tier=None):
         chrome_to_add = 3
     chrome_to_add_indices = []
     while len(chrome_to_add_indices) < chrome_to_add:
-        idx = random.randint(0, len(chrome_of_role) - 1)
-        chrome = chrome_of_role[idx]
+        idx = random.randint(0, len(chrome_by_tier) - 1)
+        chrome = chrome_by_tier[idx]
         chrome_tier = chrome[genericGear.tier_str]
         tier_matches = gear_is_allowed(chrome_tier, gear_tier)
         print(f'(CHROME) gear tier requested: {gear_tier} ... equipment ({chrome[genericGear.chrome_name_str]}) tier: {chrome_tier} .. matches: {tier_matches}')
         if not chrome_to_add_indices.__contains__(idx) and tier_matches:
             chrome_to_add_indices.append(idx)
-            chrome = chrome_of_role[idx]
+            chrome = chrome_by_tier[idx]
             addChromeByCharacterId(
                 character.id,
                 item=chrome[genericGear.chrome_name_str],
@@ -163,16 +164,22 @@ def generic_cyber_eyes():
 
 def generateArmors(character, gear_tier=None):
     armors_of_role = roles.roleDict[character.role][roles.role_armors]
-    possible_amount_of_armors = len(armors_of_role)
-    armors_to_add = dice.roll(1, possible_amount_of_armors) - 1 #allow 0
+    armors_by_tier = list(filter(lambda a: gear_is_allowed(a[genericGear.tier_str], gear_tier), armors_of_role))
+    max_armors_to_add = 2
+
+    if gear_tier == GEAR_TIER_MID:
+        max_armors_to_add = 3
+    elif gear_tier == GEAR_TIER_HIGH:
+        max_armors_to_add = 4
+
+    armors_to_add = dice.roll(1, max_armors_to_add)
     if gear_tier == GEAR_TIER_LOW:
-        armors_to_add = dice.roll(1, 3)
-    if armors_to_add > 4: #limit to 5
-        armors_to_add = 4
+        armors_to_add = armors_to_add - 1# allow 0 for low tier
+
     armors_to_add_indices = []
     while len(armors_to_add_indices) < armors_to_add:
-        idx = random.randint(0, len(armors_of_role) - 1)
-        armor = armors_of_role[idx]
+        idx = random.randint(0, len(armors_by_tier) - 1)
+        armor = armors_by_tier[idx]
         armor_gear_tier = armor[genericGear.tier_str]
         tier_matches = gear_is_allowed(armor_gear_tier, gear_tier)
         print(f'(ARMOR) gear tier requested: {gear_tier} ... equipment ({armor[genericGear.armor_name_str]}) tier: {armor_gear_tier} .. matches: {tier_matches}')
@@ -191,24 +198,27 @@ def generateArmors(character, gear_tier=None):
 
 
 def generateWeapons(character, gear_tier=None):
-    weps_of_role = roles.roleDict[character.role][role_guns]
-    guns_to_add = 1
+    weps_of_role = list(roles.roleDict[character.role][role_guns])
+    weps_by_tier = list(filter(lambda w: gear_is_allowed(w[genericGear.tier_str], gear_tier), weps_of_role))
+    max_guns_to_add = len(weps_by_tier)
+
     if gear_tier == GEAR_TIER_LOW:
         guns_to_add = 1
     elif gear_tier == GEAR_TIER_MID:
         guns_to_add = dice.roll(1, 2)
     elif gear_tier == GEAR_TIER_HIGH:
-        guns_to_add = max(dice.roll(1, 3), 2)
+        guns_to_add = dice.roll(1, max_guns_to_add - 1) + 1
     else:
         guns_to_add = dice.roll(1, 3)
+    guns_to_add = min(max_guns_to_add, guns_to_add)
     guns_to_add_indices = []
     while len(guns_to_add_indices) < guns_to_add:
-        idx = random.randint(0, len(weps_of_role) - 1)
-        wep = weps_of_role[idx]
+        idx = random.randint(0, len(weps_by_tier) - 1)
+        wep = weps_by_tier[idx]
         wep_gear_tier = wep[genericGear.tier_str]
         tier_matches = gear_is_allowed(wep_gear_tier, gear_tier)
         wep_is_uniq = not guns_to_add_indices.__contains__(idx)
-        print(f'guns added: {len(guns_to_add_indices)} [{guns_to_add_indices}] - guns to add: {guns_to_add}')
+        print(f'guns to add: {guns_to_add} - guns added: {len(guns_to_add_indices)} [{guns_to_add_indices}]')
         print(f'idx: {idx} - (unique: {wep_is_uniq}) (WEAPON) gear tier requested: {gear_tier} ... equipment ({wep[genericGear.weapon_name_str]}) tier: {wep_gear_tier} .. matches: {tier_matches}')
 
         if wep_is_uniq and tier_matches:

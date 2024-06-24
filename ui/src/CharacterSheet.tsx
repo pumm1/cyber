@@ -1224,21 +1224,23 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
         updateCharacter(character.id)
     }
 
+    const RandomWeaponTierSelector = ({}) => 
+        <span className='withLeftSpace'>
+            <b>Gear tier:</b>
+            <select className='withLeftSpace'>
+                    {GearTiers.map(tier => 
+                        <option value={gearTier} onClick={() => setGearTier(tier)}>{gearTierLabel(tier)}</option>
+                    )}
+            </select>
+        </span>
+
     const editWithRandomize = edit && !randomize
 
     return(
         <div className='sheet'>
             <Handle characterBackground={character.background} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
             {edit && <><input type="checkbox" checked={randomize} onClick={() => setRandomize(!randomize)}/> Randomize</>}
-            {edit && randomize && 
-            <span className='withLeftSpace'>
-                <select>
-                        {GearTiers.map(tier => 
-                            <option value={gearTier} onClick={() => setGearTier(tier)}>{gearTierLabel(tier)}</option>
-                        )}
-                </select>
-            </span>
-            }
+            {edit && randomize && <div><RandomWeaponTierSelector /></div>}
             <RoleFiled updateChracterRole={updateCharacterRole} edit={editWithRandomize} value={character.role}/>
              <Stats characterId={character.id} statuses={character.statuses} edit={edit} updateCharacter={updateCharacter} updateLogs={updateLogs} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>
             {!edit && <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter} updateLogs={updateLogs}/>}
