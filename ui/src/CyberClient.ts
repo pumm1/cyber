@@ -358,12 +358,21 @@ export interface DmgReq {
 export const doDmg = (dmgReq: DmgReq) =>
     postDataAs<Log[]>(`${pathBase}/dmg`, dmgReq)
 
+export enum GearTier {
+    LOW = 'LOW',
+    MID = 'MID',
+    HIGH = 'HIGH'
+}
+
+export const GearTiers = [undefined, GearTier.LOW, GearTier.MID, GearTier.HIGH]
+
 export interface CreateCharacterReq {
     name: string
     attributes: Attributes
     role: string
     btm: number
     randomize: boolean
+    gearTier?: GearTier
 }
 
 export interface CreateCharacterRes extends CharacterReq {

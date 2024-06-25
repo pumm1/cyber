@@ -233,7 +233,7 @@ def addCharWeapon(
             (_, humanity_logs) = handleHumanity(char, humanity_cost=humanity_cost)
             logs = logs + humanity_logs
 
-        logs = log_event(logs, 'Weapon added!', log_pos)
+        logs = log_event(logs, f'Weapon ({weapon_name}) added!', log_pos)
     else:
         logs = log_event(logs, 'Character not found for weapon add', log_neg)
 

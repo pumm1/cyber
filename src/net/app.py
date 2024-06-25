@@ -48,9 +48,11 @@ def createCharacter():
         data = request.get_json()
         name = data['name']
         randomize = data['randomize']
+        gear_tier = data.get('gearTier')
         if randomize:
             (logs, character_id) = characterBuilder.createCharacterFromReq(name, role='', given_body_type='',
-                                                                           attributes=[], randomize=True)
+                                                                           attributes=[], randomize=True,
+                                                                           gear_tier=gear_tier)
             resJson = {
                 'logs': logs,
                 'charId': character_id
