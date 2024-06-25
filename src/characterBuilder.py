@@ -163,19 +163,17 @@ def generic_cyber_eyes():
     return res
 
 def generateArmors(character, gear_tier=None):
-    max_armors_to_add = 3
-    incude_helmet = False
+    max_armors_to_add = 3 #the number of armors is a bit of a hack because of the way generic gear is handled
+    incude_helmet = True
 
-    if gear_tier == GEAR_TIER_MID or gear_tier == GEAR_TIER_HIGH:
-        incude_helmet = dice.roll(1,4) > 1
+    if gear_tier == GEAR_TIER_LOW:
+        incude_helmet = False
 
     armors_to_add = dice.roll(1, max_armors_to_add)
     if gear_tier == GEAR_TIER_LOW:
-        armors_to_add = armors_to_add - 1# allow 0 for low tier
+        armors_to_add = armors_to_add - 1 # allow 0 for low tier
     elif gear_tier == GEAR_TIER_HIGH:
-        if armors_to_add < 2:
-            armors_to_add = 2
-
+        armors_to_add = max_armors_to_add
 
     weighted_armor_tries = 5
     weighted_armor_try = 0
@@ -247,7 +245,7 @@ def generateWeapons(character, gear_tier=None):
         else:
             weighted_weapon_type = t_shotgun
     elif gear_tier == GEAR_TIER_HIGH:
-        guns_to_add = dice.roll(1, 3) + 1
+        guns_to_add = 2
         if weighted_roll <= 1:
             weighted_weapon_type = t_shotgun
         elif weighted_roll < 3:
@@ -256,15 +254,21 @@ def generateWeapons(character, gear_tier=None):
             weighted_weapon_type = t_rifle
 
     print(f'Guns to add = MIN({max_guns_to_add}, {guns_to_add})')
-    guns_to_add = min(max_guns_to_add, guns_to_add)
+
+    unique_weapon_types = []
 
     guns_to_add_indices = []
     weighted_weapon_tries = 5
     weighted_weapon_try = 0
     while len(guns_to_add_indices) < guns_to_add:
-        idx = random.randint(0, len(weps_by_tier) - 1)
+        num_of_weps = len(weps_by_tier)
+        print(f'Num of weapons to choose from: {num_of_weps}')
+        idx = random.randint(0, num_of_weps - 1)
         wep = weps_by_tier[idx]
         wep_gear_tier = wep[genericGear.tier_str]
+        wep_type = wep[genericGear.weapon_type_str]
+        is_unique_wep_type = not unique_weapon_types.__contains__(wep_type)
+
         tier_matches = gear_is_allowed(wep_gear_tier, gear_tier)
         wep_is_uniq = not guns_to_add_indices.__contains__(idx)
         weighted_type_match = False
@@ -278,11 +282,15 @@ def generateWeapons(character, gear_tier=None):
             print(f'Weighted weapon try {weighted_weapon_try}/{weighted_weapon_tries}')
         else:
             weighted_weapon_try = weighted_weapon_tries
+        print(f'Maybe adding {wep[genericGear.weapon_name_str]} ({wep_type})')
         print(f'guns to add: {guns_to_add} - guns added: {len(guns_to_add_indices)} [{guns_to_add_indices}]')
-        print(f'idx: {idx} - (unique: {wep_is_uniq}) (WEAPON) gear tier requested: {gear_tier} ... equipment ({wep[genericGear.weapon_name_str]}) tier: {wep_gear_tier} .. matches: {tier_matches}')
+        print(f'idx: {idx} - (unique: {wep_is_uniq}, unique type: {is_unique_wep_type}) (WEAPON) gear tier requested: {gear_tier} ... equipment ({wep[genericGear.weapon_name_str]}) tier: {wep_gear_tier} .. matches: {tier_matches}')
 
-        if wep_is_uniq and tier_matches and weighted_type_match:
+        if wep_is_uniq and tier_matches and weighted_type_match and is_unique_wep_type:
             guns_to_add_indices.append(idx)
+            if is_unique_wep_type:
+                unique_weapon_types.append(wep_type)
+                weps_by_tier = list(filter(lambda w: not unique_weapon_types.__contains__(w[genericGear.weapon_type_str]),weps_by_tier))
             addCharacterWeaponById(
                 character_id=character.id,
                 dice=wep[genericGear.dice_str],
