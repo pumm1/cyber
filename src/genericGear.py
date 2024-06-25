@@ -1,6 +1,7 @@
-from src.gameHelper import not_hideable, con_jacket, con_pocket, t_handgun, t_smg, t_rifle, t_shotgun, t_melee, \
+from gameHelper import not_hideable, con_jacket, con_pocket, t_handgun, t_smg, t_rifle, t_shotgun, t_melee, \
     wep_standard_reliability, con_long_coat, body_part_body, body_part_l_arm, body_part_r_arm, body_part_l_leg, \
-    body_part_r_leg, body_part_head, t_thrown, GEAR_TIER_LOW, GEAR_TIER_MID, GEAR_TIER_HIGH, GEAR_TIER_COMMON
+    body_part_r_leg, body_part_head, t_thrown, GEAR_TIER_LOW, GEAR_TIER_MID, GEAR_TIER_HIGH, GEAR_TIER_COMMON, \
+    t_heavy_weapon, wep_very_reliable, wep_unreliable
 
 # generic guns
 
@@ -59,6 +60,25 @@ generic_hvy_pistol = {
     tier_str: GEAR_TIER_LOW
 }
 
+generic_high_caliber_handgun = {
+    dice_str: 5,
+    die_str: 6,
+    divide_by_str: 1,
+    bonus_str: 1,
+    weapon_name_str: 'High caliber handgun',
+    clip_size_str: 6,
+    rof_str: 1,
+    humanity_cost_str: 0,
+    weapon_type_str: t_handgun,
+    wa_str: 0,
+    con_str: con_jacket,
+    weight_str: 2,
+    reliability_str: wep_standard_reliability,
+    effect_radius_str: 0,
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_MID
+}
+
 generic_smg = {
     dice_str: 2,
     die_str: 6,
@@ -98,6 +118,25 @@ generic_hvy_smg = {
     tier_str: GEAR_TIER_HIGH
 }
 
+generic_old_combat_rifle = {
+    dice_str: 3,
+    die_str: 6,
+    divide_by_str: 1,
+    bonus_str: 0,
+    weapon_name_str: 'Old combat rifle',
+    clip_size_str: 10,
+    rof_str: 1,
+    humanity_cost_str: 0,
+    weapon_type_str: t_rifle,
+    wa_str: 1,
+    con_str: not_hideable,
+    weight_str: 3,
+    reliability_str: wep_unreliable,
+    effect_radius_str: 0,
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_MID
+}
+
 generic_bolt_rifle = {
     dice_str: 5,
     die_str: 6,
@@ -110,11 +149,87 @@ generic_bolt_rifle = {
     weapon_type_str: t_rifle,
     wa_str: 1,
     con_str: not_hideable,
-    weight_str: 3,
+    weight_str: 4,
     reliability_str: wep_standard_reliability,
     effect_radius_str: 0,
     custom_range_str: 0,
     tier_str: GEAR_TIER_MID
+}
+
+generic_rpg = {
+    dice_str: 6,
+    die_str: 10,
+    divide_by_str: 1,
+    bonus_str: 1,
+    weapon_name_str: 'RPG (HE)',
+    clip_size_str: 1,
+    rof_str: 1,
+    humanity_cost_str: 0,
+    weapon_type_str: t_heavy_weapon,
+    wa_str: -1,
+    con_str: not_hideable,
+    weight_str: 10,
+    reliability_str: wep_unreliable,
+    effect_radius_str: 5,
+    custom_range_str: 200,
+    tier_str: GEAR_TIER_HIGH
+}
+
+generic_missile_launcher = {
+    dice_str: 8,
+    die_str: 10,
+    divide_by_str: 1,
+    bonus_str: 1,
+    weapon_name_str: 'Missile launcher (HE)',
+    clip_size_str: 1,
+    rof_str: 1,
+    humanity_cost_str: 0,
+    weapon_type_str: t_heavy_weapon,
+    wa_str: 1,
+    con_str: not_hideable,
+    weight_str: 15,
+    reliability_str: wep_very_reliable,
+    effect_radius_str: 8,
+    custom_range_str: 500,
+    tier_str: GEAR_TIER_HIGH
+}
+
+generic_minigun = {
+    dice_str: 6,
+    die_str: 6,
+    divide_by_str: 1,
+    bonus_str: 1,
+    weapon_name_str: 'Minigun',
+    clip_size_str: 200,
+    rof_str: 100,
+    humanity_cost_str: 0,
+    weapon_type_str: t_heavy_weapon,
+    wa_str: -2,
+    con_str: not_hideable,
+    weight_str: 30,
+    reliability_str: wep_standard_reliability,
+    effect_radius_str: 0,
+    custom_range_str: 100,
+    tier_str: GEAR_TIER_HIGH
+}
+
+generic_anti_material_rifle = {
+    dice_str: 6,
+    die_str: 6,
+    divide_by_str: 1,
+    bonus_str: 1,
+    weapon_name_str: 'Anti material rifle',
+    clip_size_str: 10,
+    rof_str: 1,
+    humanity_cost_str: 0,
+    weapon_type_str: t_rifle,
+    wa_str: 1,
+    con_str: not_hideable,
+    weight_str: 3,
+    reliability_str: wep_very_reliable,
+    effect_radius_str: 0,
+    custom_range_str: 0,
+    tier_str: GEAR_TIER_HIGH
 }
 
 generic_assault_rifle = {
@@ -122,7 +237,7 @@ generic_assault_rifle = {
     die_str: 6,
     divide_by_str: 1,
     bonus_str: 0,
-    weapon_name_str: 'Rifle',
+    weapon_name_str: 'Assault Rifle',
     clip_size_str: 30,
     rof_str: 25,
     humanity_cost_str: 0,
@@ -304,7 +419,7 @@ generic_emp = {
     reliability_str: wep_standard_reliability,
     effect_radius_str: 5,
     custom_range_str: 0,
-    tier_str: GEAR_TIER_HIGH
+    tier_str: GEAR_TIER_MID
 }
 
 generic_mantis_blades = {
@@ -336,22 +451,11 @@ atr_bonuses_str = 'atrBonuses'
 skill_bonuses_str = 'skillBonuses'
 
 generic_leather_armor = {
-    armor_name_str: 'Heavy leather jacket',
+    armor_name_str: 'Heavy leather armor',
     ev_str: 0,
     humanity_cost_str: 0,
     sp_str: 8,
-    covered_parts_str: [body_part_body, body_part_l_arm, body_part_r_arm],
-    atr_bonuses_str: [],
-    skill_bonuses_str: [],
-    tier_str: GEAR_TIER_LOW
-}
-
-generic_leather_pants = {
-    armor_name_str: 'Leather pants',
-    ev_str: 0,
-    humanity_cost_str: 0,
-    sp_str: 4,
-    covered_parts_str: [body_part_l_leg, body_part_r_leg],
+    covered_parts_str: [body_part_body, body_part_l_arm, body_part_r_arm, body_part_l_leg, body_part_r_leg],
     atr_bonuses_str: [],
     skill_bonuses_str: [],
     tier_str: GEAR_TIER_LOW
@@ -366,6 +470,28 @@ generic_kevlar_armor = {
     atr_bonuses_str: [],
     skill_bonuses_str: [],
     tier_str: GEAR_TIER_MID
+}
+
+generic_metal_armor = {
+    armor_name_str: 'Metal armor',
+    ev_str: 2,
+    humanity_cost_str: 0,
+    sp_str: 25,
+    covered_parts_str: [body_part_body, body_part_l_arm, body_part_r_arm],
+    atr_bonuses_str: [],
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_HIGH
+}
+
+generic_leather_jacket = {
+    armor_name_str: 'Leather jacket',
+    ev_str: 0,
+    humanity_cost_str: 0,
+    sp_str: 8,
+    covered_parts_str: [body_part_body, body_part_l_arm, body_part_r_arm],
+    atr_bonuses_str: [],
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_LOW
 }
 
 generic_skin_weave = {
@@ -384,11 +510,33 @@ generic_helmet = {
     armor_name_str: 'Helmet',
     ev_str: 0,
     humanity_cost_str: 0,
-    sp_str: 10,
+    sp_str: 5,
     covered_parts_str: [body_part_head],
     atr_bonuses_str: [],
     skill_bonuses_str: [],
-    tier_str: GEAR_TIER_MID
+    tier_str: GEAR_TIER_LOW
+}
+
+generic_combat_helmet = {
+    armor_name_str: 'Combat helmet',
+    ev_str: 0,
+    humanity_cost_str: 0,
+    sp_str: 20,
+    covered_parts_str: [body_part_head],
+    atr_bonuses_str: [],
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_HIGH
+}
+
+generic_combat_armor = {
+    armor_name_str: 'Combat armor',
+    ev_str: 1,
+    humanity_cost_str: 0,
+    sp_str: 20,
+    covered_parts_str: [body_part_body, body_part_l_arm, body_part_r_arm, body_part_r_leg, body_part_l_leg],
+    atr_bonuses_str: [],
+    skill_bonuses_str: [],
+    tier_str: GEAR_TIER_HIGH
 }
 
 #generic armor that is also chrome
@@ -458,6 +606,20 @@ generic_face_plate = {
     skill_bonuses_str: [],
     tier_str: GEAR_TIER_MID
 }
+
+
+generic_chrome_armors = [generic_face_plate, generic_torso_plate, generic_cyber_leg_l, generic_cyber_leg_r,
+                         generic_cyber_arm_r, generic_cyber_arm_l]
+
+generic_helmets = [generic_helmet, generic_combat_helmet]
+
+generic_body_armors = [generic_kevlar_armor, generic_leather_jacket, generic_metal_armor] + generic_chrome_armors
+
+generic_sets = [generic_combat_armor, generic_leather_armor] + generic_chrome_armors
+
+
+
+
 
 #generic chrome
 

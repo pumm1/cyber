@@ -536,6 +536,7 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
             <td>
                 <Dmg weapon={weapon}/>
             </td>
+            <td>{weapon.rof}</td>
             <td>
                 {weapon.reliability}
             </td>
@@ -606,6 +607,7 @@ const CharacterRangedWeapons = (
                     <th>Ranged weapon</th>
                     <th>Type</th>
                     <th>DMG</th>
+                    <th>ROF</th>
                     <th>Rel.</th>
                     <th>Con.</th>
                     <th>Action</th>
@@ -682,6 +684,7 @@ const MeleeWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Weap
         <tr>
             <td>{weapon.item}</td>
             <td><Dmg weapon={weapon} /></td>
+            <td>{weapon.rof}</td>
             <td>{weapon.reliability}</td>
             <td>{weapon.con}</td>
             <td>
@@ -725,6 +728,7 @@ const CharacterMeleeWeapons = (
             <tr>
                 <th>Melee weapon</th>
                 <th>DMG</th>
+                <th>ROF</th>
                 <th>Reliability</th>
                 <th>Con.</th>
                 <th>Action</th>

@@ -54,9 +54,14 @@ GEAR_TIER_HIGH = 'HIGH'
 
 GEAR_TIER_COMMON = 'COMMON'
 
+
 def gear_is_allowed(wep_gear_tier, requested_tier):
-    tier_matches: bool = (requested_tier is None) or (gear_tiers_allowed(requested_tier).__contains__(wep_gear_tier))
-    return tier_matches
+    if requested_tier is None:
+        return True
+    else:
+        gear_tier_matches = (gear_tiers_allowed(requested_tier).__contains__(wep_gear_tier))
+        return gear_tier_matches
+
 
 def gear_tiers_allowed(tier):
     if tier == GEAR_TIER_LOW:
