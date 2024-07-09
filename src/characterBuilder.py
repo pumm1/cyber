@@ -194,7 +194,11 @@ def generateArmors(character, gear_tier=None):
     print(f'Tier {gear_tier} armors: {len(armors_by_tier)}')
 
     armors_to_add_indices = []
-    while len(armors_to_add_indices) < armors_to_add:
+    max_tries = 15
+    add_try = 0
+    while len(armors_to_add_indices) < armors_to_add and add_try < max_tries:
+        add_try += 1
+        print(f'Attempting to add armor (try {add_try} / {max_tries})')
         idx = random.randint(0, len(armors_by_tier) - 1)
         armor = armors_by_tier[idx]
         armor_gear_tier = armor[genericGear.tier_str]
@@ -260,9 +264,12 @@ def generateWeapons(character, gear_tier=None):
     guns_to_add_indices = []
     weighted_weapon_tries = 5
     weighted_weapon_try = 0
-    while len(guns_to_add_indices) < guns_to_add:
+    max_tries = 15
+    add_try = 0
+    while len(guns_to_add_indices) < guns_to_add and add_try < max_tries:
+        add_try += 1
         num_of_weps = len(weps_by_tier)
-        print(f'Num of weapons to choose from: {num_of_weps}')
+        print(f'Num of weapons to choose from: {num_of_weps} (try {add_try} / {max_tries})')
         idx = random.randint(0, num_of_weps - 1)
         wep = weps_by_tier[idx]
         wep_gear_tier = wep[genericGear.tier_str]
