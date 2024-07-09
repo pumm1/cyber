@@ -1,4 +1,4 @@
-import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, AddRepReq, addReputation, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName, CharacterStatus, CharacterStatusType, deleteCharacterStatus, updateCharacterBackground } from './CyberClient'
+import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, AddRepReq, addReputation, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName, CharacterStatus, CharacterStatusType, deleteCharacterStatus, updateCharacterBackground, GearTiers, GearTier } from './CyberClient'
 import { useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
@@ -536,6 +536,7 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
             <td>
                 <Dmg weapon={weapon}/>
             </td>
+            <td>{weapon.rof}</td>
             <td>
                 {weapon.reliability}
             </td>
@@ -606,6 +607,7 @@ const CharacterRangedWeapons = (
                     <th>Ranged weapon</th>
                     <th>Type</th>
                     <th>DMG</th>
+                    <th>ROF</th>
                     <th>Rel.</th>
                     <th>Con.</th>
                     <th>Action</th>
@@ -682,6 +684,7 @@ const MeleeWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Weap
         <tr>
             <td>{weapon.item}</td>
             <td><Dmg weapon={weapon} /></td>
+            <td>{weapon.rof}</td>
             <td>{weapon.reliability}</td>
             <td>{weapon.con}</td>
             <td>
@@ -725,6 +728,7 @@ const CharacterMeleeWeapons = (
             <tr>
                 <th>Melee weapon</th>
                 <th>DMG</th>
+                <th>ROF</th>
                 <th>Reliability</th>
                 <th>Con.</th>
                 <th>Action</th>
@@ -1132,6 +1136,8 @@ export interface CharacterSheetProps extends UpdateCharacterAndLogs{
     updateCharacterList: () => Promise<void>
 }
 
+const gearTierLabel = (tier: GearTier | undefined) => 
+    tier === undefined ? 'Random' : tier
 
 const CharacterSheet = ({edit, updateCharacterList, character, allSkills, updateLogs, updateCharacter, editCharacter, allowAddingToInitiative}: CharacterSheetProps) => {
     const editCharacterInForm = (newCharacter: Character, isValid: boolean) => 
@@ -1172,6 +1178,7 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
     }
 
     const [randomize, setRandomize] = useState(false)
+    const [gearTier, setGearTier] = useState<GearTier | undefined>(undefined)
 
     const updateCharacterAttributes = (newAttributes: Attributes) => {
         const {attributes, ...rest} = character
@@ -1200,7 +1207,8 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
             role: character.role,
             attributes: character.attributes,
             btm: character.btm,
-            randomize
+            randomize,
+            gearTier
         }
 
         const createCharacterAndLog = () => 
@@ -1220,12 +1228,23 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
         updateCharacter(character.id)
     }
 
+    const RandomWeaponTierSelector = ({}) => 
+        <span className='withLeftSpace'>
+            <b>Gear tier:</b>
+            <select className='withLeftSpace'>
+                    {GearTiers.map(tier => 
+                        <option value={gearTier} onClick={() => setGearTier(tier)}>{gearTierLabel(tier)}</option>
+                    )}
+            </select>
+        </span>
+
     const editWithRandomize = edit && !randomize
 
     return(
         <div className='sheet'>
             <Handle characterBackground={character.background} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
             {edit && <><input type="checkbox" checked={randomize} onClick={() => setRandomize(!randomize)}/> Randomize</>}
+            {edit && randomize && <div><RandomWeaponTierSelector /></div>}
             <RoleFiled updateChracterRole={updateCharacterRole} edit={editWithRandomize} value={character.role}/>
              <Stats characterId={character.id} statuses={character.statuses} edit={edit} updateCharacter={updateCharacter} updateLogs={updateLogs} updateCharacterAttributes={updateCharacterAttributes} attributes={character.attributes}/>
             {!edit && <CharacterSPField sp={character.sp} characterId={character.id} updateCharacter={updateCharacter} updateLogs={updateLogs}/>}
