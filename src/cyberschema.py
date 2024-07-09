@@ -13,6 +13,7 @@ def readSecrets() -> dict:
         path = Path(f'src/{secrets}')
 
     filename = os.path.join(path)
+    print(f'>> DEBUG secrets path: >> {filename}')
     try:
         with open(filename, mode='r') as f:
             res = json.loads(f.read())
