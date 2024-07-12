@@ -1,5 +1,9 @@
 version: '3.8'
 
+networks:
+  cyber_network:
+    external: true
+
 services:
   web:
     build: .
@@ -12,6 +16,10 @@ services:
       - db
     volumes:
       - .:/usr/src/app
+    networks:
+      cyber_network:
+        aliases:
+          - db
 
   db:
     image: postgres:13
@@ -24,6 +32,8 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - cyber_network
 
 volumes:
   pgdata:

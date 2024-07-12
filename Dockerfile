@@ -8,11 +8,15 @@ WORKDIR /
 COPY requirements.txt ./
 
 # Install the dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt \
+    && apt-get update \
+    && apt-get install -y nano postgresql-client net-tools iproute2 iputils-ping
+
 
 # Copy the rest of the application code into the container
 COPY src /src
 COPY db /db
+COPY src/secrets_docker.json /src/secrets.json
 
 RUN pip install flask
 
