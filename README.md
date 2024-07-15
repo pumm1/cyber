@@ -62,6 +62,18 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 ## Docker setup (Easier quick setup)
 
 - Make sure you have Docker installed
+- Include `.env` file to root project
+  - Example contents for `.env` file:
+```
+DATABASE_URL=postgresql://cyber:cyber1@db:5432/postgres
+FLASK_APP=app.py
+FLASK_RUN_HOST=0.0.0.0
+DB_HOST=cyber_db
+DB_PORT=5432
+DB_NAME=postgres
+DB_USER=cyber
+DB_PASSWORD=cyber1
+```
 - Create and run container from the project root with `docker-compose up -d --build` (wait for `cyber_db`, `cyber_backend` and `cyber_ui` to be complete)
 - In your browser go to `localhost:3000` to use the UI
 - To stop the app, run `docker-compose stop` (to keep the data in your current container)
