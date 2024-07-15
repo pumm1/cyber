@@ -1,4 +1,5 @@
 BEGIN;
+SELECT 'Running schema table creation';
 
 CREATE TABLE cyberpunk.characters(
     id BIGSERIAL not null primary key,

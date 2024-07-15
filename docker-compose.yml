@@ -31,14 +31,14 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./dbinit.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./dbcreate_schema_tables.sql:/docker-entrypoint-initdb.d/create_schema_tables.sql
-      - ./dbadd_basic_skills.sql:/docker-entrypoint-initdb.d/add_basic_skills.sql
-      - ./dbupdates/V001_maxEmp.sql:/docker-entrypoint-initdb.d/updates/V001_maxEmp.sql
-      - ./dbupdates/V002_campaigns.sql:/docker-entrypoint-initdb.d/updates/V002_campaigns.sql
-      - ./dbupdates/V003_characterStatusUpdate.sql:/docker-entrypoint-initdb.d/updates/V003_characterStatusUpdate.sql
-      - ./dbupdates/V004_characterBackground.sql:/docker-entrypoint-initdb.d/updates/V004_characterBackground.sql
-      - ./dbgrant_access.sql:/docker-entrypoint-initdb.d/grant_access.sql
+      - ./db/scripts/init.sql:/docker-entrypoint-initdb.d/001_init.sql
+      - ./db/scripts/create_schema_tables.sql:/docker-entrypoint-initdb.d/002_create_schema_tables.sql
+      - ./db/scripts/add_basic_skills.sql:/docker-entrypoint-initdb.d/003_add_basic_skills.sql
+      - ./db/scripts/updates/V001_maxEmp.sql:/docker-entrypoint-initdb.d/004_V001_maxEmp.sql
+      - ./db/scripts/updates/V002_campaigns.sql:/docker-entrypoint-initdb.d/005_V002_campaigns.sql
+      - ./db/scripts/updates/V003_characterStatusUpdate.sql:/docker-entrypoint-initdb.d/006_V003_characterStatusUpdate.sql
+      - ./db/scripts/updates/V004_characterBackground.sql:/docker-entrypoint-initdb.d/007_V004_characterBackground.sql
+      - ./db/scripts/grant_access.sql:/docker-entrypoint-initdb.d/008_grant_access.sql
 
     networks:
       - cyber_network

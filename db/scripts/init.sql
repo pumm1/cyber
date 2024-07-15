@@ -1,3 +1,13 @@
-create user cyber with password 'cyber1';
+SELECT 'Running init';
 
-create schema cyberpunk authorization cyber;
+do
+$$
+begin
+  if NOT EXISTS (SELECT * FROM pg_user WHERE usename = 'cyber') then
+     CREATE USER cyber WITH password 'cyber1';
+  end if;
+end
+$$
+;
+
+CREATE SCHEMA cyberpunk AUTHORIZATION cyber;

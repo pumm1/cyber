@@ -1,4 +1,5 @@
 BEGIN;
+SELECT 'Running update V004';
 
 UPDATE cyberpunk.system_version SET version = 4 WHERE version = 3;
 
