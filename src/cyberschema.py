@@ -17,7 +17,11 @@ def readSecrets() -> dict:
     try:
         with open(filename, mode='r') as f:
             res = json.loads(f.read())
-            return dict(res)
+            #print(f'>> DEBUG SECRETS CONTENTS:')
+            secrets = dict(res)
+            for key in secrets:
+                print(f'{key}: {secrets[key]}')
+            return secrets
     except FileNotFoundError:
         print(f'!! Secrets not found !!')
         return {}

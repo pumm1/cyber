@@ -31,7 +31,15 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - ./dbinit.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./dbcreate_schema_tables.sql:/docker-entrypoint-initdb.d/create_schema_tables.sql
+      - ./dbadd_basic_skills.sql:/docker-entrypoint-initdb.d/add_basic_skills.sql
+      - ./dbupdates/V001_maxEmp.sql:/docker-entrypoint-initdb.d/updates/V001_maxEmp.sql
+      - ./dbupdates/V002_campaigns.sql:/docker-entrypoint-initdb.d/updates/V002_campaigns.sql
+      - ./dbupdates/V003_characterStatusUpdate.sql:/docker-entrypoint-initdb.d/updates/V003_characterStatusUpdate.sql
+      - ./dbupdates/V004_characterBackground.sql:/docker-entrypoint-initdb.d/updates/V004_characterBackground.sql
+      - ./dbgrant_access.sql:/docker-entrypoint-initdb.d/grant_access.sql
+
     networks:
       - cyber_network
 
