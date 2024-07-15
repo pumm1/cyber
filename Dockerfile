@@ -20,5 +20,8 @@ COPY src/secrets_docker.json /src/secrets.json
 
 RUN pip install flask
 
+COPY wait-for-postgres.sh /wait-for-postgres.sh
+RUN chmod +x /wait-for-postgres.sh
+
 # Specify the command to run on container start
-CMD ["flask", "--app", "src/net/app", "run"]
+CMD ["./wait-for-postgres.sh", "cyber_db", "flask", "--app", "src/net/app", "run"]
