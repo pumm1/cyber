@@ -43,5 +43,14 @@ services:
     networks:
       - cyber_network
 
+  ui:
+      build:
+        context: ./ui
+      container_name: cyber_ui
+      ports:
+        - "3000:3000"
+      networks:
+        - cyber_network
+
 volumes:
   pgdata:
