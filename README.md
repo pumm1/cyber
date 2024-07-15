@@ -63,7 +63,7 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 
 - Make sure you have Docker installed
 - Run command `docker network create cyber_network`
-- Include `.env` file to root project
+- Include `.env` file to project root
   - Example contents for `.env` file:
 ```
 DATABASE_URL=postgresql://cyber:cyber1@db:5432/postgres
