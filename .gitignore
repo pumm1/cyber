@@ -107,7 +107,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+#.env #letting this be here as it's needed and easier for people to get started with docker setup
 .venv
 env/
 venv/

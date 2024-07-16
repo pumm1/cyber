@@ -63,8 +63,14 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 
 - Make sure you have Docker installed
 - Run command `docker network create cyber_network`
-- Include `.env` file to project root
-  - Example contents for `.env` file:
+- Create and run container from the project root with `docker-compose up -d --build` (wait for `cyber_db`, `cyber_backend` and `cyber_ui` to be complete)
+- In your browser go to `localhost:3000` to use the UI
+- To stop the app, run `docker-compose stop` (to keep the data in your current container)
+- To restart the app, run `docker-compose start`
+- OPTIONAL:
+  - `.env` file is included, but these settings can be updated
+  - If changes are done, check at least `serets_docker.json` to have all settings matching
+  - Example (default) contents for `.env` file:
 ```
 DATABASE_URL=postgresql://cyber:cyber1@db:5432/postgres
 FLASK_APP=app.py
@@ -75,10 +81,6 @@ DB_NAME=postgres
 DB_USER=cyber
 DB_PASSWORD=cyber1
 ```
-- Create and run container from the project root with `docker-compose up -d --build` (wait for `cyber_db`, `cyber_backend` and `cyber_ui` to be complete)
-- In your browser go to `localhost:3000` to use the UI
-- To stop the app, run `docker-compose stop` (to keep the data in your current container)
-- To restart the app, run `docker-compose start`
 
 
 ## Manual setup (Easier to migrate data with updates, but more configuration needed)
