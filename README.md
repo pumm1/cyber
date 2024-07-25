@@ -59,7 +59,31 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
     * For chrome, reduce humanity and empathy automatically
 
 # Setup
+## Docker setup (Easier quick setup)
 
+- Make sure you have Docker installed
+- Run command `docker network create cyber_network`
+- Create and run container from the project root with `docker-compose up -d --build` (wait for `cyber_db`, `cyber_backend` and `cyber_ui` to be complete)
+- In your browser go to `localhost:3000` to use the UI
+- To stop the app, run `docker-compose stop` (to keep the data in your current container)
+- To restart the app, run `docker-compose start`
+- OPTIONAL:
+  - `.env` file is included, but these settings can be updated
+  - If changes are done, check at least `serets_docker.json` to have all settings matching
+  - Example (default) contents for `.env` file:
+```
+DATABASE_URL=postgresql://cyber:cyber1@db:5432/postgres
+FLASK_APP=app.py
+FLASK_RUN_HOST=0.0.0.0
+DB_HOST=cyber_db
+DB_PORT=5432
+DB_NAME=postgres
+DB_USER=cyber
+DB_PASSWORD=cyber1
+```
+
+
+## Manual setup (Easier to migrate data with updates, but more configuration needed)
 * Install python 3.10+
   * You can use pip to install dependencies 
     * For windows one might need to run the following for psycopg: 

@@ -1,4 +1,5 @@
 BEGIN;
+SELECT 'Running update V002';
 
 CREATE TYPE cyberpunk.gig_status AS ENUM(
  'NotStarted', 'Started', 'Failed', 'Done'

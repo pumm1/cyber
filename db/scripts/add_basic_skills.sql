@@ -1,4 +1,5 @@
 BEGIN;
+SELECT 'Running adding basic skills';
 
 INSERT INTO cyberpunk.skills(skill, attribute, description)
 VALUES

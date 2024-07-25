@@ -1,4 +1,5 @@
 BEGIN;
+SELECT 'Running update V003';
 
 CREATE TYPE cyberpunk.character_status_type AS ENUM(
  'Negative', 'Neutral', 'Positive'

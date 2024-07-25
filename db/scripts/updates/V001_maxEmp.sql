@@ -1,4 +1,5 @@
 BEGIN;
+SELECT 'Running update V001';
 
 CREATE TABLE cyberpunk.system_version (version INTEGER NOT NULL);
 

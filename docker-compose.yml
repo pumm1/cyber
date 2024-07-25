@@ -1,0 +1,54 @@
+networks:
+  cyber_network:
+    external: true
+
+services:
+  web:
+    build: .
+    container_name: cyber_backend
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    volumes:
+      - .:/usr/src/app
+    networks:
+      cyber_network:
+        aliases:
+          - db
+
+  db:
+    image: postgres:13
+    container_name: cyber_db
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: cyber
+      POSTGRES_PASSWORD: cyber1
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/scripts/init.sql:/docker-entrypoint-initdb.d/001_init.sql
+      - ./db/scripts/create_schema_tables.sql:/docker-entrypoint-initdb.d/002_create_schema_tables.sql
+      - ./db/scripts/add_basic_skills.sql:/docker-entrypoint-initdb.d/003_add_basic_skills.sql
+      - ./db/scripts/updates/V001_maxEmp.sql:/docker-entrypoint-initdb.d/004_V001_maxEmp.sql
+      - ./db/scripts/updates/V002_campaigns.sql:/docker-entrypoint-initdb.d/005_V002_campaigns.sql
+      - ./db/scripts/updates/V003_characterStatusUpdate.sql:/docker-entrypoint-initdb.d/006_V003_characterStatusUpdate.sql
+      - ./db/scripts/updates/V004_characterBackground.sql:/docker-entrypoint-initdb.d/007_V004_characterBackground.sql
+      - ./db/scripts/grant_access.sql:/docker-entrypoint-initdb.d/008_grant_access.sql
+
+    networks:
+      - cyber_network
+
+  ui:
+      build:
+        context: ./ui
+      container_name: cyber_ui
+      ports:
+        - "3000:3000"
+      networks:
+        - cyber_network
+
+volumes:
+  pgdata:
