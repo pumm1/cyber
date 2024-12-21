@@ -62,3 +62,18 @@ def bodyTypeModifiersByValue(modifier):
     else:
         return superhuman
 
+
+def btm_as_value(body_type_modifier: str) -> int:
+    if body_type_modifier == very_weak:
+        return 0
+    elif body_type_modifier == weak:
+        return 1
+    elif body_type_modifier == average:
+        return 2
+    elif body_type_modifier == strong:
+        return 3
+    elif body_type_modifier == very_strong:
+        return 4
+    else:
+        return 5
+

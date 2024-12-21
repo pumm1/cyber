@@ -820,7 +820,7 @@ def hitCharacter(character, body_part, dmg_str, is_ap, pass_sp):
     logs = []
     if character is not None:
         if pass_sp == True:
-            logs = damageCharacter(character, body_part, dmg)
+            logs = damageCharacter(character, dmg=dmg, body_part=body_part)
         elif body_parts.__contains__(body_part):
             if is_ap:
                 logs = handleApHit(character, dmg, body_part, logs)
