@@ -160,7 +160,7 @@ const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharact
                     </tr>
                 </tbody>
                 {filteredCharacters.map(c => 
-                    <CharacterListRow character={c} isAlreadyInCombat={isAlreadyInCombat} updateCharacters={updateCharacters} updateLogs={updateLogs} removeCharacter={removeCharacter} updateInitiatives={updateInitiatives} setCharacterById={setCharacterById} addToCombatReq={addToCombatReq}/>
+                    <CharacterListRow key={c.id} character={c} isAlreadyInCombat={isAlreadyInCombat} updateCharacters={updateCharacters} updateLogs={updateLogs} removeCharacter={removeCharacter} updateInitiatives={updateInitiatives} setCharacterById={setCharacterById} addToCombatReq={addToCombatReq}/>
                 )}
             </table>
         </>
