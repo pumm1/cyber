@@ -37,17 +37,25 @@ const App = ({}) => {
 
 
   return (
-    <div className='main'>
-      <Navbar />
-      <h1>Welcome to the NET</h1>
-      <div className='infoContainer'>
-        <div className='sheetContainer'>
-          <SearchOrCreateCharacter skills={allSkills} updateInitiatives={updateInitiatives} initiatives={initiatives} updateLogs={updateLogs}/>
-          <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogs}/>
+    <>
+      <div className="main">
+        <div className="crt-effect" /> {/* Place it inside main */}
+        <Navbar />
+        <h1>Welcome to the NET</h1>
+        <div className="infoContainer">
+          <div className="sheetContainer">
+            <SearchOrCreateCharacter
+              skills={allSkills}
+              updateInitiatives={updateInitiatives}
+              initiatives={initiatives}
+              updateLogs={updateLogs}
+            />
+            <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogs} />
+          </div>
+          <InfoTables />
         </div>
-        <InfoTables />
       </div>
-    </div>
+    </>
   )
 }
 

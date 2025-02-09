@@ -40,6 +40,7 @@ const WeaponTool = ({}) => {
 
     return( 
         <div className="main">
+            <div className="crt-effect" /> {/* Place it inside main */}
             <Navbar />
             <h1>Weapon tool</h1>
             <table>

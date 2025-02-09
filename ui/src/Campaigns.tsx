@@ -431,6 +431,7 @@ const Campaigns = ({}) => {
 
     return( 
         <div className="main">
+            <div className="crt-effect" /> {/* Place it inside main */}
             <Navbar />
             <h2>Campaigns</h2>
             <SelectedCampaignInfo />
