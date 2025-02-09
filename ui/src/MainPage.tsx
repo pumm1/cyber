@@ -50,9 +50,10 @@ const App = ({}) => {
               initiatives={initiatives}
               updateLogs={updateLogs}
             />
-            <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogs} />
           </div>
-          <InfoTables />
+          <div>
+            <InfoTables logs={logs} addToLogs={addToLogs} emptyLogsFn={emptyLogs}/>
+          </div>
         </div>
       </div>
     </>

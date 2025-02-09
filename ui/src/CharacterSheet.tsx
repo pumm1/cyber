@@ -1023,7 +1023,7 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
     const btmByValue = (btm: number) => {
         switch(btm) {
             case 0:
-                return 'V. Weak'
+                return 'V.Weak'
             case 1:
                 return 'Weak'
             case 2:
@@ -1031,9 +1031,9 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
             case 3:
                 return 'Strong'
             case 4:
-                return 'V. strong'
+                return 'V.Strong'
             default:
-                return 'Superhuman'
+                return 'Inhuman'
         }
     }
 
@@ -1042,13 +1042,16 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
         <div className='boxContainer'>
              <div className='outerBox'>
                     <div className='boxLabel'>Save</div>
-                    <div className='boxValueFlex'>{save}</div>
+                    <div className='boxValueFlex'>
+                        <div>{save}</div>
+                    </div>
+                    <div className='btmLabel'>(BODY)</div>
                 </div>
                 <div className='outerBox'>
                     <div className='boxLabel'>BTM</div>
                     <div className='boxValue'>
                         <div className='boxValueFlex'>
-                            {-1 * btm}
+                            -{btm}
                             {edit && !randomize &&
                                 <ValueChanger onChange={updateCharacterBTM} baseValue={btm}/>
                             }
