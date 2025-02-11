@@ -84,8 +84,8 @@ table tr:nth-child(odd) td{
 
 th {
     border-bottom: 1px solid black;
-    padding-right: 4px;
-    padding-left: 4px;
+    padding-right: 2px;
+    padding-left: 2px;
     text-align: left;
 }
  

@@ -611,8 +611,8 @@ const CharacterRangedWeapons = (
                     <th>Rel.</th>
                     <th>Con.</th>
                     <th>Action</th>
-                    <th>Attack Type</th>
-                    <th>Attack Range</th>
+                    <th>Atck Type</th>
+                    <th>Atck Range</th>
                     <th>(Opt. targets)</th>
                     <th>(Opt. #shots)</th>
                     <th>(Opt. Roll)</th>
@@ -729,11 +729,11 @@ const CharacterMeleeWeapons = (
                 <th>Melee weapon</th>
                 <th>DMG</th>
                 <th>ROF</th>
-                <th>Reliability</th>
+                <th>Rel.</th>
                 <th>Con.</th>
                 <th>Action</th>
                 <th>Roll DMG</th>
-                <th>Attack methods</th>
+                <th>Atck methods</th>
                 <th>(Opt. Shots left)</th>
                 <th>(Opt. Roll)</th>
                 <th>(Opt. Modifier)</th>
