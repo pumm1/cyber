@@ -1,6 +1,7 @@
 .infoTables {
     padding-right: 12px;
-    min-width: 40vh;
+    min-width: 64vh;
+    max-width: 64vh;
     max-height: 80vh;
     overflow-y: scroll;
 }

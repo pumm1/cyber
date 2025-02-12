@@ -432,11 +432,11 @@ def weaponToolResultFromReq(roll_total, weapon_type, wa, attack_range, num_of_ta
 
     if num_of_shots == 3:
         logs = burstRoll(roll_total, attack_range=attack_range, shots_fired=3, shots_left=50, wep=wep,
-                         skill='<manual check>', roll=0, auto_roll=True)
+                         skill='<manual check>', roll=0, auto_roll=True, skip_dmg_logs=True)
     elif num_of_shots > 3:
         logs = fullAutoRoll(roll_total, wep, '<manual check>', roll=roll_total,
                             attack_range=attack_range, num_of_targets=num_of_targets, num_of_shots=num_of_shots,
-                            modifiers_total=0, auto_roll=True, skip_luck=True)
+                            modifiers_total=0, auto_roll=True, skip_luck=True, skip_dmg_logs=True)
     else:
         (roll_to_beat, range_str, _) = wep.rollToBeatAndRangeStr(attack_range)
         info_str = f'[Roll to beat = {roll_to_beat}, range = {range_str}]'
@@ -455,7 +455,7 @@ def weaponToolResultFromReq(roll_total, weapon_type, wa, attack_range, num_of_ta
 
 # TODO: think about some balancing changes?
 def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, attack_range=0, num_of_targets=0,
-                 num_of_shots=0, modifiers_total=None, auto_roll=False, skip_luck=False) -> list[Log]:
+                 num_of_shots=0, modifiers_total=None, auto_roll=False, skip_luck=False, skip_dmg_logs=False) -> list[Log]:
     logs = []
     total_hits = 0
     targets_hit = 0
@@ -501,17 +501,14 @@ def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, att
 
             logs = log_event(logs, f'Target {t} hit {num_of_hits} times!', log_pos)
 
-            for i in range(num_of_hits):
-                (dmg, dmg_logs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
-                logs = possiblyWarnAboutLimbDestroyed(dmg, logs)
-                logs = logs + dmg_logs
-                target_total_dmg = target_total_dmg + dmg
-            logs = log_event(logs,
-                             f'Total dmg done to target [{t}]: {target_total_dmg} [{num_of_hits}x {dmg_info(wep)}]',
-                             log_pos)
-            logs = log_event(logs,
-                             f'{num_of_shots} shots fired in full auto with {wep.item} hitting {total_hits} times',
-                             log_neutral)
+            if not skip_dmg_logs:
+                for i in range(num_of_hits):
+                    (dmg, dmg_logs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
+                    logs = possiblyWarnAboutLimbDestroyed(dmg, logs)
+                    logs = logs + dmg_logs
+                    target_total_dmg = target_total_dmg + dmg
+                    logs = log_event(logs,f'Total dmg done to target [{t}]: {target_total_dmg} [{num_of_hits}x {dmg_info(wep)}]', log_pos)
+            logs = log_event(logs, f'{num_of_shots} shots fired in full auto with {wep.item} hitting {total_hits} times', log_neutral)
 
         else:
             logs = log_event(logs, f'Full auto missed target {t}!', log_neg)
@@ -519,33 +516,32 @@ def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, att
 
 
 def burstRoll(roll_total, attack_range, shots_fired, shots_left, wep, skill, roll, skill_bonus=0, ref_bonus=0,
-              auto_roll=False) -> [Log]:
+              auto_roll=False, skip_dmg_logs=False) -> [Log]:
     logs = []
     (roll_to_beat, range_str, r) = wep.rollToBeatAndRangeStr(attack_range)
     roll_total = roll_total + wep.wa
+    hits = 0
     if roll_total >= roll_to_beat:
-        hits = 1
-        if roll_total - roll_to_beat > 4:
-            hits = 3
-        elif roll_total - roll_to_beat > 2:
-            hits = 2
-
-        if shots_fired < 3 and hits == 3:
-            hits = shots_left
         total_dmg = 0
-        logs = log_event(logs, f'{hits} hits to target!', log_pos)
-        attack_info_str = f"""
-    Character selected {wep.item} for BURST fire [weapon range = {wep.range}m]
-    (total = {roll_total} vs roll to beat {roll_to_beat} - roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})
-                    """
-        logs = log_event(logs, attack_info_str, log_neutral)
-        for i in range(hits):
-            (dmg, hitLogs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
-            logs = logs + hitLogs
-            total_dmg = total_dmg + dmg
-        logs = log_event(logs, f'Total dmg done to target: {total_dmg} [{hits}x {dmg_info(wep)}]', log_pos)
+        if not skip_dmg_logs:
+            hits = dice.roll(1, 6, 2)
+            logs = log_event(logs, f'{hits} hits to target!', log_pos)
+        else:
+            logs = log_event(logs, f'Roll number of hits with 1D6 / 2', log_pos)
+        if not skip_dmg_logs:
+            for i in range(hits):
+                (dmg, hitLogs) = hitDmg(wep, attack_range, auto_roll=auto_roll)
+                logs = logs + hitLogs
+                total_dmg = total_dmg + dmg
+            logs = log_event(logs, f'Total dmg done to target: {total_dmg} [{hits}x {dmg_info(wep)}]', log_pos)
     else:
         logs = log_event(logs, f'Burst attack misses target!', log_neg)
+
+    attack_info_str = f"""
+            Character selected {wep.item} for BURST fire [weapon max range = {wep.range}m]
+            (total = {roll_total} vs roll to beat {roll_to_beat} [{range_str}] | roll = {roll} skill_lvl = {skill_bonus} ({skill}) REF bonus = {ref_bonus} WA = {wep.wa})
+                        """
+    logs = log_event(logs, attack_info_str, log_neutral)
     return logs
 
 
