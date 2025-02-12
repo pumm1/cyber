@@ -36,15 +36,22 @@ interface UpdateCharacterAndLogs extends UpdateCharacter {
 }
 
 interface RoleInputProps {
-    value: number | string
+    role: string
     name: string
     checked: boolean
     edit: boolean
     updateChracterRole: (r: string) => void
 }
 
-const RoleInput = ({edit, value, name, checked,  updateChracterRole}: RoleInputProps) => 
-    <input type="radio" value={value} name={name} checked={checked} disabled={!edit} onChange={e => updateChracterRole(e.target.value)}/>
+const RoleInput = ({edit, role, name, checked,  updateChracterRole}: RoleInputProps) => {    
+    const className = !edit && !checked ? 'roleSelectDisabled' : 'roleSelect'
+    return (
+        <div className={className}>
+            <input type="radio" value={role} name={name} checked={checked} disabled={!edit} onChange={e => updateChracterRole(e.target.value)}/>
+            {role}
+        </div>
+    )
+}
 
 
 interface RoleFieldProps {
@@ -53,21 +60,23 @@ interface RoleFieldProps {
     updateChracterRole: (r: string) => void
 }
 
+
 const RoleFiled = ({value, edit, updateChracterRole}: RoleFieldProps) => {
+
     return(
         <div className='fieldContainer'>
             <label>ROLE</label>
             <span className='roles'>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.solo} name={roles.solo} checked={value === roles.solo} /> Solo</div>
-                <div><RoleInput updateChracterRole={updateChracterRole}  edit={edit} value={roles.rocker} name={roles.rocker} checked={value === roles.rocker} /> Rocker</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.netrunner} name={roles.netrunner} checked={value === roles.netrunner} /> Netrunner</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.media} name={roles.media} checked={value === roles.media} /> Media</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.nomad} name={roles.nomad} checked={value === roles.nomad} /> Nomad</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.fixer} name={roles.fixer} checked={value === roles.fixer} /> Fixer</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.cop} name={roles.cop} checked={value === roles.cop} /> Cop</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.corp} name={roles.solo} checked={value === roles.corp} /> Corp</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.techie} name={roles.techie} checked={value === roles.techie} /> Techie</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.medtechie} name={roles.medtechie} checked={value === roles.medtechie} /> Medtechie</div>
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.solo} name={roles.solo} checked={value === roles.solo} />
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.rocker} name={roles.rocker} checked={value === roles.rocker} />
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.netrunner} name={roles.netrunner} checked={value === roles.netrunner} /> 
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.media} name={roles.media} checked={value === roles.media} /> 
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.nomad} name={roles.nomad} checked={value === roles.nomad} /> 
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.fixer} name={roles.fixer} checked={value === roles.fixer} />
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.cop} name={roles.cop} checked={value === roles.cop} /> 
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.corp} name={roles.solo} checked={value === roles.corp} />
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.techie} name={roles.techie} checked={value === roles.techie} />
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.medtechie} name={roles.medtechie} checked={value === roles.medtechie} />
             </span>
         </div>
     )
@@ -521,7 +530,7 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
     }
 
     const updateTargets = (newVal: number) => updateNumWithLowerLimit(newVal, 1, setTargets)
-    const updateShots = (newVal: number) => updateNumWithLowerLimit(newVal, 1, setShotsFired)
+    const updateShots = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setShotsFired)
     const updateGivenRoll = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setGivenRoll)
     const updateModifier = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setAttackModifier) 
     
@@ -545,7 +554,7 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
             </td>
             <td>
                 <span className='attackMod'>
-                    <Button label='Attack' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
+                    <Button disabled={weapon.shotsLeft <= 0 || (shotsFired !== undefined && shotsFired <= 0)} label='Attack' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
                         setShotsFired(1)
                         setTargets(1)
                         setAttackModifier(0)
@@ -570,8 +579,10 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
                 }
             </td>
             <td>
-                {isFullAuto && shotsFired && 
-                    <span className='attackMod'>{shotsFired}<ValueChanger onChange={updateShots} baseValue={shotsFired}/> </span>
+                {isFullAuto && shotsFired !== undefined && 
+                    <span className='attackMod'>
+                        <input className='shortInput' type='text' disabled={false} value={shotsFired} onChange={e => updateShots(parseInt(e.target.value) || 0)}/>
+                    </span>
                 }
             </td>
             <td>

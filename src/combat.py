@@ -460,7 +460,7 @@ def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, att
     total_hits = 0
     targets_hit = 0
     roll_total = roll_total + wep.wa
-    range_bonus = math.ceil(num_of_shots / 10)
+    range_bonus = math.floor(num_of_shots / 10)
     shots_per_target = math.floor(num_of_shots / num_of_targets)
     for target_num in range(num_of_targets):
         t = target_num + 1
@@ -480,14 +480,12 @@ def fullAutoRoll(roll_total, wep, skill, skill_bonus=0, roll=0, ref_bonus=0, att
         if not (r == close_range_str or r == point_blank_range_str):
             range_bonus = -1 * range_bonus
         # last minus is balancing test. more targts = more sway in aiming
-        recoil_balance = (wep.dice_dmg * target_num + math.floor(num_of_shots / 2)) * -1
-        range_penalty = (math.floor(num_of_shots / 10)) * -1
-        roll_total = roll_total + recoil_balance + range_penalty + range_bonus
+        roll_total = roll_total + range_bonus
         num_of_hits = 0
         logs = log_event(
             logs,
             f'{rollToBeatStr(roll_to_beat, roll_total)} '
-            f'[roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), range bonus = {range_bonus}, WA = {wep.wa}, range_penalty={range_penalty}, recoil_balance (target {t}) = {recoil_balance}]',
+            f'[roll = {roll}, REF bonus = {ref_bonus}, skill_bonus = {skill_bonus} ({skill}), range bonus = {range_bonus}, WA = {wep.wa}]',
             log_neutral
         )
 

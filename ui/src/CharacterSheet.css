@@ -62,6 +62,13 @@ textarea {
     flex-wrap: wrap;
 }
 
+.roleSelect {
+}
+
+.roleSelectDisabled {
+    color: lightgray;   
+}
+
 .withLessLeftSpace {
     margin-left: 2px;
 }
@@ -82,10 +89,11 @@ textarea {
     border-style: solid;
     border-color: black;
     border-width: 2px;
-    padding-left: 4px;
-    padding-top: 4px;
+    padding: 4px;
     width: 100%;
     margin: 4px;
+    font-size: 20px;
+    font-weight: 800;
 }
 
 .fieldValue:disabled {

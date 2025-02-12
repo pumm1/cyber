@@ -7,6 +7,9 @@ import { InfoTables } from './InfoTables';
 
 import './MainPage.css';
 
+export const CrtEffect =({}) =>
+  <div className="crt-effect" />
+
 const App = ({}) => {
   const [logs, setLogs] = useState<Log[]>([])
   const [allSkills, setSkills] = useState<Skill[]>([])
@@ -39,7 +42,7 @@ const App = ({}) => {
   return (
     <>
       <div className="main">
-        <div className="crt-effect" /> {/* Place it inside main */}
+        <CrtEffect />
         <Navbar />
         <h1>Welcome to the NET</h1>
         <div className="infoContainer">
