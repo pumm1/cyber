@@ -1,4 +1,4 @@
-from genericGear import generic_helmet, generic_melee, generic_smg, generic_hvy_pistol, generic_lt_pistol, \
+from src.genericGear import generic_helmet, generic_melee, generic_smg, generic_hvy_pistol, generic_lt_pistol, \
     generic_shotgun, generic_sawed_off_shotgun, generic_skin_weave, generic_kevlar_armor, \
     generic_leather_armor, generic_bolt_rifle, generic_assault_rifle, generic_cyber_arm_l, \
     generic_cyber_arm_r, generic_cyber_leg_r, generic_cyber_leg_l, generic_scrambler, generic_nanosurgeons, \

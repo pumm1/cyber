@@ -2,7 +2,7 @@ log_pos = 'positive'
 log_neutral = 'neutral'
 log_neg = 'negative'
 
-from gameHelper import printRedLine, printGreenLine
+from src.gameHelper import printRedLine, printGreenLine
 
 class Log():
     def __init__(self, text, log_type):

@@ -1,4 +1,4 @@
-from gameHelper import not_hideable, con_jacket, con_pocket, t_handgun, t_smg, t_rifle, t_shotgun, t_melee, \
+from src.gameHelper import not_hideable, con_jacket, con_pocket, t_handgun, t_smg, t_rifle, t_shotgun, t_melee, \
     wep_standard_reliability, con_long_coat, body_part_body, body_part_l_arm, body_part_r_arm, body_part_l_leg, \
     body_part_r_leg, body_part_head, t_thrown, GEAR_TIER_LOW, GEAR_TIER_MID, GEAR_TIER_HIGH, GEAR_TIER_COMMON, \
     t_heavy_weapon, wep_very_reliable, wep_unreliable

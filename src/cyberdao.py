@@ -3,21 +3,21 @@ from collections import defaultdict
 import psycopg
 from colorama import Fore
 
-from cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
+from src.cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
     table_events, table_character_chrome, table_character_statuses, table_character_quick_notice, \
     table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus, \
     table_system_version, EXPECTED_SYSTEM_VERSION, table_campaigns, table_event_characters, table_gigs, \
     table_gig_characters
-from character import Character, CharacterShort
-from skill import SkillInfo
-from armor import Armor
-from gameHelper import EMP, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, woundEffect, calculateModifierBonus, \
+from src.character import Character, CharacterShort
+from src.skill import SkillInfo
+from src.armor import Armor
+from src.gameHelper import EMP, INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, woundEffect, calculateModifierBonus, \
     BODY_TYPE_MOD, t_thrown, coloredText, body_type_mod, init_bonus, INIT_BONUS
-from chrome import Chrome
-from roles import solo
-from status import Status
-from weapon import Weapon
+from src.chrome import Chrome
+from src.roles import solo
+from src.status import Status
+from src.weapon import Weapon
 from psycopg.rows import dict_row
 
 conn = psycopg.connect(dbname=db, user=user, password=password, host=host, row_factory=dict_row)
@@ -657,7 +657,8 @@ def getCharacterChrome(character_id):
         conn.commit()
         cybernetics = []
         for row in rows:
-            chrome = Chrome(row)
+            skill_bonus_rows = getItemSkillBonuses(row['item_bonus_id'])
+            chrome = Chrome(row, skill_bonus_rows)
             cybernetics.append(chrome)
         return cybernetics
 
@@ -909,6 +910,11 @@ def deleteCharacterWeapon(character_id, weapon_id):
                        WHERE id = {item_bonus_id};
                        """)
                 conn.commit()
+                return True
+            else:
+                return True
+        else:
+            return True
 
 
 def deleteCharacterChrome(character_id, chrome_id):

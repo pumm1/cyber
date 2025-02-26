@@ -18,8 +18,7 @@ sys.path.append(parent)
 
 # now we can import the module in the parent
 # directory.
-import dice, game, skills, combat, armor, healing, logger, characterBuilder, ip, weapon, chrome, notice, cyberdao, \
-    campaign, status
+import dice, game, skills, combat, armor, logger, characterBuilder, weapon, chrome, notice, cyberdao, status, cyberService
 
 app = Flask(__name__)
 CORS(app)
@@ -99,7 +98,7 @@ def rollSkill():
         added_luck = data['addedLuck']
         modifier = data['modifier']
         roll = data['roll']
-        return jsonify(skills.rollCharacterSkillById(char_id, skill_id, roll, modifier, added_luck))
+        return jsonify(cyberService.rollCharacterSkillById(char_id, skill_id, roll, modifier, added_luck))
     else:
         return invalid_req()
 
@@ -122,7 +121,7 @@ def rollMeleeDmg():
         weapon_id = data['weaponId']
         method = data['method']
         print(f'... data: {data} ... method: {method}')
-        return jsonify(combat.handleMeleeDmgByCharacterId(char_id, roll=0, wep_id=weapon_id, method=method))
+        return jsonify(cyberService.handleMeleeDmgByCharacterId(char_id, roll=0, wep_id=weapon_id, method=method))
     else:
         return invalid_req()
 
@@ -149,7 +148,7 @@ def getChar():
 @app.route('/list-skills', methods=[get])
 def listSkills():
     if request.method == get:
-        return jsonify(skills.fetchAllSkils())
+        return jsonify(cyberService.fetchAllSkils())
     else:
         return invalid_req()
 
@@ -175,7 +174,7 @@ def attack():
         targets: int = data.get('targets', 1)
         shots_fired = data.get('shotsFired', 1)
         return jsonify(
-            combat.characterAttackByCharacterAndWeaponId(
+            cyberService.characterAttackByCharacterAndWeaponId(
                 char_id, weapon_id, attack_type, attack_range, given_roll=given_roll, attack_modifier=attack_modifier,
                 targets=targets, shots_fired=shots_fired
             )
@@ -190,7 +189,7 @@ def reload():
         data = request.get_json()
         weapon_id = data['weaponId']
         shots = data['shots']
-        return jsonify(combat.reloadWeapon(weapon_id, shots))
+        return jsonify(cyberService.reloadWeapon(weapon_id, shots))
     else:
         return invalid_req()
 
@@ -199,7 +198,7 @@ def reload():
 def repairSP():
     if request.method == put:
         char_id = request.get_json()
-        return jsonify(armor.repairSPById(char_id)), 200
+        return jsonify(cyberService.repairSPById(char_id)), 200
     else:
         return invalid_req()
 
@@ -211,7 +210,7 @@ def heal():
         char_id = data['charId']
         amount = data['amount']
 
-        return jsonify(healing.healCharacterById(char_id, amount))
+        return jsonify(cyberService.healCharacterById(char_id, amount))
     else:
         return invalid_req()
 
@@ -224,7 +223,7 @@ def lvlUp():
         skill_id = data['skillId']
         amount = data['amount']
 
-        return jsonify(skills.updateCharSkillById(char_id, skill_id, amount))
+        return jsonify(cyberService.updateCharSkillById(char_id, skill_id, amount))
     else:
         return invalid_req()
 
@@ -238,7 +237,7 @@ def dmg():
         dmg = data['dmg']
         is_ap = data.get('isAp', False)
         pass_sp = data.get('passSp', False)
-        res = combat.hitCharacterById(char_id, body_part=body_part, dmg_str=dmg, pass_sp=pass_sp, is_ap=is_ap)
+        res = cyberService.hitCharacterById(char_id, body_part=body_part, dmg_str=dmg, pass_sp=pass_sp, is_ap=is_ap)
         return jsonify(res)
     else:
         return invalid_req()
@@ -250,7 +249,7 @@ def saveIP():
         data = request.get_json()
         char_id = data['charId']
         ipAmount = data['ipAmount']
-        res = ip.saveIP(char_id, ipAmount)
+        res = cyberService.saveIP(char_id, ipAmount)
         return jsonify(res)
     else:
         return invalid_req()
@@ -273,7 +272,7 @@ def stunCheck():
     if request.method == post:
         data = request.get_json()
         char_id = data['charId']
-        res = combat.stunCheckById(char_id)
+        res = cyberService.stunCheckById(char_id)
         return jsonify(res)
     else:
         return invalid_req()
@@ -299,7 +298,7 @@ def addWeapon():
         reliability = data['reliability']
         effect_radius = data['effectRadius']
         custom_range = data.get('customRange', None)
-        res = weapon.addCharacterWeaponById(
+        res = cyberService.addCharacterWeaponById(
             char_id, dice_num, die, divide_by, dmg_bonus, item, clip_size, rof,
             humanity_cost, weapon_type, wa, con, weight, reliability, effect_radius, custom_range
         )
@@ -319,7 +318,7 @@ def addChrome():
         skill_bonuses = data['skillBonuses']
         humanity_cost = data['humanityCost']
 
-        res = chrome.addChromeByCharacterId(
+        res = cyberService.addChromeByCharacterId(
             char_id, item, description, humanity_cost, atr_bonuses, skill_bonuses
         )
         return jsonify(res)
@@ -340,7 +339,7 @@ def addArmor():
         skill_bonuses_dict = data['skillBonuses']
         humanity_cost = data['humanityCost']
 
-        res = armor.addArmorForCharacterById(
+        res = cyberService.addArmorForCharacterById(
             char_id, item, ev, sp, body_parts, humanity_cost, atr_bonuses, skill_bonuses_dict
         )
         return jsonify(res)
@@ -355,7 +354,7 @@ def removeArmor():
         char_id = data['charId']
         armor_id = data['armorId']
 
-        res = armor.removeArmorByCharacterId(
+        res = cyberService.removeArmorByCharacterId(
             char_id, armor_id
         )
         return jsonify(res)
@@ -370,9 +369,7 @@ def removeWeapon():
         char_id = data['charId']
         weapon_id = data['weaponId']
 
-        res = weapon.removeWeaponByCharacterId(
-            char_id, weapon_id
-        )
+        res = cyberService.removeWeaponByCharacterId(char_id, weapon_id)
         return jsonify(res)
     else:
         return invalid_req()
@@ -385,7 +382,7 @@ def removeChrome():
         char_id = data['charId']
         chrome_id = data['chromeId']
 
-        res = chrome.removeChromeByCharacterId(char_id, chrome_id)
+        res = cyberService.removeChromeByCharacterId(char_id, chrome_id)
         return jsonify(res)
     else:
         return invalid_req()
@@ -497,7 +494,7 @@ def addCharacterStatus(id):
         stat = data['status']
         effect = data['effect']
         status_type = data['statusType']
-        return jsonify(status.addStatus(id, stat, effect, status_type))
+        return jsonify(cyberService.addStatus(id, stat, effect, status_type))
     else:
         return invalid_req()
 
@@ -506,7 +503,7 @@ def addCharacterStatus(id):
 def deleteCharacterStatus(id):
     if request.method == delete:
         status_id = request.get_json()
-        return jsonify(status.removeStatusByCharId(id, status_id))
+        return jsonify(cyberService.removeStatusByCharId(id, status_id))
     else:
         return invalid_req()
 
@@ -533,7 +530,7 @@ def manualWeaponCheck():
 def fetchCampaigns():
     if request.method == get:
         # TODO: fetch actual data
-        return jsonify(campaign.allCampaigns())
+        return jsonify(cyberService.allCampaigns())
     else:
         return invalid_req()
 
@@ -544,7 +541,7 @@ def addCampaign():
         data = request.get_json()
         name = data['name']
         info = data['info']
-        return jsonify(campaign.addCampaign(name, info))
+        return jsonify(cyberService.addCampaign(name, info))
     else:
         return invalid_req()
 
@@ -553,7 +550,7 @@ def addCampaign():
 def updateCampaignInfo(id):
     if request.method == put:
         info = request.get_json()
-        campaign.updateCampaignInfo(id, info)
+        cyberService.updateCampaignInfo(id, info)
         return jsonify(True)
     else:
         return invalid_req()
@@ -562,7 +559,7 @@ def updateCampaignInfo(id):
 @app.route('/campaing-events/<int:id>', methods=[get])
 def campaignEvents(id):
     if request.method == get:
-        return jsonify(campaign.campaignEvents(id))
+        return jsonify(cyberService.campaignEvents(id))
     else:
         return invalid_req()
 
@@ -572,7 +569,7 @@ def addCampaignEvent(id):
         data = request.get_json()
         session_number = data['sessionNumber']
         info = data['info']
-        campaign.addCampaignEvent(id, session_number, info)
+        cyberService.addCampaignEvent(id, session_number, info)
         return jsonify(True)
     else:
         return invalid_req()
@@ -582,7 +579,7 @@ def addCampaignEvent(id):
 def updateEventInfo(id):
     if request.method == put:
         info = request.get_json()
-        campaign.updateEventInfo(id, info)
+        cyberService.updateEventInfo(id, info)
         return jsonify(True)
     else:
         return invalid_req()
@@ -593,7 +590,7 @@ def updateEventInfo(id):
 def addEventCharacter(id):
     if request.method == post:
         character_id = request.get_json()
-        return jsonify(campaign.addEventCharacter(id, character_id))
+        return jsonify(cyberService.addEventCharacter(id, character_id))
     else:
         return invalid_req()
 
@@ -602,14 +599,14 @@ def addEventCharacter(id):
 def addGigCharacter(id):
     if request.method == post:
         character_id = request.get_json()
-        return jsonify(campaign.addGigCharacter(id, character_id))
+        return jsonify(cyberService.addGigCharacter(id, character_id))
     else:
         return invalid_req()
 
 @app.route('/campaign-gigs/<int:id>', methods=[get])
 def campaignGigs(id):
     if request.method == get:
-        return jsonify(campaign.campaignGigs(id))
+        return jsonify(cyberService.campaignGigs(id))
     else:
         return invalid_req()
 
@@ -620,7 +617,7 @@ def addCampaignGig(id):
         name = data['name']
         info = data['info']
         status = data['status']
-        campaign.addCampaignGig(id, name, info, status)
+        cyberService.addCampaignGig(id, name, info, status)
         return jsonify(True)
     else:
         return invalid_req()
@@ -630,7 +627,7 @@ def addCampaignGig(id):
 def updateGigStatus(id):
     if request.method == put:
         status = request.get_json()
-        campaign.updateGigStatus(id, status)
+        cyberService.updateGigStatus(id, status)
         return jsonify(True)
     else:
         return invalid_req()
@@ -640,7 +637,7 @@ def updateGigStatus(id):
 def updateGigInfo(id):
     if request.method == put:
         info = request.get_json()
-        campaign.updateGigInfo(id, info)
+        cyberService.updateGigInfo(id, info)
         return jsonify(True)
     else:
         return invalid_req()
@@ -650,7 +647,7 @@ def updateGigInfo(id):
 def deleteGigCharacter(id):
     if request.method == delete:
         character_id = request.get_json()
-        campaign.deleteGigCharacter(id, character_id)
+        cyberService.deleteGigCharacter(id, character_id)
         return jsonify(True)
     else:
         return invalid_req()
@@ -659,7 +656,7 @@ def deleteGigCharacter(id):
 def deleteEventCharacter(id):
     if request.method == delete:
         character_id = request.get_json()
-        campaign.deleteEventCharacter(id, character_id)
+        cyberService.deleteEventCharacter(id, character_id)
         return jsonify(True)
     else:
         return invalid_req()

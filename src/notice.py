@@ -1,7 +1,7 @@
-import cyberdao as DAO
-from skills import awarenessSkill
-from dice import rollWithCrit
-from gameHelper import printGreenLine, printRedLine, safeCastToInt
+import src.cyberdao as DAO
+from src.cyberService import awarenessSkill
+from src.dice import rollWithCrit
+from src.gameHelper import printGreenLine, printRedLine, safeCastToInt
 #from logger import Log, log_event, log_neutral, log_neg
 
 
@@ -24,9 +24,9 @@ def quickNoticeCheckForCharacters(to_beat):
                 if skill.skill == 'awareness':
                     skill_bonus += skill.lvl
             atr_bonus = c.attributes[atr]
-            (roll, _) = rollWithCrit(skip_luck=True)
-            total = skill_bonus + atr_bonus + roll
-            roll_info = f'(total = {total}, roll = {roll}, skill_bonus = {skill_bonus}, atr_bonus = {atr_bonus})'
+            (roll_res, _) = rollWithCrit(skip_luck=True)
+            total = skill_bonus + atr_bonus + roll_res
+            roll_info = f'(total = {total}, roll = {roll_res}, skill_bonus = {skill_bonus}, atr_bonus = {atr_bonus})'
             if roll_to_beat <= total:
                 printGreenLine(f'{c.name} succeeds in notice check {roll_info}')
             else:

@@ -525,8 +525,7 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
     }
 
     const updateLogsAndCharacter = (resLogs: Log[]) => {
-        updateLogs(resLogs)
-        updateCharacter(characterId)
+        Promise.resolve(updateLogs(resLogs)).then(() => updateCharacter(characterId))
     }
 
     const updateTargets = (newVal: number) => updateNumWithLowerLimit(newVal, 1, setTargets)
@@ -946,8 +945,8 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
     return(
         <div className='withVerticalSpace'>
             <div className='withVerticalSpace'>
-                <input type='radio' checked={isAp} onClick={() => handleApCheckBox()}/> DMG is AP
-                <input type='radio' checked={passSp} onClick={() => handleSpCheckBox()}/> DMG passes SP
+                <input type='radio' checked={isAp} onClick={() => handleApCheckBox()}/> <span className={!isAp ? 'dmgSelectNotChecked' : undefined}>DMG is AP</span>
+                <input type='radio' checked={passSp} onClick={() => handleSpCheckBox()}/> <span className={!passSp ? 'dmgSelectNotChecked' : undefined}>DMG passes SP</span>
             </div>
             <span className='armorRowContainer'>
                <Label label='Location'/>

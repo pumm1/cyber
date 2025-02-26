@@ -13,6 +13,10 @@ textarea {
     resize: none;
 }
 
+.dmgSelectNotChecked {
+    color: grey;
+}
+
 .sheet {
     min-width: 850px;
     font-family: monospace;

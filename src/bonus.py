@@ -1,10 +1,11 @@
 from colorama import Fore
 
-from gameHelper import INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, BODY_TYPE_MOD, askInput, yes_no, modifier_list, \
+from src import cyberService
+from src.gameHelper import INT, REF, TECH, COOL, ATTR, MA, BODY, LUCK, EMP, BODY_TYPE_MOD, askInput, yes_no, modifier_list, \
     atr_info, safeCastToInt, list_skills_helper_str, list_skills_str, split_at, coloredText, body_type_mod, atr_int, \
     atr_emp, atr_luck, atr_body, atr_ma, atr_attr, atr_ref, atr_tech, atr_cool, init_bonus, INIT_BONUS
-import skills
-import cyberdao as DAO
+import src.skills
+import src.cyberdao as DAO
 
 
 class AtrBonus:
@@ -91,7 +92,7 @@ def addSkillBonuses() -> [SkillBonus]:
         if i == '-1':
             break
         elif i.startswith(list_skills_str):
-            skills.listSkills(command_parts)
+            cyberService.listSkills(command_parts)
         elif skill_id > 0:
             skill = DAO.getSkillById(skill_id)
             if skill is not None:

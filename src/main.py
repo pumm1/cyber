@@ -1,4 +1,4 @@
-import game
+import src.game as game
 import colorama
 
 colorama.init()
