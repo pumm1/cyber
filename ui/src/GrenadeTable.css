@@ -11,6 +11,10 @@
     max-width: 200px;
 }
 
+.gridDirection {
+    background-color: grey;
+}
+
 .tableContainer {
     margin-top: 8px;
     display: grid;
