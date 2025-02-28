@@ -5,7 +5,7 @@ from src.gameHelper import safeCastToInt, askInput, roll_str, printGreenLine, pr
 from src.logger import Log, log_event, log_pos, log_neg
 
 
-def roll(n, d_die, divide_by=1, bonus=0) -> int:
+def roll(n, d_die, divide_by=1, bonus=0, skip_log=False) -> int:
     if divide_by == 0:
         divide_by = 1
     res = 0
@@ -13,7 +13,8 @@ def roll(n, d_die, divide_by=1, bonus=0) -> int:
         die_roll = random.randint(1, d_die)
         res = res + die_roll
     dice_roll_res = math.ceil(res / divide_by) + bonus
-    print(f'Rolled {dice_roll_res} (before possible div: {res}) from {diceToStr(n, d_die, divide_by, bonus)}')
+    if not skip_log:
+        print(f'Rolled {dice_roll_res} (before possible div: {res}) from {diceToStr(n, d_die, divide_by, bonus)}')
     return dice_roll_res
 
 def diceToStr(n, d_die, divide_by, bonus) -> str:
