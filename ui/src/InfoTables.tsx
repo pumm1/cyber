@@ -1,4 +1,4 @@
-import DifficultyTable from "./DifficultyTable";
+import DifficultyTables from "./DifficultyTables";
 import GrenadeTable from "./GrenadeTable";
 import JamTable from "./JamTable";
 import LogViewer from './LogViewer';
@@ -15,7 +15,7 @@ interface InfoTablesProps {
 export const InfoTables = ({logs, addToLogs, emptyLogsFn}: InfoTablesProps) => 
     <div className="infoTables">
         <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogsFn} />
-        <DifficultyTable />
+        <DifficultyTables />
         <JamTable />
         <GrenadeTable />
     </div>
