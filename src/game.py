@@ -527,7 +527,7 @@ def updateCharacterBackground(character_id, background: str | None) -> list[Log]
     c = DAO.getCharacterById(character_id)
     if c is not None:
         DAO.updateCharacterBackground(character_id, background)
-        logs = log_event(logs, f'{c.name} background updated', log_neutral)
+        logs = log_event(logs, f'{c.name} information updated', log_neutral)
     else:
         logs = log_event(logs, f"Character not found [id = {character_id}]", log_neg)
     return logs

@@ -1,5 +1,5 @@
 import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, AddRepReq, addReputation, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName, CharacterStatus, CharacterStatusType, deleteCharacterStatus, updateCharacterBackground, GearTiers, GearTier, stringSortFn } from './CyberClient'
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
@@ -1102,39 +1102,39 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
 
 interface HandleProps {
     characterId?: number
-    value: string
+    handleValue: string
     edit: boolean
-    onUpdate: (n: string) => void
+    onHandleUpdate: (n: string) => void
+    onInfoUpdate: (i: string) => void
     updateLogsAndCharacter: (l: Log[]) => void
-    characterBackground?: string
+    characterBackground?: string | null
 }
 
-const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, characterBackground}: HandleProps) => {
+const Handle = ({characterId, handleValue, edit, onHandleUpdate, updateLogsAndCharacter, characterBackground, onInfoUpdate}: HandleProps) => {
     const [nameEditable, setNameEditable] = useState(false)
-    const [background, setBackground] = useState(characterBackground)
 
     const updateName = (charId: number) => 
-        updateCharacterName({charId, name: value})
+        updateCharacterName({charId, name: handleValue})
 
     const updateBackground = (charId: number) =>
-        updateCharacterBackground({charId, background})
+        updateCharacterBackground({charId, background: characterBackground ?? ''})
 
     return(
         <div className='fieldContainer'>
             <span className='fieldContent'>
                 <label>Handle</label>
-                <input disabled={!edit && !nameEditable} className='fieldValue' value={value} onChange={e => onUpdate(e.target.value)} />
+                <input disabled={!edit && !nameEditable} className='fieldValue' value={handleValue} onChange={e => onHandleUpdate(e.target.value)} />
             </span>
             {characterId && <span>
                 <input type='checkbox' checked={nameEditable} onClick={() => setNameEditable(!nameEditable)}/> Edit handle
                 <Button label='Update handle' variant='SpaceLeft'  disabled={!nameEditable} onClick={() => updateName(characterId).then(updateLogsAndCharacter)}/>               
            </span>
             }
-            <Hideable text='Background' props={
+            <Hideable text='Information' props={
                 <> 
-                    {characterId && <Button variant='LessSpaceLeft' label='Updage background' disabled={background === characterBackground} onClick={() => updateBackground(characterId).then(updateLogsAndCharacter)}/>}
+                    {characterId && <Button variant='LessSpaceLeft' label='Update Information' onClick={() => updateBackground(characterId).then(updateLogsAndCharacter)}/>}
                     <div>
-                        <TextArea readOnly={false} value={background} setValue={setBackground}/>
+                        <TextArea readOnly={false} value={characterBackground ?? ''} setValue={onInfoUpdate}/>
                     </div>
                 </>
             }
@@ -1148,14 +1148,13 @@ export interface CharacterSheetProps extends UpdateCharacterAndLogs{
     character: Character
     allSkills?: Skill[]
     editCharacter?: (c: Character) => void
-    allowAddingToInitiative: boolean
     updateCharacterList: () => Promise<void>
 }
 
 const gearTierLabel = (tier: GearTier | undefined) => 
     tier === undefined ? 'Random' : tier
 
-const CharacterSheet = ({edit, updateCharacterList, character, allSkills, updateLogs, updateCharacter, editCharacter, allowAddingToInitiative}: CharacterSheetProps) => {
+const CharacterSheet = ({edit, updateCharacterList, character, allSkills, updateLogs, updateCharacter, editCharacter}: CharacterSheetProps) => {
     const editCharacterInForm = (newCharacter: Character, isValid: boolean) => 
         editCharacter && isValid && editCharacter(newCharacter)
     
@@ -1168,6 +1167,14 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
 
         editCharacterInForm(newCharacter, true)
     }
+
+    const updateCharacterInfo = (info: string) => {
+        const {background, ...rest} = character
+        const newCharacter: Character = {background: info, ...rest}
+
+        editCharacterInForm(newCharacter, true)
+    }
+
 
     const updateCharacterRole = (newRole: string) => {
         const {role, ...rest} = character
@@ -1258,7 +1265,7 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
 
     return(
         <div className='sheet'>
-            <Handle characterBackground={character.background} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
+            <Handle characterBackground={character.background} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} handleValue={character.name} onHandleUpdate={updateCharacterName} onInfoUpdate={updateCharacterInfo}/>
             {edit && <><input type="checkbox" checked={randomize} onClick={() => setRandomize(!randomize)}/> Randomize</>}
             {edit && randomize && <div><RandomWeaponTierSelector /></div>}
             <RoleFiled updateChracterRole={updateCharacterRole} edit={editWithRandomize} value={character.role}/>

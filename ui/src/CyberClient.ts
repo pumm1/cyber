@@ -232,7 +232,7 @@ export interface CharacterStatus extends AddCharacterStatusReq {
 }
 
 export interface Character extends CharacterShort {
-    background?: string
+    background?: string | null
     specialAbility: string, //TODO: enum?
     specialAbilityLvl: number
     bodyType: string
