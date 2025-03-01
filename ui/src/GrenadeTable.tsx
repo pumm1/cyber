@@ -6,19 +6,26 @@ import Hideable from './Hideable'
 
 type Grid = number | string
 
-const topVal: Grid = '8,10'
+const upperTopLeftVal = undefined
+const upperTopVal = 10
+const upperTopRightVal = undefined
+const topVal: Grid = 8
 const topLeftVal: Grid = 7
 const topRightVal: Grid = 9
 const targetVal: Grid = 'Target'
 const leftVal: Grid = 5
 const rightVal: Grid = 6
-const bottomVal = '3,1'
+const bottomVal = 3
 const bottomLeftVal = 2
 const bottomRightVal = 4
+const lowerBottomLeft = undefined
+const lowerBottomVal = 1
+const lowerBottomRightVal = undefined
 
 const matchDirectionToGrid = (dirNum: number): Grid => {
     switch(dirNum) {
         case 1:
+            return lowerBottomVal
         case 3:
             return bottomVal
         case 2:
@@ -32,8 +39,9 @@ const matchDirectionToGrid = (dirNum: number): Grid => {
         case 7:
             return topLeftVal
         case 8:
-        case 10:
             return topVal
+        case 10:
+            return upperTopVal
         case 9:
             return topRightVal
         default:
@@ -48,7 +56,8 @@ const gridMatches = (grid: Grid, directionToUse?: number): boolean => {
 }
 
 const GrenadeTable = ({}) => {
-    const grids: Grid[]  = [topLeftVal, topVal, topRightVal, leftVal, targetVal, rightVal, bottomLeftVal, bottomVal, bottomRightVal]
+    const grids: (Grid | undefined)[]  = 
+    [upperTopLeftVal, upperTopVal, upperTopRightVal, topLeftVal, topVal, topRightVal, leftVal, targetVal, rightVal, bottomLeftVal, bottomVal, bottomRightVal, lowerBottomLeft, lowerBottomVal, lowerBottomRightVal]
     const [directionVal, setDirectionVal] = useState<number | undefined>()
 
     const grenadeTableProp = 
@@ -65,7 +74,7 @@ const GrenadeTable = ({}) => {
                 </span>
                 <div className='grenadeTable'>
                     <div className='tableContainer'>
-                            {grids.map(g => <span className={gridMatches(g, directionVal) ? 'gridDirection' : undefined} key={g}>{g}</span>)}
+                            {grids.map(g => g ? <span className={gridMatches(g, directionVal) ? 'gridDirection' : undefined} key={g}>{g}</span> : <span></span>)}
                     </div>
                 </div>
             </div>

@@ -32,6 +32,15 @@
     aspect-ratio: 1;
 }
 
+
+.tableContainer span:empty {
+    border: none;
+    display: grid;
+    align-content: center;
+    text-align: center;
+    aspect-ratio: 1;
+}
+
 .missContainer {
     padding-top: 4px;
 }
