@@ -355,7 +355,7 @@ def listCombatInitiative():
     print(f"Turn order: \n{info}")
 
 
-def combatInitiativeOrder() -> list[str]:
+def combatInitiativeOrder() -> list:
     rows = DAO.listCombatInitiative(ascending=False)
     initiative_arr = map(lambda row: (
         Initiative(row).asJson()

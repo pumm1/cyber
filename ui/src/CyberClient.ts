@@ -461,8 +461,10 @@ export interface Initiative {
     charId: number
     name: string
     initiative: number
+    condition: string
     current: boolean
 }
+
 export const listInitiative = () =>
     fetchDataAs<Initiative[]>(`${pathBase}/list-initiative`)
 

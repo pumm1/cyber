@@ -29,6 +29,7 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById}: List
             <table>
                 <tr>
                     <th>Name</th>
+                    <th>Cond.</th>
                     <th>Initiative</th>
                     <th>Turn</th>
                     <th>Select character</th>
@@ -36,6 +37,7 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById}: List
                 {initiatives.map((i, idx) => 
                     <tr key={idx}>
                         <td>{i.name}</td>
+                        <td>{i.condition}</td>
                         <td>{i.initiative}</td>
                         <td>{i.current ? "This character's turn" : ''}</td>
                         <td>

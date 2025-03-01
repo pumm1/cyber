@@ -222,9 +222,9 @@ remove_status_help_str = f'{remove_status_str} {char_name} <status_id>'
 difficulty_check_str = '/diff'
 
 no_dmg_str = 'No damage'
-light_dmg_str = 'Light damage'
-serious_dmg_str = 'Serious_dmg'
-critical_dmg_str = 'Critical damage'
+light_dmg_str = 'Lightly damaged'
+serious_dmg_str = 'Seriously damaged'
+critical_dmg_str = 'Critically damaged'
 mortally_wounded_str = 'Mortally wounded'
 flatlined_str = 'Flatlined'
 
