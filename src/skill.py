@@ -1,4 +1,4 @@
-from gameHelper import coloredText
+from src.gameHelper import coloredText
 from colorama import Fore
 class SkillInfo:
     def __init__(self, skill_id, skill, level, attribute, is_original):

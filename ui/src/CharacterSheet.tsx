@@ -1,5 +1,5 @@
-import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, AddRepReq, addReputation, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName, CharacterStatus, CharacterStatusType, deleteCharacterStatus, updateCharacterBackground, GearTiers, GearTier } from './CyberClient'
-import { useState } from "react"
+import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, AddRepReq, addReputation, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName, CharacterStatus, CharacterStatusType, deleteCharacterStatus, updateCharacterBackground, GearTiers, GearTier, stringSortFn } from './CyberClient'
+import { useEffect, useState } from "react"
 import './CharacterSheet.css'
 import { AddWeapon } from './AddWeapon'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
@@ -36,15 +36,22 @@ interface UpdateCharacterAndLogs extends UpdateCharacter {
 }
 
 interface RoleInputProps {
-    value: number | string
+    role: string
     name: string
     checked: boolean
     edit: boolean
     updateChracterRole: (r: string) => void
 }
 
-const RoleInput = ({edit, value, name, checked,  updateChracterRole}: RoleInputProps) => 
-    <input type="radio" value={value} name={name} checked={checked} disabled={!edit} onChange={e => updateChracterRole(e.target.value)}/>
+const RoleInput = ({edit, role, name, checked,  updateChracterRole}: RoleInputProps) => {    
+    const className = !edit && !checked ? 'roleSelectDisabled' : 'roleSelect'
+    return (
+        <div className={className}>
+            <input type="radio" value={role} name={name} checked={checked} disabled={!edit} onChange={e => updateChracterRole(e.target.value)}/>
+            {role}
+        </div>
+    )
+}
 
 
 interface RoleFieldProps {
@@ -53,21 +60,23 @@ interface RoleFieldProps {
     updateChracterRole: (r: string) => void
 }
 
+
 const RoleFiled = ({value, edit, updateChracterRole}: RoleFieldProps) => {
+
     return(
         <div className='fieldContainer'>
             <label>ROLE</label>
             <span className='roles'>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.solo} name={roles.solo} checked={value === roles.solo} /> Solo</div>
-                <div><RoleInput updateChracterRole={updateChracterRole}  edit={edit} value={roles.rocker} name={roles.rocker} checked={value === roles.rocker} /> Rocker</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.netrunner} name={roles.netrunner} checked={value === roles.netrunner} /> Netrunner</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.media} name={roles.media} checked={value === roles.media} /> Media</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.nomad} name={roles.nomad} checked={value === roles.nomad} /> Nomad</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.fixer} name={roles.fixer} checked={value === roles.fixer} /> Fixer</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.cop} name={roles.cop} checked={value === roles.cop} /> Cop</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.corp} name={roles.solo} checked={value === roles.corp} /> Corp</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.techie} name={roles.techie} checked={value === roles.techie} /> Techie</div>
-                <div><RoleInput updateChracterRole={updateChracterRole} edit={edit} value={roles.medtechie} name={roles.medtechie} checked={value === roles.medtechie} /> Medtechie</div>
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.solo} name={roles.solo} checked={value === roles.solo} />
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.rocker} name={roles.rocker} checked={value === roles.rocker} />
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.netrunner} name={roles.netrunner} checked={value === roles.netrunner} /> 
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.media} name={roles.media} checked={value === roles.media} /> 
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.nomad} name={roles.nomad} checked={value === roles.nomad} /> 
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.fixer} name={roles.fixer} checked={value === roles.fixer} />
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.cop} name={roles.cop} checked={value === roles.cop} /> 
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.corp} name={roles.solo} checked={value === roles.corp} />
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.techie} name={roles.techie} checked={value === roles.techie} />
+                <RoleInput updateChracterRole={updateChracterRole} edit={edit} role={roles.medtechie} name={roles.medtechie} checked={value === roles.medtechie} />
             </span>
         </div>
     )
@@ -516,12 +525,11 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
     }
 
     const updateLogsAndCharacter = (resLogs: Log[]) => {
-        updateLogs(resLogs)
-        updateCharacter(characterId)
+        Promise.resolve(updateLogs(resLogs)).then(() => updateCharacter(characterId))
     }
 
     const updateTargets = (newVal: number) => updateNumWithLowerLimit(newVal, 1, setTargets)
-    const updateShots = (newVal: number) => updateNumWithLowerLimit(newVal, 1, setShotsFired)
+    const updateShots = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setShotsFired)
     const updateGivenRoll = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setGivenRoll)
     const updateModifier = (newVal: number) => updateNumWithLowerLimit(newVal, 0, setAttackModifier) 
     
@@ -545,7 +553,7 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
             </td>
             <td>
                 <span className='attackMod'>
-                    <Button label='Attack' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
+                    <Button disabled={weapon.shotsLeft <= 0 || (shotsFired !== undefined && shotsFired <= 0)} label='Attack' onClick={() => attack(attackReq).then(updateLogsAndCharacter).then(() => {
                         setShotsFired(1)
                         setTargets(1)
                         setAttackModifier(0)
@@ -570,8 +578,10 @@ const RangedWeaponRow = ({weapon, characterId, updateLogs, updateCharacter}: Wea
                 }
             </td>
             <td>
-                {isFullAuto && shotsFired && 
-                    <span className='attackMod'>{shotsFired}<ValueChanger onChange={updateShots} baseValue={shotsFired}/> </span>
+                {isFullAuto && shotsFired !== undefined && 
+                    <span className='attackMod'>
+                        <input className='shortInput' type='text' disabled={false} value={shotsFired} onChange={e => updateShots(parseInt(e.target.value) || 0)}/>
+                    </span>
                 }
             </td>
             <td>
@@ -597,6 +607,9 @@ interface CharacterWeaponsProps extends UpdateCharacterAndLogs{
     characterId: number
 }
 
+const sortedWeaponsList = (weapons: Weapon[]) =>
+    weapons.sort((a, b) => stringSortFn(a.item, b.item))
+
 const CharacterRangedWeapons = (
     {weapons, characterId, updateLogs, updateCharacter}: CharacterWeaponsProps
 ) => {
@@ -611,8 +624,8 @@ const CharacterRangedWeapons = (
                     <th>Rel.</th>
                     <th>Con.</th>
                     <th>Action</th>
-                    <th>Attack Type</th>
-                    <th>Attack Range</th>
+                    <th>Atck Type</th>
+                    <th>Atck Range</th>
                     <th>(Opt. targets)</th>
                     <th>(Opt. #shots)</th>
                     <th>(Opt. Roll)</th>
@@ -620,7 +633,7 @@ const CharacterRangedWeapons = (
                     <th>Remove</th>
                 </tr>
             </tbody>
-            {weapons.map(w => 
+            {sortedWeaponsList(weapons).map(w => 
                 <RangedWeaponRow key={`${characterId} ${w.id}`} weapon={w} characterId={characterId} updateLogs={updateLogs} updateCharacter={updateCharacter} />
             )}
         </table>
@@ -729,11 +742,11 @@ const CharacterMeleeWeapons = (
                 <th>Melee weapon</th>
                 <th>DMG</th>
                 <th>ROF</th>
-                <th>Reliability</th>
+                <th>Rel.</th>
                 <th>Con.</th>
                 <th>Action</th>
                 <th>Roll DMG</th>
-                <th>Attack methods</th>
+                <th>Atck methods</th>
                 <th>(Opt. Shots left)</th>
                 <th>(Opt. Roll)</th>
                 <th>(Opt. Modifier)</th>
@@ -932,8 +945,8 @@ const CharacterSPField = ({sp, characterId, updateCharacter, updateLogs}: SPFiel
     return(
         <div className='withVerticalSpace'>
             <div className='withVerticalSpace'>
-                <input type='radio' checked={isAp} onClick={() => handleApCheckBox()}/> DMG is AP
-                <input type='radio' checked={passSp} onClick={() => handleSpCheckBox()}/> DMG passes SP
+                <input type='radio' checked={isAp} onClick={() => handleApCheckBox()}/> <span className={!isAp ? 'dmgSelectNotChecked' : undefined}>DMG is AP</span>
+                <input type='radio' checked={passSp} onClick={() => handleSpCheckBox()}/> <span className={!passSp ? 'dmgSelectNotChecked' : undefined}>DMG passes SP</span>
             </div>
             <span className='armorRowContainer'>
                <Label label='Location'/>
@@ -1023,7 +1036,7 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
     const btmByValue = (btm: number) => {
         switch(btm) {
             case 0:
-                return 'V. Weak'
+                return 'V.Weak'
             case 1:
                 return 'Weak'
             case 2:
@@ -1031,9 +1044,9 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
             case 3:
                 return 'Strong'
             case 4:
-                return 'V. strong'
+                return 'V.Strong'
             default:
-                return 'Superhuman'
+                return 'Inhuman'
         }
     }
 
@@ -1042,13 +1055,16 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
         <div className='boxContainer'>
              <div className='outerBox'>
                     <div className='boxLabel'>Save</div>
-                    <div className='boxValueFlex'>{save}</div>
+                    <div className='boxValueFlex'>
+                        <div>{save}</div>
+                    </div>
+                    <div className='btmLabel'>(BODY)</div>
                 </div>
                 <div className='outerBox'>
                     <div className='boxLabel'>BTM</div>
                     <div className='boxValue'>
                         <div className='boxValueFlex'>
-                            {-1 * btm}
+                            -{btm}
                             {edit && !randomize &&
                                 <ValueChanger onChange={updateCharacterBTM} baseValue={btm}/>
                             }
@@ -1086,39 +1102,39 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
 
 interface HandleProps {
     characterId?: number
-    value: string
+    handleValue: string
     edit: boolean
-    onUpdate: (n: string) => void
+    onHandleUpdate: (n: string) => void
+    onInfoUpdate: (i: string) => void
     updateLogsAndCharacter: (l: Log[]) => void
-    characterBackground?: string
+    characterBackground?: string | null
 }
 
-const Handle = ({characterId, value, edit, onUpdate, updateLogsAndCharacter, characterBackground}: HandleProps) => {
+const Handle = ({characterId, handleValue, edit, onHandleUpdate, updateLogsAndCharacter, characterBackground, onInfoUpdate}: HandleProps) => {
     const [nameEditable, setNameEditable] = useState(false)
-    const [background, setBackground] = useState(characterBackground)
 
     const updateName = (charId: number) => 
-        updateCharacterName({charId, name: value})
+        updateCharacterName({charId, name: handleValue})
 
     const updateBackground = (charId: number) =>
-        updateCharacterBackground({charId, background})
+        updateCharacterBackground({charId, background: characterBackground ?? ''})
 
     return(
         <div className='fieldContainer'>
             <span className='fieldContent'>
                 <label>Handle</label>
-                <input disabled={!edit && !nameEditable} className='fieldValue' value={value} onChange={e => onUpdate(e.target.value)} />
+                <input disabled={!edit && !nameEditable} className='fieldValue' value={handleValue} onChange={e => onHandleUpdate(e.target.value)} />
             </span>
             {characterId && <span>
                 <input type='checkbox' checked={nameEditable} onClick={() => setNameEditable(!nameEditable)}/> Edit handle
                 <Button label='Update handle' variant='SpaceLeft'  disabled={!nameEditable} onClick={() => updateName(characterId).then(updateLogsAndCharacter)}/>               
            </span>
             }
-            <Hideable text='Background' props={
+            <Hideable text='Information' props={
                 <> 
-                    {characterId && <Button variant='LessSpaceLeft' label='Updage background' disabled={background === characterBackground} onClick={() => updateBackground(characterId).then(updateLogsAndCharacter)}/>}
+                    {characterId && <Button variant='LessSpaceLeft' label='Update Information' onClick={() => updateBackground(characterId).then(updateLogsAndCharacter)}/>}
                     <div>
-                        <TextArea readOnly={false} value={background} setValue={setBackground}/>
+                        <TextArea readOnly={false} value={characterBackground ?? ''} setValue={onInfoUpdate}/>
                     </div>
                 </>
             }
@@ -1132,14 +1148,13 @@ export interface CharacterSheetProps extends UpdateCharacterAndLogs{
     character: Character
     allSkills?: Skill[]
     editCharacter?: (c: Character) => void
-    allowAddingToInitiative: boolean
     updateCharacterList: () => Promise<void>
 }
 
 const gearTierLabel = (tier: GearTier | undefined) => 
     tier === undefined ? 'Random' : tier
 
-const CharacterSheet = ({edit, updateCharacterList, character, allSkills, updateLogs, updateCharacter, editCharacter, allowAddingToInitiative}: CharacterSheetProps) => {
+const CharacterSheet = ({edit, updateCharacterList, character, allSkills, updateLogs, updateCharacter, editCharacter}: CharacterSheetProps) => {
     const editCharacterInForm = (newCharacter: Character, isValid: boolean) => 
         editCharacter && isValid && editCharacter(newCharacter)
     
@@ -1152,6 +1167,14 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
 
         editCharacterInForm(newCharacter, true)
     }
+
+    const updateCharacterInfo = (info: string) => {
+        const {background, ...rest} = character
+        const newCharacter: Character = {background: info, ...rest}
+
+        editCharacterInForm(newCharacter, true)
+    }
+
 
     const updateCharacterRole = (newRole: string) => {
         const {role, ...rest} = character
@@ -1242,7 +1265,7 @@ const CharacterSheet = ({edit, updateCharacterList, character, allSkills, update
 
     return(
         <div className='sheet'>
-            <Handle characterBackground={character.background} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} value={character.name} onUpdate={updateCharacterName}/>
+            <Handle characterBackground={character.background} updateLogsAndCharacter={updateLogsAndCharacter} characterId={character.id} edit={edit} handleValue={character.name} onHandleUpdate={updateCharacterName} onInfoUpdate={updateCharacterInfo}/>
             {edit && <><input type="checkbox" checked={randomize} onClick={() => setRandomize(!randomize)}/> Randomize</>}
             {edit && randomize && <div><RandomWeaponTierSelector /></div>}
             <RoleFiled updateChracterRole={updateCharacterRole} edit={editWithRandomize} value={character.role}/>

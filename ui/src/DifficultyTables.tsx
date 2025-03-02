@@ -1,9 +1,13 @@
+import { useState } from 'react'
 import Hideable from './Hideable'
+
+import './DifficultyTables.css'
 
 interface Difficulty {
     label: string
     added: boolean
-    difficulty: number | string
+    difficulty: number
+    difficultyLabel?: string
 }
 
 const easy: Difficulty = {
@@ -71,13 +75,15 @@ const underStress: Difficulty = {
 const underAttack: Difficulty = {
     label: 'Under attack',
     added: true,
-    difficulty: '3 to 4'
+    difficulty: 3,
+    difficultyLabel: '3 to 4'
 }
 
 const wounded: Difficulty = {
     label: 'Wounded',
     added: true,
-    difficulty: '2 to 6'
+    difficulty: 2,
+    difficultyLabel: '2 to 6'
 }
 
 const intoxicatedOrTired: Difficulty = {
@@ -198,28 +204,50 @@ const difficultyModifiers: Difficulty[] = [
 
 interface TableProps {
     items: Difficulty[]
+    selected?: Difficulty[]
+    select?: (d: Difficulty) => void
+    empty?: () => void
 }
 
-const Table = ({items}: TableProps) =>
+const Table = ({items, selected, select, empty}: TableProps) =>
     <table>
         <tr>
             <th>Difficulty</th>
             <th>To beat</th>
+            {select !== undefined && <th>Select</th>}
         </tr>
-        {items.map(d => 
+        {items.map((d, idx) => 
                 <tr>
-                    <td>{d.label}</td>
-                    <td>{d.added && '+'}{d.difficulty}{!d.added && '+'}</td>
+                    <td><span className={selected !== undefined && selected.includes(d) ? 'selectedDifficultyMod' : undefined}>{d.label}</span></td>
+                    <td>{d.added && '+'}{d.difficultyLabel ?? d.difficulty}{!d.added && '+'}</td>
+                    {empty !== undefined && select !== undefined && idx === 0 && <td><button onClick={() => empty()}>Empty</button></td>}
+                    {select !== undefined && idx > 0 && <td><button disabled={selected?.includes(d)} onClick={() => {select(d)}}>Select</button></td>}
                 </tr>
             )}
     </table>
 
-const DifficultyTable = ({}) =>
+const ModifiersTable = ({}) => {
+    const [selectedModifiers, setSelectedModifiers] = useState<Difficulty[]>([])
+    const selectedDifficulty: Difficulty = {
+        label: 'Selected Modifiers',
+        added: true,
+        difficulty: selectedModifiers.length > 0 ? (selectedModifiers.map(m => m.difficulty)).reduce((a, b) => a + b) : 0
+    }
+
+    const addToModifiers = (d: Difficulty) => 
+        !selectedModifiers.includes(d) && setSelectedModifiers([d, ...selectedModifiers])
+
+    return (
+        <Table items={[selectedDifficulty, ...difficultyModifiers]} selected={selectedModifiers} select={addToModifiers} empty={() => setSelectedModifiers([])}/>
+    )
+}
+
+const DifficultyTables = ({}) =>
     <div>
         <Hideable text='difficulties' props={<Table items={difficulties}/>}/>
         <div className='difficulties'>
-            <Hideable text='modifiers' props={<Table items={difficultyModifiers}/>}/>
+            <Hideable text='modifiers' props={<ModifiersTable />}/>
         </div>
     </div>
 
-export default DifficultyTable
+export default DifficultyTables

@@ -3,6 +3,7 @@ import { Log, ManualWeaponRollReq, WeaponType, manualWeaponRoll } from "./CyberC
 import LogViewer from './LogViewer'
 import Navbar from "./Navbar"
 import { Button } from "./Common"
+import { CrtEffect } from "./MainPage"
 
 //TODO: set parameters
 const WeaponTool = ({}) => {
@@ -40,6 +41,7 @@ const WeaponTool = ({}) => {
 
     return( 
         <div className="main">
+            <CrtEffect />
             <Navbar />
             <h1>Weapon tool</h1>
             <table>

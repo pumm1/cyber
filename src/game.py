@@ -1,9 +1,10 @@
 from colorama import Fore
 
-import combat
+import src.combat as combat
 from collections import deque
-import skills
-from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands, help_commands, \
+import src.skills as skills
+import src.cyberService as cyberService
+from src.gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands, help_commands, \
     explain_str, add_reputation_str, add_char_help_str, advance_combat_initiative_str, list_combat_initiative_str, \
     new_combat_initiative_str, new_combat_initiative_help_str, clear_combat_str, character_str, \
     character_helper_str, roll_help_str, stun_check_str, stun_check_help_str, dmg_str, safeCastToInt, dmg_helper_str, \
@@ -18,14 +19,14 @@ from gameHelper import askInput, roll_str, split_at, add_char_str, exit_commands
     remove_status_help_str, remove_status_str, printGreenLine, fieldName, difficulty_check_str, coloredText, \
     notice_roll_str, notice_roll_help_str, add_character_for_notice_str, add_character_for_notice_help_str, \
     clear_notice_str, REF, EMP
-from characterBuilder import createCharacter
-import fumble, armor, weapon, chrome, dice, cyberdao as DAO
-import healing
-import status
-import notice
-from initiative import Initiative
-from logger import Log, log_neutral, log_event, log_neg, log_pos
-from character import CharacterShort
+from src.characterBuilder import createCharacter
+import src.fumble as fumble, src.armor as armor, src.weapon as weapon, src.chrome as chrome, src.dice as dice, cyberdao as DAO
+import src.healing as healing
+import src.status as status
+import src.notice as notice
+from src.initiative import Initiative
+from src.logger import Log, log_neutral, log_event, log_neg, log_pos
+from src.character import CharacterShort
 
 
 # TODO: explain e.g. reputation (1D10 + COOL + reputation (negative = minus)
@@ -73,18 +74,18 @@ def start():
                 case [_, 'face_off', character, roll]:
                     faceOffRollByName(character, roll)
                 case [_, 'melee_def', name]:
-                    skills.rollCharacterMeleeDef(name, roll=0)
+                    cyberService.rollCharacterMeleeDef(name, roll=0)
                 case [_, 'melee_def', name, roll]:
-                    skills.rollCharacterMeleeDef(name, roll)
+                    cyberService.rollCharacterMeleeDef(name, roll)
                 case [_, 'hit_loc']:
                     location = combat.determineHitLocation()
                     print(f'Hit {location}')
                 case [_, 'skill', name, skill]:
-                    skills.rollCharacterSkillByName(name, skill, roll=0, modifier=0)
+                    cyberService.rollCharacterSkillByName(name, skill, roll=0, modifier=0)
                 case [_, 'skill', name, skill, roll]:
-                    skills.rollCharacterSkillByName(name, skill, roll=roll, modifier=0)
+                    cyberService.rollCharacterSkillByName(name, skill, roll=roll, modifier=0)
                 case[_, 'skill', name, skill, roll, modifier]:
-                    skills.rollCharacterSkillByName(name, skill, roll=roll, modifier=modifier)
+                    cyberService.rollCharacterSkillByName(name, skill, roll=roll, modifier=modifier)
                 case _:
                     print(roll_help_str)
         elif command.startswith(notice_roll_str):
@@ -106,9 +107,9 @@ def start():
         elif command.startswith(lvl_up_skill_str):
             match command_parts:
                 case [_, name, skill_id, update_amount]:
-                    skills.updateCharSkill(name, skill_id, update_amount)
+                    cyberService.updateCharSkill(name, skill_id, update_amount)
                 case [_, name, skill_id]:
-                    skills.updateCharSkill(name, skill_id, lvl_up_amount=1)
+                    cyberService.updateCharSkill(name, skill_id, lvl_up_amount=1)
                 case _:
                     print(lvl_up_skill_help_str)
         elif command.startswith(add_char_str):
@@ -125,7 +126,7 @@ def start():
         elif command.startswith(add_armor_str):
             match command_parts:
                 case [_, name]:
-                    armor.addArmorForCharacterByName(name)
+                    cyberService.addArmorForCharacterByName(name)
                 case _:
                     print(f'{add_armor_help_str}')
         elif command.startswith(fumble_str):
@@ -201,13 +202,13 @@ def start():
         elif command.startswith(add_weapon_str):
             match command_parts:
                 case [_, name]:
-                    weapon.addChracterWeaponByName(name)
+                    cyberService.addChracterWeaponByName(name)
                 case _:
                     print(add_weapon_help_str)
         elif command.startswith(add_chrome_str):
             match command_parts:
                 case [_, name]:
-                    chrome.addChromeByName(name)
+                    cyberService.addChromeByName(name)
                 case _:
                     print(add_chrome_help_str)
         elif command.startswith(attack_str):
@@ -237,7 +238,7 @@ def start():
         elif command.startswith(suppressive_fire_def_str):
             match command_parts:
                 case [_, name, rounds, area]:
-                    combat.suppressiveFireDef(name, rounds, area)
+                    cyberService.suppressiveFireDef(name, rounds, area)
                 case _:
                     print(suppressive_fire_def_help_str)
         elif command.startswith(medical_check_str):
@@ -257,31 +258,31 @@ def start():
         elif command.startswith(heal_str):
             match command_parts:
                 case [_, name, amount]:
-                    healing.healCharacterByName(name, amount)
+                    cyberService.healCharacterByName(name, amount)
                 case _:
                     print(heal_help_str)
         elif command.startswith(repair_sp_str):
             match command_parts:
                 case [_, name]:
-                    armor.repairSPByName(name)
+                    cyberService.repairSPByName(name)
                 case _:
                     print(f'{repair_sp_help_str}')
         elif command.startswith(remove_armor_str):
             match command_parts:
                 case [_, name, armor_id]:
-                    armor.removeArmorByName(name, armor_id)
+                    cyberService.removeArmorByName(name, armor_id)
                 case _:
                     print(f'{remove_armor_help_str}')
         elif command.startswith(add_status_str):
             match command_parts:
                 case [_, name]:
-                    status.addStatusManual(name)
+                    cyberService.addStatusManual(name)
                 case _:
                     print(f'{add_status_help_str}')
         elif command.startswith(remove_status_str):
             match command_parts:
                 case [_, name, status_id]:
-                    status.removeStatusByCharName(name, status_id)
+                    cyberService.removeStatusByCharName(name, status_id)
                 case _:
                     print(remove_status_help_str)
 
@@ -336,9 +337,9 @@ def rollInitiativeByCharacterId(char_id):
         init_bonus = character.initiativeBonus
         ref = character.attributes[REF]
         roll = 0
-        (roll, _) = dice.rollWithCrit(True)
-        res = roll + ref + init_bonus
-        print(f'Initiative roll for {character.name} = {res} [roll = {roll} initiative_bonus = {init_bonus}, REF = {ref}]')
+        (roll_res, _) = dice.rollWithCrit(True)
+        res = roll_res + ref + init_bonus
+        print(f'Initiative roll for {character.name} = {res} [roll = {roll_res} initiative_bonus = {init_bonus}, REF = {ref}]')
 
         return res
     else:
@@ -354,7 +355,7 @@ def listCombatInitiative():
     print(f"Turn order: \n{info}")
 
 
-def combatInitiativeOrder() -> list[str]:
+def combatInitiativeOrder() -> list:
     rows = DAO.listCombatInitiative(ascending=False)
     initiative_arr = map(lambda row: (
         Initiative(row).asJson()
@@ -526,7 +527,7 @@ def updateCharacterBackground(character_id, background: str | None) -> list[Log]
     c = DAO.getCharacterById(character_id)
     if c is not None:
         DAO.updateCharacterBackground(character_id, background)
-        logs = log_event(logs, f'{c.name} background updated', log_neutral)
+        logs = log_event(logs, f'{c.name} information updated', log_neutral)
     else:
         logs = log_event(logs, f"Character not found [id = {character_id}]", log_neg)
     return logs

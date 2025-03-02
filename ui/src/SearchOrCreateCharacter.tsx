@@ -160,7 +160,7 @@ const ListCharacters = ({characters, setCharacterById, updateLogs, setAllCharact
                     </tr>
                 </tbody>
                 {filteredCharacters.map(c => 
-                    <CharacterListRow character={c} isAlreadyInCombat={isAlreadyInCombat} updateCharacters={updateCharacters} updateLogs={updateLogs} removeCharacter={removeCharacter} updateInitiatives={updateInitiatives} setCharacterById={setCharacterById} addToCombatReq={addToCombatReq}/>
+                    <CharacterListRow key={c.id} character={c} isAlreadyInCombat={isAlreadyInCombat} updateCharacters={updateCharacters} updateLogs={updateLogs} removeCharacter={removeCharacter} updateInitiatives={updateInitiatives} setCharacterById={setCharacterById} addToCombatReq={addToCombatReq}/>
                 )}
             </table>
         </>
@@ -200,8 +200,6 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives, skills, updateInitiat
             setCharacter(char)
             setCharacterEditable(false)
         })
-
-    const allowAddingToInitiative = character ? !initiatives.find(i => i.charId === character.id) : false
     
     //why using form breaks this in backend?
     return(
@@ -213,7 +211,7 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives, skills, updateInitiat
                 {character && <Button label='Hide character' className='withLeftSpace' onClick={() => setCharacter(undefined)}/>}
             </div>
             {!!character &&
-                 <div><CharacterSheet updateCharacterList={updateCharacterList} allowAddingToInitiative={allowAddingToInitiative} editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
+                 <div><CharacterSheet updateCharacterList={updateCharacterList} editCharacter={setCharacter} edit={characterEditable} updateCharacter={updateCharacter} character={character} allSkills={allSkills} updateLogs={updateLogs}/></div>
             }
         </>
     )

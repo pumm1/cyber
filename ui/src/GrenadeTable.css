@@ -11,6 +11,10 @@
     max-width: 200px;
 }
 
+.gridDirection {
+    background-color: grey;
+}
+
 .tableContainer {
     margin-top: 8px;
     display: grid;
@@ -22,6 +26,15 @@
 
 .tableContainer span {
     border: solid black 4px;
+    display: grid;
+    align-content: center;
+    text-align: center;
+    aspect-ratio: 1;
+}
+
+
+.tableContainer span:empty {
+    border: none;
     display: grid;
     align-content: center;
     text-align: center;

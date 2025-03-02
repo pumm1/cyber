@@ -108,7 +108,7 @@ export interface Skill {
     skill: string
 }
 
-const stringSortFn = (a: string, b: string) => {
+export const stringSortFn = (a: string, b: string) => {
     if(a < b) {
         return -1
     } else if (a > b) {
@@ -232,7 +232,7 @@ export interface CharacterStatus extends AddCharacterStatusReq {
 }
 
 export interface Character extends CharacterShort {
-    background?: string
+    background?: string | null
     specialAbility: string, //TODO: enum?
     specialAbilityLvl: number
     bodyType: string
@@ -461,8 +461,10 @@ export interface Initiative {
     charId: number
     name: string
     initiative: number
+    condition: string
     current: boolean
 }
+
 export const listInitiative = () =>
     fetchDataAs<Initiative[]>(`${pathBase}/list-initiative`)
 

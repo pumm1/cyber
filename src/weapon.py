@@ -2,15 +2,12 @@ import math
 
 from colorama import Fore
 
-from gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handgun, t_smg, t_rifle, t_thrown, BODY, \
+from src.gameHelper import weapon_types, t_shotgun, askInput, safeCastToInt, t_handgun, t_smg, t_rifle, t_thrown, BODY, \
     guns, point_blank_range_str, close_range_str, medium_range_str, long_range_str, extreme_range_str, \
     impossible_range_str, askForRoll, all_con, wep_all_reliabilities, yes_no, coloredText, con_pocket, \
     wep_standard_reliability
-import dice
-import cyberdao as DAO
-from chrome import handleHumanity
-from logger import Log, log_event, log_pos, log_neg, log_neutral
-from character import Character
+import src.dice as dice
+from src.logger import Log, log_event, log_pos, log_neg, log_neutral
 
 
 class Weapon:
@@ -188,89 +185,6 @@ def manualWeaponFromReq(weapon_type, wa, rof, clip_size, shots_left, custom_rang
     return Weapon(row, custom_range)
 
 
-def addCharWeapon(
-        char: Character, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None, rof=None,
-        humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None, effect_radius=None,
-        custom_range=None
-) -> list[Log]:
-    logs = []
-    if char is not None:
-        if weapon_name is None:
-            print(f'Give weapon name:')
-            weapon_name = askInput()
-        if clip_size is None or weapon_t is None:
-            (weapon_t, clip_size) = askWeaponType()
-        weapon_range = rangeByType(char.attributes[BODY], weapon_t, custom_range=custom_range)
-        is_chrome = False
-        if humanity_cost is None:
-            is_chrome = askForChrome()
-        elif humanity_cost > 0:
-            is_chrome = True
-        if effect_radius is None:
-            print('Give effect radius (e.g. explosives)')
-            r = askInput()
-            effect_radius = safeCastToInt(r)
-        if rof is None:
-            rof = 1
-            rof = askRof()
-
-        if wa is None:
-            wa = askWa()
-        if con is None:
-            con = askCon()
-        if reliability is None:
-            reliability = askReliability()
-        if weight is None:
-            weight = askWeight()
-
-        if dice is None or die is None or divide_by is None or bonus is None:
-            (dice, die, divide_by, bonus) = askForRoll()
-
-        DAO.addWeapon(char.id, weapon_name, weapon_t, is_chrome, dice, die, divide_by, bonus, weapon_range, rof, clip_size,
-                      effect_radius, wa, con, reliability, weight)
-
-        if is_chrome:
-            (_, humanity_logs) = handleHumanity(char, humanity_cost=humanity_cost)
-            logs = logs + humanity_logs
-
-        logs = log_event(logs, f'Weapon ({weapon_name}) added!', log_pos)
-    else:
-        logs = log_event(logs, 'Character not found for weapon add', log_neg)
-
-    return logs
-
-
-def addCharacterWeaponById(
-        character_id, dice=None, die=None, divide_by=None, bonus=0, weapon_name=None, clip_size=None,
-        rof=None, humanity_cost=None, weapon_t=None, wa=None, con=None, weight=None, reliability=None,
-        effect_radius=None, custom_range=None
-) -> list[Log]:
-    char = DAO.getCharacterById(character_id)
-    logs = addCharWeapon(
-        char,
-        dice=dice,
-        die=die,
-        divide_by=divide_by,
-        bonus=bonus,
-        weapon_name=weapon_name,
-        clip_size=clip_size,
-        rof=rof,
-        humanity_cost=humanity_cost,
-        weapon_t=weapon_t,
-        wa=wa,
-        con=con,
-        weight=weight,
-        reliability=reliability,
-        effect_radius=effect_radius,
-        custom_range=custom_range
-    )
-    return logs
-
-def addChracterWeaponByName(character_name):
-    char = DAO.getCharacterByName(character_name)
-    addCharWeapon(char)
-
-
 def askRof() -> int:
     print(f'Weapon ROF: (ROF > 0)')
     rof = 0
@@ -280,19 +194,6 @@ def askRof() -> int:
         if rof > 0:
             break
     return rof
-
-def removeWeapon(character, weapon_id) -> list[Log]:
-    logs = []
-    if character is not None:
-        DAO.deleteCharacterWeapon(character.id, weapon_id)
-        logs = log_event(logs, f'Character weapon removed', log_neutral)
-    else:
-        logs = log_event(logs, f'Character not found for weapon removal', log_neg)
-    return logs
-
-def removeWeaponByCharacterId(character_id, weapon_id) -> list[Log]:
-    character = DAO.getCharacterById(character_id)
-    return removeWeapon(character, weapon_id)
 
 
 def rangeByType(body, weapon_t, custom_range=None) -> int:

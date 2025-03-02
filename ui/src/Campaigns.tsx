@@ -6,6 +6,7 @@ import { Button, TextArea } from "./Common";
 
 import './MainPage.css'
 import './Campaigns.css'
+import { CrtEffect } from "./MainPage";
 
 interface ListedCharactersProps {
     characters: CharacterShort[]
@@ -431,6 +432,7 @@ const Campaigns = ({}) => {
 
     return( 
         <div className="main">
+            <CrtEffect />
             <Navbar />
             <h2>Campaigns</h2>
             <SelectedCampaignInfo />

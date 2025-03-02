@@ -1,11 +1,11 @@
 import math
 import random
 
-from gameHelper import safeCastToInt, askInput, roll_str, printGreenLine, printRedLine
-from logger import Log, log_event, log_pos, log_neg
+from src.gameHelper import safeCastToInt, askInput, roll_str, printGreenLine, printRedLine
+from src.logger import Log, log_event, log_pos, log_neg
 
 
-def roll(n, d_die, divide_by=1, bonus=0) -> int:
+def roll(n, d_die, divide_by=1, bonus=0, skip_log=False) -> int:
     if divide_by == 0:
         divide_by = 1
     res = 0
@@ -13,7 +13,8 @@ def roll(n, d_die, divide_by=1, bonus=0) -> int:
         die_roll = random.randint(1, d_die)
         res = res + die_roll
     dice_roll_res = math.ceil(res / divide_by) + bonus
-    print(f'Rolled {dice_roll_res} (before possible div: {res}) from {diceToStr(n, d_die, divide_by, bonus)}')
+    if not skip_log:
+        print(f'Rolled {dice_roll_res} (before possible div: {res}) from {diceToStr(n, d_die, divide_by, bonus)}')
     return dice_roll_res
 
 def diceToStr(n, d_die, divide_by, bonus) -> str:
@@ -30,19 +31,19 @@ def diceToStr(n, d_die, divide_by, bonus) -> str:
     return str
 
 def resolveAutoOrManualRollWithCrit(auto_roll=False, skip_luck=False):
-    roll = 0
+    roll_res = 0
     i = ''
-    while roll <= 0:
+    while roll_res <= 0:
         if auto_roll is False:
             print(f'{roll_str} or give roll:')
             i = askInput()
         else:
             i = roll_str
         if i == roll_str:
-            (roll, _) = rollWithCrit(skip_luck)
+            (roll_res, _) = rollWithCrit(skip_luck)
         else:
-            roll = safeCastToInt(i)
-    return roll
+            roll_res = safeCastToInt(i)
+    return roll_res
 
 
 def handleLuck(skip_luck=False):

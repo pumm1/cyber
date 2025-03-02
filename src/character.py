@@ -1,12 +1,12 @@
-import dice
-from roles import roleSpecialAbility
-import bodytypes
-from gameHelper import woundState, woundStatePlain, body_part_head, body_part_body, \
+import src.dice as dice
+from src.roles import roleSpecialAbility
+import src.bodytypes as bodytypes
+from src.gameHelper import woundState, woundStatePlain, body_part_head, body_part_body, \
     body_part_r_arm, body_part_l_arm, body_part_l_leg, body_part_r_leg, safeCastToInt, infoStr, fieldName, coloredText, \
     no_dmg, light_dmg, BODY
 from colorama import Fore
 
-from skill import SkillInfo
+from src.skill import SkillInfo
 
 
 class CharacterShort:

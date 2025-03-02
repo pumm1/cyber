@@ -1,10 +1,21 @@
-import DifficultyTable from "./DifficultyTable";
+import DifficultyTables from "./DifficultyTables";
 import GrenadeTable from "./GrenadeTable";
 import JamTable from "./JamTable";
+import LogViewer from './LogViewer';
 
-export const InfoTables = ({}) => 
-    <div>
-        <DifficultyTable />
+import './InfoTables.css'
+import { Log } from "./CyberClient";
+
+interface InfoTablesProps {
+    emptyLogsFn: () => void
+    addToLogs: (l: Log) => void
+    logs: Log[]
+}
+
+export const InfoTables = ({logs, addToLogs, emptyLogsFn}: InfoTablesProps) => 
+    <div className="infoTables">
+        <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogsFn} />
+        <DifficultyTables />
         <JamTable />
         <GrenadeTable />
     </div>

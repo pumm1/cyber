@@ -7,6 +7,9 @@ import { InfoTables } from './InfoTables';
 
 import './MainPage.css';
 
+export const CrtEffect =({}) =>
+  <div className="crt-effect" />
+
 const App = ({}) => {
   const [logs, setLogs] = useState<Log[]>([])
   const [allSkills, setSkills] = useState<Skill[]>([])
@@ -37,17 +40,26 @@ const App = ({}) => {
 
 
   return (
-    <div className='main'>
-      <Navbar />
-      <h1>Welcome to the NET</h1>
-      <div className='infoContainer'>
-        <div className='sheetContainer'>
-          <SearchOrCreateCharacter skills={allSkills} updateInitiatives={updateInitiatives} initiatives={initiatives} updateLogs={updateLogs}/>
-          <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogs}/>
+    <>
+      <div className="main">
+        <CrtEffect />
+        <Navbar />
+        <h1>Welcome to the NET</h1>
+        <div className="infoContainer">
+          <div className="sheetContainer">
+            <SearchOrCreateCharacter
+              skills={allSkills}
+              updateInitiatives={updateInitiatives}
+              initiatives={initiatives}
+              updateLogs={updateLogs}
+            />
+          </div>
+          <div>
+            <InfoTables logs={logs} addToLogs={addToLogs} emptyLogsFn={emptyLogs}/>
+          </div>
         </div>
-        <InfoTables />
       </div>
-    </div>
+    </>
   )
 }
 

@@ -1,21 +1,18 @@
 import random
 
-import dice
-import cyberdao as DAO
-import roles
-import bodytypes
-from gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str, INT, REF, TECH, \
+import src.dice as dice
+import src.cyberdao as DAO
+import src.roles as roles
+import src.bodytypes as bodytypes
+from src.gameHelper import askInput, checkRollCommand, checkListCommand, safeCastToInt, roll_str, list_str, INT, REF, TECH, \
     COOL, ATTR, LUCK, MA, BODY, EMP, body_part_l_arm, body_part_body, body_part_head, body_part_r_arm, t_melee, \
     t_handgun, t_shotgun, t_rifle, t_thrown, t_smg, con_pocket, con_long_coat, con_jacket, not_hideable, yes_no, \
     body_part_l_leg, body_part_r_leg, printGreenLine, printRedLine, wep_standard_reliability, GEAR_TIER_LOW, \
     GEAR_TIER_MID, GEAR_TIER_HIGH, gear_is_allowed, GEAR_TIER_COMMON
-from logger import log_event, log_pos
-from skills import udpateCharacterSkill
-from roles import role_skills, role_guns, role_armors
-from weapon import addCharacterWeaponById
-from armor import addArmorForCharacter
-from chrome import addChromeByCharacterId
-import genericGear
+from src.logger import log_event, log_pos
+from src.cyberService import udpateCharacterSkill, addChromeByCharacterId, addCharacterWeaponById, addArmorForCharacter
+from src.roles import role_skills, role_guns, role_armors
+import src.genericGear as genericGear
 
 
 def rollAtr():
