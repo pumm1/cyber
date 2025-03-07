@@ -7,9 +7,10 @@ interface DiceProps {
     numberOfDice: number
     dDie: number
     updateResult?: (n: number) => void
+    hideResult?: boolean
 }
 
-const Dice = ({numberOfDice, dDie, updateResult}: DiceProps) => {
+const Dice = ({numberOfDice, dDie, updateResult, hideResult}: DiceProps) => {
     const [roll, setRoll] = useState<undefined | number>(undefined)
 
     useEffect(() => {
@@ -21,7 +22,7 @@ const Dice = ({numberOfDice, dDie, updateResult}: DiceProps) => {
         <div className='diceContainer'>
             <span className='dice'>
                 <Button label={`ROLL [${numberOfDice}D${dDie}]`} onClick={() => rollDice(rollReq).then(res => setRoll(res))}/>
-                {roll !== undefined && <div className='result'>{roll}</div>}
+                {roll !== undefined && !hideResult && <div className='result'>{roll}</div>}
             </span>
         </div>
     )
