@@ -4,6 +4,58 @@ import LogViewer from './LogViewer'
 import Navbar from "./Navbar"
 import { Button } from "./Common"
 import { CrtEffect } from "./MainPage"
+import { RangePB, RangeClose, RangeMedium, RangeLong, RangeExtreme, RangeResult, HitTable } from "./HitTable"
+
+const resolveRange = (wepRange: number, targetRange: number) => {
+    if (targetRange <= 1) {
+        return RangePB
+    } else if (wepRange / 4 >= targetRange) {
+        return RangeClose
+    } else if (wepRange / 2 >= targetRange) {
+        return RangeMedium
+    } else if (wepRange >= targetRange) {
+        return RangeLong
+    } else {
+        return RangeExtreme
+    }
+}
+
+interface RangeInfoProps {
+    wepRange: number
+    targetRange: number
+}
+
+const RangeInfo = ({wepRange, targetRange}: RangeInfoProps) => {
+    const range: RangeResult = resolveRange(wepRange, targetRange)
+
+    return (
+        <div>
+            {range.range} (To beat: {range.toBeat})
+        </div>
+    )
+}
+
+const RangeTool = ({}) => {
+    const [rangeToTarget, setRangeToTarget] = useState(1)
+    const [weaponRange, setWeaponRange] = useState(50)
+    const min = 1
+    const max = 1000
+    return (
+        <>
+            <div>
+                <RangeInfo wepRange={weaponRange} targetRange={rangeToTarget}/>
+                <div>
+                    Weapon range (m): <input type='number' value={weaponRange} onChange={e => setWeaponRange(parseInt(e.target.value))} min={min} max={max} />
+                </div>
+                <div>
+                    
+                    Range to target (m): <input type='number' value={rangeToTarget} onChange={e => setRangeToTarget(parseInt(e.target.value))} min={min} max={max} />
+                </div>
+            </div>
+            <HitTable />
+        </>
+    )
+}
 
 //TODO: set parameters
 const WeaponTool = ({}) => {
@@ -84,7 +136,7 @@ const WeaponTool = ({}) => {
                 </tr>
             </table>
             <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={() => setLogs([])}/>
-
+            <RangeTool />
         </div>
     )
 }

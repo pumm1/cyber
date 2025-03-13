@@ -1,6 +1,6 @@
 import DifficultyTables from "./DifficultyTables";
 import GrenadeTable from "./GrenadeTable";
-import JamTable from "./JamTable";
+import WeaponTables from "./JamTable";
 import LogViewer from './LogViewer';
 import { Log } from "./CyberClient";
 import Fumbles from "./FumbleTable";
@@ -18,6 +18,6 @@ export const InfoTables = ({logs, addToLogs, emptyLogsFn}: InfoTablesProps) =>
         <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={emptyLogsFn} />
         <DifficultyTables />
         <Fumbles />
-        <JamTable />
+        <WeaponTables />
         <GrenadeTable />
     </div>

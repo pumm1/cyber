@@ -1,5 +1,6 @@
 import { Reliability } from './CyberClient'
 import Hideable from './Hideable'
+import { HitTable } from './HitTable'
 
 interface ReliabilityValue {
     label: string
@@ -27,7 +28,7 @@ const veryReliable = {
 
 const reliabilities: ReliabilityValue[] = [unreliable, standard, veryReliable]
 
-const Table = ({}) => {
+const JamTable = ({}) => {
     return(
         <table>
             <tr>
@@ -44,7 +45,16 @@ const Table = ({}) => {
     )
 }
 
-const JamTable = ({}) => 
-    <Hideable text='weapon jam table' props={<Table />}/>
+const Tables = ({}) => {
+    return (
+        <div>
+            <HitTable />
+            <JamTable />
+        </div>
+    )
+}
 
-export default JamTable
+const WeaponTables = ({}) => 
+    <Hideable text='weapon table' props={<Tables />}/>
+
+export default WeaponTables
