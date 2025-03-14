@@ -6,6 +6,8 @@ import { Button } from "./Common"
 import { CrtEffect } from "./MainPage"
 import { RangePB, RangeClose, RangeMedium, RangeLong, RangeExtreme, RangeResult, HitTable } from "./HitTable"
 
+import './WeaponTool.css'
+
 const resolveRange = (wepRange: number, targetRange: number) => {
     if (targetRange <= 1) {
         return RangePB
@@ -41,19 +43,82 @@ const RangeTool = ({}) => {
     const min = 1
     const max = 1000
     return (
-        <>
+        <div className="section">
             <div>
                 <RangeInfo wepRange={weaponRange} targetRange={rangeToTarget}/>
-                <div>
+                <div className="smallSection">
                     Weapon range (m): <input type='number' value={weaponRange} onChange={e => setWeaponRange(parseInt(e.target.value))} min={min} max={max} />
                 </div>
-                <div>
-                    
+                <div className="smallSection">
                     Range to target (m): <input type='number' value={rangeToTarget} onChange={e => setRangeToTarget(parseInt(e.target.value))} min={min} max={max} />
                 </div>
             </div>
             <HitTable />
-        </>
+        </div>
+    )
+}
+
+interface DmgResult {
+    passingDmg: number
+    armorDamaged: boolean
+}
+
+const ArmorTool = ({}) => {
+    const [armor, setArmor] = useState(10)
+    const [incomingDmg, setIncomingDmg] = useState(1)
+    const [result, setResult] = useState<DmgResult | undefined>()
+
+    const handleArmorByDmg = (): DmgResult => {
+        if (armor - incomingDmg <= 0) {
+            const armorDamaged = (armor > 0 ? true : false)
+            if (armorDamaged) {
+                setArmor(armor - 1)
+            }
+            return (
+                {
+                    passingDmg: Math.abs(armor - incomingDmg),
+                    armorDamaged
+                }
+            )
+        } else {
+            return (
+                {
+                    passingDmg: 0,
+                    armorDamaged: false
+                }
+            )
+        }
+    }
+
+    const minDmg = 1
+    const minArmor = 0
+    
+    return(
+        <div className="section">
+            {result && 
+            <>
+                Result:
+                <div className="smallSection">
+                    <div className="smallSection">
+                        {result.passingDmg > 0 ? 
+                            `Passing dmg: ${result.passingDmg}`
+                        : 'No damage'
+                    }
+                    </div>
+                   {result.armorDamaged && <div className="smallSection">
+                        Armor damaged!
+                    </div>}
+                </div>
+            </>
+            }
+            <div className="smallSection">
+                Armor: <input type='number' value={armor} onChange={e => setArmor(parseInt(e.target.value))} min={minArmor}/>
+            </div>
+            <div className="smallSection">
+                Incoming dmg: <input type='number' value={incomingDmg} onChange={e => setIncomingDmg(parseInt(e.target.value))} min={minDmg}/>
+            </div>
+            <button onClick={() => setResult(handleArmorByDmg())}>Dmg</button>
+        </div>
     )
 }
 
@@ -137,6 +202,7 @@ const WeaponTool = ({}) => {
             </table>
             <LogViewer logs={logs} addToLogs={addToLogs} emptyLogs={() => setLogs([])}/>
             <RangeTool />
+            <ArmorTool />
         </div>
     )
 }
