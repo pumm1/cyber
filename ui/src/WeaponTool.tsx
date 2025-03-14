@@ -61,23 +61,29 @@ const RangeTool = ({}) => {
 interface DmgResult {
     passingDmg: number
     armorDamaged: boolean
+    extraInfo?: string
 }
 
 const ArmorTool = ({}) => {
     const [armor, setArmor] = useState(10)
     const [incomingDmg, setIncomingDmg] = useState(1)
     const [result, setResult] = useState<DmgResult | undefined>()
+    const [isAp, setIsAp] = useState(false)
 
     const handleArmorByDmg = (): DmgResult => {
-        if (armor - incomingDmg <= 0) {
+        const armorUsed = isAp ? Math.ceil(armor / 2) : armor
+        if (armorUsed - incomingDmg <= 0) {
+            const extraInfo: string | undefined = 
+                isAp ? `(Effective armor calculated for AP: ${armorUsed})` : undefined
             const armorDamaged = (armor > 0 ? true : false)
             if (armorDamaged) {
                 setArmor(armor - 1)
             }
             return (
                 {
-                    passingDmg: Math.abs(armor - incomingDmg),
-                    armorDamaged
+                    passingDmg: Math.abs(armorUsed - incomingDmg),
+                    armorDamaged,
+                    extraInfo
                 }
             )
         } else {
@@ -106,7 +112,7 @@ const ArmorTool = ({}) => {
                     }
                     </div>
                    {result.armorDamaged && <div className="smallSection">
-                        Armor damaged!
+                        Armor damaged! {result.extraInfo ?? ''}
                     </div>}
                 </div>
             </>
@@ -116,6 +122,9 @@ const ArmorTool = ({}) => {
             </div>
             <div className="smallSection">
                 Incoming dmg: <input type='number' value={incomingDmg} onChange={e => setIncomingDmg(parseInt(e.target.value))} min={minDmg}/>
+            </div>
+            <div className="smallSection">
+                <input type='checkbox' checked={isAp} onClick={() => setIsAp(!isAp)}/> AP
             </div>
             <button onClick={() => setResult(handleArmorByDmg())}>Dmg</button>
         </div>
