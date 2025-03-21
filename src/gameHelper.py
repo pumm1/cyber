@@ -265,11 +265,26 @@ def fieldName(field):
 
 def calculateModifierBonus(armors, cybernetics, modifier):
     bonus = 0
+    uniq_atr_bonuses = []
+    def contains(item):
+        contains = False
+        for i in uniq_atr_bonuses:
+            if i.id == item.id:
+                contains = True
+                break
+
+        return contains
+
     for armor in armors:
-        bonus += armor.atr_bonuses.attributes[modifier]
+        if not contains(armor.atr_bonuses):
+            uniq_atr_bonuses.append(armor.atr_bonuses)
 
     for cybernetic in cybernetics:
-        bonus += cybernetic.atr_bonuses.attributes[modifier]
+        if not contains(cybernetic.atr_bonuses):
+            uniq_atr_bonuses.append(cybernetic.atr_bonuses)
+
+    for atr_bonus in uniq_atr_bonuses:
+        bonus += atr_bonus.attributes[modifier]
 
     return bonus
 

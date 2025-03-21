@@ -3,6 +3,7 @@ from collections import defaultdict
 import psycopg
 from colorama import Fore
 
+from src.body import resolve_btm_from_body
 from src.cyberschema import db, user, password, host, table_skills, table_characters, table_character_skills, \
     table_reputation, table_character_armors, table_character_weapons, table_combat_session, table_character_sp, \
     table_events, table_character_chrome, table_character_statuses, table_character_quick_notice, \
@@ -117,10 +118,8 @@ def getCharacter(char_row) -> Character | None:
 
         (ref, int, cool) = woundEffect(dmg_taken, char_row['atr_ref'], char_row['atr_int'], char_row['atr_cool'])
 
-        item_body_type_bonus = calculateModifierBonus(armors, cybernetics, BODY_TYPE_MOD)
         item_init_bonus = calculateModifierBonus(armors, cybernetics, INIT_BONUS)
 
-        bodyTypeModifier = char_row['body_type_modifier'] + item_body_type_bonus
         initiativeBonus = char_row['initiative_bonus'] + item_init_bonus
 
         item_modifier_bonuses = {
@@ -135,6 +134,8 @@ def getCharacter(char_row) -> Character | None:
             EMP: calculateModifierBonus(armors, cybernetics, EMP),
         }
 
+        body_value = char_row['atr_body'] + item_modifier_bonuses[BODY]
+
         attributes = {
             INT: int + item_modifier_bonuses[INT],
             REF: ref - ev_total + item_modifier_bonuses[REF],
@@ -142,10 +143,12 @@ def getCharacter(char_row) -> Character | None:
             COOL: cool + item_modifier_bonuses[COOL],
             ATTR: char_row['atr_attr'] + item_modifier_bonuses[ATTR],
             MA: char_row['atr_ma'] + item_modifier_bonuses[MA],
-            BODY: char_row['atr_body'] + item_modifier_bonuses[BODY],
+            BODY: body_value,
             LUCK: char_row['atr_luck'] + item_modifier_bonuses[LUCK],
             EMP: char_row['atr_emp'] + item_modifier_bonuses[EMP]
         }
+
+        bodyTypeModifier = resolve_btm_from_body(body_value)
 
         weapon_rows = characterWeapons(id, body=attributes[BODY])
 
@@ -345,7 +348,7 @@ def updateCharSpecial(char_id, role, value):
 
 
 
-def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_ref, atr_tech, atr_cool, atr_attr,
+def addCharacter(name, role, special_ability, atr_int, atr_ref, atr_tech, atr_cool, atr_attr,
                  atr_luck, atr_ma, atr_body, atr_emp, initiative_bonus=0):
     if role == solo:
         initiative_bonus = special_ability
@@ -353,9 +356,9 @@ def addCharacter(name, role, special_ability, body_type_modifier, atr_int, atr_r
     with conn.cursor() as cur:
         cur.execute(
             f"""{insert_into} {table_characters} 
-            (name, role, special_ability, body_type_modifier, humanity, ip, initiative_bonus,
+            (name, role, special_ability, humanity, ip, initiative_bonus,
             atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp, dmg_taken, emp_max)
-            VALUES ('{name}', '{role}', {special_ability}, {body_type_modifier}, {atr_emp * 10}, 0, {initiative_bonus},
+            VALUES ('{name}', '{role}', {special_ability}, {atr_emp * 10}, 0, {initiative_bonus},
             {atr_int}, {atr_ref}, {atr_tech}, {atr_cool}, {atr_attr}, {atr_luck}, {atr_ma}, {atr_body}, {atr_emp}, 0, {atr_emp})
             RETURNING id;"""
         )

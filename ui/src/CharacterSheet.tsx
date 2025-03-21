@@ -1011,6 +1011,22 @@ interface SaveAndHealthProps extends UpdateCharacterAndLogs{
     updateCharacterBTM: (n: number) => void
 }
 
+const resolveBtmForEdit = (body: number): number => {
+    if (body <= 2) {
+        return 0
+    } else if (3 <= body && body <= 4) {
+        return 1
+    } else if (5 <= body && body <= 7) {
+        return 2
+    } else if (8 <= body && body <= 9) {
+        return 3
+    } else if (body === 10) {
+        return 4
+    } else {
+        return 5
+    }
+}
+
 const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomize, updateCharacterBTM}: SaveAndHealthProps) => {
     const { dmgTaken } = character
     const save = character.attributes.BODY
@@ -1046,9 +1062,13 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
             case 4:
                 return 'V.Strong'
             default:
-                return 'Inhuman'
+                return 'Superhuman'
         }
     }
+
+    useEffect(() => {
+        updateCharacterBTM(character.attributes.BODY)
+    }, [character.attributes.BODY])
 
 
     return(
@@ -1064,13 +1084,10 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
                     <div className='boxLabel'>BTM</div>
                     <div className='boxValue'>
                         <div className='boxValueFlex'>
-                            -{btm}
-                            {edit && !randomize &&
-                                <ValueChanger onChange={updateCharacterBTM} baseValue={btm}/>
-                            }
+                            -{edit ? resolveBtmForEdit(character.attributes.BODY) : btm}
                         </div>
                     </div>
-                    <div className='btmLabel'>{btmByValue(btm)}</div>
+                    <div className='btmLabel'>{btmByValue(edit ? resolveBtmForEdit(character.attributes.BODY) : btm)}</div>
                 </div>
                 {!edit && <div className='withMoreLeftSpace'>
                     <div className='dmgTakenOuterbox'>

@@ -354,21 +354,6 @@ def rollBodyType():
     body_type = dice.roll(1, 5) - 1
     return body_type
 
-
-def addBodyType(given_body_type=None) -> int:
-    print(f'<give body type> or {roll_str} random body type ({list_str} to show all)')
-    body_type = 0
-    if given_body_type is not None:
-        ans = given_body_type
-        body_type = safeCastToInt(ans)
-        if body_type > 4:
-            print(print(f'Body type {bodytypes.superhuman} is only achievable through cybernetics'))
-            body_type = 0
-    else:
-        body_type = handleManualBodyType()
-    print(f'Body type modifier = {body_type} ({bodytypes.bodyTypeModifiersByValue(body_type)})')
-    return body_type
-
 def handleManualBodyType():
     body_type = None
     while True:
@@ -411,13 +396,11 @@ def createCharacter(name: str, roll_all=False, roll_atr=False):
 def createCharacterWithRandomAtr(name):
     role = addRole()
     special = addSpecial(role)
-    body_Type = addBodyType()
     (atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp) = rollAtributes()
     DAO.addCharacter(
         name,
         role,
         special,
-        body_Type,
         atr_int=atr_int,
         atr_ref=atr_ref,
         atr_tech=atr_tech,
@@ -433,13 +416,11 @@ def createCharacterWithRandomAtr(name):
 def createRandomCharacter(name, gear_tier=None):
     role = rollRole()
     special = rollSpecial(role)
-    body_type = rollBodyType()
     (atr_int, atr_ref, atr_tech, atr_cool, atr_attr, atr_luck, atr_ma, atr_body, atr_emp) = rollAtributes()
     character_id = DAO.addCharacter(
         name,
         role,
         special,
-        body_type,
         atr_int=atr_int,
         atr_ref=atr_ref,
         atr_tech=atr_tech,
@@ -501,13 +482,11 @@ def createCharacterFromReq(name, role, given_body_type, attributes, randomize=Fa
     if randomize:
         character_id = createRandomCharacter(name, gear_tier)
     else:
-        body_Type = addBodyType(given_body_type)
         special = 0
         character_id = DAO.addCharacter(
             name,
             role,
             special,
-            body_Type,
             atr_int=attributes[INT],
             atr_ref=attributes[REF],
             atr_tech=attributes[TECH],
@@ -525,7 +504,6 @@ def createCharacterFromReq(name, role, given_body_type, attributes, randomize=Fa
 def createManualCharacter(name):
     role = addRole()
     special = addSpecial(role)
-    body_Type = addBodyType()
     atr_int = addAttribute('INT')
     atr_ref = addAttribute('REF')
     atr_tech = addAttribute('TECH')
@@ -539,7 +517,6 @@ def createManualCharacter(name):
         name,
         role,
         special,
-        body_Type,
         atr_int=atr_int,
         atr_ref=atr_ref,
         atr_tech=atr_tech,

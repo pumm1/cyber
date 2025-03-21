@@ -10,6 +10,7 @@ import src.cyberdao as DAO
 
 class AtrBonus:
     def __init__(self, atr_row):
+        self.id = atr_row['id']
         self.attributes = {
             INT: atr_row[atr_int],
             REF: atr_row[atr_ref],

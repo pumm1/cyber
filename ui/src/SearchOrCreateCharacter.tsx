@@ -207,7 +207,7 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives, skills, updateInitiat
             <ListInitiative setCharacterById={setCharacterFn} initiatives={initiatives} updateInitiatives={updateInitiatives}/>
             <ListCharacters updateCharacters={updateCharacterList} updateCharacterList={updateCharacterList} updateInitiatives={updateInitiatives} initiatives={initiatives} characters={allCharacters ?? []} setCharacterById={setCharacterFn} updateLogs={updateLogs} setAllCharacters={setAllCharacters}/>
             <div className="search">
-                <Button label='Create' onClick={() => createCharacter()}/>
+                <Button label='Create new character' onClick={() => createCharacter()}/>
                 {character && <Button label='Hide character' className='withLeftSpace' onClick={() => setCharacter(undefined)}/>}
             </div>
             {!!character &&
