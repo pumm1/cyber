@@ -466,7 +466,7 @@ def rollCharacterMeleeDef(name, roll_res):
             if char_dodge_skill is not None:
                 char_dodge_lvl = char_dodge_skill.lvl
             roll_res = die_roll + atr_bonus + char_dodge_lvl
-            print(f"""(die roll = {die_roll} atr_bonus = {atr_bonus} dodge = {char_dodge_lvl})""")
+            print(f"""(die roll = {die_roll}, atr_bonus = {atr_bonus}, dodge = {char_dodge_lvl})""")
             printGreenLine(f"Melee def total: {roll_res} (hopefully the attacker rolled lower..)")
 
 
@@ -634,7 +634,7 @@ def rollCharacterSkill(character, skill_num, roll=0, modifier=0, added_luck=None
             logs = log_event(logs, f"""{character.name} rolled {roll_ress} for {skill_name}""", log_neutral)
             logs = log_event(
                 logs,
-                f"(die roll = {die_roll} atr_bonus = {atr_bonus} skill_level = {char_skill_lvl} modifier = {roll_modifier})",
+                f"(die roll = {die_roll}, atr_bonus = {atr_bonus}, skill_level = {char_skill_lvl}, modifier = {roll_modifier})",
                 log_neutral
             )
 

@@ -8,7 +8,7 @@ from src.gameHelper import stunPenalty, body_part_body, body_part_head, body_par
     body_part_l_arm, body_part_r_leg, safeCastToInt, max_health, askInput, REF, t_melee, t_handgun, t_rifle, t_shotgun, \
     t_thrown, roll_str, close_range_str, medium_range_str, attack_type_single, attack_type_burst, \
     attack_type_full_auto, point_blank_range_str, attack_type_melee, unarmed, melee_dmg_help_str, body_parts, \
-    t_heavy_weapon, printColorLine, printRedLine, printGreenLine, coloredText, t_smg
+    t_heavy_weapon, printColorLine, printRedLine, printGreenLine, coloredText, t_smg, BODY
 from src.skills import skillBonusForSkill, skill_athletics
 from src.logger import Log, log_neg, log_pos, log_neutral, log_event
 from src.weapon import Weapon, manualWeaponFromReq
@@ -150,7 +150,7 @@ def handleMeleeDmg(character, roll, wep_id=None, method=None) -> list[Log]:
     logs = []
     dmg_roll = safeCastToInt(roll)
     if character is not None:
-        dmg_bonus = bodytypes.meleeDmgBonusByModifier(character.bodyTypeModifier)
+        dmg_bonus = bodytypes.meleeDmgBonusByBodyType(character.attributes[BODY])
         different_melee_attacks = ', '.join(melee_attacks)
         dmg = 0
         while True:

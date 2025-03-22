@@ -66,13 +66,12 @@ export enum Attribute {
 }
 
 export enum AttributeExtra {
-    BTM = 'body_type_modifier',
     InitiativeBonus = 'initiative_bonus'
 }
 
 export const attributes = [
     Attribute.ATTR, Attribute.BODY, Attribute.COOL, Attribute.EMP, Attribute.INT, 
-    Attribute.LUCK, Attribute.MA, Attribute.REF, Attribute.TECH, AttributeExtra.BTM, AttributeExtra.InitiativeBonus
+    Attribute.LUCK, Attribute.MA, Attribute.REF, Attribute.TECH, AttributeExtra.InitiativeBonus
 ]
 
 export interface AttributeBonus {
