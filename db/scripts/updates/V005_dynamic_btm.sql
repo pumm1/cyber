@@ -11,7 +11,7 @@ DO $$
     IF EXISTS (SELECT version FROM cyberpunk.system_version WHERE version = 5)
     THEN RAISE INFO 'Version is set right';
     ELSE
-    RAISE EXCEPTION 'Version wrong, expected 3';
+    RAISE EXCEPTION 'Version wrong, expected 5';
     END IF;
 END $$;
 
