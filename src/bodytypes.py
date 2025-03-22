@@ -19,18 +19,20 @@ def listAvailableModifiers():
     print(list(t_modifiers), sep='\n')
 
 
-def listAllModifiers():
-    print(all_modifiers, sep='\n')
-
-
-def meleeDmgBonusByModifier(modifier) -> int:
-    modifier_str = bodyTypeModifiersByValue(modifier)
-    print(f'Determining melee DMG bonus for {modifier_str} ({modifier})')
-    if modifier <= 4:
-        return modifier - 2
-    elif 4 < modifier <= 6:
+def meleeDmgBonusByBodyType(body) -> int:
+    if body <= 2:
+        return - 2
+    elif 3 <= body <= 4:
+        return -1
+    elif 5 <= body <= 7:
+        return 0
+    elif 8 <= body <= 9:
+        return 1
+    elif body == 10:
+        return 2
+    elif 11 <= body <= 12:
         return 4
-    elif 6 < modifier <= 8:
+    elif 13 <= body <= 14:
         return 6
     else:
         return 8
@@ -61,19 +63,4 @@ def bodyTypeModifiersByValue(modifier):
         return very_strong
     else:
         return superhuman
-
-
-def btm_as_value(body_type_modifier: str) -> int:
-    if body_type_modifier == very_weak:
-        return 0
-    elif body_type_modifier == weak:
-        return 1
-    elif body_type_modifier == average:
-        return 2
-    elif body_type_modifier == strong:
-        return 3
-    elif body_type_modifier == very_strong:
-        return 4
-    else:
-        return 5
 
