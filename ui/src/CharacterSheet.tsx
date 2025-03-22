@@ -1062,7 +1062,7 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
             case 4:
                 return 'V.Strong'
             default:
-                return 'Superhuman'
+                return 'S.Human'
         }
     }
 
