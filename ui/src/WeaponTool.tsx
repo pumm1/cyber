@@ -31,7 +31,7 @@ const RangeInfo = ({wepRange, targetRange}: RangeInfoProps) => {
     const range: RangeResult = resolveRange(wepRange, targetRange)
 
     return (
-        <div>
+        <div className="infoSection">
             {range.range} (To beat: {range.toBeat})
         </div>
     )
@@ -100,9 +100,19 @@ const ArmorTool = ({}) => {
     const minArmor = 0
     
     return(
-        <div className="section">
+        <div>
+            <div className="smallSection">
+                Armor: <input type='number' value={armor} onChange={e => setArmor(parseInt(e.target.value))} min={minArmor}/>
+            </div>
+            <div className="smallSection">
+                Incoming dmg: <input type='number' value={incomingDmg} onChange={e => setIncomingDmg(parseInt(e.target.value))} min={minDmg}/>
+            </div>
+            <div className="smallSection">
+                <input type='checkbox' checked={isAp} onClick={() => setIsAp(!isAp)}/> AP
+            </div>
+            <button onClick={() => setResult(handleArmorByDmg())}>Dmg</button>
             {result && 
-            <>
+            <div>
                 Result:
                 <div className="smallSection">
                     <div className="smallSection">
@@ -115,18 +125,8 @@ const ArmorTool = ({}) => {
                         Armor damaged! {result.extraInfo ?? ''}
                     </div>}
                 </div>
-            </>
+            </div>
             }
-            <div className="smallSection">
-                Armor: <input type='number' value={armor} onChange={e => setArmor(parseInt(e.target.value))} min={minArmor}/>
-            </div>
-            <div className="smallSection">
-                Incoming dmg: <input type='number' value={incomingDmg} onChange={e => setIncomingDmg(parseInt(e.target.value))} min={minDmg}/>
-            </div>
-            <div className="smallSection">
-                <input type='checkbox' checked={isAp} onClick={() => setIsAp(!isAp)}/> AP
-            </div>
-            <button onClick={() => setResult(handleArmorByDmg())}>Dmg</button>
         </div>
     )
 }

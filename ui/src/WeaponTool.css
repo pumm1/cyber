@@ -1,7 +1,12 @@
 .section {
     margin: 8px 0px;
+    display: flex;
 }
 
 .smallSection {
     margin: 4px 0px;
+}
+
+.infoSection {
+    width: 500px;
 }
