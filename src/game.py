@@ -20,7 +20,8 @@ from src.gameHelper import askInput, roll_str, split_at, add_char_str, exit_comm
     notice_roll_str, notice_roll_help_str, add_character_for_notice_str, add_character_for_notice_help_str, \
     clear_notice_str, REF, EMP
 from src.characterBuilder import createCharacter
-import src.fumble as fumble, src.armor as armor, src.weapon as weapon, src.chrome as chrome, src.dice as dice, cyberdao as DAO
+import src.fumble as fumble, src.armor as armor, src.weapon as weapon, src.chrome as chrome, src.dice as dice, \
+    cyberdao as DAO
 import src.healing as healing
 import src.status as status
 import src.notice as notice
@@ -84,7 +85,7 @@ def start():
                     cyberService.rollCharacterSkillByName(name, skill, roll=0, modifier=0)
                 case [_, 'skill', name, skill, roll]:
                     cyberService.rollCharacterSkillByName(name, skill, roll=roll, modifier=0)
-                case[_, 'skill', name, skill, roll, modifier]:
+                case [_, 'skill', name, skill, roll, modifier]:
                     cyberService.rollCharacterSkillByName(name, skill, roll=roll, modifier=modifier)
                 case _:
                     print(roll_help_str)
@@ -183,7 +184,7 @@ def start():
                     print(character_helper_str)
         elif command.startswith(dmg_str):
             match command_parts:
-                case[_, name, dmg, 'fire']:
+                case [_, name, dmg, 'fire']:
                     combat.hitCharacterByName(name, body_part='body', dmg_str=dmg, pass_sp=True)
                 case [_, name, body_part, dmg]:
                     combat.hitCharacterByName(name, body_part, dmg)
@@ -315,6 +316,7 @@ def getCharacterById(character_id):
     else:
         return c.asJson()
 
+
 def getCharacter(name):
     character = DAO.getCharacterByName(name)
     if character is None:
@@ -331,6 +333,7 @@ def fetchCharacter(name):
     else:
         character.info()
 
+
 def rollInitiativeByCharacterId(char_id):
     character = DAO.getCharacterById(char_id)
     if character is not None:
@@ -339,12 +342,14 @@ def rollInitiativeByCharacterId(char_id):
         roll = 0
         (roll_res, _) = dice.rollWithCrit(True)
         res = roll_res + ref + init_bonus
-        print(f'Initiative roll for {character.name} = {res} [roll = {roll_res} initiative_bonus = {init_bonus}, REF = {ref}]')
+        print(
+            f'Initiative roll for {character.name} = {res} [roll = {roll_res} initiative_bonus = {init_bonus}, REF = {ref}]')
 
         return res
     else:
         print(f'Character not found')
         return 0
+
 
 def listCombatInitiative():
     rows = DAO.listCombatInitiative(ascending=False)
@@ -379,6 +384,7 @@ def updateCharacterMoneyByCharacterId(character_id, money):
 
 def addReputation(character, rep, rep_for=None) -> list[Log]:
     logs = []
+
     def addRep(rep_for, rep) -> list[Log]:
         DAO.addReputation(character.id, rep_for, rep)
         return log_event(logs, f'Reputation added for {character.name}', log_pos)
@@ -437,6 +443,16 @@ def listCharacters() -> list[CharacterShort]:
     return list(res_json)
 
 
+def updateInitiativeBonus(charId: int, bonus: int, turns: int) -> list[Log]:
+    c = DAO.getCharacterById(charId)
+    logs = []
+    if c is not None:
+        DAO.updateCombatInitiativeBonus(charId, bonus, turns)
+        logs = log_event(logs, f"{c.name}'s initiative bonus updated", log_pos)
+    else:
+        logs = log_event(logs, f"Character not found for initiative bonus update", log_neg)
+    return logs
+
 def advanceCombatSeq() -> list[Log]:
     logs = []
     def printTurn(character, logs):
@@ -456,7 +472,7 @@ def advanceCombatSeq() -> list[Log]:
         notInOrder = False
         logs = log_event(logs, 'Starting combat sequence!', log_neutral)
         c = queue.pop()
-        DAO.setNextInOrder(c['character_id'])
+        DAO.setNextInOrder(c['character_id'], c['bonus_turns'], c['bonus_initiative'])
         logs = printTurn(c['name'], logs)
 
     while notInOrder:
@@ -468,7 +484,7 @@ def advanceCombatSeq() -> list[Log]:
             notInOrder = False
 
             DAO.resetCurrentOrder()
-            DAO.setNextInOrder(next['character_id'])
+            DAO.setNextInOrder(next['character_id'], next['bonus_turns'], next['bonus_initiative'])
             logs = printTurn(next['name'], logs)
         else:
             queue.appendleft(c)
@@ -478,7 +494,6 @@ def advanceCombatSeq() -> list[Log]:
 def clearCombat() -> list[Log]:
     DAO.clearCombat()
     return log_event([], 'Combat table cleared', log_neutral)
-
 
 
 def addToCombat(character, initiative) -> list[Log]:
@@ -499,6 +514,7 @@ def addToCombatByid(id, initiative):
 def addToCombatByName(name, initiative):
     character = DAO.getCharacterByName(name)
     return addToCombat(character, initiative)
+
 
 def deleteCharacter(character_id) -> list[Log]:
     logs = []
@@ -649,6 +665,5 @@ def help(param):
         help_str += modify_help
     else:
         help_str += info_help + modify_help + combat_help
-
 
     print(help_str)

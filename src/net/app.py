@@ -407,6 +407,17 @@ def addToCombat():
     else:
         return invalid_req()
 
+@app.route('/update-initiative-bonus', methods=[put])
+def updateInitiativeBonus():
+    if request.method == put:
+        data = request.get_json()
+        char_id = data['charId']
+        bonus = data['bonus']
+        turns = data['turns']
+
+        return jsonify(game.updateInitiativeBonus(char_id, bonus, turns))
+    else:
+        return invalid_req()
 
 @app.route('/advance-combat-seq', methods=[post])
 def advanceCombatSeq():

@@ -30,14 +30,14 @@ def clean_fetch_all(rows):
 
 insert_into = 'INSERT INTO'
 select = 'SELECT'
-select_from = f'{select} * FROM'
+select_all_from = f'{select} * FROM'
 delete_from = 'DELETE FROM'
 update = 'UPDATE'
 
-character_q = f'{select_from} {table_characters} c '
-character_skills_q = f'{select_from} {table_character_skills}'
-character_weapons_q = f'{select_from} {table_character_weapons}'
-character_armors_q = f'{select_from} {table_character_armors}'
+character_q = f'{select_all_from} {table_characters} c '
+character_skills_q = f'{select_all_from} {table_character_skills}'
+character_weapons_q = f'{select_all_from} {table_character_weapons}'
+character_armors_q = f'{select_all_from} {table_character_armors}'
 character_armors_with_bonuses_q = f"""
 {character_armors_q} a
 JOIN {table_item_bonuses} b 
@@ -45,14 +45,14 @@ ON a.item_bonus_id = b.id
 JOIN {table_item_atr_bonuses} ab
 ON b.item_atr_id = ab.id
 """
-character_chrome_q = f'{select_from} {table_character_chrome}'
-character_statuses_q = f'{select_from} {table_character_statuses}'
-skills_q = f'{select_from} {table_skills}'
+character_chrome_q = f'{select_all_from} {table_character_chrome}'
+character_statuses_q = f'{select_all_from} {table_character_statuses}'
+skills_q = f'{select_all_from} {table_skills}'
 
 
 def check_system_version():
     with conn.cursor() as cur:
-        row = cur.execute(f'{select_from} {table_system_version}').fetchone()
+        row = cur.execute(f'{select_all_from} {table_system_version}').fetchone()
         conn.commit()
 
         version = row['version']
@@ -179,7 +179,7 @@ def listCharacters() -> list[CharacterShort]:
     characters = []
     with conn.cursor() as cur:
         cur.execute(
-            f""" {select_from} {table_characters};"""
+            f""" {select_all_from} {table_characters};"""
         )
         rows = cur.fetchall()
         characters = map(lambda c_row: (
@@ -244,7 +244,7 @@ def addReputation(character_id, info, rep_level):
 def getReputationRows(character_id):
     with conn.cursor() as cur:
         cur.execute(
-            f'{select_from} {table_reputation} where character_id = {character_id};'
+            f'{select_all_from} {table_reputation} where character_id = {character_id};'
         )
         rows = cur.fetchall()
         conn.commit()
@@ -258,9 +258,13 @@ def listCombatInitiative(ascending: bool):
 
     with conn.cursor() as cur:
         cur.execute(
-            f"""{select_from} {table_combat_session} cs 
+            f"""SELECT 
+                cs.character_id, cs.initiative, cs.current, cs.bonus_turns, 
+                cs.bonus_initiative, c.name, c.dmg_taken, 
+                cs.initiative + COALESCE(cs.bonus_initiative, 0) AS total
+                FROM {table_combat_session} cs 
                 JOIN {table_characters} c ON cs.character_id = c.id
-                ORDER BY cs.initiative {ordering}, c.name ASC;
+                ORDER BY total {ordering}, c.name ASC;
                 """
         )
         rows = cur.fetchall()
@@ -294,8 +298,35 @@ def resetCurrentOrder():
         conn.commit()
 
 
-def setNextInOrder(character_id):
+def updateCombatInitiativeBonus(character_id: int, bonus: int, turns: int):
     with conn.cursor() as cur:
+        cur.execute(
+            f"""{update} {table_combat_session} 
+                SET bonus_turns = {turns}, bonus_initiative = {bonus}
+                WHERE character_id = {character_id};"""
+        )
+
+
+def setNextInOrder(character_id: int, curr_bonus_turns: int | None, curr_bonus_initiative: int | None):
+    with conn.cursor() as cur:
+        used_bonus_turns = 'null'
+        used_bonus_initiative = 'null'
+        if curr_bonus_turns is not None:
+            used_bonus_turns = curr_bonus_turns - 1
+            if used_bonus_turns <= 0:
+                used_bonus_turns = 'null'
+                used_bonus_initiative = 'null'
+            else:
+                if curr_bonus_initiative is not None:
+                    used_bonus_initiative = curr_bonus_initiative
+
+        cur.execute(
+            f"""{update} {table_combat_session} 
+            SET bonus_turns = {used_bonus_turns}, bonus_initiative = {used_bonus_initiative}
+            WHERE character_id = {character_id} AND bonus_turns >= 1;"""
+        )
+
+
         cur.execute(
             f"""{update} {table_combat_session} SET current = {True} WHERE character_id = '{character_id}';"""
         )
@@ -602,7 +633,7 @@ def insertItemBonusesReturningBonusId(atr_bonuses_dict: dict, skill_bonuses: lis
 def getItemSkillBonuses(bonus_id):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{select_from} {table_item_bonuses} b 
+            f"""{select_all_from} {table_item_bonuses} b 
             JOIN {table_item_skill_bonus} sb on b.id = sb.item_bonus_id
             WHERE b.id = {bonus_id};
             """
@@ -617,7 +648,7 @@ def getItemAtrBonuses(bonus_id):
     with conn.cursor() as cur:
         cur.execute(
             f"""
-            {select_from} {table_item_bonuses} b 
+            {select_all_from} {table_item_bonuses} b 
             JOIN {table_item_atr_bonuses} ab on b.id = ab.item_bonus_id
             WHERE b.id = {bonus_id};
             """
@@ -928,13 +959,13 @@ def deleteCharacterChrome(character_id, chrome_id):
             if row.id == chrome_id:
                 chrome = row
         if chrome is not None:
-            cur.execute(f"""{select_from} {table_character_chrome} 
+            cur.execute(f"""{select_all_from} {table_character_chrome} 
                             WHERE character_id = {character_id} AND chrome_id = {chrome_id};""")
             chrome_row = cur.fetchone()
             item_bonus_id = chrome_row.get('item_bonus_id', None)
             connected_armor = None
             cur.execute(
-                f"""{select_from} {table_character_armors} 
+                f"""{select_all_from} {table_character_armors} 
                     WHERE character_id = {character_id} AND item_bonus_id = {item_bonus_id}
                     """
             )
@@ -988,7 +1019,7 @@ def addCharacterStatus(character_id, status, effect, status_type):
 def getCharacterStatuses(character_id):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{select_from} {table_character_statuses}
+            f"""{select_all_from} {table_character_statuses}
                             WHERE character_id = {character_id};"""
         )
         rows = cur.fetchall()
@@ -1003,7 +1034,7 @@ def getCharacterStatuses(character_id):
 def getCharacterStatusById(status_id, character_id):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{select_from} {table_character_statuses}
+            f"""{select_all_from} {table_character_statuses}
             WHERE id = {status_id} AND character_id = {character_id};
             """
         )
@@ -1035,7 +1066,7 @@ def addCharacterForQuickNoticeCheck(character_id, name):
 def charactersForQuickNoticeCheck():
     with conn.cursor() as cur:
         cur.execute(
-            f"""{select_from} {table_character_quick_notice};"""
+            f"""{select_all_from} {table_character_quick_notice};"""
         )
         rows = cur.fetchall()
         conn.commit()
@@ -1059,7 +1090,7 @@ def clearQuickNoticeCheck():
 def listCampaigns():
     with conn.cursor() as cur:
         cur.execute(
-            f"""{select_from} {table_campaigns};"""
+            f"""{select_all_from} {table_campaigns};"""
         )
         rows = cur.fetchall()
         conn.commit()
@@ -1086,7 +1117,7 @@ def updateCampaignInfo(campaign_id: int, info: str | None):
 def campaignEvents(campaign_id: int):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{select_from} {table_events} WHERE campaign_id = {campaign_id};"""
+            f"""{select_all_from} {table_events} WHERE campaign_id = {campaign_id};"""
         )
         rows = cur.fetchall()
         conn.commit()
@@ -1096,7 +1127,7 @@ def campaignEvents(campaign_id: int):
 def campaignGigs(campaign_id: int):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{select_from} {table_gigs} WHERE campaign_id = {campaign_id} ORDER BY id DESC;"""
+            f"""{select_all_from} {table_gigs} WHERE campaign_id = {campaign_id} ORDER BY id DESC;"""
         )
         rows = cur.fetchall()
         conn.commit()
@@ -1156,7 +1187,7 @@ def deleteEventCharacter(event_id, character_id):
 def eventCampaign(event_id):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{select_from} {table_events} where id = {event_id};"""
+            f"""{select_all_from} {table_events} where id = {event_id};"""
         )
         row = cur.fetchone()
         conn.commit()
@@ -1209,7 +1240,7 @@ def deleteGigCharacter(gig_id, character_id):
 def gigCampaign(gig_id):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{select_from} {table_gigs} where id = {gig_id};"""
+            f"""{select_all_from} {table_gigs} where id = {gig_id};"""
         )
         row = cur.fetchone()
         conn.commit()

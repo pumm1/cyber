@@ -204,7 +204,7 @@ const SearchOrCreateCharacter = ({updateLogs, initiatives, skills, updateInitiat
     //why using form breaks this in backend?
     return(
         <>
-            <ListInitiative setCharacterById={setCharacterFn} initiatives={initiatives} updateInitiatives={updateInitiatives}/>
+            <ListInitiative setCharacterById={setCharacterFn} initiatives={initiatives} updateInitiatives={updateInitiatives} updateLogs={updateLogs}/>
             <ListCharacters updateCharacters={updateCharacterList} updateCharacterList={updateCharacterList} updateInitiatives={updateInitiatives} initiatives={initiatives} characters={allCharacters ?? []} setCharacterById={setCharacterFn} updateLogs={updateLogs} setAllCharacters={setAllCharacters}/>
             <div className="search">
                 <Button label='Create new character' onClick={() => createCharacter()}/>
