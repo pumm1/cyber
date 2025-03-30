@@ -462,6 +462,8 @@ export interface Initiative {
     initiative: number
     condition: string
     current: boolean
+    bonusTurns?: number
+    bonusInitiative?: number
 }
 
 export const listInitiative = () =>
@@ -473,6 +475,15 @@ export interface AddToCombatReq extends CharacterReq {
 
 export const addToCombat = (c: AddToCombatReq) =>
     postDataAs<Log[]>(`${pathBase}/add-to-combat`, c)
+
+export interface InitiativeBonusUpdate {
+    charId: number
+    bonus: number
+    turns: number
+}
+
+export const updateInitiativeBonus = (i: InitiativeBonusUpdate) => 
+    putDataAs<Log[]>(`${pathBase}/update-initiative-bonus`, i)
 
 export const advanceCombatSeq = () => 
     postDataAs<Log[]>(`${pathBase}/advance-combat-seq`, {})

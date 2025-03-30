@@ -9,6 +9,8 @@ class Initiative:
         self.initiative = row['initiative']
         self.current = row['current']
         self.condition = woundStatePlain(dmg_taken)
+        self.bonus_turns = row['bonus_turns']
+        self.bonus_initiative = row['bonus_initiative']
 
     def asJson(self):
         resJson = {
@@ -16,7 +18,9 @@ class Initiative:
             'name': self.name,
             'initiative': self.initiative,
             'current': self.current,
-            'condition': self.condition
+            'condition': self.condition,
+            'bonusInitiative': self.bonus_initiative,
+            'bonusTurns': self.bonus_turns
         }
 
         return resJson
