@@ -1,6 +1,5 @@
-import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, AddRepReq, addReputation, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName, CharacterStatus, CharacterStatusType, deleteCharacterStatus, updateCharacterBackground, GearTiers, GearTier, stringSortFn } from './CyberClient'
 import { useEffect, useState } from "react"
-import './CharacterSheet.css'
+import { Character, Attributes, Skill, CharacterSkill, Attribute, CharacterSP, rollSkill, Weapon, attack, AttackReq, AttackType, isGun, ReloadReq, reload, Log, WeaponType, repair, lvlUp, heal, RollSkillReq, doDmg, BodyPart, createCharacter, CreateCharacterReq, Chrome, UpdateIPReq, updateIP, Armor, removeArmor, RemoveArmorReq, AddRepReq, addReputation, CharacterReq, UpdateMoneyReq, updateMoney, removeWeapon, RemoveWeaponReq, removeChrome, RemoveChromeReq, MeleeAttackMethod, rollMeleeDmg, MeleeDmgRollReq, faceOffRoll, RestoreEMPReq, restoreCharEMP, stuncheck, updateCharacterName, CharacterStatus, CharacterStatusType, deleteCharacterStatus, updateCharacterBackground, GearTiers, GearTier, stringSortFn } from './CyberClient'
 import { AddWeapon } from './AddWeapon'
 import { ValueChanger, updateNumWithLowerLimit } from './ValueChanger'
 import AddChrome from './AddChrome'
@@ -8,7 +7,7 @@ import AddArmor from './AddArmor'
 import { AddStatus } from './AddStatus'
 import { Button, TextArea } from './Common'
 import Hideable from './Hideable'
-
+import './CharacterSheet.css'
 
 const roles = {
     solo: 'Solo',
