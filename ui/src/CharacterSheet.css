@@ -66,9 +66,6 @@ textarea {
     flex-wrap: wrap;
 }
 
-.roleSelect {
-}
-
 .roleSelectDisabled {
     color: lightgray;   
 }

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './MindMap.css'
 import { MindMapData, getCampaignMindMap, saveCampaignMindMap } from '../CyberClient'
+import { Button, TextArea } from '../Common'
 
 //TODO: just create child nodes from nodes?
 export type MindMapNode = {
@@ -28,9 +29,10 @@ export type Connection = {
     addConnection: (a: MindMapNode, b: MindMapNode) => void
     moveNode: (id: string, x: number, y: number) => void
     updateNode: (n: MindMapNode) => void
+    removeNode: (id: string) => void
   }
   
-  const Node: React.FC<NodeProps> = ({ node, addNewNode, existingNodes, addConnection, moveNode, updateNode }) => {
+  const Node: React.FC<NodeProps> = ({ node, addNewNode, existingNodes, addConnection, moveNode, updateNode, removeNode }) => {
     const [title, setTitle] = useState(node.title)
     const [info, setInfo] = useState(node.info)
   
@@ -66,60 +68,26 @@ export type Connection = {
       >
         <div className="node-title">
           <input value={title} onChange={e => setTitle(e.target.value)} />
-          ({node.id})
         </div>
-        <textarea className="node-info" value={info} onChange={e => setInfo(e.target.value)}/>
+        <TextArea variant='small' value={info} setValue={setInfo}/>
         <div>
-            <button onClick={() => {
+            <Button label='+' onClick={() => {
                 const newId = generateNodeId(existingNodes + 1)
                 const childNode: MindMapNode = { id: newId, title: '', info: '', x: node.x, y: node.y + 160 }
                 Promise.resolve(addNewNode(childNode)).then(() => addConnection(node, childNode))
-            }}>
-            +
-            </button>
-            <button onClick={() => handleSave()}>Save (locally)</button>
+            }} />
+            <Button variant='LessSpaceLeft' label='Save (locally)' onClick={() => handleSave()} />
+            <Button variant='LessSpaceLeft' label='Remove (locally)' onClick={() => removeNode(node.id)} />
         </div>
       </div>
     )
   }
   
-interface NodeFormProps {
-    existingNodes: number
-    addNode: (n: MindMapNode) => void
-}
-
-const NodeForm = ({ existingNodes, addNode }: NodeFormProps) => {
-    const [title, setTitle] = useState('')
-    const [info, setInfo] = useState('')
-
-    const node: MindMapNode = {
-        id: (existingNodes + 1).toString(),
-        title,
-        info,
-        x: 300,
-        y: 300,
-    }
-
-    return (
-        <div>
-            Title:
-            <div>
-                <input type='text' value={title} onChange={e => setTitle(e.target.value)}/>
-            </div>
-            Info:
-            <div>
-                <input type='text' value={info} onChange={e => setInfo(e.target.value)}/>
-            </div>
-            <button disabled={title === ''} onClick={() => addNode(node)}>Add node</button>
-        </div>
-    )
-}
-
 interface MindMapProps {
     campaignId: number
 }
 
-const defaultNode: MindMapNode =  { id: generateNodeId(1), title: 'Root Node', info: '', x: 100, y: 100 }
+const defaultNode: MindMapNode =  { id: generateNodeId(Math.floor(Math.random() * 100)), title: 'Root Node', info: '', x: 100, y: 100 }
 
 const MindMap = ({campaignId}: MindMapProps) => {
     const [mindMap, setMindMap] = useState<MindMapData | undefined>(undefined)
@@ -151,8 +119,13 @@ const MindMap = ({campaignId}: MindMapProps) => {
 
     const mindMapReq: MindMapData = { nodes, connections } 
 
-    const saveMindMap = () => 
-        saveCampaignMindMap(campaignId, mindMapReq)
+    const saveMindMap = () => //ehh..
+        saveCampaignMindMap(campaignId, mindMapReq).then(() => console.log(`saved`))
+
+    const removeNode = (id: string) => {
+        setNodes(nodes.filter(n => n.id !== id))
+        setConnections(connections.filter(c => c.from !== id && c.to !== id))
+    }        
 
     const updateNode = (updatedNode: MindMapNode) => {
         setNodes((prevNodes) =>
@@ -165,8 +138,9 @@ const MindMap = ({campaignId}: MindMapProps) => {
   
     return (
       <div>
-        <h1>Campaign Mind Map</h1>
-        <button onClick={() => saveMindMap()}>Save</button>
+        <h3>Mind map</h3>
+        <Button label='Save mind map to DB' onClick={() => saveMindMap()} />
+        <Button variant='MoreSpaceLeft' label='Add new node' onClick={() => addNewNode(defaultNode)} />
         <div className="mind-map" style={{ position: 'relative', width: '100%', height: '100vh' }}>
             {/* Render SVG Lines First (Behind Nodes) */}
             <svg className="lines" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}>
@@ -192,11 +166,18 @@ const MindMap = ({campaignId}: MindMapProps) => {
 
             {/* Render Nodes on Top */}
             {nodes.map((node) => (
-                <Node key={node.id} node={node} existingNodes={nodes.length} addNewNode={addNewNode} addConnection={addConnection} moveNode={moveNode} updateNode={updateNode}/>
+                <Node 
+                    key={node.id} 
+                    node={node} 
+                    existingNodes={nodes.length} 
+                    addNewNode={addNewNode} 
+                    addConnection={addConnection} 
+                    moveNode={moveNode} 
+                    updateNode={updateNode}
+                    removeNode={removeNode}
+                />
             ))}
         </div>
-
-        <NodeForm existingNodes={nodes.length} addNode={addNewNode} />
       </div>
     )
   }

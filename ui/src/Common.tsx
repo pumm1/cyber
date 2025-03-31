@@ -8,7 +8,7 @@ export interface InputProps {
 
 export interface TextAreaProps extends InputProps {
     readOnly?: boolean
-    variant?: 'resizeable'
+    variant?: 'resizeable' | 'small'
 }
 
 export const TextField = ({setValue, value, placeholder}: InputProps) => 
@@ -19,7 +19,7 @@ export const TextField = ({setValue, value, placeholder}: InputProps) =>
     />
 
 export const TextArea = ({setValue, readOnly, value, placeholder, variant}: TextAreaProps) =>
-    <textarea readOnly={readOnly} className={variant ? 'resizeable' : undefined} placeholder={placeholder} value={value} onChange={e => {
+    <textarea readOnly={readOnly} className={variant === 'resizeable' ? 'resizeable' : variant === 'small' ?  'small' : undefined} placeholder={placeholder} value={value} onChange={e => {
             e.preventDefault()
             setValue(e.target.value)
         }}
