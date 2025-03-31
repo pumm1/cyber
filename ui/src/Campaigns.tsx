@@ -7,6 +7,7 @@ import { Button, TextArea } from "./Common";
 import './MainPage.css'
 import './Campaigns.css'
 import { CrtEffect } from "./MainPage";
+import MindMap from "./MindMap/MindMap";
 
 interface ListedCharactersProps {
     characters: CharacterShort[]
@@ -429,6 +430,16 @@ const Campaigns = ({}) => {
     useEffect(() => {
         document.title = "Campaigns"
      }, []);
+     
+     const CampaignEventsAndGigs = ({}) => 
+        <>
+            {selectedCampaign && <h2>Campaign events</h2>}
+            {selectedCampaign && <Hideable text='campaign events' props={<CampaignEvents events={events} setEvents={setEvents} />}/>}
+            {selectedCampaign && <Hideable text='campaign event form' props={<AddCampaignEvent maxSession={Math.max(...events.map(e => e.sessionNumber))} setEvents={setEvents} campaignId={selectedCampaign.id} />}/>}
+            {selectedCampaign && <h2>Campaign gigs</h2>}
+            {selectedCampaign && <Hideable text='campaign gigs' props={<CampaignGigs campaignId={selectedCampaign.id} gigs={gigs} setGigs={setGigs}/>}/>}
+            {selectedCampaign && <Hideable text='campaign gig form' props={<AddCampaignGig campaignId={selectedCampaign.id} setGigs={setGigs}/>}/>}
+        </>
 
     return( 
         <div className="main">
@@ -438,12 +449,10 @@ const Campaigns = ({}) => {
             <SelectedCampaignInfo />
             <Hideable text='campaigns' props={<CampaignTable selectedCampaignId={selectedCampaign?.id} campaigns={campaigns} updateCampaigns={updatecampaignsFn} setSelectedCampaign={setSelectedCampaign}/>}/>
             <Hideable text='campaign form' props={<AddCampaign updateCampaigns={updatecampaignsFn}/>} />
-            {selectedCampaign && <h2>Campaign events</h2>}
-            {selectedCampaign && <Hideable text='campaign events' props={<CampaignEvents events={events} setEvents={setEvents} />}/>}
-            {selectedCampaign && <Hideable text='campaign event form' props={<AddCampaignEvent maxSession={Math.max(...events.map(e => e.sessionNumber))} setEvents={setEvents} campaignId={selectedCampaign.id} />}/>}
-            {selectedCampaign && <h2>Campaign gigs</h2>}
-            {selectedCampaign && <Hideable text='campaign gigs' props={<CampaignGigs campaignId={selectedCampaign.id} gigs={gigs} setGigs={setGigs}/>}/>}
-            {selectedCampaign && <Hideable text='campaign gig form' props={<AddCampaignGig campaignId={selectedCampaign.id} setGigs={setGigs}/>}/>}
+            <Hideable text='campaign evens and gigs' props={<CampaignEventsAndGigs />}/>
+            {selectedCampaign && 
+                <Hideable text='campaign mind map' props={<MindMap campaignId={selectedCampaign.id}/>}/>
+            }
         </div>
     )
 }

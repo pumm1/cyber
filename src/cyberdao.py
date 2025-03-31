@@ -9,7 +9,7 @@ from src.cyberschema import db, user, password, host, table_skills, table_charac
     table_events, table_character_chrome, table_character_statuses, table_character_quick_notice, \
     table_item_atr_bonuses, table_item_bonuses, table_item_skill_bonus, \
     table_system_version, EXPECTED_SYSTEM_VERSION, table_campaigns, table_event_characters, table_gigs, \
-    table_gig_characters
+    table_gig_characters, table_mind_map_nodes, table_mind_map_node_connections
 from src.character import Character, CharacterShort
 from src.skill import SkillInfo
 from src.armor import Armor
@@ -1255,4 +1255,70 @@ def gigChracters(gig_id: int):
         rows = cur.fetchall()
         conn.commit()
         return rows
+
+
+import psycopg
+
+
+def updateCampaignMindMap(campaign_id: int, nodes, connections):
+    nodes_data = [(node['id'], campaign_id, node['title'], node['info'], node['x'], node['y']) for node in nodes]
+    node_conn_data = [(c['from'], c['to']) for c in connections]
+
+    with conn.cursor() as cur:
+        # Delete existing node connections first
+        cur.execute(
+            f"""{delete_from} {table_mind_map_node_connections}
+            WHERE node_from IN (
+                {select} node_from FROM {table_mind_map_nodes}
+                WHERE campaign_id = %s
+            );""",
+            (campaign_id,)
+        )
+
+        # Delete existing nodes
+        cur.execute(
+            f"""{delete_from} {table_mind_map_nodes} WHERE campaign_id = %s;""",
+            (campaign_id,)
+        )
+
+        if nodes_data:
+            # Insert new nodes
+            insert_nodes_q = (
+                    f"""{insert_into} {table_mind_map_nodes} (id, campaign_id, title, info, pos_x, pos_y)
+                VALUES """ + ", ".join(["(%s, %s, %s, %s, %s, %s)"] * len(nodes_data))
+            )
+            node_values = [item for row in nodes_data for item in row]
+            cur.execute(insert_nodes_q, node_values)
+
+        if node_conn_data:
+            # Insert new connections
+            insert_node_connections_q = (
+                    f"""{insert_into} {table_mind_map_node_connections} (node_from, node_to)
+                VALUES """ + ", ".join(["(%s, %s)"] * len(node_conn_data))
+            )
+            conn_values = [item for row in node_conn_data for item in row]
+            cur.execute(insert_node_connections_q, conn_values)
+
+        conn.commit()
+
+    return True
+
+
+def getCampaignMindMapNodesWithConnections(campaign_id: int):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{select} n.id, n.title, n.info, n.pos_x, n.pos_y FROM {table_mind_map_nodes} n 
+                WHERE n.campaign_id = {campaign_id};"""
+        )
+        node_rows = cur.fetchall()
+        cur.execute(
+            f"""{select} DISTINCT c.node_from, c.node_to FROM {table_mind_map_node_connections} c
+                JOIN {table_mind_map_nodes} n 
+                ON n.id = c.node_from
+                WHERE n.campaign_id = {campaign_id};"""
+        )
+        connections_rows = cur.fetchall()
+
+        conn.commit()
+        return node_rows, connections_rows
 
