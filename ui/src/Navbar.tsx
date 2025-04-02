@@ -8,6 +8,7 @@ const Navbar = ({}) =>
                 <li><NavLink to="/">Home</NavLink></li>
                 <li><NavLink to="/weapon-tool">Weapon tool</NavLink></li>
                 <li><NavLink to="/campaigns">Campaigns</NavLink></li>
+                <li><NavLink to="/mind-map">Mind map</NavLink></li>
             </ul>
         </div>
     </nav>

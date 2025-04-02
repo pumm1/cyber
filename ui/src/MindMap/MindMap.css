@@ -1,3 +1,7 @@
+.mind-map-container {
+    margin: 8px 0px;
+}
+
 .mind-map {
     position: relative;
     width: 100%;

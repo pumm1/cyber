@@ -450,9 +450,6 @@ const Campaigns = ({}) => {
             <Hideable text='campaigns' props={<CampaignTable selectedCampaignId={selectedCampaign?.id} campaigns={campaigns} updateCampaigns={updatecampaignsFn} setSelectedCampaign={setSelectedCampaign}/>}/>
             <Hideable text='campaign form' props={<AddCampaign updateCampaigns={updatecampaignsFn}/>} />
             <Hideable text='campaign evens and gigs' props={<CampaignEventsAndGigs />}/>
-            {selectedCampaign && 
-                <Hideable text='campaign mind map' props={<MindMap campaignId={selectedCampaign.id}/>}/>
-            }
         </div>
     )
 }

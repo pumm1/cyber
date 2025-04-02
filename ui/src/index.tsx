@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import './index.css';
 import WeaponTool from './WeaponTool';
 import Campaigns from './Campaigns';
+import MindMapModal from './MindMap/MindMap';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
   {
     path: "/campaigns",
     element: <Campaigns/>
+  },
+  {
+    path: "/mind-map",
+    element: <MindMapModal />
   },
   {
     path: '*',
