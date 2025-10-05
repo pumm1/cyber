@@ -83,26 +83,30 @@ export type Connection = {
     )
   }
   
-interface MindMapProps {
-    campaignId: number
+
+const defaultNode = (): MindMapNode => {
+    return { id: generateNodeId(Math.floor(Math.random() * 100)), title: 'Root Node', info: '', x: 100, y: 100 }
 }
-const defaultNode: MindMapNode =  { id: generateNodeId(Math.floor(Math.random() * 100)), title: 'Root Node', info: '', x: 100, y: 100 }
 
 
 const MindMap = ({ campaignId }: { campaignId: number }) => {
-    const [nodes, setNodes] = useState<MindMapNode[]>([defaultNode])
+    const [nodes, setNodes] = useState<MindMapNode[]>([defaultNode()])
     const [connections, setConnections] = useState<Connection[]>([])
+    const [loading, setLoading] = useState(false)
   
     useEffect(() => {
+        setLoading(true)
         getCampaignMindMap(campaignId).then(res => {
             setNodes(res.nodes)
             setConnections(res.connections)
+            setLoading(false)
         })
     }, [campaignId])
   
     const saveMindMap = () => {
+        setLoading(true)
         saveCampaignMindMap(campaignId, { nodes, connections })
-            .then(() => console.log('Saved to DB'))
+            .then(() => setLoading(false))
     }
 
     const addConnection = (a: MindMapNode, b: MindMapNode) =>
@@ -124,7 +128,7 @@ const MindMap = ({ campaignId }: { campaignId: number }) => {
     return (
         <div>
             <h3>Mind map</h3>
-            <Button label='Save' onClick={saveMindMap} />
+            <Button label='Save' onClick={saveMindMap} /> {loading && 'Loading...'}
             <div className="mind-map" style={{ position: 'relative', width: '100%', height: '100vh' }}>
                 <svg className="lines" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }}>
                     {connections.map((connection, index) => {
@@ -152,6 +156,7 @@ const MindMap = ({ campaignId }: { campaignId: number }) => {
                         removeNode={removeNode}
                     />
                 ))}
+                <Button label='Add node' onClick={() => addNewNode(defaultNode())} />
             </div>
         </div>
     )
