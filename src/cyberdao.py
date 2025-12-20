@@ -84,11 +84,13 @@ def getCharacterRowByName(name: str):
 
 def getCharcaterRowById(id):
     with conn.cursor() as cur:
-        cur.execute(
-            f"""{character_q} WHERE c.id = {id};"""
-        )
-        char_row = cur.fetchone()
-        conn.commit()
+        char_row = None
+        if id is not None:
+            cur.execute(
+                f"""{character_q} WHERE c.id = {id};"""
+            )
+            char_row = cur.fetchone()
+            conn.commit()
 
         return char_row
 
@@ -259,11 +261,11 @@ def listCombatInitiative(ascending: bool):
     with conn.cursor() as cur:
         cur.execute(
             f"""SELECT 
-                cs.character_id, cs.initiative, cs.current, cs.bonus_turns, 
+                cs.character_id, cs.temp_character, cs.initiative, cs.current, cs.bonus_turns, 
                 cs.bonus_initiative, c.name, c.dmg_taken, 
                 cs.initiative + COALESCE(cs.bonus_initiative, 0) AS total
                 FROM {table_combat_session} cs 
-                JOIN {table_characters} c ON cs.character_id = c.id
+                LEFT JOIN {table_characters} c ON cs.character_id = c.id
                 ORDER BY total {ordering}, c.name ASC;
                 """
         )
@@ -273,11 +275,33 @@ def listCombatInitiative(ascending: bool):
         return rows
 
 
-def addCharacterToCombat(character, initiative):
+def addCharacterToCombat(character, temp_character, initiative):
+    with conn.cursor() as cur:
+        used_fields = ""
+        used_values = ""
+        if character is None:
+            used_fields = f"temp_character"
+            used_values = f"'{temp_character}'"
+        else:
+            used_fields = f"character_id"
+            used_values = f"'{character}'"
+
+        if initiative is not None:
+            used_fields = f"{used_fields}, initiative"
+            used_values = f"{used_values}, {initiative}"
+
+        cur.execute(
+            f"""{insert_into} {table_combat_session} ({used_fields}, current)
+                            VALUES ({used_values}, {False});"""
+        )
+        conn.commit()
+
+def updateCharacterInitiative(character, temp_character, initiative):
     with conn.cursor() as cur:
         cur.execute(
-            f"""{insert_into} {table_combat_session} (character_id, initiative, current)
-                            VALUES ('{character}', {initiative}, {False});"""
+            f"""{update} {table_combat_session}
+                SET initiative = {initiative}
+                WHERE character_id = {character} OR temp_character = '{temp_character}';"""
         )
         conn.commit()
 

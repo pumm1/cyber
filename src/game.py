@@ -496,20 +496,52 @@ def clearCombat() -> list[Log]:
     return log_event([], 'Combat table cleared', log_neutral)
 
 
-def addToCombat(character, initiative) -> list[Log]:
+def addToCombat(character, temp_character, initiative) -> list[Log]:
     logs = []
-    if character is not None:
-        DAO.addCharacterToCombat(character.id, initiative)
-        logs = log_event(logs, f'{character.name} added to combat session', log_neutral)
+    if character is not None or temp_character is not None:
+        char = temp_character
+        if character is not None:
+            DAO.addCharacterToCombat(character.id, None, initiative)
+        else:
+            DAO.addCharacterToCombat(None, temp_character, initiative)
+        logs = log_event(logs, f'{char} added to combat session', log_neutral)
+    else:
+        logs = log_event(logs, 'character not found', log_neg)
+    return logs
+
+def updateInitiative(character, temp_character, initiative) -> list[Log]:
+    logs = []
+    if character is not None or temp_character is not None:
+        char = temp_character
+        if character is not None:
+            char = character.name
+            DAO.updateCharacterInitiative(character.id, None, initiative)
+        else:
+            DAO.updateCharacterInitiative(None, temp_character, initiative)
+
+        logs = log_event(logs, f'{char} initiative updated', log_neutral)
     else:
         logs = log_event(logs, 'character not found', log_neg)
     return logs
 
 
-def addToCombatByid(id, initiative):
-    character = DAO.getCharacterById(id)
-    return addToCombat(character, initiative)
+def addToCombatById(id, temp_character, initiative):
+    if id is not None and temp_character is not None:
+        return log_event([], f"Can't have both character and temp character when adding to combat!", log_neg)
+    elif id is None and temp_character is None:
+        return log_event([], f"Can't be missing both character and temp character when adding to combat!", log_neg)
+    else:
+        character = DAO.getCharacterById(id)
+        return addToCombat(character, temp_character, initiative)
 
+def updateInitiative(id, temp_character, initiative):
+    if id is not None and temp_character is not None:
+        return log_event([], f"Can't have both character and temp character when updating initiative!", log_neg)
+    elif id is None and temp_character is None:
+        return log_event([], f"Can't be missing both character and temp character when updating initiative!", log_neg)
+    else:
+        character = DAO.getCharacterById(id)
+        return addToCombat(character, temp_character, initiative)
 
 def addToCombatByName(name, initiative):
     character = DAO.getCharacterByName(name)

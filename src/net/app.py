@@ -398,10 +398,22 @@ def initiativeOrder():
 def addToCombat():
     if request.method == post:
         data = request.get_json()
-        char_id = data['charId']
-        initiative = data['initiative']
+        char_id = data.get('charId')
+        temp_character = data.get('tempCharacter')
+        initiative = data.get('initiative')
 
-        return jsonify(game.addToCombatByid(char_id, initiative))
+        return jsonify(game.addToCombatById(char_id, temp_character, initiative))
+    else:
+        return invalid_req()
+
+@app.route('/update-initiative', methods=[put])
+def updateInitiative():
+    if request.method == put:
+        data = request.get_json()
+        char_id = data.get('charId')
+        temp_character = data.get('tempCharacter')
+        initiative = data.get('initiative')
+        return jsonify(game.updateInitiative(char_id, temp_character, initiative))
     else:
         return invalid_req()
 

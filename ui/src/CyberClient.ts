@@ -461,7 +461,8 @@ export const removeArmor = (r: RemoveArmorReq) =>
 
 
 export interface Initiative {
-    charId: number
+    charId?: number
+    tempCharacter?: string
     name: string
     initiative: number
     condition: string
@@ -473,15 +474,18 @@ export interface Initiative {
 export const listInitiative = () =>
     fetchDataAs<Initiative[]>(`${pathBase}/list-initiative`)
 
-export interface AddToCombatReq extends CharacterReq {
-    initiative: number
+export interface AddToCombatReq {
+    charId?: number
+    tempCharacter?: string,
+    initiative?: number
 }
 
 export const addToCombat = (c: AddToCombatReq) =>
     postDataAs<Log[]>(`${pathBase}/add-to-combat`, c)
 
 export interface InitiativeBonusUpdate {
-    charId: number
+    charId?: number
+    tempCharacter?: string
     bonus: number
     turns: number
 }
