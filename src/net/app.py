@@ -39,8 +39,6 @@ cyberdao.check_system_version()
 def hello():
     return 'Welcome to the NET!'
 
-
-# TODO
 @app.route('/create-character', methods=[post])
 def createCharacter():
     if request.method == post:

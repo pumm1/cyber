@@ -1,5 +1,7 @@
 import { Connection, MindMapNode } from "./MindMap/MindMap"
 
+//by default flask uses port 5000, but at leat MacOS uses port 5000 for some air play stuff too
+//if you see flask app running and getting error, config to use different port here and on flask with --port flag
 const pathBase = "http://127.0.0.1:5000" //TODO: some env?
 
 const fetchData = (path: string) =>
