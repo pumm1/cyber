@@ -36,7 +36,7 @@ host = secrets['DB_HOST']
 schema = secrets['DB_SCHEMA']
 
 #Remember to update this when adding new schema update
-EXPECTED_SYSTEM_VERSION = 6
+EXPECTED_SYSTEM_VERSION = 7
 table_system_version = f'{schema}.system_version'
 
 table_characters = f'{schema}.characters'
@@ -59,3 +59,5 @@ table_gigs = f'{schema}.gigs'
 table_gig_characters = f'{schema}.gig_characters'
 table_events = f'{schema}.events'
 table_event_characters = f'{schema}.event_characters'
+table_mind_map_nodes = f'{schema}.campaign_mind_map_nodes'
+table_mind_map_node_connections = f'{schema}.mind_map_node_connections'

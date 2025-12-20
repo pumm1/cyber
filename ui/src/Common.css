@@ -2,3 +2,8 @@
     resize: both;
     max-width: 380px;
 }
+
+.small {
+    width: 180px;
+    font-size: 10px;
+}

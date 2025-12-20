@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import './Hideable.css'
 import { Button } from './Common'
+import './Hideable.css'
 
 export interface HideableProps {
     text: string

@@ -1,6 +1,7 @@
 import math
 
 import src.cyberdao as DAO
+from src.MindMap import Node, NodeConnection, MindMap
 from src.bonus import SkillBonus, handleBonuses
 from src.campaign import valid_gig_statuses, CampaignGig, CampaignEvent, Campaign
 from src.character import Character
@@ -1231,4 +1232,16 @@ def deleteGigCharacter(gigId: int, characterId: int):
 
 def deleteEventCharacter(eventId: int, characterId: int):
     DAO.deleteEventCharacter(eventId, characterId)
+
+def saveCampaignMindMap(campaign_id: int, nodes, connections):
+    DAO.updateCampaignMindMap(campaign_id, nodes, connections)
+
+def getCampaignMindMap(campaign_id: int):
+    (nodes, connections) = DAO.getCampaignMindMapNodesWithConnections(campaign_id)
+    nodes_arr = list(map(lambda n: Node(n), nodes))
+    connections_arr = list(map(lambda c: NodeConnection(c), connections))
+
+    mind_map = MindMap(nodes_arr, connections_arr)
+
+    return mind_map
 

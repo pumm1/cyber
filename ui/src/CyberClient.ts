@@ -1,3 +1,5 @@
+import { Connection, MindMapNode } from "./MindMap/MindMap"
+
 const pathBase = "http://127.0.0.1:5000" //TODO: some env?
 
 const fetchData = (path: string) =>
@@ -689,3 +691,14 @@ export const addCharacterStatus = (characterId: number, req: AddCharacterStatusR
 export const deleteCharacterStatus = (characterId: number, statusId: number) =>
     deleteDataAs<Log[]>(`${pathBase}/delete-character-status/${characterId}`, statusId)
 
+
+export interface MindMapData {
+    nodes: MindMapNode[]
+    connections: Connection[]
+}
+
+export const saveCampaignMindMap = (campaignId: number, data: MindMapData) =>
+    postDataAs<boolean>(`${pathBase}/save-campaign-mind-map/${campaignId}`, data)
+
+export const getCampaignMindMap = (campaignId: number) =>
+    fetchDataAs<MindMapData>(`${pathBase}/campaign-mind-map/${campaignId}`)

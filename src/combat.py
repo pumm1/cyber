@@ -274,10 +274,10 @@ def weaponToolResultFromReq(roll_total, weapon_type, wa, attack_range, num_of_ta
     wep = manualWeaponFromReq(weapon_type=weapon_type, rof=50, wa=wa, clip_size=50, shots_left=50, custom_range=None)
 
     if num_of_shots == 3:
-        logs = burstRoll(roll_total, attack_range=attack_range, wep=wep,
-                         skill='<manual check>', roll=0, auto_roll=True, skip_dmg_logs=True)
+        logs = burstRoll(roll_total=roll_total, roll_res=roll_total, attack_range=attack_range, wep=wep,
+                         skill='<manual check>', auto_roll=True, skip_dmg_logs=True)
     elif num_of_shots > 3:
-        logs = fullAutoRoll(roll_total, wep, '<manual check>', roll=roll_total,
+        logs = fullAutoRoll(roll_total, wep, skill='<manual check>',
                             attack_range=attack_range, num_of_targets=num_of_targets, num_of_shots=num_of_shots,
                             modifiers_total=0, auto_roll=True, skip_luck=True, skip_dmg_logs=True)
     else:

@@ -671,3 +671,22 @@ def deleteEventCharacter(id):
         return jsonify(True)
     else:
         return invalid_req()
+
+@app.route('/save-campaign-mind-map/<int:campaign_id>', methods=[post])
+def saveCampaignMindMap(campaign_id):
+    if request.method == post:
+        data = request.get_json()
+        nodes = data['nodes']
+        connections = data['connections']
+        cyberService.saveCampaignMindMap(campaign_id, nodes, connections)
+        return jsonify(True)
+    else:
+        return invalid_req()
+
+@app.route('/campaign-mind-map/<int:campaign_id>', methods=[get])
+def getCampaignMindMap(campaign_id):
+    if request.method == get:
+        res = cyberService.getCampaignMindMap(campaign_id)
+        return jsonify(res.asJson())
+    else:
+        return invalid_req()
