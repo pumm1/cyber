@@ -472,7 +472,7 @@ def advanceCombatSeq() -> list[Log]:
         notInOrder = False
         logs = log_event(logs, 'Starting combat sequence!', log_neutral)
         c = queue.pop()
-        DAO.setNextInOrder(c['character_id'], c['bonus_turns'], c['bonus_initiative'])
+        DAO.setNextInOrder(c['character_id'], c['temp_character'], c['bonus_turns'], c['bonus_initiative'])
         logs = printTurn(c['name'], logs)
 
     while notInOrder:
@@ -484,7 +484,7 @@ def advanceCombatSeq() -> list[Log]:
             notInOrder = False
 
             DAO.resetCurrentOrder()
-            DAO.setNextInOrder(next['character_id'], next['bonus_turns'], next['bonus_initiative'])
+            DAO.setNextInOrder(next['character_id'], c['temp_character'], next['bonus_turns'], next['bonus_initiative'])
             logs = printTurn(next['name'], logs)
         else:
             queue.appendleft(c)
@@ -509,19 +509,21 @@ def addToCombat(character, temp_character, initiative) -> list[Log]:
         logs = log_event(logs, 'character not found', log_neg)
     return logs
 
-def updateInitiative(character, temp_character, initiative) -> list[Log]:
+def updateInitiative(character_id, temp_character, initiative) -> list[Log]:
     logs = []
-    if character is not None or temp_character is not None:
+    character = DAO.getCharacterById(character_id)
+    print(f"..... charId: {character_id} .. tempChar: {temp_character}")
+    if (character is None) and (temp_character is None):
+        logs = log_event(logs, 'character not found', log_neg)
+    else:
         char = temp_character
         if character is not None:
             char = character.name
-            DAO.updateCharacterInitiative(character.id, None, initiative)
+            DAO.updateCharacterInitiativeById(character.id, initiative)
         else:
-            DAO.updateCharacterInitiative(None, temp_character, initiative)
+            DAO.updateCharacterInitiativeByTempCharacter(temp_character, initiative)
 
         logs = log_event(logs, f'{char} initiative updated', log_neutral)
-    else:
-        logs = log_event(logs, 'character not found', log_neg)
     return logs
 
 
@@ -530,15 +532,6 @@ def addToCombatById(id, temp_character, initiative):
         return log_event([], f"Can't have both character and temp character when adding to combat!", log_neg)
     elif id is None and temp_character is None:
         return log_event([], f"Can't be missing both character and temp character when adding to combat!", log_neg)
-    else:
-        character = DAO.getCharacterById(id)
-        return addToCombat(character, temp_character, initiative)
-
-def updateInitiative(id, temp_character, initiative):
-    if id is not None and temp_character is not None:
-        return log_event([], f"Can't have both character and temp character when updating initiative!", log_neg)
-    elif id is None and temp_character is None:
-        return log_event([], f"Can't be missing both character and temp character when updating initiative!", log_neg)
     else:
         character = DAO.getCharacterById(id)
         return addToCombat(character, temp_character, initiative)

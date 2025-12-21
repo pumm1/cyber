@@ -296,15 +296,23 @@ def addCharacterToCombat(character, temp_character, initiative):
         )
         conn.commit()
 
-def updateCharacterInitiative(character, temp_character, initiative):
+def updateCharacterInitiativeById(character_id, initiative):
     with conn.cursor() as cur:
         cur.execute(
             f"""{update} {table_combat_session}
                 SET initiative = {initiative}
-                WHERE character_id = {character} OR temp_character = '{temp_character}';"""
+                WHERE character_id = {character_id}"""
         )
         conn.commit()
 
+def updateCharacterInitiativeByTempCharacter(temp_character, initiative):
+    with conn.cursor() as cur:
+        cur.execute(
+            f"""{update} {table_combat_session}
+                SET initiative = {initiative}
+                WHERE temp_character = '{temp_character}'"""
+        )
+        conn.commit()
 
 def clearCombat():
     with conn.cursor() as cur:
@@ -331,10 +339,15 @@ def updateCombatInitiativeBonus(character_id: int, bonus: int, turns: int):
         )
 
 
-def setNextInOrder(character_id: int, curr_bonus_turns: int | None, curr_bonus_initiative: int | None):
+def setNextInOrder(character_id: int | None, temp_character: str | None, curr_bonus_turns: int | None, curr_bonus_initiative: int | None):
     with conn.cursor() as cur:
         used_bonus_turns = 'null'
         used_bonus_initiative = 'null'
+
+        field_value = f"character_id = {character_id}"
+        if character_id is None:
+            field_value = f"temp_character = '{temp_character}'"
+
         if curr_bonus_turns is not None:
             used_bonus_turns = curr_bonus_turns - 1
             if used_bonus_turns <= 0:
@@ -347,12 +360,12 @@ def setNextInOrder(character_id: int, curr_bonus_turns: int | None, curr_bonus_i
         cur.execute(
             f"""{update} {table_combat_session} 
             SET bonus_turns = {used_bonus_turns}, bonus_initiative = {used_bonus_initiative}
-            WHERE character_id = {character_id} AND bonus_turns >= 1;"""
+            WHERE {field_value} AND bonus_turns >= 1;"""
         )
 
 
         cur.execute(
-            f"""{update} {table_combat_session} SET current = {True} WHERE character_id = '{character_id}';"""
+            f"""{update} {table_combat_session} SET current = {True} WHERE {field_value};"""
         )
         conn.commit()
 

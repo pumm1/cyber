@@ -1,8 +1,9 @@
-import { Initiative, Log, addToCombat, advanceCombatSeq, clearCombatSeq, updateInitiativeBonus } from './CyberClient'
+import { Initiative, Log, UpdateInitiativeReq, addToCombat, advanceCombatSeq, clearCombatSeq, updateInitiative, updateInitiativeBonus } from './CyberClient'
 import './ListInitiative.css'
 import Hideable from './Hideable'
 import { Button } from './Common'
 import { useEffect, useState } from 'react'
+import { isNumber } from 'lodash'
 
 export interface ListInitiativeProps {
     initiatives: Initiative[]
@@ -51,6 +52,36 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById, updat
             tempCharacter,
         }).then(updateLogs)
 
+    const [initiativeMap, setInitiativeMap] = useState<Record<string | number, number>>(
+        () =>
+            Object.fromEntries(
+            initiatives.map(i => [
+                i.charId ?? i.tempCharacter,
+                i.initiative ?? 0
+            ])
+            )
+        )
+
+    useEffect(() => {
+        setInitiativeMap(
+            Object.fromEntries(
+                initiatives.map(i => [
+                    i.charId ?? i.tempCharacter,
+                    i.initiative ?? 0
+                ])
+                )
+        )
+    }, [initiatives])
+
+    const updateInitiativeValue = (key: string | number, value: number) => {
+        setInitiativeMap(prev => ({
+            ...prev,
+            [key]: value
+        }))
+    }
+
+    console.log(` >>> ${JSON.stringify(initiativeMap)}`)
+
      
     return (
         <div>
@@ -78,40 +109,63 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById, updat
                                 </tr>
                             </thead>
                             <tbody>
-                                {initiatives.map((i) => (
-                                    <tr key={i.charId ?? i.tempCharacter}>
-                                        <td>{i.name}</td>
-                                        <td>{i.condition}</td>
-                                        <td>{i.initiative}</td>
-                                        <td>
+                                {initiatives.map((i) => {
+                                    const key = i.charId ?? i.tempCharacter ?? 'INVALID' //fallback shouldn't really happen
+                                    const initiative = initiativeMap[key]
+
+                                    console.log(`..... name: ${i.name} charId: ${i.charId} ... tempCharacteR: ${i.tempCharacter} ... initiative: ${initiative}`)
+                                    
+                                    const updateInititiveReq: UpdateInitiativeReq = {
+                                      charId: i.charId,
+                                      tempCharacter: i.tempCharacter,
+                                      initiative
+                                    }
+
+
+                                    return (
+                                        <tr key={i.charId ?? i.tempCharacter}>
+                                            <td>{i.name}</td>
+                                            <td>{i.condition}</td>
+                                            <td>
                                             <input
-                                                style={{maxWidth: 60}}
                                                 type="number"
-                                                min={0}
-                                                value={i.charId ? i.bonusInitiative ?? bonusInitiatives[i.charId] : ''}
-                                                onChange={(e) => handleBonusChange(i.charId ?? -9999, e.target.value ? Number(e.target.value) : undefined)}
-                                            />
-                                        <input
-                                                style={{maxWidth: 60}}
-                                                type="number"
-                                                min={0}
-                                                value={i.charId ? i.bonusTurns ?? bonusTurns[i.charId] : ''}
-                                                onChange={(e) => handleTurnsChange(i.charId ?? -9999, e.target.value ? Number(e.target.value) : undefined)}
-                                            />
-                                            <button 
-                                                onClick={() => 
-                                                    updateInitiativeBonus({charId: i.charId, tempCharacter: i.tempCharacter, bonus: bonusInitiatives[i.charId ?? i.tempCharacter ?? ''] ?? 0, turns: bonusTurns[i.charId ?? i.tempCharacter ?? ''] ?? 0}).then(updateLogs)
+                                                value={initiative}
+                                                onChange={e =>
+                                                    updateInitiativeValue(key, Number(e.target.value))
                                                 }
-                                                disabled={i.bonusTurns === bonusTurns[i.charId ?? i.tempCharacter ?? ''] || i.bonusInitiative === bonusInitiatives[i.charId ?? i.tempCharacter ?? '']}>
-                                                Update
-                                            </button>
-                                        </td>
-                                        <td>{i.current ? "Current" : ''}</td>
-                                        <td>
-                                            <Button disabled={!i.charId} label="Show" onClick={() => setCharacterById(i.charId ?? -999999)} />
-                                        </td>
-                                    </tr>
-                                ))}
+                                            />
+                                                <Button disabled={initiative == 0} label='Update' onClick={() => updateInitiative(updateInititiveReq).then(updateLogs)}></Button>
+                                            </td>
+                                            <td>
+                                                <input
+                                                    style={{maxWidth: 60}}
+                                                    type="number"
+                                                    min={0}
+                                                    value={i.charId ? i.bonusInitiative ?? bonusInitiatives[i.charId] : ''}
+                                                    onChange={(e) => handleBonusChange(i.charId ?? -9999, e.target.value ? Number(e.target.value) : undefined)}
+                                                />
+                                            <input
+                                                    style={{maxWidth: 60}}
+                                                    type="number"
+                                                    min={0}
+                                                    value={i.charId ? i.bonusTurns ?? bonusTurns[i.charId] : ''}
+                                                    onChange={(e) => handleTurnsChange(i.charId ?? -9999, e.target.value ? Number(e.target.value) : undefined)}
+                                                />
+                                                <button 
+                                                    onClick={() => 
+                                                        updateInitiativeBonus({charId: i.charId, tempCharacter: i.tempCharacter, bonus: bonusInitiatives[i.charId ?? i.tempCharacter ?? ''] ?? 0, turns: bonusTurns[i.charId ?? i.tempCharacter ?? ''] ?? 0}).then(updateLogs)
+                                                    }
+                                                    disabled={i.bonusTurns === bonusTurns[i.charId ?? i.tempCharacter ?? ''] || i.bonusInitiative === bonusInitiatives[i.charId ?? i.tempCharacter ?? '']}>
+                                                    Update
+                                                </button>
+                                            </td>
+                                            <td>{i.current ? "Current" : ''}</td>
+                                            <td>
+                                                <Button disabled={!i.charId} label="Show" onClick={() => setCharacterById(i.charId ?? -999999)} />
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
                             </tbody>
                         </table>
                     </div>

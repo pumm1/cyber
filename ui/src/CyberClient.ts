@@ -464,7 +464,7 @@ export interface Initiative {
     charId?: number
     tempCharacter?: string
     name: string
-    initiative: number
+    initiative?: number
     condition: string
     current: boolean
     bonusTurns?: number
@@ -489,6 +489,15 @@ export interface InitiativeBonusUpdate {
     bonus: number
     turns: number
 }
+
+export interface UpdateInitiativeReq {
+    charId?: number
+    tempCharacter?: string
+    initiative: number
+}
+
+export const updateInitiative = (i: UpdateInitiativeReq) =>
+    putDataAs<Log[]>(`${pathBase}/update-initiative`, i)
 
 export const updateInitiativeBonus = (i: InitiativeBonusUpdate) => 
     putDataAs<Log[]>(`${pathBase}/update-initiative-bonus`, i)
