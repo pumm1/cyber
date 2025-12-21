@@ -502,6 +502,9 @@ export const updateInitiative = (i: UpdateInitiativeReq) =>
 export const updateInitiativeBonus = (i: InitiativeBonusUpdate) => 
     putDataAs<Log[]>(`${pathBase}/update-initiative-bonus`, i)
 
+export const dropFromCombat = (charId?: number, tempCharacter?: string) => 
+    putDataAs<Log[]>(`${pathBase}/drop-from-combat`, { charId, tempCharacter })
+
 export const advanceCombatSeq = () => 
     postDataAs<Log[]>(`${pathBase}/advance-combat-seq`, {})
 

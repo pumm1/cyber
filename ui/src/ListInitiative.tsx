@@ -1,4 +1,4 @@
-import { Initiative, Log, UpdateInitiativeReq, addToCombat, advanceCombatSeq, clearCombatSeq, updateInitiative, updateInitiativeBonus } from './CyberClient'
+import { Initiative, Log, UpdateInitiativeReq, addToCombat, advanceCombatSeq, clearCombatSeq, dropFromCombat, updateInitiative, updateInitiativeBonus } from './CyberClient'
 import './ListInitiative.css'
 import Hideable from './Hideable'
 import { Button } from './Common'
@@ -93,9 +93,9 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById, updat
                         <Button label="Update" className="updateButton" onClick={() => updateInitiatives()} />
                         <div>
                             <input type='text' value={tempCharacter} onChange={e => setTempCharacter(e.target.value)}/>
-                            <Button label="Add temp character" disabled={!tempCharacter} className="updateButton" onClick={() => addTempCharacter()} />
+                            <Button label="Add temp character" disabled={!tempCharacter} className="updateButton" onClick={() => addTempCharacter().then(() => updateInitiatives())} />
                         </div>
-                        {initiatives.length > 0 && <Button label="Advance combat" className="updateButton" onClick={() => advanceCombatSeq().then(updateInitiatives)} />}
+                        {initiatives.length > 0 && <Button disabled={!!initiatives.find(i => !i.initiative)} label="Advance combat" className="updateButton" onClick={() => advanceCombatSeq().then(updateInitiatives)} />}
                         {initiatives.length > 0 && <Button label="Clear initiatives" className="updateButton" onClick={() => clearCombatSeq().then(updateInitiatives)} />}
                         <table>
                             <thead>
@@ -106,6 +106,7 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById, updat
                                     <th>Init. Bonus + Turns</th>
                                     <th>Turn</th>
                                     <th>Select character</th>
+                                    <th>Remove</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -134,7 +135,7 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById, updat
                                                     updateInitiativeValue(key, Number(e.target.value))
                                                 }
                                             />
-                                                <Button disabled={initiative == 0} label='Update' onClick={() => updateInitiative(updateInititiveReq).then(updateLogs)}></Button>
+                                                <Button disabled={initiative == 0} label='Update' onClick={() => updateInitiative(updateInititiveReq).then(updateLogs).then(() => updateInitiatives())}></Button>
                                             </td>
                                             <td>
                                                 <input
@@ -162,6 +163,9 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById, updat
                                             <td>{i.current ? "Current" : ''}</td>
                                             <td>
                                                 <Button disabled={!i.charId} label="Show" onClick={() => setCharacterById(i.charId ?? -999999)} />
+                                            </td>
+                                            <td>
+                                                <Button label='X' onClick={() => dropFromCombat(i.charId, i.tempCharacter).then(updateLogs).then(() => updateInitiatives())}/>
                                             </td>
                                         </tr>
                                     )

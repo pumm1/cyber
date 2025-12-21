@@ -417,6 +417,17 @@ def updateInitiative():
     else:
         return invalid_req()
 
+@app.route('/drop-from-combat', methods=[put])
+def dropFromCombat():
+    if request.method == put:
+        data = request.get_json()
+        char_id = data.get('charId')
+        temp_character = data.get('tempCharacter')
+        return jsonify(game.dropFromCombat(char_id, temp_character))
+    else:
+        return invalid_req()
+
+
 @app.route('/update-initiative-bonus', methods=[put])
 def updateInitiativeBonus():
     if request.method == put:

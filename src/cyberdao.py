@@ -266,14 +266,13 @@ def listCombatInitiative(ascending: bool):
                 cs.initiative + COALESCE(cs.bonus_initiative, 0) AS total
                 FROM {table_combat_session} cs 
                 LEFT JOIN {table_characters} c ON cs.character_id = c.id
-                ORDER BY total {ordering}, c.name ASC;
+                ORDER BY total {ordering}, COALESCE(c.name, cs.temp_character) ASC;
                 """
         )
         rows = cur.fetchall()
         conn.commit()
 
         return rows
-
 
 def addCharacterToCombat(character, temp_character, initiative):
     with conn.cursor() as cur:
@@ -344,9 +343,9 @@ def setNextInOrder(character_id: int | None, temp_character: str | None, curr_bo
         used_bonus_turns = 'null'
         used_bonus_initiative = 'null'
 
-        field_value = f"character_id = {character_id}"
-        if character_id is None:
-            field_value = f"temp_character = '{temp_character}'"
+        where_field_value = f"character_id = {character_id}"
+        if temp_character is not None:
+            where_field_value = f"temp_character = '{temp_character}'"
 
         if curr_bonus_turns is not None:
             used_bonus_turns = curr_bonus_turns - 1
@@ -360,14 +359,27 @@ def setNextInOrder(character_id: int | None, temp_character: str | None, curr_bo
         cur.execute(
             f"""{update} {table_combat_session} 
             SET bonus_turns = {used_bonus_turns}, bonus_initiative = {used_bonus_initiative}
-            WHERE {field_value} AND bonus_turns >= 1;"""
+            WHERE {where_field_value} AND bonus_turns >= 1;"""
         )
 
 
         cur.execute(
-            f"""{update} {table_combat_session} SET current = {True} WHERE {field_value};"""
+            f"""{update} {table_combat_session} SET current = {True} WHERE {where_field_value};"""
         )
         conn.commit()
+
+def dropFromCombat(character_id: int | None, temp_character: str | None):
+    with conn.cursor() as cur:
+        where_field_value = f"character_id = {character_id}"
+        if temp_character is not None:
+            where_field_value = f"temp_character = '{temp_character}'"
+
+        cur.execute(
+            f"""{delete_from} {table_combat_session} 
+            WHERE {where_field_value}"""
+        )
+        conn.commit()
+
 
 
 def dmgCharacterSP(character_id, body_part):
