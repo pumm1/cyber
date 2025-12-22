@@ -1,9 +1,10 @@
-import { Initiative, Log, UpdateInitiativeReq, addToCombat, advanceCombatSeq, clearCombatSeq, dropFromCombat, updateInitiative, updateInitiativeBonus } from './CyberClient'
-import './ListInitiative.css'
+import { Initiative, Log, UpdateInitiativeReq, addTempCharactersToCombat, addToCombat, advanceCombatSeq, clearCombatSeq, dropFromCombat, updateInitiative, updateInitiativeBonus } from './CyberClient'
 import Hideable from './Hideable'
 import { Button } from './Common'
 import { useEffect, useState } from 'react'
-import { isNumber } from 'lodash'
+import { MultiLineEditor } from './MultiLineEditor'
+
+import './ListInitiative.css'
 
 export interface ListInitiativeProps {
     initiatives: Initiative[]
@@ -44,13 +45,11 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById, updat
         setBonusTurns(Object.fromEntries(initiatives.map(i => [i.charId, i.bonusTurns])));
     }, [initiatives])
 
-    const [tempCharacter, setTempCharacter] = useState('')
+    const [tempCharacters, setTempCharacters] = useState<string[]>([])
 
 
-    const addTempCharacter = () => 
-        addToCombat({
-            tempCharacter,
-        }).then(updateLogs)
+    const addTempCharacters = () => 
+        addTempCharactersToCombat(tempCharacters).then(updateLogs)
 
     const [initiativeMap, setInitiativeMap] = useState<Record<string | number, number>>(
         () =>
@@ -80,9 +79,6 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById, updat
         }))
     }
 
-    console.log(` >>> ${JSON.stringify(initiativeMap)}`)
-
-     
     return (
         <div>
             <Hideable 
@@ -91,10 +87,12 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById, updat
                     <div className="initiatives">
                         Initiatives
                         <Button label="Update" className="updateButton" onClick={() => updateInitiatives()} />
-                        <div>
-                            <input type='text' value={tempCharacter} onChange={e => setTempCharacter(e.target.value)}/>
-                            <Button label="Add temp character" disabled={!tempCharacter} className="updateButton" onClick={() => addTempCharacter().then(() => updateInitiatives())} />
-                        </div>
+                        <Hideable text='temporary character form' props={
+                            <div>
+                                <Button label={`Add ${tempCharacters.length} temp. character(s) to combat session`} disabled={tempCharacters.length === 0} className="updateButton" onClick={() => addTempCharacters().then(() => updateInitiatives())} />
+                                <MultiLineEditor onLinesChange={setTempCharacters}/>
+                            </div>
+                        } />
                         {initiatives.length > 0 && <Button disabled={!!initiatives.find(i => !i.initiative)} label="Advance combat" className="updateButton" onClick={() => advanceCombatSeq().then(updateInitiatives)} />}
                         {initiatives.length > 0 && <Button label="Clear initiatives" className="updateButton" onClick={() => clearCombatSeq().then(updateInitiatives)} />}
                         <table>
@@ -113,8 +111,6 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById, updat
                                 {initiatives.map((i) => {
                                     const key = i.charId ?? i.tempCharacter ?? 'INVALID' //fallback shouldn't really happen
                                     const initiative = initiativeMap[key]
-
-                                    console.log(`..... name: ${i.name} charId: ${i.charId} ... tempCharacteR: ${i.tempCharacter} ... initiative: ${initiative}`)
                                     
                                     const updateInititiveReq: UpdateInitiativeReq = {
                                       charId: i.charId,

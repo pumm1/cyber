@@ -1,0 +1,9 @@
+.editor {
+    margin: 8px 0;
+    font-family: monospace;
+    line-height: 1.3;
+    white-space: pre-wrap;
+    outline: none;
+    border: 1px solid #ccc;
+    padding: 4px;
+}

@@ -406,6 +406,16 @@ def addToCombat():
     else:
         return invalid_req()
 
+@app.route('/add-temp-characters-to-combat', methods=[post])
+def addTempCharactersToCombat():
+    if request.method == post:
+        data = request.get_json()
+        temp_characters = data['characters']
+
+        return jsonify(game.addTempCharactersToCombat(temp_characters))
+    else:
+        return invalid_req()
+
 @app.route('/update-initiative', methods=[put])
 def updateInitiative():
     if request.method == put:

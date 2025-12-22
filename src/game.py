@@ -554,6 +554,11 @@ def addToCombatByName(name, initiative):
     character = DAO.getCharacterByName(name)
     return addToCombat(character, initiative)
 
+def addTempCharactersToCombat(characters: list[str]) -> list[Log]:
+    for character in characters:
+        addToCombat(None, character, None)
+    return log_event([], f"{len(characters)} characters added to combat", log_neutral)
+
 
 def deleteCharacter(character_id) -> list[Log]:
     logs = []
