@@ -1,3 +1,4 @@
+-- ${flyway:timestamp}
 --modify depending on your setup and users
 SELECT 'Running Grant access';
 grant select on all tables in schema cyberpunk to cyber;
