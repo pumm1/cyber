@@ -67,6 +67,7 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 - In your browser go to `localhost:3000` to use the UI
 - To stop the app, run `docker-compose stop` (to keep the data in your current container)
 - To restart the app, run `docker-compose start`
+- If new updates come in, keep the container with existing data up to date with `docker compose up -d`
 - OPTIONAL:
   - `.env` file is included, but these settings can be updated
   - If changes are done, check at least `serets_docker.json` to have all settings matching
