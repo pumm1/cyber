@@ -36,7 +36,7 @@ host = secrets['DB_HOST']
 schema = secrets['DB_SCHEMA']
 
 #Remember to update this when adding new schema update
-EXPECTED_SYSTEM_VERSION = 7
+EXPECTED_SYSTEM_VERSION = 8
 table_system_version = f'{schema}.system_version'
 
 table_characters = f'{schema}.characters'

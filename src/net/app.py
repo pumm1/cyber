@@ -398,12 +398,45 @@ def initiativeOrder():
 def addToCombat():
     if request.method == post:
         data = request.get_json()
-        char_id = data['charId']
-        initiative = data['initiative']
+        char_id = data.get('charId')
+        temp_character = data.get('tempCharacter')
+        initiative = data.get('initiative')
 
-        return jsonify(game.addToCombatByid(char_id, initiative))
+        return jsonify(game.addToCombatById(char_id, temp_character, initiative))
     else:
         return invalid_req()
+
+@app.route('/add-temp-characters-to-combat', methods=[post])
+def addTempCharactersToCombat():
+    if request.method == post:
+        data = request.get_json()
+        temp_characters = data['characters']
+
+        return jsonify(game.addTempCharactersToCombat(temp_characters))
+    else:
+        return invalid_req()
+
+@app.route('/update-initiative', methods=[put])
+def updateInitiative():
+    if request.method == put:
+        data = request.get_json()
+        char_id = data.get('charId')
+        temp_character = data.get('tempCharacter')
+        initiative = data.get('initiative')
+        return jsonify(game.updateInitiative(char_id, temp_character, initiative))
+    else:
+        return invalid_req()
+
+@app.route('/drop-from-combat', methods=[put])
+def dropFromCombat():
+    if request.method == put:
+        data = request.get_json()
+        char_id = data.get('charId')
+        temp_character = data.get('tempCharacter')
+        return jsonify(game.dropFromCombat(char_id, temp_character))
+    else:
+        return invalid_req()
+
 
 @app.route('/update-initiative-bonus', methods=[put])
 def updateInitiativeBonus():

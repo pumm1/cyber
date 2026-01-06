@@ -461,9 +461,10 @@ export const removeArmor = (r: RemoveArmorReq) =>
 
 
 export interface Initiative {
-    charId: number
+    charId?: number
+    tempCharacter?: string
     name: string
-    initiative: number
+    initiative?: number
     condition: string
     current: boolean
     bonusTurns?: number
@@ -473,21 +474,39 @@ export interface Initiative {
 export const listInitiative = () =>
     fetchDataAs<Initiative[]>(`${pathBase}/list-initiative`)
 
-export interface AddToCombatReq extends CharacterReq {
-    initiative: number
+export interface AddToCombatReq {
+    charId?: number
+    tempCharacter?: string,
+    initiative?: number
 }
 
 export const addToCombat = (c: AddToCombatReq) =>
     postDataAs<Log[]>(`${pathBase}/add-to-combat`, c)
 
 export interface InitiativeBonusUpdate {
-    charId: number
+    charId?: number
+    tempCharacter?: string
     bonus: number
     turns: number
 }
 
+export interface UpdateInitiativeReq {
+    charId?: number
+    tempCharacter?: string
+    initiative: number
+}
+
+export const updateInitiative = (i: UpdateInitiativeReq) =>
+    putDataAs<Log[]>(`${pathBase}/update-initiative`, i)
+
 export const updateInitiativeBonus = (i: InitiativeBonusUpdate) => 
     putDataAs<Log[]>(`${pathBase}/update-initiative-bonus`, i)
+
+export const addTempCharactersToCombat = (characters: string[]) =>
+    postDataAs<Log[]>(`${pathBase}/add-temp-characters-to-combat`, {characters})
+
+export const dropFromCombat = (charId?: number, tempCharacter?: string) => 
+    putDataAs<Log[]>(`${pathBase}/drop-from-combat`, { charId, tempCharacter })
 
 export const advanceCombatSeq = () => 
     postDataAs<Log[]>(`${pathBase}/advance-combat-seq`, {})
