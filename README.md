@@ -67,6 +67,7 @@ Cyberpunk 2020 is written by Mike Pondsmith and published by R. Talsorian Games.
 - In your browser go to `localhost:3000` to use the UI
 - To stop the app, run `docker-compose stop` (to keep the data in your current container)
 - To restart the app, run `docker-compose start`
+- If new updates come in, keep the container with existing data up to date with `docker compose up -d`
 - OPTIONAL:
   - `.env` file is included, but these settings can be updated
   - If changes are done, check at least `serets_docker.json` to have all settings matching
@@ -96,14 +97,13 @@ DB_PASSWORD=cyber1
     
 * NPM for the Web UI
 
-After setting up the PSQL database, run the following migration scripts:
-  * `init.sql`
-  * `create_schema_tables.sql`
-  * `add_basic_skills.sql`
-  * `grant_access.sql`
-
-Also run all the versioned update sql-scripts in order inside `updates` 
+After setting up the PSQL database, either
+* If you have flyway on your system, run `flyway migrate` to migrate DB to be up to date (has to be run if new DB updates come in)
+Or
+* run all the versioned update sql-scripts in order inside `db/migrations` 
 directory (`V001_..`, `V002_..`, etc.)
+  * R__grant_access.sql can be run if e.g. there's error with service trying to access new table
+
 
 ## secrets.json in /src for (PSQL) db config:
 ```
