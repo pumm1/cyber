@@ -20,7 +20,7 @@ from src.skill import SkillInfo
 from src.skills import printCharSkillInfo, printSkillInfo, skillBonusForSkill, skill_athletics, \
     character_special_atr_bonus_on_skill, easy_check, average_check, difficult_check, difficultyCheckInfo, \
     very_difficult_check, nearly_impossible_check, skill_first_aid
-from src.status import status_pos, status_neutral, valid_statuses
+from src.status import status_pos, status_neutral, valid_statuses, status_neg
 from src.weapon import askReliability, askCon, askWeight, askWa, askRof, askForChrome, rangeByType, askWeaponType
 
 
@@ -122,6 +122,11 @@ def handleHumanity(char, humanity_cost=None) -> (int, list[Log]):
     curr_hum = char.humanity
     t_hum = curr_hum - humanity_cost
     emp = math.ceil(t_hum / 10)
+    if (t_hum <= 5):
+        addStatus(char.id, f"Cyberpsychosis", f"Sense of reality lost", status_neg)
+    elif t_hum <= 10:
+        addStatus(char.id, f"Close to cyberpsychosis", f"Occasionally losing sense of reality", status_neg)
+
     logs = log_event([], f'Curr emp: {char.attributes[EMP]} - new emp: {emp}', log_neutral)
     logs = log_event(logs, f'Current humanity: {curr_hum} - new humanity: {t_hum}', log_neg)
     DAO.changeHumanityAndEmp(char.id, t_hum, emp)
@@ -717,6 +722,19 @@ def handleApHit(character: Character, dmg, body_part, logs) -> list[Log]:
         logs = damageCharacter(character, dmg_done, body_part, logs=logs)
     return logs
 
+body_part_names: dict = {
+    body_part_r_leg: 'right leg',
+    body_part_l_leg: 'left left',
+    body_part_r_arm: 'right arm',
+    body_part_l_arm: 'left arm'
+}
+
+def get_body_part_name(part: str):
+    name = body_part_names.get(part)
+    if name is not None:
+        return name
+    else:
+        return part
 
 def damageCharacter(c: Character, dmg, body_part, logs: list[Log] = []) -> list[Log]:
     (total_dmg, body_part_destroyed) = resolveDmgDoneToCharacter(dmg, c.bodyTypeModifier)
@@ -726,6 +744,8 @@ def damageCharacter(c: Character, dmg, body_part, logs: list[Log] = []) -> list[
         updated_character = DAO.getCharacterById(c.id)
         if body_part_destroyed:
             logs = log_event(logs, f"Body part hit ({body_part}) is badly damaged/destroyed!", log_neg)
+            part_name = get_body_part_name(body_part)
+            addStatus(c.id, f"{part_name} destroyed", f"Can not use limb until fixed", status_neg)
 
         if updated_character.dmg_taken >= max_health:
             logs = log_event(logs, f'{c.name} has flatlined', log_neg)

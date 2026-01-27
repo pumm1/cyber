@@ -1067,7 +1067,7 @@ const SaveAndHealthRow = ({character, updateCharacter, updateLogs, edit, randomi
 
     useEffect(() => {
         updateCharacterBTM(character.attributes.BODY)
-    }, [character.attributes.BODY])
+    }, [character.attributes.BODY, updateCharacterBTM])
 
 
     return(

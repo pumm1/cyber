@@ -1,4 +1,4 @@
-import { Initiative, Log, UpdateInitiativeReq, addTempCharactersToCombat, addToCombat, advanceCombatSeq, clearCombatSeq, dropFromCombat, updateInitiative, updateInitiativeBonus } from './CyberClient'
+import { Initiative, Log, UpdateInitiativeReq, addTempCharactersToCombat, advanceCombatSeq, clearCombatSeq, dropFromCombat, updateInitiative, updateInitiativeBonus } from './CyberClient'
 import Hideable from './Hideable'
 import { Button } from './Common'
 import { useEffect, useState } from 'react'
@@ -131,7 +131,7 @@ const ListInitiative = ({initiatives, updateInitiatives, setCharacterById, updat
                                                     updateInitiativeValue(key, Number(e.target.value))
                                                 }
                                             />
-                                                <Button disabled={initiative == 0} label='Update' onClick={() => updateInitiative(updateInititiveReq).then(updateLogs).then(() => updateInitiatives())}></Button>
+                                                <Button disabled={initiative === 0} label='Update' onClick={() => updateInitiative(updateInititiveReq).then(updateLogs).then(() => updateInitiatives())}></Button>
                                             </td>
                                             <td>
                                                 <input
